@@ -11,5 +11,18 @@
 // GO AFTER THE REQUIRES BELOW.
 //
 //= require jquery
-//= require jquery_ujs
-//= require_tree .
+//= require lib/underscore
+//= require lib/backbone
+//= require lib/marionette
+//= require handlebars
+//
+// Next we load in the application that creates the name space window.AddressBook
+//= require notable
+//
+// Now we can simply do require_tree for the rest of the classes
+//= require_tree ./models
+//= require_tree ./collections
+//= require_tree ./routers
+//= require_tree ./views
+//= require_tree ./templates
+//= require_tree ./controllers
