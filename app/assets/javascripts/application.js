@@ -17,7 +17,7 @@
 //= require handlebars
 //
 // Next we load in the application that creates the name space window.AddressBook
-//= require notable
+//= require app
 //
 // Now we can simply do require_tree for the rest of the classes
 //= require_tree ./models
