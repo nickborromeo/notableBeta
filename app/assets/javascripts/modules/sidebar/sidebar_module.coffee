@@ -1,1 +1,1 @@
-console.log "Here's a sidebar!"
+sidebarmodule = "something"

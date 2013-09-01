@@ -1,5 +1,5 @@
 @Notable = do (Backbone, Marionette) ->
-	#create the application root object
+	#  Create application root object and default regions
 	App = new Marionette.Application
 
 	App.addRegions
@@ -8,15 +8,20 @@
 		sidebarRegion: "#sidebar-region"
 		footerRegion: "#footer-region"
 
-	# run more stuff here if you want to
+	# Run BEFORE/DURING/AFTER initializers
 	App.on "initialize:before", ->
+
+	App.addInitializer ->
+		# App.module("HeaderModule").start()
+		App.module("FooterModule").start()
 
 	App.on "initialize:after", ->
 		if Backbone.history
 			Backbone.history.start()
 			# {pushState:true} 
+
 	App
 
-# $ ->
-# 	Notable.start(options)
-# 	App.start(options)
+$ ->
+	Notable.start()
+	# {options}

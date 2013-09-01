@@ -1,1 +1,1 @@
-console.log "Here's a main thing!"
+mainmodule = "something"

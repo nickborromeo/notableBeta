@@ -1,3 +1,3 @@
-@Notable.module("ShowView", (ShowView, Notable, Backbone, Marionette) ->
+@Notable.module("ShowView", (ShowView, App, Backbone, Marionette) ->
 
 )

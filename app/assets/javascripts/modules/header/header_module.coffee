@@ -1,1 +1,1 @@
-console.log "Here's a header!"
+headermodule = "something"
