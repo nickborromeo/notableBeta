@@ -18,11 +18,11 @@
 //
 // Next we load in the application that creates the name space window.AddressBook
 //= require app
+//= require_tree ./routers
+//= require_tree ./templates
 //
 // Now we can simply do require_tree for the rest of the classes
-//= require_tree ./models
-//= require_tree ./collections
-//= require_tree ./routers
-//= require_tree ./views
-//= require_tree ./templates
-//= require_tree ./controllers
+//= require_tree ./modules/header
+//= require_tree ./modules/main
+//= require_tree ./modules/footer
+//= require_tree ./modules/sidebar
