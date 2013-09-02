@@ -4,11 +4,11 @@
 
   # Public -------------------------
   API =
-  	showFooter: ->
-  		FooterModule.Show.controller.showFooter()
+  	loadDefaultFooter: ->
+  		FooterModule.Default.Controller.showFooter()
 
   # Initializers -------------------------
   FooterModule.on "start", ->
-  	API.showFooter()
+  	API.loadDefaultFooter()
   
 )

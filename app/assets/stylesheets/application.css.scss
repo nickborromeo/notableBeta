@@ -15,6 +15,13 @@
 @import "twitter/bootstrap";
 
 body {
+	height: 100%;
 	background-color: black;
 	font-family: arial, sans-serif;
+}
+
+#wrap {
+	height: auto;
+	margin: 0 auto 60px auto;
+	min-height: 100%;
 }

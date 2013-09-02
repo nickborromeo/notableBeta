@@ -12,7 +12,7 @@
 	App.on "initialize:before", ->
 
 	App.addInitializer ->
-		# App.module("HeaderModule").start()
+		App.module("HeaderModule").start()
 		App.module("FooterModule").start()
 
 	App.on "initialize:after", ->
