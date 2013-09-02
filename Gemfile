@@ -20,6 +20,8 @@ group :assets do
   gem 'coffee-rails', '~> 3.2.1'
   gem 'handlebars_assets'
   gem 'uglifier', '>= 1.0.3'
+  gem 'compass-rails'
+  gem 'bootstrap-sass-rails'
 end
 
 group :production do

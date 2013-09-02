@@ -16,10 +16,10 @@
 //= require lib/marionette
 //= require handlebars
 //
-// Next we load in the application that creates the name space window.AddressBook
-//= require app
-//= require_tree ./routers
+// Next we load in configuration and the core app object
+//= require_tree ./config
 //= require_tree ./templates
+//= require app
 //
 // Now we can simply do require_tree for the rest of the classes
 //= require_tree ./modules/header
