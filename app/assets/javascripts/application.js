@@ -16,12 +16,12 @@
 //= require lib/marionette
 //= require handlebars
 //
-// Next we load in configuration and the core app object
+// Next we load in configuration and all the core objects
 //= require_tree ./config
-//= require_tree ./templates
 //= require app
+//= require_tree ./entities
 //
-// Now we can simply do require_tree for the rest of the classes
+// Now we can simply do require_tree for all the modules
 //= require_tree ./modules/header
 //= require_tree ./modules/main
 //= require_tree ./modules/footer
