@@ -2,8 +2,16 @@
 	Default.Controller =
 
 		showHeader: ->
-			App.headerRegion.show @createHeaderView()
-		createHeaderView: ->
+			links = @getLinksCollection()
+			headerView = @createHeaderView(links)
+			App.headerRegion.show headerView
+		getLinksCollection: ->
+			new Backbone.Collection [
+				{name: "Search"}
+				{name: "Sign Out"}
+				{name: "Account"}				
+			]
+		createHeaderView: (links) ->
 			new Default.HeaderView
-
+				collection: links
 )
