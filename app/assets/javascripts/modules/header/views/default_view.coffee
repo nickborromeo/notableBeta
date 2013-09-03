@@ -1,11 +1,11 @@
 @Notable.module("HeaderModule.Default", (Default, App, Backbone, Marionette, $, _) ->
 
-	class Default.HeaderItemView extends Marionette.ItemView
-		template: "header/templates/header_item"
+	class Default.HeaderView extends Marionette.ItemView
+		template: "header/templates/default"
 		tagName: "li"
 
-	class Default.HeaderView extends Marionette.CompositeView
-		template: "header/templates/default_header"
-		itemView: Default.HeaderItemView
+	class Default.HeadersView extends Marionette.CompositeView
+		template: "header/templates/defaults"
+		itemView: Default.HeaderView
 		itemViewContainer: "ul.nav"
 )

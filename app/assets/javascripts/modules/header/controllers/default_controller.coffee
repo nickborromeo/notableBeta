@@ -12,6 +12,6 @@
 				{name: "Account"}				
 			]
 		createHeaderView: (links) ->
-			new Default.HeaderView
+			new Default.HeadersView
 				collection: links
 )
