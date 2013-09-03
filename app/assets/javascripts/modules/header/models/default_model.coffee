@@ -5,15 +5,10 @@
 	class Default.Headers extends Backbone.Collection
 		model: Default.Header
 
-	API =
-		getHeaders: ->
-			new Default.Headers [
-				{name: "Search"}
-				{name: "Sign Out"}
-				{name: "Account"}				
-			]
-
-	App.reqres.setHandler("headerLinks", ->
-		API.getHeaders()
-	)
+	Default.links = new Default.Headers [
+		{name: "Search"}
+		{name: "Sign Out"}
+		{name: "Account"}				
+	]
+	
 )
