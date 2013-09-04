@@ -11,7 +11,7 @@ Notable::Application.routes.draw do
   # This route can be invoked with purchase_url(:id => product.id)
 
   # Sample resource route (maps HTTP verbs to controller actions automatically):
-  #   resources :products
+  resources :users
 
   # Sample resource route with options:
   #   resources :products do
@@ -29,14 +29,6 @@ Notable::Application.routes.draw do
   #   resources :products do
   #     resources :comments, :sales
   #     resource :seller
-  #   end
-
-  # Sample resource route with more complex sub-resources
-  #   resources :products do
-  #     resources :comments
-  #     resources :sales do
-  #       get 'recent', :on => :collection
-  #     end
   #   end
 
   # Sample resource route within a namespace:
