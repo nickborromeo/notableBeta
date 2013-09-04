@@ -3,7 +3,10 @@ ruby "2.0.0"
 
 gem 'rails', '3.2.11'
 gem 'jquery-rails'
+gem 'devise'
 gem 'thin'
+gem 'rabl'
+gem 'oj'
 
 # Bundle edge Rails instead:
 # gem 'rails', :git => 'git://github.com/rails/rails.git'

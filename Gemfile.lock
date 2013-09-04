@@ -29,6 +29,7 @@ GEM
       i18n (~> 0.6)
       multi_json (~> 1.0)
     arel (3.0.2)
+    bcrypt-ruby (3.1.2)
     bootstrap-sass-rails (3.0.0.2)
       railties (>= 3.1.0)
       sass-rails (>= 3.1.0)
@@ -48,6 +49,11 @@ GEM
     compass-rails (1.0.3)
       compass (>= 0.12.2, < 0.14)
     daemons (1.1.9)
+    devise (3.0.3)
+      bcrypt-ruby (~> 3.0)
+      orm_adapter (~> 0.1)
+      railties (>= 3.2.6, < 5)
+      warden (~> 1.2.3)
     erubis (2.7.0)
     eventmachine (1.0.3)
     execjs (2.0.1)
@@ -69,10 +75,14 @@ GEM
       treetop (~> 1.4.8)
     mime-types (1.25)
     multi_json (1.7.9)
+    oj (2.1.4)
+    orm_adapter (0.4.0)
     pg (0.16.0)
     polyglot (0.3.3)
     quiet_assets (1.0.2)
       railties (>= 3.1, < 5.0)
+    rabl (0.8.6)
+      activesupport (>= 2.3.14)
     rack (1.4.5)
     rack-cache (1.2)
       rack (>= 0.4)
@@ -122,6 +132,8 @@ GEM
     uglifier (2.2.1)
       execjs (>= 0.3.0)
       multi_json (~> 1.0, >= 1.0.2)
+    warden (1.2.3)
+      rack (>= 1.0)
 
 PLATFORMS
   ruby
@@ -130,10 +142,13 @@ DEPENDENCIES
   bootstrap-sass-rails
   coffee-rails (~> 3.2.1)
   compass-rails
+  devise
   handlebars_assets
   jquery-rails
+  oj
   pg
   quiet_assets
+  rabl
   rails (= 3.2.11)
   sass-rails (~> 3.2.3)
   sqlite3
