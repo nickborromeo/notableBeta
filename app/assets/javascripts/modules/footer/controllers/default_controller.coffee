@@ -2,7 +2,8 @@
 	Default.Controller =
 
 		showFooter: ->
-			App.footerRegion.show @createFooterView()
+			footerView = @createFooterView()
+			App.footerRegion.show footerView
 		createFooterView: ->
 			new Default.FooterView
 

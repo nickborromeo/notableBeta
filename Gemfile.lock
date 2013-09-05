@@ -14,6 +14,8 @@ GEM
       rack-cache (~> 1.2)
       rack-test (~> 0.6.1)
       sprockets (~> 2.2.1)
+    active_model_serializers (0.8.1)
+      activemodel (>= 3.0)
     activemodel (3.2.11)
       activesupport (= 3.2.11)
       builder (~> 3.0.0)
@@ -75,14 +77,11 @@ GEM
       treetop (~> 1.4.8)
     mime-types (1.25)
     multi_json (1.7.9)
-    oj (2.1.4)
     orm_adapter (0.4.0)
     pg (0.16.0)
     polyglot (0.3.3)
     quiet_assets (1.0.2)
       railties (>= 3.1, < 5.0)
-    rabl (0.8.6)
-      activesupport (>= 2.3.14)
     rack (1.4.5)
     rack-cache (1.2)
       rack (>= 0.4)
@@ -139,16 +138,15 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
+  active_model_serializers
   bootstrap-sass-rails
   coffee-rails (~> 3.2.1)
   compass-rails
   devise
   handlebars_assets
   jquery-rails
-  oj
   pg
   quiet_assets
-  rabl
   rails (= 3.2.11)
   sass-rails (~> 3.2.3)
   sqlite3

@@ -5,8 +5,7 @@ gem 'rails', '3.2.11'
 gem 'jquery-rails'
 gem 'devise'
 gem 'thin'
-gem 'rabl'
-gem 'oj'
+gem 'active_model_serializers'
 
 # Bundle edge Rails instead:
 # gem 'rails', :git => 'git://github.com/rails/rails.git'
