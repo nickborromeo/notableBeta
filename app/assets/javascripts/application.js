@@ -19,10 +19,10 @@
 // Next we load in configuration and all the core objects
 //= require_tree ./config
 //= require app
-//= require_tree ./entities
+//= require_tree ./layout
 //
 // Now we can simply do require_tree for all the modules
-//= require_tree ./modules/header
-//= require_tree ./modules/main
-//= require_tree ./modules/footer
-//= require_tree ./modules/sidebar
+//= require_tree ./modules/notes
+//= require_tree ./modules/notebooks
+//= require_tree ./modules/users
+//= require_tree ./modules/modviews

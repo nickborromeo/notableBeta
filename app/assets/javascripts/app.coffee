@@ -9,8 +9,8 @@
 		footerRegion: "#footer-region"
 
 	# Run BEFORE/DURING/AFTER initializers
-	App.on "initialize:before", (options) ->
-		console.log options.currentUser.email
+	App.on "initialize:before", ->
+		# console.log options.currentUser.email
 
 	App.addInitializer ->
 		App.module("HeaderModule").start()
@@ -24,10 +24,4 @@
 	App
 
 $ ->
-	options = 
-		currentUser: 
-			username: "tester4"
-			email: "tester4@notable.com"
-			admin: true
-
-	Notable.start(options)
+	Notable.start()
