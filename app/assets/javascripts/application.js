@@ -22,7 +22,10 @@
 //= require_tree ./layout
 //
 // Now we can simply do require_tree for all the modules
-//= require_tree ./modules/notes
-//= require_tree ./modules/notebooks
-//= require_tree ./modules/users
-//= require_tree ./modules/modviews
+//= require_tree ./modules/scaffold
+//= require_tree ./modules/note
+//= require_tree ./modules/notebook
+//= require_tree ./modules/user
+//= require_tree ./modules/feat
+//= require_tree ./modules/tag
+//= require_tree ./modules/modview

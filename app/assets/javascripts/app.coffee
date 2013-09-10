@@ -10,11 +10,11 @@
 
 	# Run BEFORE/DURING/AFTER initializers
 	App.on "initialize:before", ->
-		# console.log options.currentUser.email
+		console.log "options.currentUser.email"
 
 	App.addInitializer ->
-		App.module("HeaderModule").start()
-		App.module("FooterModule").start()
+		App.module("Scaffold").start()
+		App.module("Note").start()
 
 	App.on "initialize:after", ->
 		if Backbone.history

@@ -1,1 +1,0 @@
-mainmodule = "something"

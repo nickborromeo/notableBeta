@@ -1,1 +1,0 @@
-sidebarmodule = "something"
