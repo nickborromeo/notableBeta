@@ -37,7 +37,7 @@
   class Note.CollectionView extends Marionette.CompositeView
     itemViewContainer: "#note-list"
     template: "note/noteCollection"
-    itemView: Views.NoteModel
+    itemView: Note.ModelView
     ui:
       toggle: "#toggle-all"
 

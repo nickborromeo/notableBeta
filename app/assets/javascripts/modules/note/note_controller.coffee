@@ -1,13 +1,13 @@
 @Notable.module("Note", (Note, App, Backbone, Marionette, $, _) ->
   # Private --------------------------
   # Note.startWithParent = false
-  Note.Router = Marionette.AppRouter.extend
-    appRoutes: "*filter": "filterItems"
 
   # Public -------------------------
+	Note.Router = Marionette.AppRouter.extend
+		appRoutes:
+			"*filter": "filterItems"
 	Note.Controller = ->
 		@notes = new App.Note.Collection()
-		true
 
   _.extend Note.Controller::,
 	  start: ->
