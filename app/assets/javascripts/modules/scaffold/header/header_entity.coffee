@@ -8,7 +8,7 @@
 	Header.links = new Header.Collection [
 		{name: "Search"}
 		{name: "Sign Out"}
-		{name: "Account"}				
+		{name: "Account"}
 	]
 	
 )

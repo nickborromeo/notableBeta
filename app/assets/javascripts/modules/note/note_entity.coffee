@@ -1,7 +1,7 @@
 @Notable.module("Note", (Note, App, Backbone, Marionette, $, _) ->
 
 	class Note.Model extends Backbone.Model
-		defaults: 
+		defaults:
 			title: ""
 			subtitle: "temp subtitle"
 
@@ -9,6 +9,15 @@
 		model: Note
 		url:'/notes'
 
+		getCompleted: ->
+			@filter(@._isCompleted);
+
+		getActive: ->
+			@reject(@._isCompleted);
+
 		comparator: (note) ->
-			note.get('title')
+			note.get('created');
+
+		_isCompleted: (note) ->
+			note.isCompleted();
 )

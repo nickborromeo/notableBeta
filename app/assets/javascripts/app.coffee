@@ -1,5 +1,5 @@
 @Notable = do (Backbone, Marionette) ->
-	#  Create application root object and default regions
+	# Create application root object and default regions
 	App = new Marionette.Application
 
 	App.addRegions
@@ -13,12 +13,12 @@
 	
 	App.addInitializer ->
 		App.module("Scaffold").start()
-		# App.module("Note").start()
+		App.module("Note").start()
 
 	App.on "initialize:after", ->
 		if Backbone.history
 			Backbone.history.start()
-			# {pushState:true} 
+			# {pushState:true}
 
 	App
 

@@ -1,20 +1,21 @@
 @Notable.module("Scaffold.Footer", (Footer, App, Backbone, Marionette, $, _) ->
-  # Private --------------------------
-  Footer.startWithParent = false
+	# Private --------------------------
+	Footer.startWithParent = false
 
-  Footer.Controller =
-    showFooter: ->
-      footerView = @createFooterView()
-      App.footerRegion.show footerView
-    createFooterView: ->
-      new Scaffold.Footer.ModelView
+	Footer.Controller =
+		showFooter: ->
+			footerView = @createFooterView()
+			App.footerRegion.show footerView
+		createFooterView: ->
+			new Scaffold.Footer.ModelView
 
-  # Public -------------------------
-  API = loadFooter: ->
-  	Footer.Controller.showFooter()
+	# Public -------------------------
+	API = loadFooter: ->
+		Footer.Controller.showFooter()
 
-  # Initializers -------------------------
-  Footer.on "start", ->
-    API.loadFooter()
-  
+	# Initializers -------------------------
+	App.Scaffold.Footer.on "start", ->
+		console.log "footer Scaffold starts as well"
+		API.loadFooter()
+	
 )
