@@ -26,11 +26,10 @@
 			noteView = new App.Note.CollectionView(collection: notes)
 			App.mainRegion.show noteView
 		toggleFooter: ->
-			App.footerRegion.$el.toggle @notes.length
+			App.footerRegion.$el.toggle @.Note.Collection.length
 		filterItems: (filter) ->
 			# App.vent.trigger "note:filter", filter.trim() or ""
-			console.log "just says a thing"
-
+			
 	# Initializers -------------------------
 	App.Note.on "start", ->
 		noteController = new Note.Controller()
