@@ -17,15 +17,6 @@
 		model: Note.Model
 		url:'/notes'
 
-		getCompleted: ->
-			@filter(@._isCompleted);
-
-		getActive: ->
-			@reject(@._isCompleted);
-
 		comparator: (note) ->
 			note.get('created');
-
-		_isCompleted: (note) ->
-			note.isCompleted();
 )
