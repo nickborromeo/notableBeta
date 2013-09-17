@@ -10,7 +10,7 @@
 
 	# Run BEFORE/DURING/AFTER initializers
 	App.on "initialize:before", ->
-	
+
 	App.addInitializer ->
 		App.module("Scaffold").start()
 		App.module("Note").start()

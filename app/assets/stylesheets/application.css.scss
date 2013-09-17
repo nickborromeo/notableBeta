@@ -14,8 +14,23 @@
 
 @import "twitter/bootstrap";
 
+html {
+	margin: 0;
+}
+
 body {
 	height: 100%;
 	background-color: black;
-	font-family: arial, sans-serif;
+	font: 14px 'Helvetica Neue', Helvetica, Arial, sans-serif;
+	line-height: 1.4em;
+	background-color: #212121;
+	color: #CACBCF;
+	width: 550px;
+	margin: 0 auto;
+	padding: 0;
+	-webkit-font-smoothing: antialiased;
+	-moz-font-smoothing: antialiased;
+	-ms-font-smoothing: antialiased;
+	-o-font-smoothing: antialiased;
+	font-smoothing: antialiased;
 }
