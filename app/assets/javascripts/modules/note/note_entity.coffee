@@ -8,10 +8,6 @@
 		initialize: ->
 			if (@.isNew())
 				@.set 'created', Date.now()
-		toggle: ->
-			@.set 'completed', !@.isCompleted()
-		isCompleted: ->
-			@.get 'completed'
 
 	class Note.Collection extends Backbone.Collection
 		model: Note.Model
