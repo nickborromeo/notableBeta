@@ -6,7 +6,7 @@
 	Note.Router = Marionette.AppRouter.extend
 		appRoutes: {}
 			# "*index": ""
-	
+
 	Note.Controller = Marionette.Controller.extend
 		initialize: (options) ->
 			@notes = new App.Note.Collection()
@@ -20,7 +20,7 @@
 		showNoteView: (notes) ->
 			noteView = new App.Note.CollectionView(collection: notes)
 			App.mainRegion.show noteView
-			
+
 	# Initializers -------------------------
 	App.Note.on "start", ->
 		noteController = new Note.Controller()
