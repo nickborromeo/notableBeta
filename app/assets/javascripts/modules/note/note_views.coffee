@@ -1,10 +1,11 @@
 @Notable.module("Note", (Note, App, Backbone, Marionette, $, _) ->
 
 	class Note.ModelView extends Marionette.ItemView
-		tagName: "li"
 		template: "note/noteModel"
+		className: "note-item"
 		ui:
 			edit: ".edit"
+			noteContent: ".noteContent"
 
 		events:
 			"click .destroy": "destroy"
@@ -15,11 +16,7 @@
 			@listenTo @model, "change", @render
 
 		onRender: ->
-			@$el.removeClass "active completed"
-			if @model.get("completed")
-				@$el.addClass "completed"
-			else
-				@$el.addClass "active"
+			@ui.noteContent.wysiwyg()
 		destroy: ->
 			@model.destroy()
 		toggle: ->
@@ -34,9 +31,8 @@
 				@model.set("title", noteText).save()
 				@$el.removeClass "editing"
 
-	class Note.CollectionView extends Marionette.CompositeView
-		itemViewContainer: "#note-list"
-		template: "note/noteCollection"
+	class Note.CollectionView extends Marionette.CollectionView
+		id: "note-list"
 		itemView: Note.ModelView
 		ui:
 			toggle: "#toggle-all"
@@ -52,7 +48,6 @@
 			reduceCompleted = (left, right) ->
 				left and right.get("completed")
 			allCompleted = @collection.reduce(reduceCompleted, true)
-			@ui.toggle.prop "checked", allCompleted
 			if @collection.length is 0
 				@$el.parent().hide()
 			else
