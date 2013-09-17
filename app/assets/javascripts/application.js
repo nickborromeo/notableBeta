@@ -14,6 +14,8 @@
 //= require lib/underscore
 //= require lib/backbone
 //= require lib/marionette
+//= require lib/wysiwyg
+//= require lib/jquery.hotkeys
 //= require handlebars
 //
 // Next we load in configuration and all the core objects
