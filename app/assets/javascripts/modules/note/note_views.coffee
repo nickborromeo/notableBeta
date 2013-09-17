@@ -8,28 +8,26 @@
 			noteContent: ".noteContent"
 
 		events:
-			"click .destroy": "destroy"
-			"dblclick label": "onEditClick"
-			"keypress .edit": "onEditKeypress"
+			"click .destroy": "deleteNote"
+			"blur .noteContent": "updateNote"
 			"click .toggle": "toggle"
 		initialize: ->
 			@listenTo @model, "change", @render
+		testEvent: ->
+			console.log "some text"
+			# ENTER_KEY = 13
+			# if e.which is ENTER_KEY
 
 		onRender: ->
 			@ui.noteContent.wysiwyg()
-		destroy: ->
+		deleteNote: ->
 			@model.destroy()
 		toggle: ->
 			@model.toggle().save()
-		onEditClick: ->
-			@$el.addClass "editing"
-			@ui.edit.focus()
-		onEditKeypress: (evt) ->
-			ENTER_KEY = 13
-			noteText = @ui.edit.val().trim()
-			if evt.which is ENTER_KEY and noteText
+		updateNote: (e) ->
+			noteText = @ui.noteContent.html().trim()
+			if noteText
 				@model.set("title", noteText).save()
-				@$el.removeClass "editing"
 
 	class Note.CollectionView extends Marionette.CollectionView
 		id: "note-list"
