@@ -1,3 +1,138 @@
-// Place all the styles related to the notes controller here.
-// They will automatically be included in application.css.
-// You can use Sass (SCSS) here: http://sass-lang.com/
+/* will probably be changed to container in the future */
+#noteapp {
+	background: #3F4045;
+	margin: 100px 0 40px 0;
+	border: 1px solid #ccc;
+	position: relative;
+	border-top-left-radius: 2px;
+	border-top-right-radius: 2px;
+	box-shadow: 0 2px 6px 0 rgba(0, 0, 0, 0.2),
+				0 25px 50px 0 rgba(0, 0, 0, 0.15);
+}
+
+/* the line that seperates the note from the checkmarks*/
+#noteapp:before {
+	content: '';
+	border-left: 1px solid #f5d6d6;
+	border-right: 1px solid #f5d6d6;
+	width: 2px;
+	position: absolute;
+	top: 0;
+	left: 56px;
+	height: 100%;
+}
+
+#noteapp input::-webkit-input-placeholder {
+	font-style: italic;
+}
+
+#noteapp input:-moz-placeholder {
+	font-style: italic;
+	color: #B8B6A3;
+}
+
+#new-note,
+.edit {
+	position: relative;
+	margin: 0;
+	width: 100%;
+	font-size: 24px;
+	font-family: inherit;
+	line-height: 1.4em;
+	border: 0;
+	outline: none;
+	color: inherit;
+	padding: 6px;
+	border: 1px solid #999;
+	box-shadow: inset 0 -1px 5px 0 rgba(0, 0, 0, 0.2);
+	-webkit-box-sizing: border-box;
+	-moz-box-sizing: border-box;
+	-ms-box-sizing: border-box;
+	-o-box-sizing: border-box;
+	box-sizing: border-box;
+	-webkit-font-smoothing: antialiased;
+	-moz-font-smoothing: antialiased;
+	-ms-font-smoothing: antialiased;
+	-o-font-smoothing: antialiased;
+	font-smoothing: antialiased;
+}
+
+#new-note {
+	padding: 16px 16px 16px 65px;
+	border: none;
+	background: rgba(0, 0, 0, 0.2);
+	z-index: 2;
+	box-shadow: none;
+}
+
+.note-item {
+	position: relative;
+	font-size: 18px;
+	line-height: 1.6em;
+	padding: 5px;
+	border-bottom: 1px dotted #ccc;
+	font-family: Tahoma, Arial, sans-serif;
+}
+
+#note-list {
+	div:last-child {
+		border-bottom: none;
+	}
+	div .save {
+	/* display: none; */
+	margin: 0 10px 5px 3px;
+	-webkit-transition: all 0.2s;
+	-moz-transition: all 0.2s;
+	-ms-transition: all 0.2s;
+	-o-transition: all 0.2s;
+	transition: all 0.2s;
+	}
+}
+
+#note-list div {
+	.destroy {
+		display: none;
+		position: absolute;
+		top: 0;
+		right: 10px;
+		bottom: 0;
+		width: 40px;
+		height: 40px;
+		margin: auto 0;
+		font-size: 22px;
+		color: #BB8585;
+		-webkit-transition: all 0.2s;
+		-moz-transition: all 0.2s;
+		-ms-transition: all 0.2s;
+		-o-transition: all 0.2s;
+		transition: all 0.2s;
+	}
+	.destroy:hover {
+		text-shadow: 0 0 1px #000,
+				0 0 10px rgba(199, 107, 107, 0.8);
+		-webkit-transform: scale(1.3);
+		-moz-transform: scale(1.3);
+		-ms-transform: scale(1.3);
+		-o-transform: scale(1.3);
+		transform: scale(1.3);
+	}
+	.destroy:after {
+		content: '✖';
+	}
+}
+
+#note-list div:hover .destroy {
+	display: block;
+}
+
+#note-list div .edit {
+	display: none;
+}
+
+#note-list div.editing:last-child {
+	margin-bottom: -1px;
+}
+
+.noteContent {
+	margin-left: 2px;
+}
