@@ -54,3 +54,7 @@ button {
 .hidden{
 	display:none;
 }
+
+div [contenteditable="true"] {
+	outline: none;
+}
