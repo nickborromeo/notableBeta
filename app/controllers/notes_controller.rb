@@ -3,7 +3,8 @@ class NotesController < ApplicationController
 
   # GET /notes.json
   def index
-    respond_with(@notes = Note.all)
+    @notes = Note.all
+    respond_with(@notes)
   end
 
   # GET /notes/1.json
