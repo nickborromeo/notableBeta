@@ -6,33 +6,31 @@
 		ui:
 			noteContent: ".noteContent"
 		events:
-			"click .destroy": "deleteNote"
+			"keypress .noteContent": "createNote"
 			"blur .noteContent": "updateNote"
+			"click .destroy": "deleteNote"
 
 		initialize: ->
-			@listenTo @model, "change", @render
+			@listenTo @model, "change:created_at", @setCursor
 		onRender: ->
 			@ui.noteContent.wysiwyg()
 
+		createNote: (e) ->
+			ENTER_KEY = 13
+			if e.which is ENTER_KEY
+				e.preventDefault()
+				newNote = @.model.collection.create
+					title: ""
+		updateNote: (e) ->
+			noteTitle = @ui.noteContent.html().trim()
+			if noteTitle
+				@model.set("title", noteTitle).save()
 		deleteNote: ->
 			@model.destroy()
-		updateNote: (e) ->
-			noteText = @ui.noteContent.html().trim()
-			if noteText
-				@model.set("title", noteText).save()
+		setCursor: (e) ->
+			@ui.noteContent.focus()
 
 	class Note.CollectionView extends Marionette.CollectionView
 		id: "note-list"
 		itemView: Note.ModelView
-
-		initialize: ->
-			@listenTo @collection, "all", @update
-		# onRender: ->
-			# ENTER_KEY = 13
-			# if e.which is ENTER_KEY
-
-	App.vent.on 'notes:filter', (filter) ->
-		filter = filter || 'all';
-		$('#noteapp').attr('class', 'filter-' + filter)
-
 )

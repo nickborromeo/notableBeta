@@ -1,7 +1,7 @@
 /* will probably be changed to container in the future */
 #noteapp {
 	background: #3F4045;
-	margin: 100px 0 40px 0;
+	margin: 50px 0 40px 0;
 	border: 1px solid #ccc;
 	position: relative;
 	border-top-left-radius: 2px;
@@ -67,7 +67,7 @@
 
 .note-item {
 	position: relative;
-	font-size: 18px;
+	font-size: 16px;
 	line-height: 1.6em;
 	padding: 5px;
 	border-bottom: 1px dotted #ccc;
@@ -80,7 +80,7 @@
 	}
 	div .save {
 	/* display: none; */
-	margin: 0 10px 5px 3px;
+	margin: 0 10px 4px 1px;
 	-webkit-transition: all 0.2s;
 	-moz-transition: all 0.2s;
 	-ms-transition: all 0.2s;
@@ -94,7 +94,7 @@
 		display: none;
 		position: absolute;
 		top: 0;
-		right: 10px;
+		right: 5px;
 		bottom: 0;
 		width: 40px;
 		height: 40px;
@@ -138,4 +138,8 @@
 	width: 85%;
 	display: inline-block;
 	outline: none;
+}
+
+.noteContent.active {
+	border: 3px solid red;
 }
