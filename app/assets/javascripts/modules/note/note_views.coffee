@@ -19,16 +19,29 @@
 			ENTER_KEY = 13
 			if e.which is ENTER_KEY
 				e.preventDefault()
-				newNote = @.model.collection.create
-					title: ""
+				sel = window.getSelection()
+				title = @model.attributes.title
+				@textBeforeCursor(sel, title)
+				@textAfterCursor(sel, title)
+				@render()
 		updateNote: (e) ->
 			noteTitle = @ui.noteContent.html().trim()
 			if noteTitle
-				@model.set("title", noteTitle).save()
+				@model.save
+					title: noteTitle
 		deleteNote: ->
 			@model.destroy()
+
 		setCursor: (e) ->
 			@ui.noteContent.focus()
+		textBeforeCursor: (sel, title) ->
+			textBefore = title.slice(0,sel.anchorOffset)
+			@model.save
+				title: textBefore
+		textAfterCursor: (sel, title) ->
+			textAfter = title.slice(sel.anchorOffset, title.length)
+			@model.collection.create
+				title: textAfter
 
 	class Note.CollectionView extends Marionette.CollectionView
 		id: "note-list"
