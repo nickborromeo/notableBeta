@@ -21,9 +21,10 @@
 				e.preventDefault()
 				sel = window.getSelection()
 				title = @model.attributes.title
-				@textBeforeCursor(sel, title)
+				# @updateNote
+				text = @textBeforeCursor(sel, title)
 				@textAfterCursor(sel, title)
-				@render()
+				@ui.noteContent.html(text)
 		updateNote: (e) ->
 			noteTitle = @ui.noteContent.html().trim()
 			if noteTitle
@@ -38,8 +39,11 @@
 			textBefore = title.slice(0,sel.anchorOffset)
 			@model.save
 				title: textBefore
+			return textBefore
 		textAfterCursor: (sel, title) ->
+			# console.log title
 			textAfter = title.slice(sel.anchorOffset, title.length)
+			# console.log textAfter
 			@model.collection.create
 				title: textAfter
 
