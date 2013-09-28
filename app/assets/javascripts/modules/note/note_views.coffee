@@ -20,16 +20,15 @@
 			if e.which is ENTER_KEY
 				e.preventDefault()
 				sel = window.getSelection()
-				title = @model.attributes.title
-				# @updateNote
+				title = @updateNote()
 				text = @textBeforeCursor(sel, title)
 				@textAfterCursor(sel, title)
 				@ui.noteContent.html(text)
-		updateNote: (e) ->
+		updateNote: ->
 			noteTitle = @ui.noteContent.html().trim()
-			if noteTitle
-				@model.save
-					title: noteTitle
+			@model.save
+				title: noteTitle
+			return noteTitle
 		deleteNote: ->
 			@model.destroy()
 
@@ -41,9 +40,7 @@
 				title: textBefore
 			return textBefore
 		textAfterCursor: (sel, title) ->
-			# console.log title
 			textAfter = title.slice(sel.anchorOffset, title.length)
-			# console.log textAfter
 			@model.collection.create
 				title: textAfter
 
