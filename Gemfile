@@ -5,13 +5,13 @@ gem 'rails', '3.2.11'
 gem 'jquery-rails'
 gem 'devise'
 gem 'thin'
+gem 'pg'
 gem 'active_model_serializers'
 
 # Bundle edge Rails instead:
 # gem 'rails', :git => 'git://github.com/rails/rails.git'
 
 group :development, :test do
-  gem 'sqlite3'
   gem 'quiet_assets', :group => :development
 end
 
@@ -28,7 +28,7 @@ group :assets do
 end
 
 group :production do
-  gem 'pg'
+  gem 'google-analytics-rails'
 end
 
 
