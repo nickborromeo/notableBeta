@@ -2,11 +2,11 @@
 
 	class Note.Model extends Backbone.Model
 		defaults:
-			title: ""
+			title: "Just type here to create a note"
 			subtitle: ""
-			parent_id: "pointer to guid"
-			rank: "3"
-			depth: "0"
+			parent_id: "root"
+			rank: 1
+			depth: 0
 
 		initialize: ->
 			if (@.isNew())

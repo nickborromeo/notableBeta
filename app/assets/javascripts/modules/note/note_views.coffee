@@ -28,9 +28,11 @@
 			noteTitle = @ui.noteContent.html().trim()
 			@model.save
 				title: noteTitle
-			return noteTitle
+			noteTitle
 		deleteNote: ->
-			@model.destroy()
+			# decreaseRank = @decreaseRank
+			@model.destroy() # success: (model) ->
+			  # decreaseRank(model)
 
 		setCursor: (e) ->
 			@ui.noteContent.focus()
@@ -38,11 +40,30 @@
 			textBefore = title.slice(0,sel.anchorOffset)
 			@model.save
 				title: textBefore
-			return textBefore
+			textBefore
 		textAfterCursor: (sel, title) ->
 			textAfter = title.slice(sel.anchorOffset, title.length)
+			rank = @generateRank()
+			@increaseRank(rank)
 			@model.collection.create
 				title: textAfter
+				rank: rank
+
+		generateRank: ->
+			rank = @model.attributes.rank + 1
+		increaseRank: (addedRank) ->
+			@model.collection.each (note) ->
+				existingRank = note.attributes.rank
+				if addedRank <= existingRank
+					note.save
+						rank: ++existingRank
+		decreaseRank: (model) ->
+			rank = model.attributes.rank
+			model.collection.each (note) ->
+				existingRank = note.attributes.rank
+				if deletedRank <= existingRank
+					note.save
+						rank: --existingRank
 
 	class Note.CollectionView extends Marionette.CollectionView
 		id: "note-list"
