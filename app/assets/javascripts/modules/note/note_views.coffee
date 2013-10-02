@@ -30,9 +30,15 @@
 				title: noteTitle
 			noteTitle
 		deleteNote: ->
-			# decreaseRank = @decreaseRank
-			@model.destroy() # success: (model) ->
-			  # decreaseRank(model)
+			# When model is destroyed, it seems like it loses the collection reference
+			# So we save it before going on and encapsulate everything in a closure
+			# that will act as our callback function
+			# The fat arrow (=>) preserve the context (so @decreaseRank ref to the right function in cb)
+			collection = @model.collection
+			cb = =>
+				@decreaseRank @model.attributes.rank, collection
+			@model.destroy
+				success: cb
 
 		setCursor: (e) ->
 			@ui.noteContent.focus()
@@ -44,7 +50,7 @@
 		textAfterCursor: (sel, title) ->
 			textAfter = title.slice(sel.anchorOffset, title.length)
 			rank = @generateRank()
-			@increaseRank(rank)
+			@increaseRank(rank) 
 			@model.collection.create
 				title: textAfter
 				rank: rank
@@ -57,15 +63,17 @@
 				if addedRank <= existingRank
 					note.save
 						rank: ++existingRank
-		decreaseRank: (model) ->
-			rank = model.attributes.rank
-			model.collection.each (note) ->
-				existingRank = note.attributes.rank
-				if deletedRank <= existingRank
-					note.save
-						rank: --existingRank
+
+		# Kept your logic here, but model.collection was undefined
+		# which caused the function to bug.
+		decreaseRank: (deletedRank, collection) ->
+				collection.each (note) ->
+					existingRank = note.attributes.rank
+					if deletedRank <= existingRank
+						note.save
+							rank: --existingRank
 
 	class Note.CollectionView extends Marionette.CollectionView
 		id: "note-list"
-		itemView: Note.ModelView
-)
+		itemView: Note.ModelView)
+
