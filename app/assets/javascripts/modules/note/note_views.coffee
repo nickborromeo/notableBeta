@@ -9,12 +9,10 @@
 			"keypress .noteContent": "createNote"
 			"blur .noteContent": "updateNote"
 			"click .destroy": "deleteNote"
-
 		initialize: ->
 			@listenTo @model, "change:created_at", @setCursor
 		onRender: ->
 			@ui.noteContent.wysiwyg()
-
 		createNote: (e) ->
 			ENTER_KEY = 13
 			if e.which is ENTER_KEY
@@ -37,6 +35,7 @@
 			collection = @model.collection
 			cb = =>
 				@decreaseRank @model.attributes.rank, collection
+				collection.sort()
 			@model.destroy
 				success: cb
 
@@ -75,5 +74,11 @@
 
 	class Note.CollectionView extends Marionette.CollectionView
 		id: "note-list"
-		itemView: Note.ModelView)
+		itemView: Note.ModelView
+		collectionEvents:
+			"sort" : "rerenderOrder"
+		rerenderOrder: ->
+			@render()
+
+	)
 

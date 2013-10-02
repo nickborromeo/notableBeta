@@ -3,7 +3,7 @@ class NotesController < ApplicationController
 
   # GET /notes.json
   def index
-    @notes = Note.all
+    @notes = Note.order('rank').all
     respond_with(@notes)
   end
 
