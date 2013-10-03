@@ -7,6 +7,8 @@ gem 'devise'
 gem 'thin'
 gem 'pg'
 gem 'active_model_serializers'
+gem 'bootstrap-sass-rails'
+
 
 # Bundle edge Rails instead:
 # gem 'rails', :git => 'git://github.com/rails/rails.git'
@@ -24,7 +26,6 @@ group :assets do
   gem 'handlebars_assets'
   gem 'uglifier', '>= 1.0.3'
   gem 'compass-rails'
-  gem 'bootstrap-sass-rails'
 end
 
 group :production do
