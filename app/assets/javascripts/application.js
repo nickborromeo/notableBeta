@@ -29,8 +29,4 @@
 //= require_tree ./modules/note
 //= require_tree ./modules/notebook
 //= require_tree ./modules/user
-//= require_tree ./modules/feat
-//= require_tree ./modules/tag
-//= require_tree ./modules/modview
-
 
