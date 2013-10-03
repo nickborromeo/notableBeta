@@ -26,6 +26,5 @@
 		url:'/notes'
 
 		comparator: (note) ->
-			console.log 'in comparator', note.get 'rank'
-			note.get 'rank';
+			note.get 'rank'
 )
