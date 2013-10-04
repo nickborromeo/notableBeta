@@ -4,7 +4,7 @@
 		template: "note/noteModel"
 		className: "note-item"
 		ui:
-			noteContent: ".noteContent" 
+			noteContent: ".noteContent"
 		events:
 			"keypress .noteContent": "createNote"
 			"blur .noteContent": "updateNote"
@@ -130,7 +130,7 @@
 			rank: @model.attributes.rank - 1
 			depth: @model.attributes.depth
 
-		# Search for previous note with same depth			
+		# Search for previous note with same depth
 		findParent: ->
 			current_index = @getNoteIndex()
 			searchSubset = @model.collection.models[...current_index].reverse()
