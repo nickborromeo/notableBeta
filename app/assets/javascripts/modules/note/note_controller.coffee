@@ -9,11 +9,19 @@
 
 	Note.Controller = Marionette.Controller.extend
 		initialize: (options) ->
+			@listOfNotes = new App.Note.Collection()
 			@notes = new App.Note.Collection()
+				
 		start: ->
 			@showNoteInput @notes
 			@showNoteView @notes
-			@notes.fetch()
+			keepOnlyParents = (notes) =>
+				keep = @keepOnlyParents.bind(this)
+				notes.each keep
+			@listOfNotes.fetch success: keepOnlyParents
+		keepOnlyParents: (note) ->
+			@notes.add(note) #if note.get('parent_id') is 'root'
+
 		showNoteInput: (notes) ->
 			noteInput = new App.Note.Input(collection: notes)
 			App.headerRegion.show noteInput

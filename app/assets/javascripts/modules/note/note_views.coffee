@@ -78,12 +78,11 @@
 			_.find(@model.collection.models, searchFn)
 
 		makeIndent: ->
-			do (space = '', depth = @model.get('depth')) ->
-				rec = ->
+			do (depth = @model.get('depth')) ->
+				rec = (space = '') ->
 					return space if depth < 1
-					space += '|---'
 					--depth
-					rec()
+					rec(space + '|---')
 				rec()
 		indent: ->
 			@model.attributes.indent = @makeIndent()
@@ -167,14 +166,24 @@
 		# 		@getParentGuid col[0...-1]
 		# isSameNote: (note) ->
 		# 	@model.attributes.guid is note.attributes.guid
-		
 
+	class Note.ParentView extends Marionette.CollectionView
+		id: "still-thinking"
+		itemView: Note.ModelView
+		
 
 	class Note.CollectionView extends Marionette.CollectionView
 		id: "note-list"
 		itemView: Note.ModelView
 		initialize: ->
 			@listenTo @collection, "sort", @render
+	
+		onBeforeRender: ->
+	
+
+	class Note.CompositeView extends Marionette.CompositeView
+		id: "note-full-list"
+		itemView: Note.ModelView
 
 	# 		@test()
 
