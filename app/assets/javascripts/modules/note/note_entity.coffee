@@ -139,6 +139,7 @@
 		findNestedParent: (note) ->
 			(@where	rank: note.get('rank') - 1)[0]
 		unTabNote: (note) ->
+			return false unless note.get('depth') > 0
 			previousParent = @search note.get 'parent_id'
 			newParent = @getCollection previousParent.get 'parent_id'
 			newParentId = previousParent.get('parent_id')
