@@ -14,10 +14,10 @@
 
 		start: ->
 			@showNoteInput @notes
-			@showNoteView @notes
 			buildTree = (notes) =>
 				_.each notes.models, (note) =>
 					@notes.add(note)
+				@showNoteView @notes
 			@listOfNotes.fetch success: buildTree
 
 		showNoteInput: (notes) ->
@@ -26,6 +26,10 @@
 		showNoteView: (notes) ->
 			noteView = new App.Note.CollectionView(collection: notes)
 			App.mainRegion.show noteView
+			# if !@shown?
+			# 	@shown = true
+			# 	noteView = new App.Note.TreeView(collection: notes)
+			# 	App.mainRegion.show noteView
 
 	# Initializers -------------------------
 	App.Note.on "start", ->

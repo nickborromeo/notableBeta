@@ -69,9 +69,20 @@
 	position: relative;
 	font-size: 16px;
 	line-height: 1.6em;
-	padding: 5px;
+	/* padding: 5px; */
 	border-bottom: 1px dotted #ccc;
 	font-family: Tahoma, Arial, sans-serif;
+}
+.note-child {
+	position: relative;
+	font-size: 16px;
+	line-height: 1.6em;
+	/* padding: 5px; */
+	font-family: Tahoma, Arial, sans-serif;
+}
+
+.note-descendants {
+	margin-left: 20px;
 }
 
 #note-list {
@@ -98,7 +109,7 @@
 		bottom: 0;
 		width: 40px;
 		height: 40px;
-		margin: auto 0;
+		/* margin: auto 0; */
 		font-size: 22px;
 		color: #BB8585;
 		-webkit-transition: all 0.2s;
@@ -135,7 +146,7 @@
 
 .noteContent {
 	margin-left: 2px;
-	width: 85%;
+	width: 60%;
 	display: inline-block;
 	outline: none;
 }
