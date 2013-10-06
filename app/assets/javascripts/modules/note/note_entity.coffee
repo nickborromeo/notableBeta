@@ -1,6 +1,7 @@
 @Notable.module("Note", (Note, App, Backbone, Marionette, $, _) ->
  
 	class Note.Model extends Backbone.Model
+		urlRoot : '/notes'
 		defaults:
 			title: "Just type here to create a note"
 			subtitle: ""
@@ -51,6 +52,10 @@
 			else @findDescendants parent_id
 		findDescendants: (pid) ->
 			@search(pid).descendants
+		findInCollection: (searchHash) ->
+			@where searchHash
+		findFirstInCollection: (searchHash) ->
+			@findInCollection(searchHash)[0]
 
 		# Search the whole tree recursively but top level
 		# returns the element maching id
@@ -90,7 +95,7 @@
 			previousColl = @getCollection parent_id
 			previousColl.modifyRankInCollection rank, toAdd
 		modifyRankInCollection: (rank, toAdd) ->
-			notesToDecrease = @filter (note) -> rank < note.get 'rank'
+			notesToDecrease = @filter (note) -> rank <= note.get('rank')
 			_.each notesToDecrease, (note) ->
 				note.save
 					rank: note.get('rank') + toAdd
@@ -124,42 +129,40 @@
 
 		tabNote: (note) ->
 			return false unless note.get('rank') > 1
-			parent = @findNestedParent note
 			previousRank = note.get 'rank'
 			previousPid = note.get 'parent_id'
-			previousParent = @getCollection previousPid
+			previousParentCollection = @getCollection previousPid
+			parent = @findNewParent previousParentCollection, previousRank
 			note.save
 				parent_id: parent.get 'id'
 				rank: parent.descendants.length + 1
 				depth: 1 + note.get 'depth'
 			@insertInTree note
-			previousParent.remove note
+			previousParentCollection.remove note
 			@decreaseRankOfFollowing previousPid, previousRank
 			@increaseDescendantsDepth note.get 'id'
-		findNestedParent: (note) ->
-			(@where	rank: note.get('rank') - 1)[0]
+		findNewParent: (parentCollection, rank) ->
+			parentCollection.findFirstInCollection rank: rank - 1
 		unTabNote: (note) ->
 			return false unless note.get('depth') > 0
 			previousParent = @search note.get 'parent_id'
-			newParent = @getCollection previousParent.get 'parent_id'
+			newParentCollection = @getCollection previousParent.get 'parent_id'
 			newParentId = previousParent.get('parent_id')
 			previousRank = note.get 'rank'
 			previousParent.descendants.remove note
+			newRank = previousParent.get('rank') + 1
+			@increaseRankOfFollowing newParentId, newRank
 			note.save
 				parent_id: newParentId
-				rank: previousParent.get('rank') + 1
+				rank: newRank
 				depth: note.get('depth') - 1
 			@insertInTree note
-			@increaseRankOfFollowing newParentId, note.get('rank')
 			@decreaseRankOfFollowing previousParent.get('id'), previousRank
 			@decreaseDescendantsDepth note.get 'id'
-
 		getNote: (id) ->
 			@search(id)
 
 		comparator: (note) ->
 			note.get 'rank'
 
-	class Note.List extends Backbone.Collection
-		model: Note.Collection
 )

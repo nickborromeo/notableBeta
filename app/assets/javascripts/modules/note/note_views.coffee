@@ -3,33 +3,31 @@
 
 	class Note.ModelView extends Marionette.CompositeView # Note.ItemViewEvents
 		template: "note/noteModel"
+		id: -> "note-item" + @model.get('id')
 		className: ->
 			if @model.get('parent_id') is 'root' then "note-item"
 			else "note-child"
 		itemViewContainer: ".note-descendants"
 		ui:
 			noteContent: ".noteContent"
-		events:
-			"keypress .noteContent": "createNote"
-			"blur .noteContent": "updateNote"
-			"click .destroy": "triggerDelete"
-			"click .tab": "triggerTabNote"
-			"click .untab": "triggerUnTabNote"
-
+		events: ->
+			id = @model.get 'id'
+			events = 
+				"keypress .noteContent": "createNote"
+				"blur .noteContent": "updateNote"
+				"click .destroy": @triggerEvent 'deleteNote'
+			events["click #tab#{id}"] = @triggerEvent 'tabNote'
+			events["click #untab#{id}"] = @triggerEvent 'unTabNote'
+			events
 		initialize: ->
 			@listenTo @model, "change:created_at", @setCursor
 			@collection = @model.descendants
-			console.log @className()
-			
+			@listenTo @collection, "sort", @render
 		onRender: ->
 			@ui.noteContent.wysiwyg()
 
-		triggerTabNote: ->
-			Note.eventManager.trigger 'tabNote', @model
-		triggerUnTabNote: ->
-			Note.eventManager.trigger 'unTabNote', @model
-		triggerDelete: ->
-			Note.eventManager.trigger 'deleteNote', @model
+		triggerEvent: (event) ->
+			=> Note.eventManager.trigger event, @model
 
 		createNote: (e) ->
 			ENTER_KEY = 13
