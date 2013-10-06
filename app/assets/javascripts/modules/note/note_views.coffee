@@ -11,7 +11,7 @@
 			"blur .noteContent": "updateNote"
 			"click .destroy": "triggerDelete"
 			"click .tab": "triggerTabNote"
-			"click .untab": "getListOfDescendants"
+			"click .untab": "triggerUnTabNote"
 
 		initialize: ->
 			@listenTo @model, "change:created_at", @setCursor
@@ -20,6 +20,8 @@
 
 		triggerTabNote: ->
 			Note.eventManager.trigger 'tabNote', @model
+		triggerUnTabNote: ->
+			Note.eventManager.trigger 'unTabNote', @model
 		triggerDelete: ->
 			Note.eventManager.trigger 'deleteNote', @model
 
@@ -56,11 +58,14 @@
 			@listenTo @collection, "sort", @render
 			Note.eventManager.on 'createNote', @createNote, this
 			Note.eventManager.on 'tabNote', @tabNote, this
+			Note.eventManager.on 'unTabNote', @unTabNote, this
 			Note.eventManager.on 'deleteNote', @deleteNote, this
 		createNote: (precedent, text) ->
 			@collection.createNote precedent, text
 		tabNote: (note) ->
 			@collection.tabNote note
+		unTabNote: (note) ->
+			@collection.unTabNote @collection.search 187
 		deleteNote: (note) ->
 			@collection.deleteNote note
 

@@ -159,12 +159,29 @@
 			@increaseDescendantsDepth note.get 'id'
 		findNewParent: (note) ->
 			(@where	rank: note.get('rank') - 1)[0]
+		unTabNote: (note) ->
+			previousParent = @search note.get 'parent_id'
+			newParent = @getCollection previousParent.get 'parent_id'
+			newParentId = previousParent.get('parent_id')
+			previousRank = note.get 'rank'
+			previousParent.descendants.remove note
+			note.save
+				parent_id: newParentId
+				rank: previousParent.get('rank') + 1
+				depth: note.get('depth') - 1
+			@insertInTree note
+			@increaseRankOfFollowing newParentId, note.get('rank')
+			@decreaseRankOfFollowing previousParent.get('id'), previousRank
+			@decreaseDescendantsDepth note.get 'id'
 		increaseDescendantsDepth: (pid) ->
+			@modifyDescendantsDepth pid, 1
+		decreaseDescendantsDepth: (pid) ->
+			@modifyDescendantsDepth pid, -1
+		modifyDescendantsDepth: (pid, addTo) ->
 			descendants = @getCompleteDescendantList pid
 			_.each descendants, (note) ->
 				note.save
-					depth: note.get('depth') + 1
-
+					depth: note.get('depth') + addTo
 
 		searchNote: (searchFn) ->
 			_.find(@model.collection.models, searchFn)
@@ -172,7 +189,7 @@
 		listAll: ->
 
 		getNote: (id) ->
-			deepSearch(id)
+			@search(id)
 
 		comparator: (note) ->
 			note.get 'rank'
