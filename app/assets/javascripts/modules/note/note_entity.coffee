@@ -123,6 +123,7 @@
 			note.destroy success: collToDecrease.modifyRankInCollection pid, rank, -1
 
 		tabNote: (note) ->
+			return false unless note.get('rank') > 1
 			parent = @findNestedParent note
 			previousRank = note.get 'rank'
 			previousPid = note.get 'parent_id'
