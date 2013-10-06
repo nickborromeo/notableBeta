@@ -65,7 +65,7 @@
 		tabNote: (note) ->
 			@collection.tabNote note
 		unTabNote: (note) ->
-			@collection.unTabNote @collection.search 187
+			@collection.unTabNote note
 		deleteNote: (note) ->
 			@collection.deleteNote note
 
