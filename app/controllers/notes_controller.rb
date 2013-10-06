@@ -3,7 +3,7 @@ class NotesController < ApplicationController
 
   # GET /notes.json
   def index
-    @notes = Note.order('rank').all
+    @notes = Note.order("depth").order("rank")
     respond_with(@notes)
   end
 
@@ -49,6 +49,7 @@ class NotesController < ApplicationController
         format.html { redirect_to @note, notice: 'Note was successfully updated.' }
         format.json { head :no_content }
       else
+
         format.html { render action: "edit" }
         format.json { render json: @note.errors, status: :unprocessable_entity }
       end

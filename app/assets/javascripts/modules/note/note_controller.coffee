@@ -10,17 +10,15 @@
 	Note.Controller = Marionette.Controller.extend
 		initialize: (options) ->
 			@listOfNotes = new App.Note.Collection()
-			@notes = new App.Note.Collection()
-				
+			@notes = new App.Note.Tree()	
+
 		start: ->
 			@showNoteInput @notes
 			@showNoteView @notes
-			keepOnlyParents = (notes) =>
-				keep = @keepOnlyParents.bind(this)
-				notes.each keep
-			@listOfNotes.fetch success: keepOnlyParents
-		keepOnlyParents: (note) ->
-			@notes.add(note) #if note.get('parent_id') is 'root'
+			buildTree = (notes) =>
+				_.each notes.models, (note) =>
+					@notes.add(note)
+			@listOfNotes.fetch success: buildTree
 
 		showNoteInput: (notes) ->
 			noteInput = new App.Note.Input(collection: notes)
