@@ -43,47 +43,14 @@
 			if pid is 'root' or pid is undefined then @
 			else @findDescendants pid
 			Backbone.Collection.prototype.add.call(collectionToAddTo, note, options)
-
 		insertInTree: (note, options) -> @add note, options # Alias
-
-		adjustDepth: (note, parentDepth) ->
-			if parentDepth is note.get 'depth'
-				note.save
-					depth: parentDepth + 1
-		deepAdjustDepth: (note, parentDepth) ->
-			@adjustDepth note, parentDepth
-			rec = (notes, depth) =>
-				return unless notes.length isnt 0
-				@adjustDepth _.first(notes), depth
-				_.each notes (note) =>
-					@adjustDepth note, depth
-					rec note.descendants, depth + 1
-			rec note.descendants, parentDepth + 1
-		setProperty: (elem, parent) ->
-			rank = @setRank elem, parent
-			depth = @setDepth elem, parent
-			elem.save
-				rank: rank
-				depth: depth
-		setRank: (elem, parent) ->
-			if not parent? then 1 + @length
-			else 1 + parent.descendants.length
-		setDepth: (elem, parent) ->
-			if not parent? then 0
-			else 1 + parent.get 'depth'
 
 		# returns the descendants of matching parent_id
 		getCollection: (parent_id) ->
 			if parent_id is 'root' then @
 			else @findDescendants parent_id
-
 		findDescendants: (pid) ->
 			@search(pid).descendants
-	 
-		deepEach: (fn, context, args...) ->
-			@each (note) =>
-				note.descendants.deepEach fn
-				
 
 		# Search the whole tree recursively but top level
 		# returns the element maching id
@@ -113,17 +80,8 @@
 				if current.descendants.length isnt 0
 					rec current.descendants.first(), current.descendants.rest()
 			rec descendants.first(), descendants.rest()
-			list		
-		createNote: (precedentNote, text) ->
-			@increaseRankOfFollowing precedentNote.get('parent_id'), precedentNote.get 'rank'
-			@create @generateAttributes precedentNote, text
-		generateAttributes: (precedentNote, text) ->
-			title: text
-			rank: 1 + precedentNote.get 'rank'
-			parent_id: precedentNote.get 'parent_id'
-			depth: precedentNote.get 'depth'
-		generateRank: ->
-			rank = @model.attributes.rank + 1
+			list
+
 		increaseRankOfFollowing: (parent_id, rank) ->
 			@modifyRankOfFollowing parent_id, rank, 1
 		decreaseRankOfFollowing: (parent_id, rank) ->
@@ -136,6 +94,25 @@
 			_.each notesToDecrease, (note) ->
 				note.save
 					rank: note.get('rank') + toAdd
+
+		increaseDescendantsDepth: (pid) ->
+			@modifyDescendantsDepth pid, 1
+		decreaseDescendantsDepth: (pid) ->
+			@modifyDescendantsDepth pid, -1
+		modifyDescendantsDepth: (pid, addTo) ->
+			descendants = @getCompleteDescendantList pid
+			_.each descendants, (note) ->
+				note.save
+					depth: note.get('depth') + addTo
+
+		createNote: (precedentNote, text) ->
+			@increaseRankOfFollowing precedentNote.get('parent_id'), precedentNote.get 'rank'
+			@create @generateAttributes precedentNote, text
+		generateAttributes: (precedentNote, text) ->
+			title: text
+			rank: 1 + precedentNote.get 'rank'
+			parent_id: precedentNote.get 'parent_id'
+			depth: precedentNote.get 'depth'
 		deleteNote: (note) ->
 			pid = note.get 'parent_id'
 			rank = note.get 'rank' 
@@ -146,18 +123,19 @@
 			note.destroy success: collToDecrease.modifyRankInCollection pid, rank, -1
 
 		tabNote: (note) ->
-			parent = @findNewParent note
-			previous_rank = note.get 'rank'
-			previous_parent = note.get 'parent_id'
+			parent = @findNestedParent note
+			previousRank = note.get 'rank'
+			previousPid = note.get 'parent_id'
+			previousParent = @getCollection previousPid
 			note.save
 				parent_id: parent.get 'id'
 				rank: parent.descendants.length + 1
 				depth: 1 + note.get 'depth'
 			@insertInTree note
-			@remove note
-			@decreaseRankOfFollowing previous_parent, previous_rank
+			previousParent.remove note
+			@decreaseRankOfFollowing previousPid, previousRank
 			@increaseDescendantsDepth note.get 'id'
-		findNewParent: (note) ->
+		findNestedParent: (note) ->
 			(@where	rank: note.get('rank') - 1)[0]
 		unTabNote: (note) ->
 			previousParent = @search note.get 'parent_id'
@@ -173,20 +151,6 @@
 			@increaseRankOfFollowing newParentId, note.get('rank')
 			@decreaseRankOfFollowing previousParent.get('id'), previousRank
 			@decreaseDescendantsDepth note.get 'id'
-		increaseDescendantsDepth: (pid) ->
-			@modifyDescendantsDepth pid, 1
-		decreaseDescendantsDepth: (pid) ->
-			@modifyDescendantsDepth pid, -1
-		modifyDescendantsDepth: (pid, addTo) ->
-			descendants = @getCompleteDescendantList pid
-			_.each descendants, (note) ->
-				note.save
-					depth: note.get('depth') + addTo
-
-		searchNote: (searchFn) ->
-			_.find(@model.collection.models, searchFn)
-
-		listAll: ->
 
 		getNote: (id) ->
 			@search(id)
