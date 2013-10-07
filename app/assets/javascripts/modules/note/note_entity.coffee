@@ -42,16 +42,16 @@
 			pid = note.get 'parent_id'
 			collectionToAddTo =
 			if pid is 'root' or pid is undefined then @
-			else @findDescendants pid
+			else @getDescendantCollection pid
 			Backbone.Collection.prototype.add.call(collectionToAddTo, note, options)
 		insertInTree: (note, options) -> @add note, options # Alias
 
 		# returns the descendants of matching parent_id
 		getCollection: (parent_id) ->
 			if parent_id is 'root' then @
-			else @findDescendants parent_id
-		findDescendants: (pid) ->
-			@search(pid).descendants
+			else @getDescendantCollection parent_id
+		getDescendantCollection: (pid) ->
+			@findNote(pid).descendants
 		findInCollection: (searchHash) ->
 			@where searchHash
 		findFirstInCollection: (searchHash) ->
@@ -60,21 +60,29 @@
 		# Search the whole tree recursively but top level
 		# returns the element maching id
 		# throws if fails  
-		search: (pid) ->
-			deepSearch = (id) =>
-				desc_found = false
-				searchRec = (elem, rest) ->
-					return desc_found unless !desc_found and elem?
-					if elem.get('id') is parseFloat id
-						return desc_found = elem
-					searchRec _.first(rest), _.rest rest
-					if elem.descendants.length isnt 0 and not desc_found
-						searchRec elem.descendants.first(), elem.descendants.rest()
-				searchRec @first(), @rest() # start search
-				throw "#{id} not found. Aborting" unless desc_found
-				desc_found
-			(@get(pid) || deepSearch pid) # Check in top level first, else launch deepSearch
+		findNote: (guid) ->
+			searchedNote = false
+			searchRecursively = (currentNote, rest) ->
+				return searchedNote unless !searchedNote and currentNote?
+				if currentNote.get('guid') is guid
+					return searchedNote = currentNote
+				searchRecursively _.first(rest), _.rest rest
+				if currentNote.descendants.length isnt 0 and not searchedNote
+					searchRecursively currentNote.descendants.first(), currentNote.descendants.rest()
+			searchRecursively @first(), @rest() # start search
+			throw "#{guid} not found. Aborting" unless searchedNote
+			searchedNote
+		getNote: (guid) -> @findNote(guid) # alias
 
+		# findInCollection: (guid) ->
+		# 	elemSearched = false
+		# 	@every (note) ->
+		# 		if note.get('guid') is guid
+		# 			noteSearched = note
+		# 			false # break
+		# 		else
+		# 			true # continue
+	
 		getCompleteDescendantList: (parent_id) ->
 			list = []
 			descendants = @getCollection parent_id
@@ -87,10 +95,11 @@
 			rec descendants.first(), descendants.rest()
 			list
 
-		eachFilterCollection: (parent_id, mapFunction, filterFunction = false) ->
+		forEachInFilteredCollection: (parent_id, applyFunction, filterFunction = false) ->
 			collection = @getCollection parent_id
 			filteredNotes	= collection.filter filterFunction unless !filterFunction
-			_.each filteredNotes, mapFunction, this
+			_.each filteredNotes, applyFunction, this
+
 		# Will generalize for more than one attribute
 		modifyAttributes: (attribute, note, effect) ->
 			attributeHash = {}
@@ -102,8 +111,7 @@
 		decreaseRank: (note) -> @modifyRank note, -1
 		filterFollowingNotes: (self) -> (comparingNote) ->
 			self.get('rank') <= comparingNote.get('rank') and self.get('guid') isnt comparingNote.get('guid')
-		modifyRankOfFollowing: (self, applyingFunction) ->
-			@eachFilterCollection self.get('parent_id'), applyingFunction, @filterFollowingNotes(self)
+		modifyRankOfFollowing: (self, applyingFunction) -> @forEachInFilteredCollection self.get('parent_id'), applyingFunction, @filterFollowingNotes(self)
 		increaseRankOfFollowing: (self) -> @modifyRankOfFollowing self, @increaseRank
 		decreaseRankOfFollowing: (self) -> @modifyRankOfFollowing self, @decreaseRank
 		
@@ -156,17 +164,17 @@
 			parent = @findNewParent previousParentCollection, previousRank
 			@decreaseRankOfFollowing note
 			note.save
-				parent_id: parent.get 'id'
+				parent_id: parent.get 'guid'
 				rank: parent.descendants.length + 1
 				depth: 1 + note.get 'depth'
 			@insertInTree note
 			previousParentCollection.remove note
-			@increaseDescendantsDepth note.get 'id'
+			@increaseDescendantsDepth note.get 'guid'
 		findNewParent: (parentCollection, rank) ->
 			parentCollection.findFirstInCollection rank: rank - 1
 		unTabNote: (note) ->
 			return false unless note.get('depth') > 0
-			previousParent = @search note.get 'parent_id'
+			previousParent = @getNote note.get 'parent_id'
 			newParentCollection = @getCollection previousParent.get 'parent_id'
 			newParentId = previousParent.get('parent_id')
 			previousRank = note.get 'rank'
@@ -179,9 +187,7 @@
 				rank: newRank
 				depth: note.get('depth') - 1
 			@insertInTree note
-			@decreaseDescendantsDepth note.get 'id'
-		getNote: (id) ->
-			@search(id)
+			@decreaseDescendantsDepth note.get 'guid'
 
 		comparator: (note) ->
 			note.get 'rank'
