@@ -87,18 +87,39 @@
 			rec descendants.first(), descendants.rest()
 			list
 
-		increaseRankOfFollowing: (parent_id, rank) ->
-			@modifyRankOfFollowing parent_id, rank, 1
-		decreaseRankOfFollowing: (parent_id, rank) ->
-			@modifyRankOfFollowing parent_id, rank, -1
-		modifyRankOfFollowing: (parent_id, rank, toAdd) ->
-			previousColl = @getCollection parent_id
-			previousColl.modifyRankInCollection rank, toAdd
-		modifyRankInCollection: (rank, toAdd) ->
-			notesToDecrease = @filter (note) -> rank <= note.get('rank')
-			_.each notesToDecrease, (note) ->
-				note.save
-					rank: note.get('rank') + toAdd
+		eachFilterCollection: (parent_id, mapFunction, filterFunction = false) ->
+			collection = @getCollection parent_id
+			filteredNotes	= collection.filter filterFunction unless !filterFunction
+			_.each filteredNotes, mapFunction, this
+		# Will generalize for more than one attribute
+		modifyAttributes: (attribute, note, effect) ->
+			attributeHash = {}
+			attributeHash[attribute] = note.get(attribute) + effect
+			note.save attributeHash
+
+		modifyRank: (note, effect) -> @modifyAttributes 'rank', note, effect
+		increaseRank: (note) -> @modifyRank note, 1
+		decreaseRank: (note) -> @modifyRank note, -1
+		filterFollowingNotes: (self) -> (comparingNote) ->
+			self.get('rank') <= comparingNote.get('rank') and self.get('guid') isnt comparingNote.get('guid')
+		modifyRankOfFollowing: (self, applyingFunction) ->
+			@eachFilterCollection self.get('parent_id'), applyingFunction, @filterFollowingNotes(self)
+		increaseRankOfFollowing: (self) -> @modifyRankOfFollowing self, @increaseRank
+		decreaseRankOfFollowing: (self) -> @modifyRankOfFollowing self, @decreaseRank
+		
+		# increaseRankoffFollowing (self, parent_id, rank)
+		# increaseRankofFollowing: (parent_id, rank) ->
+		# 	@modifyRankOfFollowing parent_id, rank, 1
+		# decreaseRankOfFollowing: (parent_id, rank) ->
+		# 	@modifyRankOfFollowing parent_id, rank, -1
+		# modifyRankOfFollowing: (parent_id, rank, toAdd) ->
+		# 	previousColl = @getCollection parent_id
+		# 	previousColl.modifyRankInCollection rank, toAdd
+		# modifyRankInCollection: (rank, toAdd) ->
+		# 	notesToDecrease = @filter (note) -> rank < note.get('rank')
+		# 	_.each notesToDecrease, (note) ->
+		# 		note.save
+		# 			rank: note.get('rank') + toAdd
 
 		increaseDescendantsDepth: (pid) ->
 			@modifyDescendantsDepth pid, 1
@@ -111,7 +132,7 @@
 					depth: note.get('depth') + addTo
 
 		createNote: (precedentNote, text) ->
-			@increaseRankOfFollowing precedentNote.get('parent_id'), precedentNote.get 'rank'
+			@increaseRankOfFollowing precedentNote
 			@create @generateAttributes(precedentNote, text), wait: true
 		generateAttributes: (precedentNote, text) ->
 			title: text
@@ -124,8 +145,8 @@
 			descendants = @getCompleteDescendantList note.get 'id'
 			_.each descendants, (descendant) ->
 				descendant.destroy()
-			collToDecrease = @getCollection pid
-			note.destroy success: collToDecrease.modifyRankInCollection pid, rank, -1
+			self = note
+			note.destroy success: @decreaseRankOfFollowing self
 
 		tabNote: (note) ->
 			return false unless note.get('rank') > 1
@@ -133,13 +154,13 @@
 			previousPid = note.get 'parent_id'
 			previousParentCollection = @getCollection previousPid
 			parent = @findNewParent previousParentCollection, previousRank
+			@decreaseRankOfFollowing note
 			note.save
 				parent_id: parent.get 'id'
 				rank: parent.descendants.length + 1
 				depth: 1 + note.get 'depth'
 			@insertInTree note
 			previousParentCollection.remove note
-			@decreaseRankOfFollowing previousPid, previousRank
 			@increaseDescendantsDepth note.get 'id'
 		findNewParent: (parentCollection, rank) ->
 			parentCollection.findFirstInCollection rank: rank - 1
@@ -151,13 +172,13 @@
 			previousRank = note.get 'rank'
 			previousParent.descendants.remove note
 			newRank = previousParent.get('rank') + 1
-			@increaseRankOfFollowing newParentId, newRank
+			@increaseRankOfFollowing previousParent
+			@decreaseRankOfFollowing note
 			note.save
 				parent_id: newParentId
 				rank: newRank
 				depth: note.get('depth') - 1
 			@insertInTree note
-			@decreaseRankOfFollowing previousParent.get('id'), previousRank
 			@decreaseDescendantsDepth note.get 'id'
 		getNote: (id) ->
 			@search(id)

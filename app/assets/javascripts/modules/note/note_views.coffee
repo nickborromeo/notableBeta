@@ -8,7 +8,7 @@
 			if @model.get('parent_id') is 'root' then "note-item"
 			else "note-child"
 		itemViewContainer: ".note-descendants"
-		ui: 
+		ui:
 			noteContent: ".noteContent"
 		events: ->
 			id = @model.get 'id'
@@ -20,13 +20,13 @@
 			events["click #untab#{id}"] = @triggerEvent 'unTabNote'
 			events
 		initialize: ->
-			@listenTo @model, "change:created_at", @setCursor
 			@collection = @model.descendants
+			@listenTo @model, "change:created_at", @setCursor
 			@listenTo @collection, "sort", @render
-			@listenTo @collection, "add", @triggerSetCursor
+			console.log '??'
+			# @listenTo @collection, "add", @triggerSetCursor
 			# console.log 'init', "setCursor:#{@model.get 'id'}"
-			Note.eventManager.on "setCursor#{@model.get 'id'}", @setCursor, this
-			@ui.noteContent = "#noteContent#{@model.get('id')}"
+			# Note.eventManager.on "setCursor#{@model.get 'id'}", @setCursor, this
 		onRender: ->
 			@ui.noteContent.wysiwyg()
 
@@ -52,7 +52,6 @@
 		triggerSetCursor: (model) ->
 			console.log arguments, model.get('id'), "setCursor:#{model.get 'id'}"
 			Note.eventManager.trigger "setCursor#{model.get 'id'}"
-			@setCursor()
 		setCursor: (e) ->
 			console.log 'test', @model.get('id')
 			@ui.noteContent.focus()
@@ -63,24 +62,6 @@
 			textBefore
 		textAfterCursor: (sel, title) ->
 			textAfter = title.slice(sel.anchorOffset, title.length)
-	
-	class Note.TreeView extends Marionette.CompositeView
-		template: "note/parentNote"
-
-		className: "note-list"
-		initialize: ->
-			console.log 'initialize', @collection
-
-		appendHtml: (collectionView, itemView) ->
-			collectionView.$el.empty()
-			views = []
-			if @collection?
-				views.push(new Note.ModelView({model: model})) for model in @collection.models
-				# @descedants = @model.descendants
-			console.log 'APPEND', collectionView, itemView
-			# if @model.get('parent_id') is 'root'
-			collectionView.$el.append(view.render().el) for view in views
-				# colectionView.$(".note-descendants").append(itemView.el) 
 			
 	class Note.CollectionView extends Marionette.CollectionView
 		id: "note-list"

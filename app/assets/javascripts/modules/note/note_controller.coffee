@@ -9,7 +9,7 @@
 
 	Note.Controller = Marionette.Controller.extend
 		initialize: (options) ->
-			@listOfNotes = new App.Note.Collection()
+			@allNotesByDepth = new App.Note.Collection()
 			@notes = new App.Note.Tree()	
 
 		start: ->
@@ -18,7 +18,7 @@
 				_.each notes.models, (note) =>
 					@notes.add(note)
 				@showNoteView @notes
-			@listOfNotes.fetch success: buildTree
+			@allNotesByDepth.fetch success: buildTree
 
 		showNoteInput: (notes) ->
 			noteInput = new App.Note.Input(collection: notes)
