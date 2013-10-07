@@ -100,6 +100,7 @@
 			filteredNotes	= collection.filter filterFunction unless !filterFunction
 			_.each filteredNotes, applyFunction, this
 
+
 		# Will generalize for more than one attribute
 		modifyAttributes: (attribute, note, effect) ->
 			attributeHash = {}
@@ -109,12 +110,32 @@
 		modifyRank: (note, effect) -> @modifyAttributes 'rank', note, effect
 		increaseRank: (note) -> @modifyRank note, 1
 		decreaseRank: (note) -> @modifyRank note, -1
-		filterFollowingNotes: (self) -> (comparingNote) ->
-			self.get('rank') <= comparingNote.get('rank') and self.get('guid') isnt comparingNote.get('guid')
+		filterFollowingNotes: (self) ->
+			(comparingNote) ->
+				self.get('rank') <= comparingNote.get('rank') and self.get('guid') isnt comparingNote.get('guid')
 		modifyRankOfFollowing: (self, applyingFunction) -> @forEachInFilteredCollection self.get('parent_id'), applyingFunction, @filterFollowingNotes(self)
 		increaseRankOfFollowing: (self) -> @modifyRankOfFollowing self, @increaseRank
 		decreaseRankOfFollowing: (self) -> @modifyRankOfFollowing self, @decreaseRank
-		
+
+		modifyDepth: (note, effect) -> @modifyAttributes 'depth', note, effect
+		increaseDepth: (note) -> @modifyDepth note, 1
+		decreaseDepth: (note) -> @modifyDepth note, -1
+		increaseDescendantsDepth: (pid) -> @modifyDescendantsDepth pid, @decreaseDepth
+		decreaseDescendantsDepth: (pid) -> @modifyDescendantsDepth pid, @increaseDepth
+		modifyDescendantsDepth: (pid, applyFunction) ->
+			descendants = @getCompleteDescendantList pid
+			_.each descendants, applyFunction
+
+		# increaseDescendantsDepth: (pid) ->
+		# 	@modifyDescendantsDepth pid, 1
+		# decreaseDescendantsDepth: (pid) ->
+		# 	@modifyDescendantsDepth pid, -1
+		# modifyDescendantsDepth: (pid, addTo) ->
+		# 	descendants = @getCompleteDescendantList pid
+		# 	_.each descendants, (note) ->
+		# 		note.save
+		# 			depth: note.get('depth') + addTo
+
 		# increaseRankoffFollowing (self, parent_id, rank)
 		# increaseRankofFollowing: (parent_id, rank) ->
 		# 	@modifyRankOfFollowing parent_id, rank, 1
@@ -129,16 +150,6 @@
 		# 		note.save
 		# 			rank: note.get('rank') + toAdd
 
-		increaseDescendantsDepth: (pid) ->
-			@modifyDescendantsDepth pid, 1
-		decreaseDescendantsDepth: (pid) ->
-			@modifyDescendantsDepth pid, -1
-		modifyDescendantsDepth: (pid, addTo) ->
-			descendants = @getCompleteDescendantList pid
-			_.each descendants, (note) ->
-				note.save
-					depth: note.get('depth') + addTo
-
 		createNote: (precedentNote, text) ->
 			@increaseRankOfFollowing precedentNote
 			@create @generateAttributes(precedentNote, text)
@@ -150,7 +161,7 @@
 		deleteNote: (note) ->
 			pid = note.get 'parent_id'
 			rank = note.get 'rank' 
-			descendants = @getCompleteDescendantList note.get 'id'
+			descendants = @getCompleteDescendantList note.get 'guid'
 			_.each descendants, (descendant) ->
 				descendant.destroy()
 			self = note
