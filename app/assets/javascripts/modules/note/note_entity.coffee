@@ -141,7 +141,7 @@
 
 		createNote: (precedentNote, text) ->
 			@increaseRankOfFollowing precedentNote
-			@create @generateAttributes(precedentNote, text), wait: true
+			@create @generateAttributes(precedentNote, text)
 		generateAttributes: (precedentNote, text) ->
 			title: text
 			rank: 1 + precedentNote.get 'rank'

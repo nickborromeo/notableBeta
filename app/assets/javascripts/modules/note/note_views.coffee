@@ -3,7 +3,7 @@
 
 	class Note.ModelView extends Marionette.CompositeView # Note.ItemViewEvents
 		template: "note/noteModel"
-		id: -> "note-item" + @model.get('id')
+		id: -> "note-item" + @model.get('guid')
 		className: ->
 			if @model.get('parent_id') is 'root' then "note-item"
 			else "note-child"
@@ -11,13 +11,13 @@
 		ui:
 			noteContent: ".noteContent"
 		events: ->
-			id = @model.get 'id'
+			guid = @model.get 'guid'
 			events = {}
-			events["keypress #noteContent#{id}"] = "createNote"		
-			events["blur #noteContent#{id}"] = "updateNote"
-			events["click #destroy#{id}"] = @triggerEvent 'deleteNote'
-			events["click #tab#{id}"] = @triggerEvent 'tabNote'
-			events["click #untab#{id}"] = @triggerEvent 'unTabNote'
+			events["keypress #noteContent#{guid}"] = "createNote"		
+			events["blur #noteContent#{guid}"] = "updateNote"
+			events["click #destroy#{guid}"] = @triggerEvent 'deleteNote'
+			events["click #tab#{guid}"] = @triggerEvent 'tabNote'
+			events["click #untab#{guid}"] = @triggerEvent 'unTabNote'
 			events
 		initialize: ->
 			@collection = @model.descendants
