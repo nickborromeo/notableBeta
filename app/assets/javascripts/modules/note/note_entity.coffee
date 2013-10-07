@@ -126,6 +126,9 @@
 			descendants = @getCompleteDescendantList pid
 			_.each descendants, applyFunction
 
+		moveNoteUp: (note) ->
+			return false unless note.get('rank') > 1
+
 		# increaseDescendantsDepth: (pid) ->
 		# 	@modifyDescendantsDepth pid, 1
 		# decreaseDescendantsDepth: (pid) ->
