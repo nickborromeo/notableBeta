@@ -112,7 +112,7 @@
 
 		createNote: (precedentNote, text) ->
 			@increaseRankOfFollowing precedentNote.get('parent_id'), precedentNote.get 'rank'
-			@create @generateAttributes precedentNote, text
+			@create @generateAttributes(precedentNote, text), wait: true
 		generateAttributes: (precedentNote, text) ->
 			title: text
 			rank: 1 + precedentNote.get 'rank'

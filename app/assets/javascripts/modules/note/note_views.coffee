@@ -8,14 +8,14 @@
 			if @model.get('parent_id') is 'root' then "note-item"
 			else "note-child"
 		itemViewContainer: ".note-descendants"
-		ui:
+		ui: 
 			noteContent: ".noteContent"
 		events: ->
 			id = @model.get 'id'
-			events = 
-				"keypress .noteContent": "createNote"
-				"blur .noteContent": "updateNote"
-				"click .destroy": @triggerEvent 'deleteNote'
+			events = {}
+			events["keypress #noteContent#{id}"] = "createNote"		
+			events["blur #noteContent#{id}"] = "updateNote"
+			events["click #destroy#{id}"] = @triggerEvent 'deleteNote'
 			events["click #tab#{id}"] = @triggerEvent 'tabNote'
 			events["click #untab#{id}"] = @triggerEvent 'unTabNote'
 			events
@@ -23,6 +23,10 @@
 			@listenTo @model, "change:created_at", @setCursor
 			@collection = @model.descendants
 			@listenTo @collection, "sort", @render
+			@listenTo @collection, "add", @triggerSetCursor
+			# console.log 'init', "setCursor:#{@model.get 'id'}"
+			Note.eventManager.on "setCursor#{@model.get 'id'}", @setCursor, this
+			@ui.noteContent = "#noteContent#{@model.get('id')}"
 		onRender: ->
 			@ui.noteContent.wysiwyg()
 
@@ -44,8 +48,13 @@
 			@model.save
 				title: noteTitle
 			noteTitle
- 
+
+		triggerSetCursor: (model) ->
+			console.log arguments, model.get('id'), "setCursor:#{model.get 'id'}"
+			Note.eventManager.trigger "setCursor#{model.get 'id'}"
+			@setCursor()
 		setCursor: (e) ->
+			console.log 'test', @model.get('id')
 			@ui.noteContent.focus()
 		textBeforeCursor: (sel, title) ->
 			textBefore = title.slice(0,sel.anchorOffset)
