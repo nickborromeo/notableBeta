@@ -146,9 +146,14 @@
 			currentCollection.findFirstInCollection rank: note.get('rank') + 1
 		findFollowingNote: (note) ->
 			return note.descendants.models[0] unless note.descendants.length is 0
-			followingNote = @findFollowingNoteInCollection note
-			return followingNote unless !followingNote?
-			@findFollowingNoteInCollection @getNote note.get 'parent_id'
+			followingNote = undefined
+			findFollowingRecursively = (note) =>
+				if !(followingNote = @findFollowingNoteInCollection note)? and note.get('parent_id') is 'root'
+					return undefined
+				return followingNote unless !followingNote?
+				findFollowingRecursively @getNote note.get 'parent_id'
+			findFollowingRecursively note
+			followingNote
 			# @getCompleteDescendantList(previousNote.get('guid'))[-1..][0]
 			# # unless ().descendants.length isnt 0
 			# # (@getCompleteDescendantList(note.get('parent_id')))[-1..][0]
