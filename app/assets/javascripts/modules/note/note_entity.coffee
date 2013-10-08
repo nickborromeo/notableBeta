@@ -46,6 +46,10 @@
 			Backbone.Collection.prototype.add.call(collectionToAddTo, note, options)
 		insertInTree: (note, options) -> @add note, options # Alias
 
+		removeNoteFromCollection: (collection, note) ->
+			collection.remove note
+			@decreaseRankOfFollowing note
+	
 		# returns the descendants of matching parent_id
 		getCollection: (parent_id) ->
 			if parent_id is 'root' then @
@@ -123,10 +127,10 @@
 		decreaseRankOfFollowing: (self) -> @modifyRankOfFollowing self, @decreaseRank
 
 		modifyDepth: (note, effect) -> @modifyAttributes 'depth', note, effect
-		increaseDepth: (note) -> @modifyDepth note, 1
-		decreaseDepth: (note) -> @modifyDepth note, -1
-		increaseDescendantsDepth: (pid) -> @modifyDescendantsDepth pid, @decreaseDepth
-		decreaseDescendantsDepth: (pid) -> @modifyDescendantsDepth pid, @increaseDepth
+		increaseDepth: (magnitude = 1) -> (note) => @modifyDepth note, magnitude
+		decreaseDepth: (magnitude = 1) -> (note) => @modifyDepth note, -magnitude
+		increaseDescendantsDepth: (pid, magnitude = 1) -> @modifyDescendantsDepth pid, @increaseDepth magnitude
+		decreaseDescendantsDepth: (pid, magnitude = 1) -> @modifyDescendantsDepth pid, @decreaseDepth magnitude
 		modifyDescendantsDepth: (pid, applyFunction) ->
 			descendants = @getCompleteDescendantList pid
 			_.each descendants, applyFunction
@@ -148,7 +152,8 @@
 			return note.descendants.models[0] unless note.descendants.length is 0
 			followingNote = undefined
 			findFollowingRecursively = (note) =>
-				if !(followingNote = @findFollowingNoteInCollection note)? and note.get('parent_id') is 'root'
+				if !(followingNote = @findFollowingNoteInCollection note)? and
+					 note.get('parent_id') is 'root'
 					return undefined
 				return followingNote unless !followingNote?
 				findFollowingRecursively @getNote note.get 'parent_id'
@@ -167,7 +172,24 @@
 			@increaseRank note
 			@getCollection(note.get 'parent_id').sort()
 		jumpNoteUp: (note) ->
-			@jumpNoteUpInCollection note
+			previousNote = @findPreviousNote note
+			if previousNote.get('parent_id') is note.get 'parent_id'
+				@jumpNoteUpInCollection note
+			else if (depthDifference = previousNote.get('depth') - note.get('depth')) > 0
+				@tabNote note for i in [depthDifference..1]
+			else
+				undefined
+				previousCollection = @getCollection note.get 'parent_id'
+				@removeNoteFromCollection previousCollection, note
+				@cloneNote note, previousNote
+				@insertInTree note
+				@increaseRankOfFollowing note
+				newCollection = @getCollection note.get('parent_id')
+				@decreaseDescendantsDepth note.get('guid'), Math.abs depthDifference
+				newCollection.sort()
+				note
+		# jumpNoteUp: (note) ->
+		# 	@jumpNoteUpInCollection note
 		jumpNoteDown: (note) ->
 			@jumpNoteDownInCollection note
 		jumpFocusToFollowingNote: (note) ->

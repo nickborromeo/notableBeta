@@ -51,7 +51,6 @@
 			@triggerEvent(event)()
 			# @setCursor()
 		onRender: ->
-			console.log 'onAfterRender', @model.get('id'), @ui.noteContent
 			if @ui.noteContent.length is 0 or !@ui.noteContent.focus?
 				@ui.noteContent = @.$('.noteContent:first')
 			@ui.noteContent.wysiwyg()
@@ -75,11 +74,7 @@
 				title: noteTitle
 			noteTitle
 
-		triggerSetCursor: (model) ->
-			console.log arguments, model.get('id'), "setCursor:#{model.get 'id'}"
-			Note.eventManager.trigger "setCursor#{model.get 'id'}"
 		setCursor: (e) ->
-			console.log 'test', @model.get('id'), @ui.noteContent
 			if @ui.noteContent.length is 0 or !@ui.noteContent.focus?
 				@ui.noteContent = @.$('.noteContent:first')
 				@ui.noteContent.wysiwyg()
