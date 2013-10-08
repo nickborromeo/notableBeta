@@ -154,32 +154,20 @@
 				findFollowingRecursively @getNote note.get 'parent_id'
 			findFollowingRecursively note
 			followingNote
-			# @getCompleteDescendantList(previousNote.get('guid'))[-1..][0]
-			# # unless ().descendants.length isnt 0
-			# # (@getCompleteDescendantList(note.get('parent_id')))[-1..][0]
 		jumpNoteUpInCollection: (note) ->
-			return false unless note.get('rank') > 1
-			previousNote = @findPreviousNote note
+			return undefined unless note.get('rank') > 1
+			previousNote = @findPreviousNoteInCollection note
 			@decreaseRank note
 			@increaseRank previousNote
 			@getCollection(note.get 'parent_id').sort()
 		jumpNoteDownInCollection: (note) ->
 			followingNote = @findFollowingNoteInCollection note
-			return false unless followingNote?
+			return undefined unless followingNote?
 			@decreaseRank followingNote
 			@increaseRank note
 			@getCollection(note.get 'parent_id').sort()
-
 		jumpNoteUp: (note) ->
-			previousNote = @findPreviousNote note
-			if previousNote.get('parent_id') is note.get 'parent_id'
-				@jumpNoteUpInCollection note
-			else
-				previousCollection = @getCollection note.get 'parent_id'
-				previousCollection.remove note
-				@cloneNote note, previousNote
-				@increaseRank note
-				@insertInTree note
+			@jumpNoteUpInCollection note
 		jumpNoteDown: (note) ->
 			@jumpNoteDownInCollection note
 		jumpFocusToFollowingNote: (note) ->
