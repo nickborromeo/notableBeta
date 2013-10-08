@@ -13,7 +13,7 @@
 		# itemView: Note.ModelView
 		itemViewContainer: ".note-descendants"
 		ui:
-			noteContent: ".noteContent"
+			noteContent: ".noteContent:first"
 		events: ->
 			guid = @model.get 'guid'
 			events = {}
@@ -29,6 +29,7 @@
 			@bindKeyboardShortcuts()
 			@listenTo @model, "change:created_at", @setCursor
 			@listenTo @collection, "sort", @render
+			Note.eventManager.on "setCursor:#{@model.get('guid')}", @setCursor, @
 				# @listenTo @collection, "add", @triggerSetCursor
 			# console.log 'init', "setCursor:#{@model.get 'id'}"
 			# Note.eventManager.on "setCursor#{@model.get 'id'}", @setCursor, this
@@ -38,15 +39,21 @@
 			@.$el.on 'keydown', null, 'meta+shift+backspace', @test 'deleteNote' # @deleteShortcut)
 			@.$el.on 'keydown', null, 'tab', @test 'tabNote'
 			@.$el.on 'keydown', null, 'shift+tab', @test 'unTabNote' # @untabShortcut)
-			# @.$el.on 'keydown', null, 'up', # @arrowUpShortcut)
-			# @.$el.on 'keydown', null, 'down', # @arrowDownShortcut)
+			@.$el.on 'keydown', null, 'ctrl+shift+up', @test 'jumpNoteUp'
+			@.$el.on 'keydown', null, 'ctrl+shift+down', @test 'jumpNoteDown'
+			@.$el.on 'keydown', null, 'up', @test 'jumpFocusToPreviousNote'
+			@.$el.on 'keydown', null, 'down', @test 'jumpFocusToFollowingNote'
 
 		# triggerKeyboardShortcutEvent:
 		test: (event) -> (e) =>
 			e.preventDefault()
+			e.stopPropagation()
 			@triggerEvent(event)()
-	
+			# @setCursor()
 		onRender: ->
+			console.log 'onAfterRender', @model.get('id'), @ui.noteContent
+			if @ui.noteContent.length is 0 or !@ui.noteContent.focus?
+				@ui.noteContent = @.$('.noteContent:first')
 			@ui.noteContent.wysiwyg()
 
 		triggerEvent: (event) ->
@@ -72,7 +79,10 @@
 			console.log arguments, model.get('id'), "setCursor:#{model.get 'id'}"
 			Note.eventManager.trigger "setCursor#{model.get 'id'}"
 		setCursor: (e) ->
-			console.log 'test', @model.get('id')
+			console.log 'test', @model.get('id'), @ui.noteContent
+			if @ui.noteContent.length is 0 or !@ui.noteContent.focus?
+				@ui.noteContent = @.$('.noteContent:first')
+				@ui.noteContent.wysiwyg()
 			@ui.noteContent.focus()
 		textBeforeCursor: (sel, title) ->
 			textBefore = title.slice(0,sel.anchorOffset)
@@ -91,13 +101,35 @@
 			Note.eventManager.on 'tabNote', @tabNote, this
 			Note.eventManager.on 'unTabNote', @unTabNote, this
 			Note.eventManager.on 'deleteNote', @deleteNote, this
+			Note.eventManager.on 'jumpNoteUp', @jumpNoteUp, this
+			Note.eventManager.on 'jumpNoteDown', @jumpNoteDown, this
+			Note.eventManager.on 'jumpFocusToFollowingNote', @jumpFocusToFollowingNote, @
+			Note.eventManager.on 'jumpFocusToPreviousNote', @jumpFocusToPreviousNote, @
 		createNote: (precedent, text) ->
 			@collection.createNote precedent, text
 		tabNote: (note) ->
 			@collection.tabNote note
+			Note.eventManager.trigger "setCursor:#{note.get('guid')}"
 		unTabNote: (note) ->
 			@collection.unTabNote note
+			Note.eventManager.trigger "setCursor:#{note.get('guid')}"
 		deleteNote: (note) ->
+			if !(@jumpFocusToFollowingNote note)
+				@jumpFocusToPreviousNote note
 			@collection.deleteNote note
+		jumpNoteUp: (note) ->
+			@collection.jumpNoteUp note
+			Note.eventManager.trigger "setCursor:#{note.get('guid')}"
+		jumpNoteDown: (note) ->
+			@collection.jumpNoteDown note
+			Note.eventManager.trigger "setCursor:#{note.get('guid')}"
+		jumpFocusToFollowingNote: (note) ->
+			followingNote = @collection.jumpFocusToFollowingNote note
+			return false unless followingNote?
+			Note.eventManager.trigger "setCursor:#{followingNote.get('guid')}"
+		jumpFocusToPreviousNote: (note) ->
+			previousNote = @collection.jumpFocusToPreviousNote note
+			return false unless previousNote?
+			Note.eventManager.trigger "setCursor:#{previousNote.get('guid')}"
 
 )

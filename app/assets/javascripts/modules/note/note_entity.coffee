@@ -89,9 +89,9 @@
 			rec = (current, rest) =>
 				return unless current?
 				list.push current
-				rec _.first(rest), _.rest rest
 				if current.descendants.length isnt 0
 					rec current.descendants.first(), current.descendants.rest()
+				rec _.first(rest), _.rest rest
 			rec descendants.first(), descendants.rest()
 			list
 
@@ -101,6 +101,11 @@
 			_.each filteredNotes, applyFunction, this
 
 
+		cloneNote: (noteToBeCloned, noteToClone) ->
+			attributesHash = {}
+			toCloneAttributes = ['depth', 'rank', 'parent_id']
+			attributesHash[attribute] = noteToClone.get(attribute) for attribute in toCloneAttributes
+			noteToBeCloned.save attributesHash
 		# Will generalize for more than one attribute
 		modifyAttributes: (attribute, note, effect) ->
 			attributeHash = {}
@@ -126,8 +131,56 @@
 			descendants = @getCompleteDescendantList pid
 			_.each descendants, applyFunction
 
-		moveNoteUp: (note) ->
+		findPreviousNoteInCollection: (note) ->
+			currentCollection = @getCollection note.get 'parent_id'
+			currentCollection.findFirstInCollection rank: note.get('rank') - 1
+		findPreviousNote: (note) ->
+			if note.get('rank') is 1
+				return @getNote(note.get('parent_id'))
+			previousNote = @findPreviousNoteInCollection note
+			if previousNote.descendants.length is 0
+				return previousNote
+			@getCompleteDescendantList(previousNote.get('guid'))[-1..][0]
+		findFollowingNoteInCollection: (note) ->
+			currentCollection = @getCollection note.get 'parent_id'
+			currentCollection.findFirstInCollection rank: note.get('rank') + 1
+		findFollowingNote: (note) ->
+			return note.descendants.models[0] unless note.descendants.length is 0
+			followingNote = @findFollowingNoteInCollection note
+			return followingNote unless !followingNote?
+			@findFollowingNoteInCollection @getNote note.get 'parent_id'
+			# @getCompleteDescendantList(previousNote.get('guid'))[-1..][0]
+			# # unless ().descendants.length isnt 0
+			# # (@getCompleteDescendantList(note.get('parent_id')))[-1..][0]
+		jumpNoteUpInCollection: (note) ->
 			return false unless note.get('rank') > 1
+			previousNote = @findPreviousNote note
+			@decreaseRank note
+			@increaseRank previousNote
+			@getCollection(note.get 'parent_id').sort()
+		jumpNoteDownInCollection: (note) ->
+			followingNote = @findFollowingNoteInCollection note
+			return false unless followingNote?
+			@decreaseRank followingNote
+			@increaseRank note
+			@getCollection(note.get 'parent_id').sort()
+
+		jumpNoteUp: (note) ->
+			previousNote = @findPreviousNote note
+			if previousNote.get('parent_id') is note.get 'parent_id'
+				@jumpNoteUpInCollection note
+			else
+				previousCollection = @getCollection note.get 'parent_id'
+				previousCollection.remove note
+				@cloneNote note, previousNote
+				@increaseRank note
+				@insertInTree note
+		jumpNoteDown: (note) ->
+			@jumpNoteDownInCollection note
+		jumpFocusToFollowingNote: (note) ->
+			return followingNote if (followingNote = @findFollowingNote note)?
+		jumpFocusToPreviousNote: (note) ->
+			return previousNote if (previousNote = @findPreviousNote note)?	
 
 		# increaseDescendantsDepth: (pid) ->
 		# 	@modifyDescendantsDepth pid, 1
