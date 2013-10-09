@@ -25,6 +25,8 @@
 
 		isARoot: ->
 			@get('parent_id') is 'root'
+		isInSameCollection: (note) ->
+			@get('parent_id') is note.get('parent_id')
 
 		getCompleteDescendantList: ->
 			list = []
@@ -57,23 +59,27 @@
 		decreaseRank: () -> @modifyRank -1
 
 		modifyDepth: (effect) -> @modifyAttributes 'depth', effect
-		increaseDepth: (magnitude = 1) -> () => @modifyDepth magnitude
-		decreaseDepth: (magnitude = 1) -> () => @modifyDepth -magnitude
-		increaseDescendantsDepth: (magnitude = 1) -> @modifyDescendantsDepth @increaseDepth magnitude
-		decreaseDescendantsDepth: (magnitude = 1) -> @modifyDescendantsDepth @decreaseDepth magnitude
+		increaseDepth: (magnitude = 1) -> @modifyDepth magnitude
+		decreaseDepth: (magnitude = 1) -> @modifyDepth -magnitude
+		increaseDescendantsDepth: (magnitude = 1) -> @modifyDescendantsDepth increaseDepthOfNote magnitude
+		decreaseDescendantsDepth: (magnitude = 1) -> @modifyDescendantsDepth decreaseDepthOfNote magnitude
 		modifyDescendantsDepth: (applyFunction) ->
 			descendants = @getCompleteDescendantList()
 			_.each descendants, applyFunction
 
+	# Static Function
 	Note.Model.generateAttributes = (precedentNote, text) ->
 		title: text
 		rank: 1 + precedentNote.get 'rank'
 		parent_id: precedentNote.get 'parent_id'
 		depth: precedentNote.get 'depth'
 
+	# Helper Functions (to be moved)
 	# For use as a higher order function
-	Note.Model.increaseRankOfNote = (note) -> note.increaseRank()
-	Note.Model.decreaseRankOfNote = (note) -> note.decreaseRank()
+	increaseRankOfNote = (note) -> note.increaseRank()
+	decreaseRankOfNote = (note) -> note.decreaseRank()
+	increaseDepthOfNote = (magnitude = 1) -> (note) -> note.increaseDepth(magnitude)
+	decreaseDepthOfNote = (magnitude = 1) -> (note) -> note.decreaseDepth(magnitude)
 
 	# class Note.child extends Note.Model	
 	class Note.Collection extends Backbone.Collection
@@ -157,8 +163,8 @@
 			(comparingNote) ->
 				self.get('rank') <= comparingNote.get('rank') and self.get('guid') isnt comparingNote.get('guid')
 		modifyRankOfFollowing: (self, applyingFunction) -> @forEachInFilteredCollection self.get('parent_id'), applyingFunction, @filterFollowingNotes(self)
-		increaseRankOfFollowing: (self) -> @modifyRankOfFollowing self, Note.Model.increaseRankOfNote
-		decreaseRankOfFollowing: (self) -> @modifyRankOfFollowing self, Note.Model.decreaseRankOfNote
+		increaseRankOfFollowing: (self) -> @modifyRankOfFollowing self, increaseRankOfNote
+		decreaseRankOfFollowing: (self) -> @modifyRankOfFollowing self, decreaseRankOfNote
 
 		findPreviousNoteInCollection: (note) ->
 			currentCollection = @getCollection note.get 'parent_id'
@@ -174,8 +180,8 @@
 		findFollowingNoteInCollection: (note) ->
 			currentCollection = @getCollection note.get 'parent_id'
 			currentCollection.findFirstInCollection rank: note.get('rank') + 1
-		findFollowingNote: (note) ->
-			return note.firstDescendant() unless note.descendants.length is 0
+		findFollowingNote: (note, checkDescendants = true) ->
+			return note.firstDescendant() if checkDescendants and note.descendants.length isnt 0
 			followingNote = undefined
 			findFollowingRecursively = (note) =>
 				if !(followingNote = @findFollowingNoteInCollection note)? and
@@ -199,7 +205,7 @@
 			@getCollection(note.get 'parent_id').sort()
 		jumpNoteUp: (note) ->
 			previousNote = @findPreviousNote note
-			if previousNote.get('parent_id') is note.get 'parent_id'
+			if note.isInSameCollection previousNote
 				@jumpNoteUpInCollection note
 			else if (depthDifference = previousNote.get('depth') - note.get('depth')) > 0
 				@tabNote note for i in [depthDifference..1]
@@ -210,7 +216,14 @@
 				@insertInTree note
 				note
 		jumpNoteDown: (note) ->
-			@jumpNoteDownInCollection note
+			followingNote = @findFollowingNote note, false
+			if note.isInSameCollection followingNote
+				@jumpNoteDownInCollection note
+			else
+				depthDifference = note.get('depth') - followingNote.get('depth')
+				@unTabNote note for i in [depthDifference..1]
+			note
+
 		jumpFocusToFollowingNote: (note) ->
 			return followingNote if (followingNote = @findFollowingNote note)?
 		jumpFocusToPreviousNote: (note) ->
