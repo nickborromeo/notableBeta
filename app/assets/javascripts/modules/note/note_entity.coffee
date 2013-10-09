@@ -44,8 +44,17 @@
 			if pid is 'root' or pid is undefined then @
 			else @getDescendantCollection pid
 			Backbone.Collection.prototype.add.call(collectionToAddTo, note, options)
-		insertInTree: (note, options) -> @add note, options # Alias
-
+		insertInTree: (note, options) ->
+			@add note, options
+			newCollection = @getCollection note.get 'parent_id'
+			if note.get('rank') < newCollection.length
+				@increaseRankOfFollowing note
+			if note.descendants.models.lenght isnt 0
+				firstDescendantDepth = note.descendants.models[0].get('depth')
+				depthDifference = firstDescendantDepth - note.get('depth') - 1
+				if depthDifference isnt 0
+					@increaseDescendantsDepth note.get('guid'), depthDifference
+			newCollection.sort()
 		removeNoteFromCollection: (collection, note) ->
 			collection.remove note
 			@decreaseRankOfFollowing note
@@ -183,10 +192,9 @@
 				@removeNoteFromCollection previousCollection, note
 				@cloneNote note, previousNote
 				@insertInTree note
-				@increaseRankOfFollowing note
-				newCollection = @getCollection note.get('parent_id')
-				@decreaseDescendantsDepth note.get('guid'), Math.abs depthDifference
-				newCollection.sort()
+				# @increaseRankOfFollowing note
+				# newCollection = @getCollection note.get('parent_id')
+				# @decreaseDescendantsDepth note.get('guid'), Math.abs depthDifference
 				note
 		# jumpNoteUp: (note) ->
 		# 	@jumpNoteUpInCollection note
@@ -251,7 +259,6 @@
 				depth: 1 + note.get 'depth'
 			@insertInTree note
 			previousParentCollection.remove note
-			@increaseDescendantsDepth note.get 'guid'
 		findNewParent: (parentCollection, rank) ->
 			parentCollection.findFirstInCollection rank: rank - 1
 		unTabNote: (note) ->
