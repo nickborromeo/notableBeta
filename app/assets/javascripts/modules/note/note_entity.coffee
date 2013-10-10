@@ -118,6 +118,15 @@
 			collection.remove note
 			@decreaseRankOfFollowing note
 
+		createNote: (precedingNote, text) ->
+			@increaseRankOfFollowing precedingNote
+			@create Note.Model.generateAttributes(precedingNote, text)
+		deleteNote: (note) ->
+			descendants = note.getCompleteDescendantList()
+			_.each descendants, (descendant) ->
+				descendant.destroy()
+			note.destroy success: (self) => @decreaseRankOfFollowing self
+
 		# Returns the descendants of matching parent_id
 		getCollection: (parent_id) ->
 			if parent_id is 'root' then @
@@ -154,17 +163,23 @@
 					true # continue
 			noteSearched
 
-		forEachInFilteredCollection: (parent_id, modifierFunction, filterFunction = false) ->
-			collection = @getCollection parent_id
-			filteredNotes	= collection.filter filterFunction unless !filterFunction
-			_.each filteredNotes, modifierFunction, this
+		modifySiblings: (parent_id, modifierFunction, filterFunction = false) ->
+			siblingNotes = @getCollection parent_id
+			if filterFunction
+				siblingNotes	= siblingNotes.filter filterFunction
+			_.each siblingNotes, modifierFunction, this
 
+		filterPrecedingNotes: (self) ->
+			(comparingNote) ->
+				self.get('rank') >= comparingNote.get('rank') and
+				self.get('guid') isnt comparingNote.get('guid')
 		filterFollowingNotes: (self) ->
 			(comparingNote) ->
 				self.get('rank') <= comparingNote.get('rank') and
 				self.get('guid') isnt comparingNote.get('guid')
-		modifyRankOfFollowing: (self, applyingFunction) ->
-			@forEachInFilteredCollection self.get('parent_id'), applyingFunction, @filterFollowingNotes(self)
+		modifyRankOfFollowing: (self, modifierFunction) ->
+			findFollowing = @filterFollowingNotes(self)
+			@modifySiblings self.get('parent_id'), modifierFunction, findFollowing
 		increaseRankOfFollowing: (self) ->
 			@modifyRankOfFollowing self, increaseRankOfNote
 		decreaseRankOfFollowing: (self) ->
@@ -232,18 +247,6 @@
 			return followingNote if (followingNote = @findFollowingNote note)?
 		jumpFocusUp: (note) ->
 			return previousNote if (previousNote = @findPreviousNote note)?
-
-		createNote: (precedingNote, text) ->
-			@increaseRankOfFollowing precedingNote
-			@create Note.Model.generateAttributes(precedingNote, text)
-		deleteNote: (note) ->
-			pid = note.get 'parent_id'
-			rank = note.get 'rank'
-			descendants = note.getCompleteDescendantList()
-			_.each descendants, (descendant) ->
-				descendant.destroy()
-			self = note
-			note.destroy success: @decreaseRankOfFollowing self
 
 		tabNote: (note) ->
 			return false unless note.get('rank') > 1

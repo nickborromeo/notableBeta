@@ -28,15 +28,15 @@
 			@ui.noteContent.wysiwyg()
 
 		bindKeyboardShortcuts: ->
-			@.$el.on 'keydown', null, 'ctrl+shift+backspace', @triggerShortcutKey 'deleteNote'
-			@.$el.on 'keydown', null, 'meta+shift+backspace', @triggerShortcutKey 'deleteNote'
-			@.$el.on 'keydown', null, 'tab', @triggerShortcutKey 'tabNote'
-			@.$el.on 'keydown', null, 'shift+tab', @triggerShortcutKey 'unTabNote'
-			@.$el.on 'keydown', null, 'ctrl+shift+up', @triggerShortcutKey 'jumpPositionUp'
-			@.$el.on 'keydown', null, 'ctrl+shift+down', @triggerShortcutKey 'jumpPositionDown'
-			@.$el.on 'keydown', null, 'up', @triggerShortcutKey 'jumpFocusUp'
-			@.$el.on 'keydown', null, 'down', @triggerShortcutKey 'jumpFocusDown'
-		triggerShortcutKey: (event) -> (e) =>
+			@.$el.on 'keydown', null, 'ctrl+shift+backspace', @triggerShortcut 'deleteNote'
+			@.$el.on 'keydown', null, 'meta+shift+backspace', @triggerShortcut 'deleteNote'
+			@.$el.on 'keydown', null, 'tab', @triggerShortcut 'tabNote'
+			@.$el.on 'keydown', null, 'shift+tab', @triggerShortcut 'unTabNote'
+			@.$el.on 'keydown', null, 'ctrl+shift+up', @triggerShortcut 'jumpPositionUp'
+			@.$el.on 'keydown', null, 'ctrl+shift+down', @triggerShortcut 'jumpPositionDown'
+			@.$el.on 'keydown', null, 'up', @triggerShortcut 'jumpFocusUp'
+			@.$el.on 'keydown', null, 'down', @triggerShortcut 'jumpFocusDown'
+		triggerShortcut: (event) -> (e) =>
 			e.preventDefault()
 			e.stopPropagation()
 			@triggerEvent(event)()
@@ -79,21 +79,20 @@
 		initialize: ->
 			@listenTo @collection, "sort", @render
 			Note.eventManager.on 'createNote', @createNote, this
+			Note.eventManager.on 'deleteNote', @deleteNote, this
 			Note.eventManager.on 'tabNote', @tabNote, this
 			Note.eventManager.on 'unTabNote', @unTabNote, this
-			Note.eventManager.on 'deleteNote', @deleteNote, this
 			Note.eventManager.on 'jumpPositionUp', @jumpPositionUp, this
 			Note.eventManager.on 'jumpPositionDown', @jumpPositionDown, this
-			Note.eventManager.on 'jumpFocusDown', @jumpFocusDown, @
-			Note.eventManager.on 'jumpFocusUp', @jumpFocusUp, @
+			Note.eventManager.on 'jumpFocusUp', @jumpFocusUp, this
+			Note.eventManager.on 'jumpFocusDown', @jumpFocusDown, this
 		onRender: ->
 			if @collection.length is 0 then @collection.create()
 
-		createNote: (precedent, text) ->
-			@collection.createNote precedent, text
+		createNote: (precedingNote, text) ->
+			@collection.createNote precedingNote, text
 		deleteNote: (note) ->
-			if !(@jumpFocusDown note)
-				@jumpFocusUp note
+			(@jumpFocusUp note) unless (@jumpFocusDown note)
 			@collection.deleteNote note
 		tabNote: (note) ->
 			@collection.tabNote note
