@@ -9,6 +9,7 @@
 	layout = new Main.Layout()
 	layout.render()
 
-	layout.message_center.show(myMessage);
-	layout.content_center.show(myContent);
+	newNoteButton = new App.Main.ButtonView()
+	layout.message_center.show(newNoteButton)
+	# layout.content_center.show(myContent)
 )

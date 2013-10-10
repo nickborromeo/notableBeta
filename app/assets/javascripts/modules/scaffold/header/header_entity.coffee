@@ -10,5 +10,5 @@
 		{name: "Sign Out"}
 		{name: "Account"}
 	]
-	
+
 )
