@@ -10,12 +10,11 @@
 		ui:
 			noteContent: ".noteContent:first"
 		events: ->
-			event =
-				"keypress >.noteContent": "createNote"
-				"blur >.noteContent": "updateNote"
-				"click >.destroy": @triggerEvent 'deleteNote'
-				"click >.tab": @triggerEvent 'tabNote'
-				"click >.untab": @triggerEvent 'unTabNote'
+			"keypress >.noteContent": "createNote"
+			"blur >.noteContent": "updateNote"
+			"click >.destroy": @triggerEvent 'deleteNote'
+			"click >.tab": @triggerEvent 'tabNote'
+			"click >.untab": @triggerEvent 'unTabNote'
 
 		initialize: ->
 			@collection = @model.descendants
@@ -76,6 +75,7 @@
 	class Note.CollectionView extends Marionette.CollectionView
 		id: "note-list"
 		itemView: Note.ModelView
+
 		initialize: ->
 			@listenTo @collection, "sort", @render
 			Note.eventManager.on 'createNote', @createNote, this
