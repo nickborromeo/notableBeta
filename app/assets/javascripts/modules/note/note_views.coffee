@@ -86,6 +86,8 @@
 			Note.eventManager.on 'jumpPositionDown', @jumpPositionDown, this
 			Note.eventManager.on 'jumpFocusDown', @jumpFocusDown, @
 			Note.eventManager.on 'jumpFocusUp', @jumpFocusUp, @
+		onRender: ->
+			if @collection.length is 0 then @collection.create()
 
 		createNote: (precedent, text) ->
 			@collection.createNote precedent, text
