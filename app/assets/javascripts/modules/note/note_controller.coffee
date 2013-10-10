@@ -10,7 +10,7 @@
 	Note.Controller = Marionette.Controller.extend
 		initialize: (options) ->
 			@allNotesByDepth = new App.Note.Collection()
-			@notes = new App.Note.Tree()	
+			@notes = new App.Note.Tree()
 
 		start: ->
 			@showNoteInput @notes
@@ -26,10 +26,6 @@
 		showNoteView: (notes) ->
 			noteView = new App.Note.CollectionView(collection: notes)
 			App.mainRegion.show noteView
-			# if !@shown?
-			# 	@shown = true
-			# 	noteView = new App.Note.TreeView(collection: notes)
-			# 	App.mainRegion.show noteView
 
 	# Initializers -------------------------
 	App.Note.on "start", ->

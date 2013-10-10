@@ -1,17 +1,12 @@
 @Notable.module("Note", (Note, App, Backbone, Marionette, $, _) ->
-	Note.eventManager = _.extend {}, Backbone.Events # Event Manager
-
-	class Note.ItemView extends Marionette.ItemView
-		template: "note/NoteModel"
+	Note.eventManager = _.extend {}, Backbone.Events
 
 	class Note.ModelView extends Marionette.CompositeView
 		template: "note/noteModel"
-		id: -> "note-item" + @model.get('guid')
 		className: ->
 			if @model.get('parent_id') is 'root' then "note-item"
 			else "note-child"
-		# itemView: Note.ModelView
-		itemViewContainer: ".note-descendants"
+		itemViewContainer: ".descendants"
 		ui:
 			noteContent: ".noteContent:first"
 		events: ->
@@ -21,33 +16,31 @@
 				"click >.destroy": @triggerEvent 'deleteNote'
 				"click >.tab": @triggerEvent 'tabNote'
 				"click >.untab": @triggerEvent 'unTabNote'
- 
+
 		initialize: ->
 			@collection = @model.descendants
 			@bindKeyboardShortcuts()
 			@listenTo @model, "change:created_at", @setCursor
 			@listenTo @collection, "sort", @render
 			Note.eventManager.on "setCursor:#{@model.get('guid')}", @setCursor, @
-
-		bindKeyboardShortcuts: ->
-			@.$el.on 'keydown', null, 'ctrl+shift+backspace', @triggerShortcutKey 'deleteNote' # @deleteShortcut)
-			@.$el.on 'keydown', null, 'meta+shift+backspace', @triggerShortcutKey 'deleteNote' # @deleteShortcut)
-			@.$el.on 'keydown', null, 'tab', @triggerShortcutKey 'tabNote'
-			@.$el.on 'keydown', null, 'shift+tab', @triggerShortcutKey 'unTabNote' # @untabShortcut)
-			@.$el.on 'keydown', null, 'ctrl+shift+up', @triggerShortcutKey 'jumpNoteUp'
-			@.$el.on 'keydown', null, 'ctrl+shift+down', @triggerShortcutKey 'jumpNoteDown'
-			@.$el.on 'keydown', null, 'up', @triggerShortcutKey 'jumpFocusToPreviousNote'
-			@.$el.on 'keydown', null, 'down', @triggerShortcutKey 'jumpFocusToFollowingNote'
-
-		triggerShortcutKey: (event) -> (e) =>
-			e.preventDefault()
-			e.stopPropagation()
-			@triggerEvent(event)()
 		onRender: ->
 			if @ui.noteContent.length is 0 or !@ui.noteContent.focus?
 				@ui.noteContent = @.$('.noteContent:first')
 			@ui.noteContent.wysiwyg()
 
+		bindKeyboardShortcuts: ->
+			@.$el.on 'keydown', null, 'ctrl+shift+backspace', @triggerShortcutKey 'deleteNote'
+			@.$el.on 'keydown', null, 'meta+shift+backspace', @triggerShortcutKey 'deleteNote'
+			@.$el.on 'keydown', null, 'tab', @triggerShortcutKey 'tabNote'
+			@.$el.on 'keydown', null, 'shift+tab', @triggerShortcutKey 'unTabNote'
+			@.$el.on 'keydown', null, 'ctrl+shift+up', @triggerShortcutKey 'jumpPositionUp'
+			@.$el.on 'keydown', null, 'ctrl+shift+down', @triggerShortcutKey 'jumpPositionDown'
+			@.$el.on 'keydown', null, 'up', @triggerShortcutKey 'jumpFocusUp'
+			@.$el.on 'keydown', null, 'down', @triggerShortcutKey 'jumpFocusDown'
+		triggerShortcutKey: (event) -> (e) =>
+			e.preventDefault()
+			e.stopPropagation()
+			@triggerEvent(event)()
 		triggerEvent: (event) ->
 			=> Note.eventManager.trigger event, @model
 
@@ -79,7 +72,7 @@
 			textBefore
 		textAfterCursor: (sel, title) ->
 			textAfter = title.slice(sel.anchorOffset, title.length)
-			
+
 	class Note.CollectionView extends Marionette.CollectionView
 		id: "note-list"
 		itemView: Note.ModelView
@@ -89,35 +82,37 @@
 			Note.eventManager.on 'tabNote', @tabNote, this
 			Note.eventManager.on 'unTabNote', @unTabNote, this
 			Note.eventManager.on 'deleteNote', @deleteNote, this
-			Note.eventManager.on 'jumpNoteUp', @jumpNoteUp, this
-			Note.eventManager.on 'jumpNoteDown', @jumpNoteDown, this
-			Note.eventManager.on 'jumpFocusToFollowingNote', @jumpFocusToFollowingNote, @
-			Note.eventManager.on 'jumpFocusToPreviousNote', @jumpFocusToPreviousNote, @
+			Note.eventManager.on 'jumpPositionUp', @jumpPositionUp, this
+			Note.eventManager.on 'jumpPositionDown', @jumpPositionDown, this
+			Note.eventManager.on 'jumpFocusDown', @jumpFocusDown, @
+			Note.eventManager.on 'jumpFocusUp', @jumpFocusUp, @
+
 		createNote: (precedent, text) ->
 			@collection.createNote precedent, text
+		deleteNote: (note) ->
+			if !(@jumpFocusDown note)
+				@jumpFocusUp note
+			@collection.deleteNote note
 		tabNote: (note) ->
 			@collection.tabNote note
 			Note.eventManager.trigger "setCursor:#{note.get('guid')}"
 		unTabNote: (note) ->
 			@collection.unTabNote note
 			Note.eventManager.trigger "setCursor:#{note.get('guid')}"
-		deleteNote: (note) ->
-			if !(@jumpFocusToFollowingNote note)
-				@jumpFocusToPreviousNote note
-			@collection.deleteNote note
-		jumpNoteUp: (note) ->
-			@collection.jumpNoteUp note
+
+		jumpPositionUp: (note) ->
+			@collection.jumpPositionUp note
 			Note.eventManager.trigger "setCursor:#{note.get('guid')}"
-		jumpNoteDown: (note) ->
-			@collection.jumpNoteDown note
+		jumpPositionDown: (note) ->
+			@collection.jumpPositionDown note
 			Note.eventManager.trigger "setCursor:#{note.get('guid')}"
-		jumpFocusToFollowingNote: (note) ->
-			followingNote = @collection.jumpFocusToFollowingNote note
-			return false unless followingNote?
-			Note.eventManager.trigger "setCursor:#{followingNote.get('guid')}"
-		jumpFocusToPreviousNote: (note) ->
-			previousNote = @collection.jumpFocusToPreviousNote note
+		jumpFocusUp: (note) ->
+			previousNote = @collection.jumpFocusUp note
 			return false unless previousNote?
 			Note.eventManager.trigger "setCursor:#{previousNote.get('guid')}"
+		jumpFocusDown: (note) ->
+			followingNote = @collection.jumpFocusDown note
+			return false unless followingNote?
+			Note.eventManager.trigger "setCursor:#{followingNote.get('guid')}"
 
 )

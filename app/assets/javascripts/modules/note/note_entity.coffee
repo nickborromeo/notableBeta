@@ -1,5 +1,5 @@
 @Notable.module("Note", (Note, App, Backbone, Marionette, $, _) ->
- 
+
 	class Note.Model extends Backbone.Model
 		urlRoot : '/notes'
 		defaults:
@@ -41,7 +41,6 @@
 		firstDescendant: ->
 			@descendants.models[0]
 
-
 		clonableAttributes: ['depth', 'rank', 'parent_id']
 		cloneNote: (noteToClone) ->
 			attributesHash = {}
@@ -61,27 +60,31 @@
 		modifyDepth: (effect) -> @modifyAttributes 'depth', effect
 		increaseDepth: (magnitude = 1) -> @modifyDepth magnitude
 		decreaseDepth: (magnitude = 1) -> @modifyDepth -magnitude
-		increaseDescendantsDepth: (magnitude = 1) -> @modifyDescendantsDepth increaseDepthOfNote magnitude
-		decreaseDescendantsDepth: (magnitude = 1) -> @modifyDescendantsDepth decreaseDepthOfNote magnitude
-		modifyDescendantsDepth: (applyFunction) ->
+		increaseDescendantsDepth: (magnitude = 1) ->
+			@modifyDescendantsDepth increaseDepthOfNote magnitude
+		decreaseDescendantsDepth: (magnitude = 1) ->
+			@modifyDescendantsDepth decreaseDepthOfNote magnitude
+		modifyDescendantsDepth: (modifierFunction) ->
 			descendants = @getCompleteDescendantList()
-			_.each descendants, applyFunction
+			_.each descendants, modifierFunction
 
 	# Static Function
-	Note.Model.generateAttributes = (precedentNote, text) ->
+	Note.Model.generateAttributes = (precedingNote, text) ->
 		title: text
-		rank: 1 + precedentNote.get 'rank'
-		parent_id: precedentNote.get 'parent_id'
-		depth: precedentNote.get 'depth'
+		rank: 1 + precedingNote.get 'rank'
+		parent_id: precedingNote.get 'parent_id'
+		depth: precedingNote.get 'depth'
 
 	# Helper Functions (to be moved)
 	# For use as a higher order function
 	increaseRankOfNote = (note) -> note.increaseRank()
 	decreaseRankOfNote = (note) -> note.decreaseRank()
-	increaseDepthOfNote = (magnitude = 1) -> (note) -> note.increaseDepth(magnitude)
-	decreaseDepthOfNote = (magnitude = 1) -> (note) -> note.decreaseDepth(magnitude)
+	increaseDepthOfNote = (magnitude = 1) ->
+		(note) -> note.increaseDepth(magnitude)
+	decreaseDepthOfNote = (magnitude = 1) ->
+		(note) -> note.decreaseDepth(magnitude)
 
-	# class Note.child extends Note.Model	
+	# class Note.child extends Note.Model
 	class Note.Collection extends Backbone.Collection
 		model: Note.Model
 		url:'/notes'
@@ -95,8 +98,8 @@
 
 		initialize: ->
 
-		# Manage note insertion in the nested structuer	
-		add: (note, options) ->		
+		# Manage note insertion in the nested structure
+		add: (note, options) ->
 			pid = note.get 'parent_id'
 			collectionToAddTo =
 			if pid is 'root' or pid is undefined then @
@@ -116,7 +119,7 @@
 		removeFromCollection: (collection, note) ->
 			collection.remove note
 			@decreaseRankOfFollowing note
-	
+
 		# returns the descendants of matching parent_id
 		getCollection: (parent_id) ->
 			if parent_id is 'root' then @
@@ -130,7 +133,7 @@
 
 		# Search the whole tree recursively but top level
 		# returns the element maching id
-		# throws if fails  
+		# throws if fails
 		findNote: (guid) ->
 			searchedNote = false
 			searchRecursively = (currentNote, rest) ->
@@ -154,26 +157,30 @@
 					true # continue
 			noteSearched
 
-		forEachInFilteredCollection: (parent_id, applyFunction, filterFunction = false) ->
+		forEachInFilteredCollection: (parent_id, modifierFunction, filterFunction = false) ->
 			collection = @getCollection parent_id
 			filteredNotes	= collection.filter filterFunction unless !filterFunction
-			_.each filteredNotes, applyFunction, this
+			_.each filteredNotes, modifierFunction, this
 
 		filterFollowingNotes: (self) ->
 			(comparingNote) ->
-				self.get('rank') <= comparingNote.get('rank') and self.get('guid') isnt comparingNote.get('guid')
-		modifyRankOfFollowing: (self, applyingFunction) -> @forEachInFilteredCollection self.get('parent_id'), applyingFunction, @filterFollowingNotes(self)
-		increaseRankOfFollowing: (self) -> @modifyRankOfFollowing self, increaseRankOfNote
-		decreaseRankOfFollowing: (self) -> @modifyRankOfFollowing self, decreaseRankOfNote
+				self.get('rank') <= comparingNote.get('rank') and
+				self.get('guid') isnt comparingNote.get('guid')
+		modifyRankOfFollowing: (self, applyingFunction) ->
+			@forEachInFilteredCollection self.get('parent_id'), applyingFunction, @filterFollowingNotes(self)
+		increaseRankOfFollowing: (self) ->
+			@modifyRankOfFollowing self, increaseRankOfNote
+		decreaseRankOfFollowing: (self) ->
+			@modifyRankOfFollowing self, decreaseRankOfNote
 
-		findPreviousNoteInCollection: (note) ->
+		findPrecedingInCollection: (note) ->
 			currentCollection = @getCollection note.get 'parent_id'
 			currentCollection.findFirstInCollection rank: note.get('rank') - 1
 		findPreviousNote: (note) ->
 			return undefined if (note.isARoot() and note.get('rank') is 1)
 			if note.get('rank') is 1
 				return @getNote(note.get('parent_id'))
-			previousNote = @findPreviousNoteInCollection note
+			previousNote = @findPrecedingInCollection note
 			if previousNote.descendants.length is 0
 				return previousNote
 			previousNote.getCompleteDescendantList()[-1..][0]
@@ -193,7 +200,7 @@
 			followingNote
 		jumpNoteUpInCollection: (note) ->
 			return undefined unless note.get('rank') > 1
-			previousNote = @findPreviousNoteInCollection note
+			previousNote = @findPrecedingInCollection note
 			note.decreaseRank()
 			previousNote.increaseRank()
 			@getCollection(note.get 'parent_id').sort()
@@ -203,7 +210,7 @@
 			followingNote.decreaseRank()
 			note.increaseRank()
 			@getCollection(note.get 'parent_id').sort()
-		jumpNoteUp: (note) ->
+		jumpPositionUp: (note) ->
 			previousNote = @findPreviousNote note
 			if note.isInSameCollection previousNote
 				@jumpNoteUpInCollection note
@@ -215,7 +222,7 @@
 				note.cloneNote previousNote
 				@insertInTree note
 				note
-		jumpNoteDown: (note) ->
+		jumpPositionDown: (note) ->
 			followingNote = @findFollowingNote note, false
 			if note.isInSameCollection followingNote
 				@jumpNoteDownInCollection note
@@ -224,17 +231,17 @@
 				@unTabNote note for i in [depthDifference..1]
 			note
 
-		jumpFocusToFollowingNote: (note) ->
+		jumpFocusDown: (note) ->
 			return followingNote if (followingNote = @findFollowingNote note)?
-		jumpFocusToPreviousNote: (note) ->
-			return previousNote if (previousNote = @findPreviousNote note)?	
+		jumpFocusUp: (note) ->
+			return previousNote if (previousNote = @findPreviousNote note)?
 
-		createNote: (precedentNote, text) ->
-			@increaseRankOfFollowing precedentNote
-			@create Note.Model.generateAttributes(precedentNote, text)
+		createNote: (precedingNote, text) ->
+			@increaseRankOfFollowing precedingNote
+			@create Note.Model.generateAttributes(precedingNote, text)
 		deleteNote: (note) ->
 			pid = note.get 'parent_id'
-			rank = note.get 'rank' 
+			rank = note.get 'rank'
 			descendants = note.getCompleteDescendantList()
 			_.each descendants, (descendant) ->
 				descendant.destroy()
@@ -244,7 +251,7 @@
 		tabNote: (note) ->
 			return false unless note.get('rank') > 1
 			previousParentCollection = @getCollection note.get 'parent_id'
-			parent = @findPreviousNoteInCollection note
+			parent = @findPrecedingInCollection note
 			@removeFromCollection previousParentCollection, note
 			note.save
 				parent_id: parent.get 'guid'
