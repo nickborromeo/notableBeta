@@ -13,16 +13,12 @@
 			@notes = new App.Note.Tree()
 
 		start: ->
-			@showNoteInput @notes
 			buildTree = (notes) =>
 				_.each notes.models, (note) =>
 					@notes.add(note)
 				@showNoteView @notes
 			@allNotesByDepth.fetch success: buildTree
 
-		showNoteInput: (notes) ->
-			noteInput = new App.Note.Input(collection: notes)
-			App.headerRegion.show noteInput
 		showNoteView: (notes) ->
 			noteView = new App.Note.CollectionView(collection: notes)
 			App.mainRegion.show noteView

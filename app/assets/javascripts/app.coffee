@@ -14,6 +14,11 @@
 	App.addInitializer ->
 		App.module("Scaffold").start()
 		App.module("Note").start()
+		# App.module("Notebook").start()
+		# App.module("User").start()
+		# App.module("Feat").start()
+		# App.module("Modview").start()
+		# App.module("Tag").start()
 
 	App.on "initialize:after", ->
 		if Backbone.history
