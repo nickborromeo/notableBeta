@@ -15,41 +15,34 @@
 		ui:
 			noteContent: ".noteContent:first"
 		events: ->
-			guid = @model.get 'guid'
-			events = {}
-			events["keypress #noteContent#{guid}"] = "createNote"		
-			events["blur #noteContent#{guid}"] = "updateNote"
-			events["click #destroy#{guid}"] = @triggerEvent 'deleteNote'
-			events["click #tab#{guid}"] = @triggerEvent 'tabNote'
-			events["click #untab#{guid}"] = @triggerEvent 'unTabNote'
-			events
-
+			event =
+				"keypress >.noteContent": "createNote"
+				"blur >.noteContent": "updateNote"
+				"click >.destroy": @triggerEvent 'deleteNote'
+				"click >.tab": @triggerEvent 'tabNote'
+				"click >.untab": @triggerEvent 'unTabNote'
+ 
 		initialize: ->
 			@collection = @model.descendants
 			@bindKeyboardShortcuts()
 			@listenTo @model, "change:created_at", @setCursor
 			@listenTo @collection, "sort", @render
 			Note.eventManager.on "setCursor:#{@model.get('guid')}", @setCursor, @
-				# @listenTo @collection, "add", @triggerSetCursor
-			# console.log 'init', "setCursor:#{@model.get 'id'}"
-			# Note.eventManager.on "setCursor#{@model.get 'id'}", @setCursor, this
 
 		bindKeyboardShortcuts: ->
-			@.$el.on 'keydown', null, 'ctrl+shift+backspace', @test 'deleteNote' # @deleteShortcut)
-			@.$el.on 'keydown', null, 'meta+shift+backspace', @test 'deleteNote' # @deleteShortcut)
-			@.$el.on 'keydown', null, 'tab', @test 'tabNote'
-			@.$el.on 'keydown', null, 'shift+tab', @test 'unTabNote' # @untabShortcut)
-			@.$el.on 'keydown', null, 'ctrl+shift+up', @test 'jumpNoteUp'
-			@.$el.on 'keydown', null, 'ctrl+shift+down', @test 'jumpNoteDown'
-			@.$el.on 'keydown', null, 'up', @test 'jumpFocusToPreviousNote'
-			@.$el.on 'keydown', null, 'down', @test 'jumpFocusToFollowingNote'
+			@.$el.on 'keydown', null, 'ctrl+shift+backspace', @triggerShortcutKey 'deleteNote' # @deleteShortcut)
+			@.$el.on 'keydown', null, 'meta+shift+backspace', @triggerShortcutKey 'deleteNote' # @deleteShortcut)
+			@.$el.on 'keydown', null, 'tab', @triggerShortcutKey 'tabNote'
+			@.$el.on 'keydown', null, 'shift+tab', @triggerShortcutKey 'unTabNote' # @untabShortcut)
+			@.$el.on 'keydown', null, 'ctrl+shift+up', @triggerShortcutKey 'jumpNoteUp'
+			@.$el.on 'keydown', null, 'ctrl+shift+down', @triggerShortcutKey 'jumpNoteDown'
+			@.$el.on 'keydown', null, 'up', @triggerShortcutKey 'jumpFocusToPreviousNote'
+			@.$el.on 'keydown', null, 'down', @triggerShortcutKey 'jumpFocusToFollowingNote'
 
-		# triggerKeyboardShortcutEvent:
-		test: (event) -> (e) =>
+		triggerShortcutKey: (event) -> (e) =>
 			e.preventDefault()
 			e.stopPropagation()
 			@triggerEvent(event)()
-			# @setCursor()
 		onRender: ->
 			if @ui.noteContent.length is 0 or !@ui.noteContent.focus?
 				@ui.noteContent = @.$('.noteContent:first')
