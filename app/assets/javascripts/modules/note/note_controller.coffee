@@ -10,17 +10,17 @@
 	Note.Controller = Marionette.Controller.extend
 		initialize: (options) ->
 			@allNotesByDepth = new App.Note.Collection()
-			@notes = new App.Note.Tree()
+			@trunk = new App.Note.Trunk()
 
 		start: ->
-			buildTree = (notes) =>
-				_.each notes.models, (note) =>
-					@notes.add(note)
-				@showNoteView @notes
-			@allNotesByDepth.fetch success: buildTree
+			buildTrunk = (allNotes) =>
+				allNotes.each (note) =>
+					@trunk.add(note)
+				@showNoteView @trunk
+			@allNotesByDepth.fetch success: buildTrunk
 
-		showNoteView: (notes) ->
-			noteView = new App.Note.CollectionView(collection: notes)
+		showNoteView: (trunk) ->
+			noteView = new App.Note.CollectionView(collection: trunk)
 			App.mainRegion.show noteView
 
 	# Initializers -------------------------

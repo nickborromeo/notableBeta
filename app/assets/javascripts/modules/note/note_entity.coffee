@@ -10,7 +10,7 @@
 			depth: 0
 
 		initialize: ->
-			@descendants = new App.Note.Tree()
+			@descendants = new App.Note.Trunk()
 			if @isNew()
 				@set 'created', Date.now()
 				@set 'guid', @generateGuid()
@@ -92,11 +92,9 @@
 		comparator: (note) ->
 			note.get 'depth'
 
-	class Note.Tree extends Backbone.Collection
-		url:'/notes'
+	class Note.Trunk extends Backbone.Collection
 		model: Note.Model
-
-		initialize: ->
+		url:'/notes'
 
 		# Manage note insertion in the nested structure
 		add: (note, options) ->
@@ -120,7 +118,7 @@
 			collection.remove note
 			@decreaseRankOfFollowing note
 
-		# returns the descendants of matching parent_id
+		# Returns the descendants of matching parent_id
 		getCollection: (parent_id) ->
 			if parent_id is 'root' then @
 			else @getDescendantCollection parent_id
@@ -132,8 +130,7 @@
 			@findInCollection(searchHash)[0]
 
 		# Search the whole tree recursively but top level
-		# returns the element maching id
-		# throws if fails
+		# Returns the element maching id and throws error if this fails
 		findNote: (guid) ->
 			searchedNote = false
 			searchRecursively = (currentNote, rest) ->
