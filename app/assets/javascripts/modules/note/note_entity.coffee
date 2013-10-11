@@ -28,12 +28,25 @@
 		isInSameCollection: (note) ->
 			@get('parent_id') is note.get('parent_id')
 
+		# getCompleteDescendantList: ->
+		# 	buildList = (descendantsBranch, descendantList) ->
+		# 		descendantsBranch.inject (descendantsBranch, descendant) ->
+		# 			descendantList.concat descendant, buildList(descendant.descendants, [])
+		# 		, []
+		# 	buildList @descendants, []
 		getCompleteDescendantList: ->
-			buildList = (descendantsBranch, descendantList) ->
-				descendantsBranch.inject (descendantsBranch, descendant) ->
-					descendantList.concat descendant, buildList(descendant.descendants, [])
-				, []
-			buildList @descendants, []
+			descendantList = []
+			buildList = (currentNote, remainingNotes) =>
+				return unless currentNote?
+				descendantList.push currentNote
+				if currentNote.hasDescendants()
+					buildList currentNote.descendants.first(), currentNote.descendants.rest()
+				buildList _.first(remainingNotes), _.rest remainingNotes
+			buildList @descendants.first(), @descendants.rest()
+			descendantList
+
+		hasDescendants: ->
+			@descendants.length > 0
 		firstDescendant: ->
 			@descendants.models[0]
 		getLastDescendant: ->
@@ -134,7 +147,7 @@
 		findInCollection: (searchHash) ->
 			@where searchHash
 		findFirstInCollection: (searchHash) ->
-			@findInCollection(searchHash)[0]
+			@findWhere searchHash
 
 		# Search the whole tree recursively but top level
 		# Returns the element maching id and throws error if this fails

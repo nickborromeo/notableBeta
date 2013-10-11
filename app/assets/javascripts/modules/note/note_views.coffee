@@ -41,7 +41,7 @@
 			e.stopPropagation()
 			@triggerEvent(event)()
 		triggerEvent: (event) ->
-			=> Note.eventManager.trigger 'triggerFunction', event, @model
+			=> Note.eventManager.trigger 'change', event, @model
 
 		createNote: (e) ->
 			ENTER_KEY = 13
@@ -79,7 +79,7 @@
 		initialize: ->
 			@listenTo @collection, "sort", @render
 			Note.eventManager.on 'createNote', @createNote, this
-			Note.eventManager.on 'triggerFunction', @dispatchFunction, this
+			Note.eventManager.on 'change', @dispatchFunction, this
 		onRender: ->
 			if @collection.length is 0 then @collection.create()
 
