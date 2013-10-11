@@ -68,7 +68,7 @@
 .note-item {
 	position: relative;
 	font-size: 16px;
-	line-height: 1.6em;
+	line-height: 0.1em;
 	/* padding: 5px; */
 	border-bottom: 1px dotted #ccc;
 	font-family: Tahoma, Arial, sans-serif;
@@ -76,7 +76,7 @@
 .note-child {
 	position: relative;
 	font-size: 16px;
-	line-height: 1.6em;
+	line-height: 0.1em;
 	/* padding: 5px; */
 	font-family: Tahoma, Arial, sans-serif;
 }
@@ -89,7 +89,7 @@
 	div:last-child {
 		border-bottom: none;
 	}
-	div .save {
+	div .move {
 	/* display: none; */
 	margin: 0 10px 4px 1px;
 	-webkit-transition: all 0.2s;
@@ -132,9 +132,13 @@
 	}
 }
 
-#note-list div:hover .destroy {
+#note-item div:hover .destroy {
 	display: block;
 }
+#note-child div:hover .destroy {
+	display: block;
+}
+
 
 #note-list div .edit {
 	display: none;
@@ -146,7 +150,7 @@
 
 .noteContent {
 	margin-left: 2px;
-	width: 60%;
+	width: 70%;
 	display: inline-block;
 	outline: none;
 }
@@ -173,6 +177,8 @@
 .dropTarget {
 	height: 10px;
 	width:100%;
+	/* margin-top: 1px; */
+	/* margin-bottom: 1px; */
 	display: inline-block;
 }
 .dropTarget.over {

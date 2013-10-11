@@ -17,9 +17,11 @@
 			"click >.tab": @triggerEvent "tabNote"
 			"click >.untab": @triggerEvent "unTabNote"
 			"dragstart .move": @triggerDragEvent "startMove"
+			"drop .dropTarget": @triggerDragEvent "dropMove"
 			"dragenter .dropTarget": @triggerDragEvent "enterMove"
 			"dragleave .dropTarget": @triggerDragEvent "leaveMove"
-
+			"dragover .dropTarget": @triggerDragEvent "overMove"
+			"dragend .move": @triggerDragEvent "endMove"
 		initialize: ->
 			@collection = @model.descendants
 			@bindKeyboardShortcuts()
@@ -45,7 +47,8 @@
 			e.stopPropagation()
 			@triggerEvent(event)()
 		triggerDragEvent: (event) -> (e) =>
-			Note.eventManager.trigger 'change', event, @ui, @model
+			e.dataTransfer = e.originalEvent.dataTransfer;
+			Note.eventManager.trigger 'change', event, @ui, e, @model
 			e.stopPropagation()
 		triggerEvent: (event) ->
 			=> Note.eventManager.trigger 'change', event, @model
@@ -87,13 +90,14 @@
 			@listenTo @collection, "sort", @render
 			Note.eventManager.on 'createNote', @createNote, this
 			Note.eventManager.on 'change', @dispatchFunction, this
+			@drag = undefined
 		onRender: ->
 			if @collection.length is 0 then @collection.create()
 
 		sliceArgs: (args, slice = 1) -> Array.prototype.slice.call(args, 1)
 		dispatchFunction: (functionName) ->
 			return @[functionName].apply(@, @sliceArgs arguments) if @[functionName]?
-			@collection[functionName].apply(collection, @sliceArgs arguments)
+			@collection[functionName].apply(@collection, @sliceArgs arguments)
 			Note.eventManager.trigger "setCursor:#{note.get 'guid'}"
 
 		createNote: (precedingNote, text) ->
@@ -109,10 +113,33 @@
 			followingNote = @collection.jumpFocusDown note
 			return false unless followingNote?
 			Note.eventManager.trigger "setCursor:#{followingNote.get('guid')}"
-		startMove: (ui) ->
-
-		enterMove: (ui) ->
-			ui.dropTarget.addClass('over')
+		startMove: (ui, e, model) ->
+				# e.preventDefault();
+			# ui.noteContent.style.opacity = '0.7'
+			@drag = model
+			e.dataTransfer.effectAllowed = "move"
+			e.dataTransfer.setData("text", model.get 'guid')
+		dropMove: (ui, e, dropBefore) ->
+			@leaveMove ui
+			e.stopPropagation()
+			if @dragAllowed dropBefore
+				@collection.dropMove(@drag, dropBefore)
+		enterMove: (ui, e, note) ->
+			if @dragAllowed note
+				ui.dropTarget.addClass('over')
 		leaveMove: (ui) ->
 			ui.dropTarget.removeClass('over')
+		overMove: (ui, e, note) ->
+			if @dragAllowed note
+				e.preventDefault()
+				e.dataTransfer.dropEffect = "move"
+			false
+		endMove: (ui) ->
+			# ui.noteContent.style.opacity = '1.0'
+
+		dragAllowed: (note) ->
+			preceding = @collection.jumpFocusUp note
+			not note.hasInAncestors(@drag) and
+			preceding isnt @drag
+
 )

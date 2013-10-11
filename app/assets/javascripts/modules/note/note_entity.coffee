@@ -51,6 +51,13 @@
 			@descendants.models[0]
 		getLastDescendant: ->
 			@getCompleteDescendantList()[-1..][0]
+		hasInAncestors: (note) ->
+			descendants = note.getCompleteDescendantList()
+			searchInDescendants = (first, rest) =>
+				return false unless first?
+				return first if first.get('guid') is @get('guid')
+				rec _.first(rest), _.rest(rest)
+			rec _.first(descendants), _.rest(descendants)
 
 		clonableAttributes: ['depth', 'rank', 'parent_id']
 		cloneAttributes: (noteToClone) ->
@@ -278,6 +285,16 @@
 				rank: previousParent.get('rank') + 1
 				depth: note.get('depth') - 1
 			@insertInTree note
+
+		dropMove: (dragged, dropBefore) ->
+			branchToRemoveFrom = @getCollection dragged.get('parent_id')
+			@removeFromCollection(branchToRemoveFrom, dragged)
+			dragged.cloneAttributes dropBefore
+			# dragged.save
+			# 	parent_id: dropAfter.get('parent_id')
+			# 	rank:  dropAfter.get('rank') + 1
+			# 	depth: dropAfter.get('depth')
+			@insertInTree dragged
 
 		comparator: (note) ->
 			note.get 'rank'
