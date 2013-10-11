@@ -41,7 +41,7 @@
 			e.stopPropagation()
 			@triggerEvent(event)()
 		triggerEvent: (event) ->
-			=> Note.eventManager.trigger event, @model
+			=> Note.eventManager.trigger 'triggerFunction', event, @model
 
 		createNote: (e) ->
 			ENTER_KEY = 13
@@ -79,34 +79,20 @@
 		initialize: ->
 			@listenTo @collection, "sort", @render
 			Note.eventManager.on 'createNote', @createNote, this
-			Note.eventManager.on 'deleteNote', @deleteNote, this
-			Note.eventManager.on 'tabNote', @tabNote, this
-			Note.eventManager.on 'unTabNote', @unTabNote, this
-			Note.eventManager.on 'jumpPositionUp', @jumpPositionUp, this
-			Note.eventManager.on 'jumpPositionDown', @jumpPositionDown, this
-			Note.eventManager.on 'jumpFocusUp', @jumpFocusUp, this
-			Note.eventManager.on 'jumpFocusDown', @jumpFocusDown, this
+			Note.eventManager.on 'triggerFunction', @dispatchFunction, this
 		onRender: ->
 			if @collection.length is 0 then @collection.create()
+
+		dispatchFunction: (functionName, note) ->
+			return @[functionName](note) if @[functionName]?
+			@collection[functionName](note)
+			Note.eventManager.trigger "setCursor:#{note.get 'guid'}"
 
 		createNote: (precedingNote, text) ->
 			@collection.createNote precedingNote, text
 		deleteNote: (note) ->
 			(@jumpFocusUp note) unless (@jumpFocusDown note)
 			@collection.deleteNote note
-		tabNote: (note) ->
-			@collection.tabNote note
-			Note.eventManager.trigger "setCursor:#{note.get('guid')}"
-		unTabNote: (note) ->
-			@collection.unTabNote note
-			Note.eventManager.trigger "setCursor:#{note.get('guid')}"
-
-		jumpPositionUp: (note) ->
-			@collection.jumpPositionUp note
-			Note.eventManager.trigger "setCursor:#{note.get('guid')}"
-		jumpPositionDown: (note) ->
-			@collection.jumpPositionDown note
-			Note.eventManager.trigger "setCursor:#{note.get('guid')}"
 		jumpFocusUp: (note) ->
 			previousNote = @collection.jumpFocusUp note
 			return false unless previousNote?
