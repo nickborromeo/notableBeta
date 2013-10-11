@@ -29,17 +29,15 @@
 			@get('parent_id') is note.get('parent_id')
 
 		getCompleteDescendantList: ->
-			list = []
-			rec = (current, rest) =>
-				return unless current?
-				list.push current
-				if current.descendants.length isnt 0
-					rec current.descendants.first(), current.descendants.rest()
-				rec _.first(rest), _.rest rest
-			rec @descendants.first(), @descendants.rest()
-			list
+			f = (obj, memo) ->
+				_.reduce obj, (memo, value) ->
+					memo.concat value, f(value.descendants.models, [])
+				, []
+			f @descendants.models, []
 		firstDescendant: ->
 			@descendants.models[0]
+		getLastDescendant: ->
+			@getCompleteDescendantList()[-1..][0]
 
 		clonableAttributes: ['depth', 'rank', 'parent_id']
 		cloneNote: (noteToClone) ->
@@ -195,7 +193,7 @@
 			previousNote = @findPrecedingInCollection note
 			if previousNote.descendants.length is 0
 				return previousNote
-			previousNote.getCompleteDescendantList()[-1..][0]
+			previousNote.getLastDescendant()
 		findFollowingNoteInCollection: (note) ->
 			currentCollection = @getCollection note.get 'parent_id'
 			currentCollection.findFirstInCollection rank: note.get('rank') + 1
