@@ -8,13 +8,17 @@
 			else "note-child"
 		itemViewContainer: ".descendants"
 		ui:
-			noteContent: ".noteContent:first"
+			noteContent: ">.noteContent"
+			dropTarget: ">.dropTarget"
 		events: ->
 			"keypress >.noteContent": "createNote"
 			"blur >.noteContent": "updateNote"
-			"click >.destroy": @triggerEvent 'deleteNote'
-			"click >.tab": @triggerEvent 'tabNote'
-			"click >.untab": @triggerEvent 'unTabNote'
+			"click >.destroy": @triggerEvent "deleteNote"
+			"click >.tab": @triggerEvent "tabNote"
+			"click >.untab": @triggerEvent "unTabNote"
+			"dragstart .move": @triggerDragEvent "startMove"
+			"dragenter .dropTarget": @triggerDragEvent "enterMove"
+			"dragleave .dropTarget": @triggerDragEvent "leaveMove"
 
 		initialize: ->
 			@collection = @model.descendants
@@ -40,6 +44,9 @@
 			e.preventDefault()
 			e.stopPropagation()
 			@triggerEvent(event)()
+		triggerDragEvent: (event) -> (e) =>
+			Note.eventManager.trigger 'change', event, @ui, @model
+			e.stopPropagation()
 		triggerEvent: (event) ->
 			=> Note.eventManager.trigger 'change', event, @model
 
@@ -83,9 +90,10 @@
 		onRender: ->
 			if @collection.length is 0 then @collection.create()
 
-		dispatchFunction: (functionName, note) ->
-			return @[functionName](note) if @[functionName]?
-			@collection[functionName](note)
+		sliceArgs: (args, slice = 1) -> Array.prototype.slice.call(args, 1)
+		dispatchFunction: (functionName) ->
+			return @[functionName].apply(@, @sliceArgs arguments) if @[functionName]?
+			@collection[functionName].apply(collection, @sliceArgs arguments)
 			Note.eventManager.trigger "setCursor:#{note.get 'guid'}"
 
 		createNote: (precedingNote, text) ->
@@ -101,5 +109,10 @@
 			followingNote = @collection.jumpFocusDown note
 			return false unless followingNote?
 			Note.eventManager.trigger "setCursor:#{followingNote.get('guid')}"
+		startMove: (ui) ->
 
+		enterMove: (ui) ->
+			ui.dropTarget.addClass('over')
+		leaveMove: (ui) ->
+			ui.dropTarget.removeClass('over')
 )
