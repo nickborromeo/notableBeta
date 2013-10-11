@@ -29,18 +29,18 @@
 			@get('parent_id') is note.get('parent_id')
 
 		getCompleteDescendantList: ->
-			f = (obj, memo) ->
-				_.reduce obj, (memo, value) ->
-					memo.concat value, f(value.descendants.models, [])
+			buildList = (descendantsBranch, descendantList) ->
+				descendantsBranch.inject (descendantsBranch, descendant) ->
+					descendantList.concat descendant, buildList(descendant.descendants, [])
 				, []
-			f @descendants.models, []
+			buildList @descendants, []
 		firstDescendant: ->
 			@descendants.models[0]
 		getLastDescendant: ->
 			@getCompleteDescendantList()[-1..][0]
 
 		clonableAttributes: ['depth', 'rank', 'parent_id']
-		cloneNote: (noteToClone) ->
+		cloneAttributes: (noteToClone) ->
 			attributesHash = {}
 			attributesHash[attribute] = noteToClone.get(attribute) for attribute in @clonableAttributes
 			@save attributesHash
@@ -141,7 +141,7 @@
 		findNote: (guid) ->
 			searchedNote = false
 			searchRecursively = (currentNote, rest) ->
-				return searchedNote unless !searchedNote and currentNote?
+				return searchedNote if searchedNote or !currentNote?
 				if currentNote.get('guid') is guid
 					return searchedNote = currentNote
 				searchRecursively _.first(rest), _.rest rest
@@ -229,7 +229,7 @@
 			else
 				previousCollection = @getCollection note.get 'parent_id'
 				@removeFromCollection previousCollection, note
-				note.cloneNote previousNote
+				note.cloneAttributes previousNote
 				@insertInTree note
 				note
 		jumpPositionDown: (note) ->
@@ -257,7 +257,7 @@
 				depth: 1 + note.get 'depth'
 			@insertInTree note
 		unTabNote: (note) ->
-			return false unless note.get('depth') > 0
+			return false if note.isARoot()
 			previousParent = @getNote note.get 'parent_id'
 			@removeFromCollection previousParent.descendants, note
 			note.save
