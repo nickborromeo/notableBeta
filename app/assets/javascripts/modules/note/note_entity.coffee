@@ -293,16 +293,23 @@
 				depth: note.get('depth') - 1
 			@insertInTree note
 
-		dropMove: (dragged, dropBefore) ->
+		setDropAfter: (dragged, dropAfter) ->
+			dragged.save
+				parent_id: dropAfter.get('parent_id')
+				rank:  dropAfter.get('rank') + 1
+				depth: dropAfter.get('depth')
+
+		setDropBefore: (dragged, dropBefore) ->
+			dragged.cloneAttributes dropBefore
+		dropMoveGeneral: (dropMethod) -> (dragged, draggedInto) =>
 			branchToRemoveFrom = @getCollection dragged.get('parent_id')
 			@removeFromCollection(branchToRemoveFrom, dragged)
-			dragged.cloneAttributes dropBefore
-			# dragged.save
-			# 	parent_id: dropAfter.get('parent_id')
-			# 	rank:  dropAfter.get('rank') + 1
-			# 	depth: dropAfter.get('depth')
+			dropMethod(dragged, draggedInto)
 			@insertInTree dragged
-
+		dropMove: (dragged, dropBefore) ->
+			(@dropMoveGeneral @setDropBefore.bind @).call(this, dragged, dropBefore)
+		dropAfter:(dragged, dropAfter) ->
+			(@dropMoveGeneral @setDropAfter.bind @).call(this, dragged, dropAfter)
 		comparator: (note) ->
 			note.get 'rank'
 

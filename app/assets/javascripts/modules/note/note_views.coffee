@@ -23,7 +23,7 @@
 		ui:
 			noteContent: ">.noteContent"
 			dropTarget: ">#dropBefore"
-			dropTargetEnd: ">#dropLast"
+			dropTargetAfter: "#dropAfter:last"
 		events: ->
 			"keypress >.noteContent": "createNote"
 			"blur >.noteContent": "updateNote"
@@ -32,7 +32,8 @@
 			"click >.untab": @triggerEvent "unTabNote"
 
 			"dragstart .move": @triggerDragEvent "startMove"
-			"drop .dropTarget": @triggerDragEvent "dropMove"
+			"drop #dropBefore": @triggerDragEvent "dropMove"
+			"drop #dropAfter": @triggerDragEvent "dropAfter"
 			"dragenter .dropTarget": @triggerDragEvent "enterMove"
 			"dragleave .dropTarget": @triggerDragEvent "leaveMove"
 			"dragover .dropTarget": @triggerDragEvent "overMove"
@@ -50,7 +51,8 @@
 			@ui.noteContent.wysiwyg()
 		appendHtml:(collectionView, itemView, i) ->
 			@$('.descendants:first').append(itemView.el)
-			if i is @collection.length - 1
+			if i < @collection.length - 1
+				$('#dropAfter').remove()
 				return;
 				# newModel = @model.duplicate()
 				# newModel.increaseRank()
@@ -139,21 +141,26 @@
 			return false unless followingNote?
 			Note.eventManager.trigger "setCursor:#{followingNote.get('guid')}"
 		startMove: (ui, e, model) ->
-				# e.preventDefault();
+			# e.preventDefault();
 			# ui.noteContent.style.opacity = '0.7'
 			@drag = model
 			e.dataTransfer.effectAllowed = "move"
 			e.dataTransfer.setData("text", model.get 'guid')
 		dropMove: (ui, e, dropBefore) ->
-			@leaveMove ui
+			@leaveMove ui, e
 			e.stopPropagation()
 			if @dragAllowed dropBefore
 				@collection.dropMove(@drag, dropBefore)
+		dropAfter: (ui, e, dropAfter) ->
+			@leaveMove ui, e
+			e.stopPropagation
+			if @drag isnt dropAfter and not dropAfter.hasInAncestors @drag
+				@collection.dropAfter(@drag, dropAfter)
 		enterMove: (ui, e, note) ->
 			if @dragAllowed note
-				ui.dropTarget.addClass('over')
-		leaveMove: (ui) ->
-			ui.dropTarget.removeClass('over')
+				$(e.currentTarget).addClass('over')
+		leaveMove: (ui, e, note) ->
+			$(e.currentTarget).removeClass('over')
 		overMove: (ui, e, note) ->
 			if @dragAllowed note
 				e.preventDefault()
