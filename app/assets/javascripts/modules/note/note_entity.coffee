@@ -56,8 +56,8 @@
 			searchInDescendants = (first, rest) =>
 				return false unless first?
 				return first if first.get('guid') is @get('guid')
-				rec _.first(rest), _.rest(rest)
-			rec _.first(descendants), _.rest(descendants)
+				searchInDescendants _.first(rest), _.rest(rest)
+			searchInDescendants _.first(descendants), _.rest(descendants)
 
 		clonableAttributes: ['depth', 'rank', 'parent_id']
 		cloneAttributes: (noteToClone) ->

@@ -1,28 +1,35 @@
 @Notable.module("Note", (Note, App, Backbone, Marionette, $, _) ->
 	Note.eventManager = _.extend {}, Backbone.Events
 
+	class Note.DropTargetView extends Marionette.compositeView
+	template: "note/dropTarget"
+	model: Note.Model
+
 	class Note.ModelView extends Marionette.CompositeView
 		template: "note/noteModel"
 		className: ->
 			if @model.get('parent_id') is 'root' then "note-item"
 			else "note-child"
-		itemViewContainer: ".descendants"
+		# itemViewContainer: ".descendants"
 		ui:
 			noteContent: ">.noteContent"
-			dropTarget: ">.dropTarget"
+			dropTarget: ">#dropBefore"
+			dropTargetEnd: ">#dropLast"
 		events: ->
 			"keypress >.noteContent": "createNote"
 			"blur >.noteContent": "updateNote"
 			"click >.destroy": @triggerEvent "deleteNote"
 			"click >.tab": @triggerEvent "tabNote"
 			"click >.untab": @triggerEvent "unTabNote"
+
 			"dragstart .move": @triggerDragEvent "startMove"
 			"drop .dropTarget": @triggerDragEvent "dropMove"
 			"dragenter .dropTarget": @triggerDragEvent "enterMove"
 			"dragleave .dropTarget": @triggerDragEvent "leaveMove"
 			"dragover .dropTarget": @triggerDragEvent "overMove"
 			"dragend .move": @triggerDragEvent "endMove"
-		initialize: ->
+
+	initialize: ->
 			@collection = @model.descendants
 			@bindKeyboardShortcuts()
 			@listenTo @model, "change:created_at", @setCursor
@@ -32,7 +39,10 @@
 			if @ui.noteContent.length is 0 or !@ui.noteContent.focus?
 				@ui.noteContent = @.$('.noteContent:first')
 			@ui.noteContent.wysiwyg()
-
+		appendHtml:(collectionView, itemView, i) ->
+			@$('.descendants:first').append(itemView.el)
+			if i is @collection.length - 1
+				@.el.append("<div id='dropLast' class='dropTarget' data-rank='#{@model.get 'rank'}' data-depth='#{@model.get 'depth'}' data-parent='{{guid}}'></div>"
 		bindKeyboardShortcuts: ->
 			@.$el.on 'keydown', null, 'ctrl+shift+backspace', @triggerShortcut 'deleteNote'
 			@.$el.on 'keydown', null, 'meta+shift+backspace', @triggerShortcut 'deleteNote'
@@ -98,7 +108,7 @@
 		dispatchFunction: (functionName) ->
 			return @[functionName].apply(@, @sliceArgs arguments) if @[functionName]?
 			@collection[functionName].apply(@collection, @sliceArgs arguments)
-			Note.eventManager.trigger "setCursor:#{note.get 'guid'}"
+			Note.eventManager.trigger "setCursor:#{arguments[1].get 'guid'}"
 
 		createNote: (precedingNote, text) ->
 			@collection.createNote precedingNote, text
@@ -134,9 +144,10 @@
 				e.preventDefault()
 				e.dataTransfer.dropEffect = "move"
 			false
-		endMove: (ui) ->
+		endMove: (ui, e, note) ->
 			# ui.noteContent.style.opacity = '1.0'
-
+			Note.eventManager.trigger "setCursor:#{@drag.get('guid')}"
+			@drag = undefined
 		dragAllowed: (note) ->
 			preceding = @collection.jumpFocusUp note
 			not note.hasInAncestors(@drag) and

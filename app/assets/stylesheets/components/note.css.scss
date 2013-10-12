@@ -68,7 +68,7 @@
 .note-item {
 	position: relative;
 	font-size: 16px;
-	line-height: 0.1em;
+	line-height: 1em;
 	/* padding: 5px; */
 	border-bottom: 1px dotted #ccc;
 	font-family: Tahoma, Arial, sans-serif;
@@ -76,7 +76,7 @@
 .note-child {
 	position: relative;
 	font-size: 16px;
-	line-height: 0.1em;
+	line-height: 1em;
 	/* padding: 5px; */
 	font-family: Tahoma, Arial, sans-serif;
 }
@@ -132,7 +132,7 @@
 	}
 }
 
-#note-item div:hover .destroy {
+#note-list div:hover .destroy {
 	display: block;
 }
 #note-child div:hover .destroy {
@@ -165,20 +165,14 @@
 /* Prevent the text contents of draggable elements from being selectable. */
 [draggable] {
 	-moz-user-select: none;
-	-khtml-user-select: none;
 	-webkit-user-select: none;
 	user-select: none;
-	/* Required to make elements draggable in old WebKit */
-	-khtml-user-drag: element;
-	-webkit-user-drag: element;
 }
 
 
 .dropTarget {
 	height: 10px;
 	width:100%;
-	/* margin-top: 1px; */
-	/* margin-bottom: 1px; */
 	display: inline-block;
 }
 .dropTarget.over {
