@@ -59,11 +59,18 @@
 				searchInDescendants _.first(rest), _.rest(rest)
 			searchInDescendants _.first(descendants), _.rest(descendants)
 
+		duplicate: ->
+			duplicatedNote = new Note.Model
+			duplicatedNote.cloneAttributesNoSaving @
+			duplicatedNote
 		clonableAttributes: ['depth', 'rank', 'parent_id']
 		cloneAttributes: (noteToClone) ->
+			attributesHash = @cloneAttributesNoSaving noteToClone
+			@save attributesHash
+		cloneAttributesNoSaving: (noteToClone) ->
 			attributesHash = {}
 			attributesHash[attribute] = noteToClone.get(attribute) for attribute in @clonableAttributes
-			@save attributesHash
+			attributesHash
 
 		# Will generalize for more than one attribute
 		modifyAttributes: (attribute, effect) ->

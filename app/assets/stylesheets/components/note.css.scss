@@ -68,7 +68,7 @@
 .note-item {
 	position: relative;
 	font-size: 16px;
-	line-height: 1em;
+	line-height: 1xsem;
 	/* padding: 5px; */
 	border-bottom: 1px dotted #ccc;
 	font-family: Tahoma, Arial, sans-serif;
@@ -101,7 +101,7 @@
 }
 
 #note-list div {
-	.destroy {
+	.destroy{
 		display: none;
 		position: absolute;
 		top: 0;
@@ -135,10 +135,24 @@
 #note-list div:hover .destroy {
 	display: block;
 }
-#note-child div:hover .destroy {
-	display: block;
-}
 
+/* #note-list div:hover .move { */
+/* 	display: inline-block; */
+/* } */
+
+/* .note-item div:hover >.move { */
+/* 	display: inline-block; */
+/* } */
+/* .note-item div:hover >.destroy { */
+/* 	display: block; */
+/* } */
+
+/* .note-child div:hover >.move { */
+/* 	display: inline-block; */
+/* } */
+/* .note-child div:hover >.destroy { */
+/* 	display: block; */
+/* } */
 
 #note-list div .edit {
 	display: none;

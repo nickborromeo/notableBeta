@@ -1,9 +1,18 @@
 @Notable.module("Note", (Note, App, Backbone, Marionette, $, _) ->
 	Note.eventManager = _.extend {}, Backbone.Events
 
-	class Note.DropTargetView extends Marionette.compositeView
-	template: "note/dropTarget"
-	model: Note.Model
+	class Note.DropTargetView extends Marionette.ItemView
+		template: "note/dropTargetLast"
+		model: Note.Model
+		events: ->
+			"dragenter .dropTarget": @triggerDragEvent "enterMove"
+			"dragleave .dropTarget": @triggerDragEvent "leaveMove"
+			"dragover .dropTarget": @triggerDragEvent "overMove"
+
+		triggerDragEvent: (event) -> (e) =>
+			e.dataTransfer = e.originalEvent.dataTransfer;
+			Note.eventManager.trigger 'change', event, @ui, e, @model
+			e.stopPropagation()
 
 	class Note.ModelView extends Marionette.CompositeView
 		template: "note/noteModel"
@@ -29,7 +38,7 @@
 			"dragover .dropTarget": @triggerDragEvent "overMove"
 			"dragend .move": @triggerDragEvent "endMove"
 
-	initialize: ->
+		initialize: ->
 			@collection = @model.descendants
 			@bindKeyboardShortcuts()
 			@listenTo @model, "change:created_at", @setCursor
@@ -42,7 +51,13 @@
 		appendHtml:(collectionView, itemView, i) ->
 			@$('.descendants:first').append(itemView.el)
 			if i is @collection.length - 1
-				@.el.append("<div id='dropLast' class='dropTarget' data-rank='#{@model.get 'rank'}' data-depth='#{@model.get 'depth'}' data-parent='{{guid}}'></div>"
+				return;
+				# newModel = @model.duplicate()
+				# newModel.increaseRank()
+				# dropLastView = new Note.DropTargetView(model: newModel)
+				# dropLastView.render()
+				# @.el.append(dropLastView.el)
+
 		bindKeyboardShortcuts: ->
 			@.$el.on 'keydown', null, 'ctrl+shift+backspace', @triggerShortcut 'deleteNote'
 			@.$el.on 'keydown', null, 'meta+shift+backspace', @triggerShortcut 'deleteNote'
@@ -147,7 +162,7 @@
 		endMove: (ui, e, note) ->
 			# ui.noteContent.style.opacity = '1.0'
 			Note.eventManager.trigger "setCursor:#{@drag.get('guid')}"
-			@drag = undefined
+			# @drag = undefined
 		dragAllowed: (note) ->
 			preceding = @collection.jumpFocusUp note
 			not note.hasInAncestors(@drag) and
