@@ -188,7 +188,9 @@
 	height: 10px;
 	width:100%;
 	display: inline-block;
+	/* border-top: solid */
 }
+/* #dropAfter { border-top: solid red; } */
 .dropTarget.over {
 	border-top: 3px dashed #AAAEAE;
 }

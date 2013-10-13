@@ -115,7 +115,7 @@
 		url:'/notes'
 
 		comparator: (note) ->
-			note.get 'depth'
+			[note.get('depth'), note.get('rank')]
 
 	class Note.Trunk extends Backbone.Collection
 		model: Note.Model
@@ -298,7 +298,6 @@
 				parent_id: dropAfter.get('parent_id')
 				rank:  dropAfter.get('rank') + 1
 				depth: dropAfter.get('depth')
-
 		setDropBefore: (dragged, dropBefore) ->
 			dragged.cloneAttributes dropBefore
 		dropMoveGeneral: (dropMethod) -> (dragged, draggedInto) =>
@@ -306,7 +305,7 @@
 			@removeFromCollection(branchToRemoveFrom, dragged)
 			dropMethod(dragged, draggedInto)
 			@insertInTree dragged
-		dropMove: (dragged, dropBefore) ->
+		dropBefore: (dragged, dropBefore) ->
 			(@dropMoveGeneral @setDropBefore.bind @).call(this, dragged, dropBefore)
 		dropAfter:(dragged, dropAfter) ->
 			(@dropMoveGeneral @setDropAfter.bind @).call(this, dragged, dropAfter)
