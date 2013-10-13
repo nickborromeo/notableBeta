@@ -19,7 +19,6 @@
 		className: ->
 			if @model.get('parent_id') is 'root' then "note-item"
 			else "note-child"
-		# itemViewContainer: ".descendants"
 		ui:
 			noteContent: ">.noteContent"
 		events: ->
@@ -48,17 +47,13 @@
 			if @ui.noteContent.length is 0 or !@ui.noteContent.focus?
 				@ui.noteContent = @.$('.noteContent:first')
 			@ui.noteContent.wysiwyg()
-			if @model.isARoot()#  and @collection.length > 0
-				# @$('>.descendants').append('<div id="dropAfter" class="dropTarget"></div>')
-				this.model.collection.sort(silent: true)
+			if @model.isARoot()
+					this.model.collection.sort(silent: true)
 				if @model.collection.where(parent_id: 'root')[-1..][0] is @model
 					@$el.append('<div id="dropAfter" class="dropTarget"></div>')
 		appendHtml:(collectionView, itemView, i) ->
 			@$('.descendants:first').append(itemView.el)
 			if i is @collection.length - 1
-				# if @model.isARoot()
-				# 	@$('>.descendants').append('<div id="dropAfter" class="dropTarget"></div>')
-				# else
 				itemView.$('>.descendants').after('<div id="dropAfter" class="dropTarget"></div>')
 
 		bindKeyboardShortcuts: ->
@@ -125,7 +120,7 @@
 		dispatchFunction: (functionName) ->
 			return @[functionName].apply(@, @sliceArgs arguments) if @[functionName]?
 			@collection[functionName].apply(@collection, @sliceArgs arguments)
-			@render()
+			@render() # Will probably need to do something about rerendering all the time
 			Note.eventManager.trigger "setCursor:#{arguments[1].get 'guid'}"
 		createNote: (precedingNote, text) ->
 			@collection.createNote precedingNote, text
@@ -141,7 +136,7 @@
 			return false unless followingNote?
 			Note.eventManager.trigger "setCursor:#{followingNote.get('guid')}"
 		startMove: (ui, e, model) ->
-				# e.preventDefault();
+			# e.preventDefault();
 			# ui.noteContent.style.opacity = '0.7'
 			@drag = model
 			e.dataTransfer.effectAllowed = "move"
@@ -158,8 +153,6 @@
 		dropBefore: (following) ->
 			@collection.dropBefore(@drag, following)
 		dropAfter: (preceding) ->
-			# if not preceding.isARoot()
-			# 	preceding = preceding.getLastDescendant()
 			@collection.dropAfter(@drag, preceding)
 		enterMove: (ui, e, note) ->
 			if @dropAllowed note, @getDropType  e
@@ -174,8 +167,8 @@
 		endMove: (ui, e, note) ->
 			# ui.noteContent.style.opacity = '1.0'
 			Note.eventManager.trigger "setCursor:#{@drag.get('guid')}"
-			# @drag = undefined
-		dropAllowed: (note, dropType) -> # e = currentTarget: id: '#dropBefore') ->
+			@drag = undefined
+		dropAllowed: (note, dropType) ->
 			dropTypeMap =
 				dropBefore: "dropAllowedBefore"
 				dropAfter: "dropAllowedAfter"
