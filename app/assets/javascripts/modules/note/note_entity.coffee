@@ -252,7 +252,7 @@
 			if note.isInSameCollection previousNote
 				@jumpNoteUpInCollection note
 			else if (depthDifference = previousNote.get('depth') - note.get('depth')) > 0
-				@tabNote note for i in [depthDifference..1]
+				@tabNote note, @getNote previousNote.get 'parent_id'
 			else
 				previousCollection = @getCollection note.get 'parent_id'
 				@removeFromCollection previousCollection, note
@@ -265,7 +265,7 @@
 				@jumpNoteDownInCollection note
 			else
 				depthDifference = note.get('depth') - followingNote.get('depth')
-				@unTabNote note for i in [depthDifference..1]
+				@unTabNote note, followingNote
 			note
 
 		jumpFocusDown: (note) ->
@@ -273,25 +273,29 @@
 		jumpFocusUp: (note) ->
 			return previousNote if (previousNote = @findPreviousNote note)?
 
-		tabNote: (note) ->
+		tabNote: (note, parent = @findPrecedingInCollection note) ->
 			return false unless note.get('rank') > 1
 			previousParentCollection = @getCollection note.get 'parent_id'
-			parent = @findPrecedingInCollection note
 			@removeFromCollection previousParentCollection, note
 			note.save
 				parent_id: parent.get 'guid'
 				rank: parent.descendants.length + 1
-				depth: 1 + note.get 'depth'
+				depth: 1 + parent.get 'depth'
 			@insertInTree note
-		unTabNote: (note) ->
+		unTabNote: (note, followingNote = false) ->
 			return false if note.isARoot()
 			previousParent = @getNote note.get 'parent_id'
 			@removeFromCollection previousParent.descendants, note
-			note.save
-				parent_id: previousParent.get('parent_id')
-				rank: previousParent.get('rank') + 1
-				depth: note.get('depth') - 1
+			@generateNewUnTabAttributes note, followingNote, previousParent
 			@insertInTree note
+		generateNewUnTabAttributes: (note, followingNote, previousParent) ->
+			if followingNote
+				note.cloneAttributes followingNote
+			else
+				note.save
+					parent_id: previousParent.get('parent_id')
+					rank: previousParent.get('rank') + 1
+					depth: note.get('depth') - 1
 
 		setDropAfter: (dragged, dropAfter) ->
 			dragged.save
