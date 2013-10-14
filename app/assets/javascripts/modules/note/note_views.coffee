@@ -65,6 +65,8 @@
 			@.$el.on 'keydown', null, 'ctrl+shift+down', @triggerShortcut 'jumpPositionDown'
 			@.$el.on 'keydown', null, 'up', @triggerShortcut 'jumpFocusUp'
 			@.$el.on 'keydown', null, 'down', @triggerShortcut 'jumpFocusDown'
+			@.$el.on 'keydown', null, 'right', @arrowRightJumpLine.bind @
+			@.$el.on 'keydown', null, 'left', @arrowLeftJumpLine.bind @
 		triggerShortcut: (event) -> (e) =>
 			e.preventDefault()
 			e.stopPropagation()
@@ -76,34 +78,66 @@
 		triggerEvent: (event) ->
 			=> Note.eventManager.trigger 'change', event, @model
 
+		arrowRightJumpLine: (e) ->
+			e.stopPropagation()
+			if @testCursorPosition "isEmptyAfterCursor"
+				@triggerShortcut('jumpFocusDown')(e)
+		arrowLeftJumpLine: (e) ->
+			e.stopPropagation()
+			if @testCursorPosition "isEmptyBeforeCursor"
+				@triggerShortcut('jumpFocusUpEndOfLine')(e)
+
 		createNote: (e) ->
 			ENTER_KEY = 13
 			if e.which is ENTER_KEY
 				e.preventDefault()
 				sel = window.getSelection()
 				title = @updateNote()
-				textBefore = @textBeforeCursor sel, title
+				textBefore = @KeepTextBeforeCursor sel, title
 				textAfter = @textAfterCursor sel, title
 				@ui.noteContent.html textBefore
 				Note.eventManager.trigger 'createNote', @model, textAfter
 		updateNote: ->
-			noteTitle = @ui.noteContent.html().trim()
+			noteTitle = @getNoteTitle()
 			@model.save
 				title: noteTitle
 			noteTitle
+		getNoteTitle: ->
+			@ui.noteContent.html().trim()
 
-		setCursor: (e) ->
+		setCursor: (endPosition = false) ->
 			if @ui.noteContent.length is 0 or !@ui.noteContent.focus?
 				@ui.noteContent = @.$('.noteContent:first')
 				@ui.noteContent.wysiwyg()
 			@ui.noteContent.focus()
+			if endPosition
+				@placeCursorAtEnd(@ui.noteContent)
+		placeCursorAtEnd: (el) ->
+			range = document.createRange();
+			range.selectNodeContents(el[0])
+			range.collapse false
+			sel = window.getSelection()
+			sel.removeAllRanges()
+			sel.addRange range
 		textBeforeCursor: (sel, title) ->
 			textBefore = title.slice(0,sel.anchorOffset)
+		KeepTextBeforeCursor: (sel, title) ->
+			textBefore = @textBeforeCursor sel, title
 			@model.save
 				title: textBefore
 			textBefore
 		textAfterCursor: (sel, title) ->
 			textAfter = title.slice(sel.anchorOffset, title.length)
+		testCursorPosition: (testPositionFunction) ->
+			sel = window.getSelection()
+			title = @getNoteTitle()
+			@[testPositionFunction](sel, title)
+		isEmptyAfterCursor: ->
+			@textAfterCursor.apply(this, arguments).length is 0
+		isEmptyBeforeCursor: ->
+			@textBeforeCursor.apply(this, arguments).length is 0
+
+
 
 	class Note.CollectionView extends Marionette.CollectionView
 		id: "note-list"
@@ -131,6 +165,10 @@
 			previousNote = @collection.jumpFocusUp note
 			return false unless previousNote?
 			Note.eventManager.trigger "setCursor:#{previousNote.get('guid')}"
+		jumpFocusUpEndOfLine: (note) ->
+			previousNote = @collection.jumpFocusUp note
+			return false unless previousNote?
+			Note.eventManager.trigger "setCursor:#{previousNote.get('guid')}", true
 		jumpFocusDown: (note) ->
 			followingNote = @collection.jumpFocusDown note
 			return false unless followingNote?
@@ -146,6 +184,7 @@
 			e.stopPropagation()
 			if @dropAllowed(referenceNote, @getDropType e)
 				@[@getDropType(e)](referenceNote)
+			Note.eventManager.trigger "setCursor:#{@drag.get('guid')}"
 		# 	@triggerRenderAfterDrag referenceNote
 		# triggerRenderAfterDrag: (note) ->
 		# 	if note.isARoot() then @render()
