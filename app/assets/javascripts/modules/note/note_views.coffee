@@ -40,7 +40,6 @@
 			@bindKeyboardShortcuts()
 			@listenTo @model, "change:created_at", @setCursor
 			@listenTo @collection, "sort", @render
-
 			Note.eventManager.on "setCursor:#{@model.get('guid')}", @setCursor, @
 			Note.eventManager.on "render:#{@model.get('guid')}", @render, @
 		onRender: ->
@@ -171,8 +170,12 @@
 			Note.eventManager.trigger "setCursor:#{previousNote.get('guid')}", true
 		jumpFocusDown: (note) ->
 			followingNote = @collection.jumpFocusDown note
-			return false unless followingNote?
-			Note.eventManager.trigger "setCursor:#{followingNote.get('guid')}"
+			if followingNote
+				Note.eventManager.trigger "setCursor:#{followingNote.get('guid')}"
+				true
+			else
+				Note.eventManager.trigger "setCursor:#{note.get('guid')}", true
+				false
 		startMove: (ui, e, model) ->
 			# e.preventDefault();
 			# ui.noteContent.style.opacity = '0.7'
