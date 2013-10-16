@@ -92,7 +92,7 @@
 				e.preventDefault()
 				sel = window.getSelection()
 				title = @updateNote()
-				textBefore = @KeepTextBeforeCursor sel, title
+				textBefore = @keepTextBeforeCursor sel, title
 				textAfter = @textAfterCursor sel, title
 				@ui.noteContent.html textBefore
 				Note.eventManager.trigger 'createNote', @model, textAfter
@@ -120,7 +120,7 @@
 			sel.addRange range
 		textBeforeCursor: (sel, title) ->
 			textBefore = title.slice(0,sel.anchorOffset)
-		KeepTextBeforeCursor: (sel, title) ->
+		keepTextBeforeCursor: (sel, title) ->
 			textBefore = @textBeforeCursor sel, title
 			@model.save
 				title: textBefore

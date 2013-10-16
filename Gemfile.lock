@@ -1,3 +1,10 @@
+GIT
+  remote: https://github.com/bradphelan/jasminerice.git
+  revision: 091349c27343bfa728b8e5745675f9ddbb7d9699
+  specs:
+    jasminerice (0.1.0)
+      coffee-rails
+
 GEM
   remote: https://rubygems.org/
   specs:
@@ -37,7 +44,12 @@ GEM
       railties (>= 3.1.0)
       sass-rails (>= 3.1.0)
     builder (3.0.4)
+    celluloid (0.15.2)
+      timers (~> 1.1.0)
+    childprocess (0.3.9)
+      ffi (~> 1.0, >= 1.0.11)
     chunky_png (1.2.8)
+    coderay (1.0.9)
     coffee-rails (3.2.2)
       coffee-script (>= 2.2.0)
       railties (~> 3.2.0)
@@ -58,31 +70,62 @@ GEM
       railties (>= 3.2.6, < 5)
       thread_safe (~> 0.1)
       warden (~> 1.2.3)
+    diff-lcs (1.2.4)
     erubis (2.7.0)
     eventmachine (1.0.3)
     execjs (2.0.1)
+    ffi (1.9.0)
+    formatador (0.2.4)
     fssm (0.2.10)
     google-analytics-rails (0.0.4)
+    guard (2.1.0)
+      formatador (>= 0.2.4)
+      listen (~> 2.1)
+      lumberjack (~> 1.0)
+      pry (>= 0.9.12)
+      thor (>= 0.18.1)
+    guard-jasmine (1.18.3)
+      childprocess
+      guard (>= 1.1.0)
+      multi_json
+      thor
+      tilt
     handlebars_assets (0.14.1)
       execjs (>= 1.2.9)
       sprockets (>= 2.0.3)
       tilt
     hike (1.2.3)
     i18n (0.6.5)
+    jasmine (1.3.2)
+      jasmine-core (~> 1.3.1)
+      rack (~> 1.0)
+      rspec (>= 1.3.1)
+      selenium-webdriver (>= 0.1.3)
+    jasmine-core (1.3.1)
     journey (1.0.4)
     jquery-rails (3.0.4)
       railties (>= 3.0, < 5.0)
       thor (>= 0.14, < 2.0)
     json (1.8.0)
+    listen (2.1.0)
+      celluloid (>= 0.15.2)
+      rb-fsevent (>= 0.9.3)
+      rb-inotify (>= 0.9)
+    lumberjack (1.0.4)
     mail (2.4.4)
       i18n (>= 0.4.0)
       mime-types (~> 1.16)
       treetop (~> 1.4.8)
+    method_source (0.8.2)
     mime-types (1.25)
     multi_json (1.8.0)
     orm_adapter (0.4.0)
     pg (0.16.0)
     polyglot (0.3.3)
+    pry (0.9.12.2)
+      coderay (~> 1.0.5)
+      method_source (~> 0.8)
+      slop (~> 3.4)
     quiet_assets (1.0.2)
       railties (>= 3.1, < 5.0)
     rack (1.4.5)
@@ -108,13 +151,31 @@ GEM
       rdoc (~> 3.4)
       thor (>= 0.14.6, < 2.0)
     rake (10.1.0)
+    rb-fsevent (0.9.3)
+    rb-inotify (0.9.2)
+      ffi (>= 0.5.0)
     rdoc (3.12.2)
       json (~> 1.4)
+    rspec (2.14.1)
+      rspec-core (~> 2.14.0)
+      rspec-expectations (~> 2.14.0)
+      rspec-mocks (~> 2.14.0)
+    rspec-core (2.14.5)
+    rspec-expectations (2.14.3)
+      diff-lcs (>= 1.1.3, < 2.0)
+    rspec-mocks (2.14.3)
+    rubyzip (0.9.9)
     sass (3.2.10)
     sass-rails (3.2.6)
       railties (~> 3.2.0)
       sass (>= 3.1.10)
       tilt (~> 1.3)
+    selenium-webdriver (2.35.1)
+      childprocess (>= 0.2.5)
+      multi_json (~> 1.0)
+      rubyzip (< 1.0.0)
+      websocket (~> 1.0.4)
+    slop (3.4.6)
     sprockets (2.2.2)
       hike (~> 1.2)
       multi_json (~> 1.0)
@@ -128,6 +189,7 @@ GEM
     thread_safe (0.1.3)
       atomic
     tilt (1.4.1)
+    timers (1.1.0)
     treetop (1.4.15)
       polyglot
       polyglot (>= 0.3.1)
@@ -137,6 +199,7 @@ GEM
       multi_json (~> 1.0, >= 1.0.2)
     warden (1.2.3)
       rack (>= 1.0)
+    websocket (1.0.7)
 
 PLATFORMS
   ruby
@@ -149,7 +212,11 @@ DEPENDENCIES
   compass-rails
   devise
   google-analytics-rails
+  guard
+  guard-jasmine
   handlebars_assets
+  jasmine
+  jasminerice!
   jquery-rails
   pg
   quiet_assets

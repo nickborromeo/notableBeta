@@ -17,6 +17,12 @@ gem 'compass-rails'
 
 group :development, :test do
   gem 'quiet_assets', :group => :development
+  gem 'jasmine'
+  gem 'guard-jasmine'
+  gem "jasminerice", :git => 'https://github.com/bradphelan/jasminerice.git'
+end
+group :development do
+  gem 'guard'
 end
 
 # Gems used only for assets and not required
