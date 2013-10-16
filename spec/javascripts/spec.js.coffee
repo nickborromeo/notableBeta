@@ -5,6 +5,6 @@
 # spec/javascripts/*_spec.js.erb
 # spec/lib/jasmine/*.js
 #
+# =require ../../app/assets/javascripts/application
 # =require_tree ./
 # =require_tree ./helpers
-# =require_tree ../../app/assets/javascripts
