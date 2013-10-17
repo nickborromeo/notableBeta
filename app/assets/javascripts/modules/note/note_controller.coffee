@@ -21,7 +21,7 @@
 
 		showNoteView: (trunk) ->
 			noteView = new App.Note.CollectionView(collection: trunk)
-			App.mainRegion.show noteView
+			App.contentRegion.show noteView
 
 	# Initializers -------------------------
 	App.Note.on "start", ->

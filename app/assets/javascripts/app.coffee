@@ -3,17 +3,17 @@
 	App = new Marionette.Application
 
 	App.addRegions
-		headerRegion: "#header-region"
-		mainRegion: "#main-region"
+		messageRegion: "#message-region"
+		contentRegion: "#content-region"
 		sidebarRegion: "#sidebar-region"
-		footerRegion: "#footer-region"
 
 	# Run BEFORE/DURING/AFTER initializers
 	App.on "initialize:before", ->
 
 	App.addInitializer ->
-		App.module("Scaffold").start()
 		App.module("Note").start()
+		# App.module("Action").start()
+		# App.module("Notification").start()
 		# App.module("Notebook").start()
 		# App.module("User").start()
 		# App.module("Feat").start()
