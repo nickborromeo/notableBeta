@@ -63,7 +63,7 @@
 		describe "#createNote", ->
 			Given -> @precedingNote = @trunk.models[3]
 			When -> @trunk.createNote(@precedingNote, 'Yay!')
-			describe " should create a note with proper attributes", ->				
+			describe " should create a note with proper attributes", ->
 				Given -> @captor = jasmine.captor()
 				Given -> @expectedProperties =
 					rank: 5
@@ -299,10 +299,4 @@
 			When -> @trunk.dropBefore(@dragged, @trunk.findNote('74cbdcf2-5c55-4269-8c79-b971bfa11fff'))
 			When -> @trunk.dropBefore(@dragged, @trunk.findNote('e0a5367a-1688-4c3f-98b4-a6fdfe95e779'))
 			Then -> window.verifyProperty(@dragged, @expectedProperties, true)
-
-		# describe "Enter key should save a new note to the server", ->
-			
-		# 	Then -> console.log(@noteView)
-		
-
 )

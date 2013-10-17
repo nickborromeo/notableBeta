@@ -140,7 +140,7 @@
 					note.increaseDescendantsDepth depthDifference
 			newCollection.sort()
 		removeFromCollection: (collection, note) ->
-			collection.remove note			
+			collection.remove note
 			@decreaseRankOfFollowing note
 
 		createNote: (precedingNote, text) ->

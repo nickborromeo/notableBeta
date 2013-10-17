@@ -1,7 +1,7 @@
 @MOCK_GET_NOTE =
 	rank: 1
 	title: "mock_test"
-	create_at: "2013-10-10 23:30:26.497138 "
+	create_at: "2013-10-10 23:30:26.497138"
 	updated_at: "2013-10-14 18:33:03.016146"
 	guid: "010c12bd-6745-4d3f-8ec4-8071033fff50"
 	parent_id: "root"
