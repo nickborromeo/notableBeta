@@ -44,17 +44,21 @@
 			Note.eventManager.on "setCursor:#{@model.get('guid')}", @setCursor, @
 			Note.eventManager.on "render:#{@model.get('guid')}", @render, @
 		onRender: ->
-			if @ui.noteContent.length is 0 or !@ui.noteContent.focus?
-				@ui.noteContent = @.$('.noteContent:first')
-			@ui.noteContent.wysiwyg()
-			if @model.isARoot()
-					this.model.collection.sort(silent: true)
-				if @model.collection.where(parent_id: 'root')[-1..][0] is @model
-					@$el.append('<div id="dropAfter" class="dropTarget"></div>')
+			@getNoteContent().wysiwyg()
+			@addLastDropTarget()
 		appendHtml:(collectionView, itemView, i) ->
 			@$('.descendants:first').append(itemView.el)
 			if i is @collection.length - 1
 				itemView.$('>.descendants').after('<div id="dropAfter" class="dropTarget"></div>')
+		getNoteContent: ->
+			if @ui.noteContent.length is 0 or !@ui.noteContent.focus?
+					@ui.noteContent = @.$('.noteContent:first')
+			@ui.noteContent
+		addLastDropTarget: ->
+			if @model.isARoot()
+				@model.collection.sort(silent: true)
+				if @model.collection.where(parent_id: 'root')[-1..][0] is @model
+					@$el.append('<div id="dropAfter" class="dropTarget"></div>')
 
 		bindKeyboardShortcuts: ->
 			@.$el.on 'keydown', null, 'ctrl+shift+backspace', @triggerShortcut 'deleteNote'
@@ -72,11 +76,14 @@
 			e.stopPropagation()
 			@triggerEvent(event)()
 		triggerDragEvent: (event) -> (e) =>
+			@updateNote()
 			e.dataTransfer = e.originalEvent.dataTransfer;
 			Note.eventManager.trigger 'change', event, @ui, e, @model
 			e.stopPropagation()
 		triggerEvent: (event) ->
-			=> Note.eventManager.trigger 'change', event, @model
+			=>
+				@updateNote()
+				Note.eventManager.trigger 'change', event, @model
 
 		arrowRightJumpLine: (e) ->
 			e.stopPropagation()
@@ -99,17 +106,15 @@
 				Note.eventManager.trigger 'createNote', @model, textAfter
 		updateNote: ->
 			noteTitle = @getNoteTitle()
-			@model.save
-				title: noteTitle
+			if @model.get('title') isnt noteTitle
+				@model.save
+					title: noteTitle
 			noteTitle
 		getNoteTitle: ->
 			@ui.noteContent.html().trim()
 
 		setCursor: (endPosition = false) ->
-			if @ui.noteContent.length is 0 or !@ui.noteContent.focus?
-				@ui.noteContent = @.$('.noteContent:first')
-				@ui.noteContent.wysiwyg()
-			@ui.noteContent.focus()
+			@getNoteContent().focus()
 			if endPosition
 				@placeCursorAtEnd(@ui.noteContent)
 		placeCursorAtEnd: (el) ->
@@ -217,7 +222,8 @@
 			@[dropTypeMap[dropType]](note)
 		dropAllowedBefore: (note) ->
 			preceding = @collection.jumpFocusUp note
-			not note.hasInAncestors(@drag) and preceding isnt @drag
+			not note.hasInAncestors(@drag) and (preceding isnt @drag or
+			note.get('depth') isnt @drag.get 'depth')
 		dropAllowedAfter: (note) ->
 			@drag isnt note and not note.hasInAncestors @drag
 		getDropType: (e) ->
