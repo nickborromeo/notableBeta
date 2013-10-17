@@ -50,9 +50,35 @@
 				Given -> spyOn(@newNote, 'increaseDescendantsDepth')
 				When -> @trunk.insertInTree(@newNote)
 				Then -> expect(@newNote.increaseDescendantsDepth).toHaveBeenCalledWith(3)
-
-		# describe "#removeFromCollection should manage rank of following", ->
-		# 		Given -> spyOn(@trunk.first(), "decreaseRankOfFollowing")
+		describe "#removeFromCollection", ->
+			Given -> @removed = @trunk.models[2]
+			Given -> @aFollowing = @trunk.models[3]
+			Given -> @previousRank = @aFollowing.get 'rank'
+			When -> @trunk.removeFromCollection(@trunk, @removed)
+			describe "should remove the note from the collection", ->
+				Then -> @trunk.findInCollection(guid: @removed.get('guid')).length is 0
+			describe "should manage the rank of the following note", ->
+				Then -> @trunk.findFirstInCollection(guid: @aFollowing.get('guid')).get('rank') is
+					@previousRank - 1
+		describe "#createNote", ->
+			Given -> @precedingNote = @trunk.models[3]
+			When -> @trunk.createNote(@precedingNote, 'Yay!')
+			describe " should create a note with proper attributes", ->				
+				Given -> @captor = jasmine.captor()
+				Given -> @expectedProperties =
+					rank: 5
+					depth: 0
+					parent_id: 'root'
+					title: "Yay!"
+				Then -> expect(@trunk.create).toHaveBeenCalledWith(@captor.capture())
+				And -> window.verifyProperty(@captor.value, @expectedProperties)
+			describe "should properly manage rank of following notes", ->
+				Given -> @previousRank = @trunk.last().get('rank')
+				Then -> @previousRank is @trunk.last().get('rank') - 1
+		# describe "#deleteNote", ->
+		# 	describe "Should remove a note from anywhere in the Trunk", ->
+		# 		Given -> @deleted = @trunk.models[1].descendants.first()
+		# 		Given -> spyOn(@deleted, 'destroy')
 
 		describe "#getCollection should return a branch of the trunk", ->
 			Given -> @aRootBranch = @trunk.getCollection @aRootNote.get('parent_id')
@@ -178,53 +204,101 @@
 
 		Given -> @tabbedNote = @trunk.findNote('7d13cbb1-27d7-446a-bd64-8abf6a441274')
 		describe "#tabNote", ->
+			describe "called once, tabs the note once", ->
+				Given -> @expectedProperties =
+					depth: 1
+					rank: 2
+					parent_id: '138b785a-4041-4064-867c-8239579ffd3e'
+				When -> @trunk.tabNote(@tabbedNote)
+				Then -> window.verifyProperty(@tabbedNote, @expectedProperties, true)
+			describe "Sets the right rank for the tabbed note", ->
+				Given -> @expectedProperties =
+					depth: 2
+					rank: 2
+					parent_id: 'b759bf9e-3295-4d67-8f21-ada1e061dff9'
+				When -> @trunk.tabNote(@tabbedNote) for i in [2..1]
+				Then -> window.verifyProperty(@tabbedNote, @expectedProperties, true)
+			describe "called too many times only tab to the maximum depth", ->
+				Given -> @expectedProperties3 =
+					depth: 4
+					rank: 1
+					parent_id: 'e0a5367a-1688-4c3f-98b4-a6fdfe95e779'
+				When -> @trunk.tabNote(@tabbedNote) for i in [10..1]
+				Then -> window.verifyProperty(@tabbedNote, @expectedProperties3, true)
+			describe "calling with a parent note should tabbed automatically to that parent", ->
+				Given -> @expectedProperties3 =
+					depth: 4
+					rank: 1
+					parent_id: 'e0a5367a-1688-4c3f-98b4-a6fdfe95e779'
+				When -> @trunk.tabNote(@tabbedNote, @trunk.findNote('e0a5367a-1688-4c3f-98b4-a6fdfe95e779'))
+				Then -> window.verifyProperty(@tabbedNote, @expectedProperties3, true)
+		describe "#unTab", ->
+			Given -> @untabbed = @trunk.findNote('e0a5367a-1688-4c3f-98b4-a6fdfe95e779')
+			describe "called on a root note, does nothing", ->
+				Given -> @expectedProperties =
+					depth: @tabbedNote.get('depth')
+					rank: @tabbedNote.get('rank')
+					parent_id: 'root'
+				When -> @trunk.unTabNote(@tabbedNote)
+				Then -> window.verifyProperty(@tabbedNote, @expectedProperties, true)
+			describe "called on a valid note, untabs the note and manages the rank properly", ->
+				Given -> @expectedProperties =
+					depth: 2
+					rank: 2
+					parent_id: 'b759bf9e-3295-4d67-8f21-ada1e061dff9'
+				When -> @trunk.unTabNote(@untabbed)
+				Then -> window.verifyProperty(@untabbed, @expectedProperties, true)
+			describe "called multiple time, untabs the note until it is a root", ->
+				Given -> @expectedProperties =
+					depth: 0
+					rank: 3
+					parent_id: 'root'
+				When -> @trunk.unTabNote(@untabbed) for i in [5..1]
+				Then -> window.verifyProperty(@untabbed, @expectedProperties, true)
+			describe "provided with a following note, will place the note just before", ->
+				Given -> @expectedProperties =
+					depth: 0
+					rank: 3
+					parent_id: 'root'
+				When -> @trunk.unTabNote(@untabbed, @trunk.findNote('7d13cbb1-27d7-446a-bd64-8abf6a441274'))
+				Then -> window.verifyProperty(@untabbed, @expectedProperties, true)
+			describe "tabbing and untabing should be symetric", ->
+				Given -> @expectedProperties =
+					depth: @tabbedNote.get('depth')
+					rank: @tabbedNote.get('rank')
+					parent_id: 'root'
+				When -> @trunk.tabNote(@tabbedNote) for i in [3..1]
+				When -> @trunk.unTabNote(@tabbedNote) for i in [3..1]
+				Then -> window.verifyProperty(@tabbedNote, @expectedProperties, true)
+
+		describe "#dropAfter", ->
+			Given -> @dragged = @trunk.findNote('7d13cbb1-27d7-446a-bd64-8abf6a441274')
+			describe "should drop the note after passed note", ->
+				Given -> @expectedProperties =
+					depth: 3
+					rank: 2
+					parent_id: '8a42c5ad-e9cb-43c9-852b-faff683b1b05'
+				When -> @trunk.dropAfter(@dragged, @trunk.findNote('e0a5367a-1688-4c3f-98b4-a6fdfe95e779'))
+				Then -> window.verifyProperty(@dragged, @expectedProperties, true)
+			describe "dragging note multiple time should not affect the final destination", ->
+				Given -> @expectedProperties =
+					depth: 3
+					rank: 2
+					parent_id: '8a42c5ad-e9cb-43c9-852b-faff683b1b05'
+				When -> @trunk.dropAfter(@dragged, @trunk.findNote('0b497f64-a4f9-46a6-ab34-512b9322724a'))
+				When -> @trunk.dropAfter(@dragged, @trunk.findNote('74cbdcf2-5c55-4269-8c79-b971bfa11fff'))
+				When -> @trunk.dropAfter(@dragged, @trunk.findNote('e0a5367a-1688-4c3f-98b4-a6fdfe95e779'))
+				Then -> window.verifyProperty(@dragged, @expectedProperties, true)
+		describe "#dropBefore", ->
+			Given -> @dragged = @trunk.findNote('7d13cbb1-27d7-446a-bd64-8abf6a441274')
 			Given -> @expectedProperties =
-				depth: 1
-				rank: 2
-				parent_id: '138b785a-4041-4064-867c-8239579ffd3e'
-			When -> @trunk.tabNote(@tabbedNote)
-			Then -> window.verifyProperty(@tabbedNote, @expectedProperties, true)
-
-			# Given -> @expectedProperties2 =
-			# 	depth: 2
-			# 	rank: 2
-			# 	parent_id: 'b759bf9e-3295-4d67-8f21-ada1e061dff9'
-			# When -> @trunk.tabNote(@tabbedNote)
-			# Then -> window.verifyProperty(@tabbedNote, @expectedProperties2, true)
-
-			# Given -> @expectedProperties3 =
-			# 	depth: 3
-			# 	rank: 2
-			# 	parent_id: '8a42c5ad-e9cb-43c9-852b-faff683b1b05'
-			# When -> @trunk.tabNote(@tabbedNote)
-			# Then -> window.verifyProperty(@tabbedNote, @expectedProperties3, true)
-
-			# Given -> @expectedProperties4 =
-			# 	depth: 4
-			# 	rank: 1
-			# 	parent_id: 'e0a5367a-1688-4c3f-98b4-a6fdfe95e779'
-			# When -> @trunk.tabNote(@tabbedNote)
-			# Then -> window.verifyProperty(@tabbedNote, @expectedProperties4, true)
-
-			# When -> @trunk.tabNote(@tabbedNote)
-			# Then -> window.verifyProperty(@tabbedNote, @expectedProperties4, true)
-
-			# When -> @trunk.unTabNote(@tabbedNote)
-			# Then -> window.verifyProperty(@tabbedNote, @expectedProperties3, true)
-
-			# When -> @trunk.unTabNote(@tabbedNote)
-			# Then -> window.verifyProperty(@tabbedNote, @expectedProperties2, true)
-
-			# When -> @trunk.unTabNote(@tabbedNote)
-			# Then -> window.verifyProperty(@tabbedNote, @expectedProperties, true)
-
-			# Given -> @expectedInitialProperties =
-			# 	depth: 1
-			# 	rank: 1
-			# 	parent_id: 'root'
-			# When -> @trunk.unTabNote(@tabbedNote)
-			# Then -> window.verifyProperty(@tabbedNote, @expectedInitialProperties, true)
-
+				depth: 3
+				rank: 1
+				parent_id: '8a42c5ad-e9cb-43c9-852b-faff683b1b05'
+			When -> @trunk.dropBefore(@dragged, @trunk.findNote('0b497f64-a4f9-46a6-ab34-512b9322724a'))
+			When -> @trunk.dropBefore(@dragged, @trunk.findNote('74cbdcf2-5c55-4269-8c79-b971bfa11fff'))
+			When -> @trunk.dropBefore(@dragged, @trunk.findNote('e0a5367a-1688-4c3f-98b4-a6fdfe95e779'))
+			Then -> window.verifyProperty(@dragged, @expectedProperties, true)
 
 		# describe "Enter key should save a new note to the server", ->
 			
