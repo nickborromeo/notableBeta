@@ -14,6 +14,7 @@
 			Note.eventManager.trigger 'change', event, @ui, e, @model
 			e.stopPropagation()
 
+  # class Note.BranchView extends Marionette.CompositeView
 	class Note.ModelView extends Marionette.CompositeView
 		template: "note/noteModel"
 		className: ->
@@ -136,8 +137,7 @@
 		isEmptyBeforeCursor: ->
 			@textBeforeCursor.apply(this, arguments).length is 0
 
-
-
+  # class Note.ContentView extends Marionette.CompositeView
 	class Note.CollectionView extends Marionette.CollectionView
 		id: "note-list"
 		itemView: Note.ModelView
