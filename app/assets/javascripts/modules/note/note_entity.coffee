@@ -140,7 +140,7 @@
 					note.increaseDescendantsDepth depthDifference
 			newCollection.sort()
 		removeFromCollection: (collection, note) ->
-			collection.remove note
+			collection.remove note			
 			@decreaseRankOfFollowing note
 
 		createNote: (precedingNote, text) ->
@@ -177,6 +177,7 @@
 			searchRecursively @first(), @rest() # start search
 			throw "#{guid} not found. Aborting" unless searchedNote
 			searchedNote
+			
 		getNote: (guid) -> @findNote(guid) # alias
 		findByGuidInCollection: (guid) ->
 			noteSearched = false
@@ -221,14 +222,14 @@
 			if previousNote.descendants.length is 0
 				return previousNote
 			previousNote.getLastDescendant()
-		findFollowingNoteInCollection: (note) ->
+		findFollowingInCollection: (note) ->
 			currentCollection = @getCollection note.get 'parent_id'
 			currentCollection.findFirstInCollection rank: note.get('rank') + 1
 		findFollowingNote: (note, checkDescendants = true) ->
 			return note.firstDescendant() if checkDescendants and note.descendants.length isnt 0
 			followingNote = undefined
 			findFollowingRecursively = (note) =>
-				if !(followingNote = @findFollowingNoteInCollection note)? and
+				if !(followingNote = @findFollowingInCollection note)? and
 					 note.get('parent_id') is 'root'
 					return undefined
 				return followingNote unless !followingNote?
@@ -242,7 +243,7 @@
 			previousNote.increaseRank()
 			@getCollection(note.get 'parent_id').sort()
 		jumpNoteDownInCollection: (note) ->
-			followingNote = @findFollowingNoteInCollection note
+			followingNote = @findFollowingInCollection note
 			return undefined unless followingNote?
 			followingNote.decreaseRank()
 			note.increaseRank()
