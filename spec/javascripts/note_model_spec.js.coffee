@@ -45,7 +45,7 @@
 			Given -> @note.cloneAttributes @noteWithDescendants
 			Then -> expect(@note.save).toHaveBeenCalledWith
 				parent_id: "root"
-				rank: 3
+				rank: 4
 				depth: 0
 			And -> @note.get('guid') isnt @noteWithDescendants.get('guid')
 

@@ -4,4 +4,4 @@
 				notes.add(note)
 			notes.each (note) =>
 				trunk.add(note)
-			console.log trunk
+
