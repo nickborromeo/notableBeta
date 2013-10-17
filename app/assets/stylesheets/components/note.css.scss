@@ -22,49 +22,6 @@
 	height: 100%;
 }
 
-#noteapp input::-webkit-input-placeholder {
-	font-style: italic;
-}
-
-#noteapp input:-moz-placeholder {
-	font-style: italic;
-	color: #B8B6A3;
-}
-
-#new-note,
-.edit {
-	position: relative;
-	margin: 0;
-	width: 100%;
-	font-size: 24px;
-	font-family: inherit;
-	line-height: 1.4em;
-	border: 0;
-	outline: none;
-	color: inherit;
-	padding: 6px;
-	border: 1px solid #999;
-	box-shadow: inset 0 -1px 5px 0 rgba(0, 0, 0, 0.2);
-	-webkit-box-sizing: border-box;
-	-moz-box-sizing: border-box;
-	-ms-box-sizing: border-box;
-	-o-box-sizing: border-box;
-	box-sizing: border-box;
-	-webkit-font-smoothing: antialiased;
-	-moz-font-smoothing: antialiased;
-	-ms-font-smoothing: antialiased;
-	-o-font-smoothing: antialiased;
-	font-smoothing: antialiased;
-}
-
-#new-note {
-	padding: 16px 16px 16px 65px;
-	border: none;
-	background: rgba(0, 0, 0, 0.2);
-	z-index: 2;
-	box-shadow: none;
-}
-
 .note-item {
 	position: relative;
 	font-size: 16px;
@@ -136,24 +93,6 @@
 	display: block;
 }
 
-/* #note-list div:hover .move { */
-/* 	display: inline-block; */
-/* } */
-
-/* .note-item div:hover >.move { */
-/* 	display: inline-block; */
-/* } */
-/* .note-item div:hover >.destroy { */
-/* 	display: block; */
-/* } */
-
-/* .note-child div:hover >.move { */
-/* 	display: inline-block; */
-/* } */
-/* .note-child div:hover >.destroy { */
-/* 	display: block; */
-/* } */
-
 #note-list div .edit {
 	display: none;
 }
@@ -164,7 +103,7 @@
 
 .noteContent {
 	margin-left: 2px;
-	width: 70%;
+	width: 90%;
 	display: inline-block;
 	outline: none;
 }
