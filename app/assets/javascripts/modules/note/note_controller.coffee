@@ -16,12 +16,12 @@
 			buildTrunk = (allNotes) =>
 				allNotes.each (note) =>
 					@trunk.add(note)
-				@showNoteView @trunk
+				@showContentView @trunk
 			@allNotesByDepth.fetch success: buildTrunk
 
-		showNoteView: (trunk) ->
-			noteView = new App.Note.CollectionView(collection: trunk)
-			App.contentRegion.show noteView
+		showContentView: (trunk) ->
+			contentView = new App.Note.TreeView(collection: trunk)
+			App.contentRegion.show contentView
 
 	# Initializers -------------------------
 	App.Note.on "start", ->
