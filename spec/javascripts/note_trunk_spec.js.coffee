@@ -83,25 +83,24 @@
 					Given -> @previousRank = @trunk.last().get('rank')
 					Then -> window.verifyProperty(@noteCreatedFrom, @expectedProperties, true)
 					And -> @previousRank + 1 is @trunk.last().get('rank')
-			# describe "note that has no text assign to it", ->
-			# 	When -> @newNote = @trunk.createNote(@noteCreatedFrom, "")
-			# 	describe "should create a note right before the following note, " +
-			# 				   "with same depth", ->
-			# 		Given -> @expectedProperties =
-			# 			rank: 1
-			# 			depth: 1
-			# 			parent_id: @noteCreatedFrom.get('guid')
-			# 			title: ""
-			# 		Then -> window.verifyProperty(@newNote, @expectedProperties)
-			# 	describe "should properly manage rank of following notes", ->
-			# 		Given -> @lastDescendantRank = @noteCreatedFrom(
-			# 		Then -> @previousRank is @trunk.last().get('rank') - 1
-			# 		Then -> @precedingNote.get('rank') is 5
+			describe "has text before and no text after, then", ->
+				When -> @newNote = @trunk.createNote(@noteCreatedFrom, @noteCreatedFrom.get('title'), "")
+				describe "should create a note right before the following note, " +
+							   "with same depth", ->
+					Given -> @expectedProperties =
+						rank: 1
+						depth: 1
+						parent_id: @noteCreatedFrom.get('guid')
+						title: ""
+					Then -> window.verifyProperty(@newNote, @expectedProperties, true)
+				describe "should properly manage rank of following notes", ->
+					Given -> @followingRank = @noteCreatedFrom.descendants.models[1].get('rank')
+					Then -> @followingRank is 2
+
 		# describe "#deleteNote", ->
 		# 	describe "Should remove a note from anywhere in the Trunk", ->
 		# 		Given -> @deleted = @trunk.models[1].descendants.first()
 		# 		Given -> spyOn(@deleted, 'destroy')
-
 		describe "#getCollection should return a branch of the trunk", ->
 			Given -> @aRootBranch = @trunk.getCollection @aRootNote.get('parent_id')
 			Then -> @aRootBranch.length is 5

@@ -95,11 +95,11 @@
 			_.each descendants, modifierFunction
 
 	# Static Function
-	Note.Model.generateAttributes = (precedingNote, text) ->
+	Note.Model.generateAttributes = (followingNote, text) ->
 		title: text
-		rank: 1 + precedingNote.get 'rank'
-		parent_id: precedingNote.get 'parent_id'
-		depth: precedingNote.get 'depth'
+		rank: followingNote.get 'rank'
+		parent_id: followingNote.get 'parent_id'
+		depth: followingNote.get 'depth'
 
 	# Helper Functions (to be moved)
 	# For use as a higher order function
@@ -146,8 +146,8 @@
 
 		createNote: (noteCreatedFrom, textBefore, textAfter) ->
 			hashMap = @dispatchCreation.apply @, arguments
-			newNote = new Note.Model title: hashMap.newNoteTitle
-			newNote.cloneAttributes hashMap.createBeforeNote
+			newNote = new Note.Model
+			newNote.save Note.Model.generateAttributes hashMap.createBeforeNote, hashMap.newNoteTitle
 			@insertInTree newNote
 			newNote
 		dispatchCreation: (noteCreatedFrom, textBefore, textAfter) ->
@@ -156,7 +156,7 @@
 			else
 				@createAfter.apply(@, arguments)
 		createAfter: (noteCreatedFrom, textBefore, textAfter) ->
-			createBeforeNote: @findFollowing noteCreatedFrom
+			createBeforeNote: @findFollowingNote noteCreatedFrom
 			newNoteTitle: textAfter
 		createBefore:  (noteCreatedFrom, textBefore, textAfter) ->
 			noteCreatedFrom.save

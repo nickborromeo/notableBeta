@@ -165,7 +165,8 @@
 			@render() # Will probably need to do something about rerendering all the time
 			Note.eventManager.trigger "setCursor:#{arguments[1].get 'guid'}"
 		createNote: ->
-			@collection.createNote.apply(@collection, arguments)
+			newNote = @collection.createNote.apply(@collection, arguments)
+			Note.eventManager.trigger "setCursor:#{newNote.get('guid')}"
 		deleteNote: (note) ->
 			(@jumpFocusUp note) unless (@jumpFocusDown note)
 			@collection.deleteNote note

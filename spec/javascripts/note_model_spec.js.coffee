@@ -68,7 +68,7 @@
 		describe "generate the right attribute with .generateAttributes", ->
 			Given -> @newNote = Note.Model.generateAttributes(@note, "test123")
 			Given -> @newProperties =
-				rank: 2
+				rank: 1
 				depth: 0,
 				title: 'test123',
 				parent_id: 'root'
