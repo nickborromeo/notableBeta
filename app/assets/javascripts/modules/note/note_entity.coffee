@@ -144,21 +144,25 @@
 			collection.remove note
 			@decreaseRankOfFollowing note
 
-		createNote: (noteCreatedFrom, title) ->
-			noteToCreateBefore = @dispatchCreation.apply @, arguments
-			newNote = new Note.Model title: title
-			newNote.cloneAttributes noteToCreateBefore
+		createNote: (noteCreatedFrom, textBefore, textAfter) ->
+			hashMap = @dispatchCreation.apply @, arguments
+			newNote = new Note.Model title: hashMap.newNoteTitle
+			newNote.cloneAttributes hashMap.createBeforeNote
 			@insertInTree newNote
 			newNote
-		dispatchCreation: (noteCreatedFrom, title) ->
-			if title.length is 0
-				@createAfter noteCreatedFrom
+		dispatchCreation: (noteCreatedFrom, textBefore, textAfter) ->
+			if textAfter.length isnt 0
+				@createBefore.apply(@, arguments)
 			else
-				@createBefore noteCreatedFrom
-		createAfter: (noteCreatedFrom) ->
-			@findFollowing noteCreatedFrom
-		createBefore:  (noteCreatedFrom) ->
-			noteCreatedFrom
+				@createAfter.apply(@, arguments)
+		createAfter: (noteCreatedFrom, textBefore, textAfter) ->
+			createBeforeNote: @findFollowing noteCreatedFrom
+			newNoteTitle: textAfter
+		createBefore:  (noteCreatedFrom, textBefore, textAfter) ->
+			noteCreatedFrom.save
+				title: textAfter
+			createBeforeNote: noteCreatedFrom
+			newNoteTitle: textBefore
 		deleteNote: (note) ->
 			descendants = note.getCompleteDescendantList()
 			_.each descendants, (descendant) ->

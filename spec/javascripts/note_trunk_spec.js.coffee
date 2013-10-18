@@ -62,20 +62,26 @@
 					@previousRank - 1
 		describe "#createNote", ->
 			Given -> @noteCreatedFrom = @trunk.models[3]
-			describe "has a text assign to it", ->
-				When -> @newNote = @trunk.createNote(@noteCreatedFrom, 'Yay!')
-				describe "must span before noteCreatedFrom", ->
+			describe "has no text before and has text after, then", ->
+				When -> @newNote = @trunk.createNote @noteCreatedFrom, "",
+								                             @noteCreatedFrom.get 'title'
+				describe "new note must spawn before noteCreatedFrom", ->
 					# Given -> @captor = jasmine.captor()
 					Given -> @expectedProperties =
 						rank: 4
 						depth: 0
 						parent_id: 'root'
-						title: "Yay!"
+						title: ""
 					Then -> window.verifyProperty(@newNote, @expectedProperties, true)
 					And -> console.log @noteCreatedFrom, @newNote
-				describe "should properly manage rank of following notes", ->
+				describe "noteCreatedFrom's title shouldn't change " +
+								 "and it, and followings, should get their rank increased", ->
+					Given -> @expectedProperties =
+							rank: 5
+							title: "What the hell"
+							depth: 0
 					Given -> @previousRank = @trunk.last().get('rank')
-					Then -> @noteCreatedFrom.get('rank') is 5
+					Then -> window.verifyProperty(@noteCreatedFrom, @expectedProperties, true)
 					And -> @previousRank + 1 is @trunk.last().get('rank')
 			# describe "note that has no text assign to it", ->
 			# 	When -> @newNote = @trunk.createNote(@noteCreatedFrom, "")

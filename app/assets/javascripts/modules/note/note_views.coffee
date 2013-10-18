@@ -100,10 +100,9 @@
 				e.preventDefault()
 				sel = window.getSelection()
 				title = @updateNote()
-				textBefore = @keepTextBeforeCursor sel, title
+				textBefore = @textBeforeCursor sel, title
 				textAfter = @textAfterCursor sel, title
-				@ui.noteContent.html textBefore
-				Note.eventManager.trigger 'createNote', @model, textAfter
+				Note.eventManager.trigger 'createNote', @model, textBefore, textAfter
 		updateNote: ->
 			noteTitle = @getNoteTitle()
 			if @model.get('title') isnt noteTitle
@@ -133,6 +132,11 @@
 			textBefore
 		textAfterCursor: (sel, title) ->
 			textAfter = title.slice(sel.anchorOffset, title.length)
+		keepTextAfterCursor: (sel, title) ->
+			textAfter = @textAfterCursor sel, title
+			@model.save
+				title: textAfter
+			textAfter
 		testCursorPosition: (testPositionFunction) ->
 			sel = window.getSelection()
 			title = @getNoteTitle()
@@ -160,8 +164,8 @@
 			@collection[functionName].apply(@collection, @sliceArgs arguments)
 			@render() # Will probably need to do something about rerendering all the time
 			Note.eventManager.trigger "setCursor:#{arguments[1].get 'guid'}"
-		createNote: (precedingNote, text) ->
-			@collection.createNote precedingNote, text
+		createNote: ->
+			@collection.createNote.apply(@collection, arguments)
 		deleteNote: (note) ->
 			(@jumpFocusUp note) unless (@jumpFocusDown note)
 			@collection.deleteNote note
