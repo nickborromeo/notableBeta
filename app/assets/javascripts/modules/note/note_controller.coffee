@@ -23,8 +23,6 @@
 			noteView = new App.Note.CollectionView(collection: trunk)
 			App.contentRegion.show noteView
 
-			@notes = new App.Note.Tree()
-
 	# Initializers -------------------------
 	App.Note.on "start", ->
 		noteController = new Note.Controller()
