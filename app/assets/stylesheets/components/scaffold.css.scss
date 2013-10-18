@@ -2,5 +2,16 @@
 // They will automatically be included in application.css.
 // You can use Sass (SCSS) here: http://sass-lang.com/
 
-.glyphicon-cog {
+$notableBlue: #14A4FF;
+$notableOrange: #E97C12;
+$notableYellow: #FFDC33;
+$notableWhite: #FDFDFD;
+$notableGray: #EAEAEA;
+$notableBlack: #3D3D3D;
+
+.logo {
+	color: $notableBlue;
+	display: inline;
+	padding-left: 0.7em;
 }
+
