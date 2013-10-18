@@ -3,17 +3,13 @@
 	background: #3F4045;
 	margin: 50px 0 40px 0;
 	border: 3px solid gray;
-	div:last-child {
-		border-bottom: none;
-	}
 	div .move {
-	/* display: none; */
-	margin: 0 10px 4px 1px;
-	-webkit-transition: all 0.2s;
-	-moz-transition: all 0.2s;
-	-ms-transition: all 0.2s;
-	-o-transition: all 0.2s;
-	transition: all 0.2s;
+		margin: 0 10px 4px 1px;
+		-webkit-transition: all 0.2s;
+		-moz-transition: all 0.2s;
+		-ms-transition: all 0.2s;
+		-o-transition: all 0.2s;
+		transition: all 0.2s;
 	}
 }
 
@@ -53,14 +49,6 @@
 	display: block;
 }
 
-#note-list div .edit {
-	display: none;
-}
-
-#note-list div.editing:last-child {
-	margin-bottom: -1px;
-}
-
 .noteContent {
 	margin-left: 2px;
 	width: 90%;
@@ -68,16 +56,10 @@
 	outline: none;
 }
 
-.noteContent.active {
-	border: 3px solid red;
-}
-
 .note-item {
 	position: relative;
 	font-size: 16px;
-	line-height: 1xsem;
-	/* padding: 5px; */
-	border-bottom: 1px dotted #ccc;
+	line-height: 1em;
 	font-family: Tahoma, Arial, sans-serif;
 }
 .note-child {
