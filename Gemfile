@@ -7,10 +7,9 @@ gem 'devise'
 gem 'thin'
 gem 'pg'
 gem 'active_model_serializers'
-gem 'bootstrap-sass-rails'
+gem 'bootstrap-sass'
 gem 'sass-rails', '~> 3.2.3'
 gem 'compass-rails'
-
 
 # Bundle edge Rails instead:
 # gem 'rails', :git => 'git://github.com/rails/rails.git'

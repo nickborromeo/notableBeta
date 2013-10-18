@@ -17,7 +17,7 @@
 //= require lib/wysiwyg
 //= require lib/jquery.hotkeys
 //= require handlebars
-//= require twitter/bootstrap
+//= require bootstrap
 //
 // Next we load in configuration and all the core objects
 //= require_tree ./config
