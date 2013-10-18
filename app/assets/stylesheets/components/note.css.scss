@@ -1,6 +1,12 @@
+$notableBlue: #14A4FF;
+$notableOrange: #E97C12;
+$notableYellow: #FFDC33;
+$notableWhite: #FDFDFD;
+$notableGray: #EAEAEA;
+$notableBlack: #3D3D3D;
 
 #note-list {
-	background: #3F4045;
+	background: $notableWhite;
 	margin: 50px 0 40px 0;
 	border: 3px solid gray;
 	div .move {

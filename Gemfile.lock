@@ -1,4 +1,11 @@
 GIT
+  remote: git://github.com/thomas-mcdonald/bootstrap-sass.git
+  revision: 6cc04bda62ed7ccf71d445fa82e706cb696b4fdb
+  specs:
+    bootstrap-sass (3.0.0.0)
+      sass (~> 3.2)
+
+GIT
   remote: https://github.com/bradphelan/jasminerice.git
   revision: 091349c27343bfa728b8e5745675f9ddbb7d9699
   specs:
@@ -40,8 +47,6 @@ GEM
     arel (3.0.2)
     atomic (1.1.14)
     bcrypt-ruby (3.1.2)
-    bootstrap-sass (2.3.2.2)
-      sass (~> 3.2)
     builder (3.0.4)
     chunky_png (1.2.8)
     coffee-rails (3.2.2)
@@ -149,7 +154,7 @@ PLATFORMS
 
 DEPENDENCIES
   active_model_serializers
-  bootstrap-sass
+  bootstrap-sass!
   coffee-rails (~> 3.2.2)
   coffee-script-source (= 1.5.0)
   compass-rails
@@ -161,6 +166,6 @@ DEPENDENCIES
   pg
   quiet_assets
   rails (= 3.2.11)
-  sass-rails (~> 3.2.3)
+  sass-rails (>= 3.2)
   thin
   uglifier (>= 1.0.3)

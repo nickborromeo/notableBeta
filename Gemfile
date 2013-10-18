@@ -7,8 +7,8 @@ gem 'devise'
 gem 'thin'
 gem 'pg'
 gem 'active_model_serializers'
-gem 'bootstrap-sass'
-gem 'sass-rails', '~> 3.2.3'
+gem 'bootstrap-sass', github: 'thomas-mcdonald/bootstrap-sass'
+gem 'sass-rails', '>= 3.2'
 gem 'compass-rails'
 
 # Bundle edge Rails instead:
