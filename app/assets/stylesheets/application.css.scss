@@ -14,17 +14,23 @@
 
 @import "bootstrap";
 
+$notableBlue: #14A4FF;
+$notableOrange: #E97C12;
+$notableYellow: #FFDC33;
+$notableWhite: #FDFDFD;
+$notableGray: #EAEAEA;
+$notableBlack: #3D3D3D;
+
 html {
 	margin: 0;
 }
 
 body {
 	height: 100%;
-	background-color: black;
+	background-color: $notableGray;
 	font: 14px 'Helvetica Neue', Helvetica, Arial, sans-serif;
 	line-height: 1.4em;
-	background-color: #212121;
-	color: #CACBCF;
+	color: $notableBlack;
 	width: 950px;
 	margin: 0 auto;
 	padding: 0;

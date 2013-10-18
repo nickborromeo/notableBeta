@@ -1,59 +1,21 @@
-/* will probably be changed to container in the future */
-#noteapp {
-	background: #3F4045;
-	margin: 50px 0 40px 0;
-	border: 1px solid #ccc;
-	position: relative;
-	border-top-left-radius: 2px;
-	border-top-right-radius: 2px;
-	box-shadow: 0 2px 6px 0 rgba(0, 0, 0, 0.2),
-				0 25px 50px 0 rgba(0, 0, 0, 0.15);
-}
-
-/* the line that seperates the note from the checkmarks*/
-#noteapp:before {
-	content: '';
-	border-left: 1px solid #f5d6d6;
-	border-right: 1px solid #f5d6d6;
-	width: 2px;
-	position: absolute;
-	top: 0;
-	left: 56px;
-	height: 100%;
-}
-
-.note-item {
-	position: relative;
-	font-size: 16px;
-	line-height: 1xsem;
-	/* padding: 5px; */
-	border-bottom: 1px dotted #ccc;
-	font-family: Tahoma, Arial, sans-serif;
-}
-.note-child {
-	position: relative;
-	font-size: 16px;
-	line-height: 1em;
-	/* padding: 5px; */
-	font-family: Tahoma, Arial, sans-serif;
-}
-
-.descendants {
-	margin-left: 25px;
-}
+$notableBlue: #14A4FF;
+$notableOrange: #E97C12;
+$notableYellow: #FFDC33;
+$notableWhite: #FDFDFD;
+$notableGray: #EAEAEA;
+$notableBlack: #3D3D3D;
 
 #note-list {
-	div:last-child {
-		border-bottom: none;
-	}
+	background: $notableWhite;
+	margin: 50px 0 40px 0;
+	border: 3px solid gray;
 	div .move {
-	/* display: none; */
-	margin: 0 10px 4px 1px;
-	-webkit-transition: all 0.2s;
-	-moz-transition: all 0.2s;
-	-ms-transition: all 0.2s;
-	-o-transition: all 0.2s;
-	transition: all 0.2s;
+		margin: 0 10px 4px 1px;
+		-webkit-transition: all 0.2s;
+		-moz-transition: all 0.2s;
+		-ms-transition: all 0.2s;
+		-o-transition: all 0.2s;
+		transition: all 0.2s;
 	}
 }
 
@@ -93,14 +55,6 @@
 	display: block;
 }
 
-#note-list div .edit {
-	display: none;
-}
-
-#note-list div.editing:last-child {
-	margin-bottom: -1px;
-}
-
 .noteContent {
 	margin-left: 2px;
 	width: 90%;
@@ -108,10 +62,23 @@
 	outline: none;
 }
 
-.noteContent.active {
-	border: 3px solid red;
+.note-item {
+	position: relative;
+	font-size: 16px;
+	line-height: 1em;
+	font-family: Tahoma, Arial, sans-serif;
+}
+.note-child {
+	position: relative;
+	font-size: 16px;
+	line-height: 1em;
+	/* padding: 5px; */
+	font-family: Tahoma, Arial, sans-serif;
 }
 
+.descendants {
+	margin-left: 25px;
+}
 
 /*** Drag N Drop *** /
 

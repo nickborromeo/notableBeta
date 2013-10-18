@@ -143,7 +143,8 @@
 			@textBeforeCursor.apply(this, arguments).length is 0
 
   # class Note.ContentView extends Marionette.CompositeView
-	class Note.CollectionView extends Marionette.CollectionView
+	class Note.TreeView extends Marionette.CompositeView
+		template: "note/noteCollection"
 		id: "note-list"
 		itemView: Note.ModelView
 
