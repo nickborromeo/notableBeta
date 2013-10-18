@@ -8,12 +8,14 @@
 	Given -> @allNotesByDepth.fetch()
 
 	describe "A note model should", ->
-		Given -> @note = new App.Note.Model model: window.MOCK_GET_NOTE
+		Given -> @note = new App.Note.Model
+		Given -> @note.set window.MOCK_GET_NOTE
 		describe "Have the right properties", ->
 			Then -> @note.get('guid')?
-			And -> @note.get('rank')?
-			And -> @note.get('depth')?
-
+			And -> @note.get('rank') is 1
+			And -> @note.get('depth') is 0
+			And -> @note.get('title') is "mock_test"
+			And -> @note.get('parent_id') is 'root'
 		Given -> spyOn(@note, 'save')
 		describe "have its rank increase by #increaseRank", ->
 			Given -> @note.increaseRank()
@@ -43,10 +45,12 @@
 
 		describe "be able to clone&save the attributes of some model with #cloneAttributes", ->
 			Given -> @note.cloneAttributes @noteWithDescendants
-			Then -> expect(@note.save).toHaveBeenCalledWith
+			Given -> @expectedAttributes =
 				parent_id: "root"
 				rank: 4
 				depth: 0
+				title: "mock_test"
+			Then -> window.verifyProperty(@note, @expectedAttributes, true)
 			And -> @note.get('guid') isnt @noteWithDescendants.get('guid')
 
 		describe "increment the depth of its descendants with #increaseDescendantsDepth", ->

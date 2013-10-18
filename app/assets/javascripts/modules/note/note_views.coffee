@@ -154,7 +154,7 @@
 			@drag = undefined
 		onRender: ->
 			if @collection.length is 0 then @collection.create()
-		sliceArgs: (args, slice = 1) -> Array.prototype.slice.call(args, 1)
+		sliceArgs: (args, slice = 1) -> Array.prototype.slice.call(args, slice)
 		dispatchFunction: (functionName) ->
 			return @[functionName].apply(@, @sliceArgs arguments) if @[functionName]?
 			@collection[functionName].apply(@collection, @sliceArgs arguments)

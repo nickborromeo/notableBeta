@@ -66,10 +66,11 @@
 		clonableAttributes: ['depth', 'rank', 'parent_id']
 		cloneAttributes: (noteToClone) ->
 			attributesHash = @cloneAttributesNoSaving noteToClone
-			@save attributesHash
+			@save
 		cloneAttributesNoSaving: (noteToClone) ->
 			attributesHash = {}
 			attributesHash[attribute] = noteToClone.get(attribute) for attribute in @clonableAttributes
+			@set attributesHash
 			attributesHash
 
 		# Will generalize for more than one attribute
@@ -143,9 +144,21 @@
 			collection.remove note
 			@decreaseRankOfFollowing note
 
-		createNote: (precedingNote, text) ->
-			@increaseRankOfFollowing precedingNote
-			@create Note.Model.generateAttributes(precedingNote, text)
+		createNote: (noteCreatedFrom, title) ->
+			noteToCreateBefore = @dispatchCreation.apply @, arguments
+			newNote = new Note.Model title: title
+			newNote.cloneAttributes noteToCreateBefore
+			@insertInTree newNote
+			newNote
+		dispatchCreation: (noteCreatedFrom, title) ->
+			if title.length is 0
+				@createAfter noteCreatedFrom
+			else
+				@createBefore noteCreatedFrom
+		createAfter: (noteCreatedFrom) ->
+			@findFollowing noteCreatedFrom
+		createBefore:  (noteCreatedFrom) ->
+			noteCreatedFrom
 		deleteNote: (note) ->
 			descendants = note.getCompleteDescendantList()
 			_.each descendants, (descendant) ->

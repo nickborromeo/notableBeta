@@ -61,20 +61,36 @@
 				Then -> @trunk.findFirstInCollection(guid: @aFollowing.get('guid')).get('rank') is
 					@previousRank - 1
 		describe "#createNote", ->
-			Given -> @precedingNote = @trunk.models[3]
-			When -> @trunk.createNote(@precedingNote, 'Yay!')
-			describe " should create a note with proper attributes", ->
-				Given -> @captor = jasmine.captor()
-				Given -> @expectedProperties =
-					rank: 5
-					depth: 0
-					parent_id: 'root'
-					title: "Yay!"
-				Then -> expect(@trunk.create).toHaveBeenCalledWith(@captor.capture())
-				And -> window.verifyProperty(@captor.value, @expectedProperties)
-			describe "should properly manage rank of following notes", ->
-				Given -> @previousRank = @trunk.last().get('rank')
-				Then -> @previousRank is @trunk.last().get('rank') - 1
+			Given -> @noteCreatedFrom = @trunk.models[3]
+			describe "note has a text assign to it", ->
+				When -> @newNote = @trunk.createNote(@noteCreatedFrom, 'Yay!')
+				describe "must span before noteCreatedFrom", ->
+					# Given -> @captor = jasmine.captor()
+					Given -> @expectedProperties =
+						rank: 4
+						depth: 0
+						parent_id: 'root'
+						title: "Yay!"
+					Then -> window.verifyProperty(@newNote, @expectedProperties)
+					And -> console.log @noteCreatedFrom, @newNote
+				describe "should properly manage rank of following notes", ->
+					Given -> @previousRank = @trunk.last().get('rank')
+					Then -> @precedingNote.get('rank') is 5
+					And -> @Previousrank is @trunk.last().get('rank') - 1
+			# describe "note that has no text assign to it", ->
+			# 	When -> @newNote = @trunk.createNote(@noteCreatedFrom, "")
+			# 	describe "should create a note right before the following note, " +
+			# 				   "with same depth", ->
+			# 		Given -> @expectedProperties =
+			# 			rank: 1
+			# 			depth: 1
+			# 			parent_id: @noteCreatedFrom.get('guid')
+			# 			title: ""
+			# 		Then -> window.verifyProperty(@newNote, @expectedProperties)
+			# 	describe "should properly manage rank of following notes", ->
+			# 		Given -> @lastDescendantRank = @noteCreatedFrom(
+			# 		Then -> @previousRank is @trunk.last().get('rank') - 1
+			# 		Then -> @precedingNote.get('rank') is 5
 		# describe "#deleteNote", ->
 		# 	describe "Should remove a note from anywhere in the Trunk", ->
 		# 		Given -> @deleted = @trunk.models[1].descendants.first()
