@@ -148,6 +148,7 @@
 			hashMap = @dispatchCreation.apply @, arguments
 			newNote = new Note.Model
 			newNote.save Note.Model.generateAttributes hashMap.createBeforeNote, hashMap.newNoteTitle
+			if hashMap.rankAdjustment then newNote.increaseRank()
 			@insertInTree newNote
 			newNote
 		dispatchCreation: (noteCreatedFrom, textBefore, textAfter) ->
@@ -156,8 +157,14 @@
 			else
 				@createAfter.apply(@, arguments)
 		createAfter: (noteCreatedFrom, textBefore, textAfter) ->
-			createBeforeNote: @findFollowingNote noteCreatedFrom
+			createFrom = @findFollowingNote noteCreatedFrom
+			rankAdjustment = false
+			if not createFrom or createFrom.get('depth') < noteCreatedFrom.get('depth')
+				createFrom = noteCreatedFrom
+				rankAdjustment = true
+			createBeforeNote: createFrom
 			newNoteTitle: textAfter
+			rankAdjustment: rankAdjustment
 		createBefore:  (noteCreatedFrom, textBefore, textAfter) ->
 			noteCreatedFrom.save
 				title: textAfter
