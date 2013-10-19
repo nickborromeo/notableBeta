@@ -25,6 +25,7 @@
 //= require_tree ./layout
 //
 // Now we can simply do require_tree for all the modules
+//= require_tree ./modules/scaffold
 //= require_tree ./modules/note
 //= require_tree ./modules/notebook
 //= require_tree ./modules/user

@@ -11,7 +11,7 @@
 	App.on "initialize:before", ->
 
 	App.addInitializer ->
-		# App.module("Scaffold").start()
+		App.module("Scaffold").start()
 		App.module("Note").start()
 		# App.module("Action").start()
 		# App.module("Notification").start()

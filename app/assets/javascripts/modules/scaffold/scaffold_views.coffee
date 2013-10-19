@@ -7,7 +7,7 @@
 		events: ->
 			"click .modview": "showModview"
 
-		regions
+		regions:
 	    notificationRegion: "#notification-region"
 	    modviewRegion: "#modview-region"
 
@@ -17,7 +17,7 @@
 		id: "sidebar-center"
 		tagName:	"section"
 
-		regions
+		regions:
 	    notebookRegion: "#notebook-region"
 	    recentNoteRegion: "#recentNote-region"
 	    favoriteRegion: "#favorite-region"
