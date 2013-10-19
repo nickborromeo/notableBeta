@@ -66,10 +66,11 @@
 		clonableAttributes: ['depth', 'rank', 'parent_id']
 		cloneAttributes: (noteToClone) ->
 			attributesHash = @cloneAttributesNoSaving noteToClone
-			@save attributesHash
+			@save
 		cloneAttributesNoSaving: (noteToClone) ->
 			attributesHash = {}
 			attributesHash[attribute] = noteToClone.get(attribute) for attribute in @clonableAttributes
+			@set attributesHash
 			attributesHash
 
 		# Will generalize for more than one attribute
@@ -94,11 +95,11 @@
 			_.each descendants, modifierFunction
 
 	# Static Function
-	Note.Model.generateAttributes = (precedingNote, text) ->
+	Note.Model.generateAttributes = (followingNote, text) ->
 		title: text
-		rank: 1 + precedingNote.get 'rank'
-		parent_id: precedingNote.get 'parent_id'
-		depth: precedingNote.get 'depth'
+		rank: followingNote.get 'rank'
+		parent_id: followingNote.get 'parent_id'
+		depth: followingNote.get 'depth'
 
 	# Helper Functions (to be moved)
 	# For use as a higher order function
@@ -143,9 +144,25 @@
 			collection.remove note
 			@decreaseRankOfFollowing note
 
-		createNote: (precedingNote, text) ->
-			@increaseRankOfFollowing precedingNote
-			@create Note.Model.generateAttributes(precedingNote, text)
+		createNote: (noteCreatedFrom, textBefore, textAfter) ->
+			hashMap = @dispatchCreation.apply @, arguments
+			newNote = new Note.Model
+			newNote.save Note.Model.generateAttributes hashMap.createBeforeNote, hashMap.newNoteTitle
+			@insertInTree newNote
+			newNote
+		dispatchCreation: (noteCreatedFrom, textBefore, textAfter) ->
+			if textAfter.length isnt 0
+				@createBefore.apply(@, arguments)
+			else
+				@createAfter.apply(@, arguments)
+		createAfter: (noteCreatedFrom, textBefore, textAfter) ->
+			createBeforeNote: @findFollowingNote noteCreatedFrom
+			newNoteTitle: textAfter
+		createBefore:  (noteCreatedFrom, textBefore, textAfter) ->
+			noteCreatedFrom.save
+				title: textAfter
+			createBeforeNote: noteCreatedFrom
+			newNoteTitle: textBefore
 		deleteNote: (note) ->
 			descendants = note.getCompleteDescendantList()
 			_.each descendants, (descendant) ->
