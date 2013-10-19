@@ -73,7 +73,6 @@
 						parent_id: 'root'
 						title: ""
 					Then -> window.verifyProperty(@newNote, @expectedProperties, true)
-					And -> console.log @noteCreatedFrom, @newNote
 				describe "noteCreatedFrom's title shouldn't change " +
 								 "and it, and followings, should get their rank increased", ->
 					Given -> @expectedProperties =
