@@ -3,9 +3,7 @@
 
 	class Note.ModelView extends Marionette.CompositeView
 		template: "note/noteModel"
-		className: ->
-			if @model.get('parent_id') is 'root' then "note-item"
-			else "note-child"
+		className: "branch"
 		ui:
 			noteContent: ">.noteContent"
 		events: ->
@@ -136,7 +134,7 @@
   # class Note.ContentView extends Marionette.CompositeView
 	class Note.TreeView extends Marionette.CompositeView
 		template: "note/noteCollection"
-		id: "note-list"
+		id: "tree"
 		itemView: Note.ModelView
 
 		initialize: ->
