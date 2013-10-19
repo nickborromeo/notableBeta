@@ -1,20 +1,6 @@
 @Notable.module("Note", (Note, App, Backbone, Marionette, $, _) ->
 	Note.eventManager = _.extend {}, Backbone.Events
 
-	class Note.DropTargetView extends Marionette.ItemView
-		template: "note/dropTargetLast"
-		model: Note.Model
-		events: ->
-			"dragenter .dropTarget": @triggerDragEvent "enterMove"
-			"dragleave .dropTarget": @triggerDragEvent "leaveMove"
-			"dragover .dropTarget": @triggerDragEvent "overMove"
-
-		triggerDragEvent: (event) -> (e) =>
-			e.dataTransfer = e.originalEvent.dataTransfer;
-			Note.eventManager.trigger 'change', event, @ui, e, @model
-			e.stopPropagation()
-
-  # class Note.BranchView extends Marionette.CompositeView
 	class Note.ModelView extends Marionette.CompositeView
 		template: "note/noteModel"
 		className: ->
@@ -159,10 +145,9 @@
 			@drag = undefined
 		onRender: ->
 			if @collection.length is 0 then @collection.create()
-		sliceArgs: (args, slice = 1) -> Array.prototype.slice.call(args, slice)
 		dispatchFunction: (functionName) ->
-			return @[functionName].apply(@, @sliceArgs arguments) if @[functionName]?
-			@collection[functionName].apply(@collection, @sliceArgs arguments)
+			return @[functionName].apply(@, Note.sliceArgs arguments) if @[functionName]?
+			@collection[functionName].apply(@collection, Note.sliceArgs arguments)
 			@render() # Will probably need to do something about rerendering all the time
 			Note.eventManager.trigger "setCursor:#{arguments[1].get 'guid'}"
 		createNote: ->
