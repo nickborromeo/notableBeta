@@ -60,7 +60,7 @@
 		triggerShortcut: (event) -> (e) =>
 			e.preventDefault()
 			e.stopPropagation()
-			@triggerEvent(event)()
+			@triggerEvent(event).apply(@, Note.sliceArgs arguments)
 		triggerDragEvent: (event) -> (e) =>
 			@updateNote()
 			e.dataTransfer = e.originalEvent.dataTransfer;
@@ -69,7 +69,8 @@
 		triggerEvent: (event) ->
 			=>
 				@updateNote()
-				Note.eventManager.trigger 'change', event, @model
+				args = ['change', event, @model].concat(Note.sliceArgs arguments, 0)
+				Note.eventManager.trigger.apply(Note.eventManager, args)
 
 		arrowRightJumpLine: (e) ->
 			e.stopPropagation()
@@ -78,7 +79,7 @@
 		arrowLeftJumpLine: (e) ->
 			e.stopPropagation()
 			if @testCursorPosition "isEmptyBeforeCursor"
-				@triggerShortcut('jumpFocusUpEndOfLine')(e)
+				@triggerShortcut('jumpFocusUp')(e, true)
 
 		createNote: (e) ->
 			ENTER_KEY = 13
@@ -156,14 +157,10 @@
 		deleteNote: (note) ->
 			(@jumpFocusUp note) unless (@jumpFocusDown note)
 			@collection.deleteNote note
-		jumpFocusUp: (note) ->
+		jumpFocusUp: (note, endOfLine = false) ->
 			previousNote = @collection.jumpFocusUp note
 			return false unless previousNote?
-			Note.eventManager.trigger "setCursor:#{previousNote.get('guid')}"
-		jumpFocusUpEndOfLine: (note) ->
-			previousNote = @collection.jumpFocusUp note
-			return false unless previousNote?
-			Note.eventManager.trigger "setCursor:#{previousNote.get('guid')}", true
+			Note.eventManager.trigger "setCursor:#{previousNote.get('guid')}", endOfLine
 		jumpFocusDown: (note) ->
 			followingNote = @collection.jumpFocusDown note
 			if followingNote
