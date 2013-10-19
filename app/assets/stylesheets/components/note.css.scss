@@ -9,6 +9,7 @@ $notableBlack: #3D3D3D;
 	background: $notableWhite;
 	margin: 50px 0 40px 0;
 	border: 3px solid gray;
+	padding: 0 2em;
 	div .move {
 		margin: 0 10px 4px 1px;
 		-webkit-transition: all 0.2s;
@@ -19,7 +20,7 @@ $notableBlack: #3D3D3D;
 	}
 }
 
-#note-list div {
+#note-item div {
 	.destroy{
 		display: none;
 		position: absolute;
@@ -51,7 +52,7 @@ $notableBlack: #3D3D3D;
 	}
 }
 
-#note-list div:hover .destroy {
+#note-item div:hover .destroy {
 	display: block;
 }
 
@@ -77,7 +78,7 @@ $notableBlack: #3D3D3D;
 }
 
 .descendants {
-	margin-left: 25px;
+	margin-left: 2.5em;
 }
 
 /*** Drag N Drop *** /
@@ -89,12 +90,10 @@ $notableBlack: #3D3D3D;
 	user-select: none;
 }
 
-
 .dropTarget {
 	height: 10px;
 	width:100%;
 	display: inline-block;
-	/* border-top: solid */
 }
 /* #dropAfter { border-top: solid red; } */
 .dropTarget.over {
