@@ -1,5 +1,5 @@
 @Notable.module("Note", (Note, App, Backbone, Marionette, $, _) ->
-	
+
 	# class Note.child extends Note.Branch
 	class Note.Collection extends Backbone.Collection
 		model: Note.Branch
@@ -91,7 +91,7 @@
 			searchRecursively @first(), @rest() # start search
 			throw "#{guid} not found. Aborting" unless searchedNote
 			searchedNote
-			
+
 		getNote: (guid) -> @findNote(guid) # alias
 		findByGuidInCollection: (guid) ->
 			noteSearched = false
