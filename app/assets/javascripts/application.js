@@ -30,3 +30,6 @@
 //= require_tree ./modules/notebook
 //= require_tree ./modules/user
 
+$(function() {
+	$(".alert").delay(7000).fadeOut(1400);
+});
