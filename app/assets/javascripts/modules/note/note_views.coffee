@@ -9,9 +9,7 @@
 		events: ->
 			"keypress >.noteContent": "createNote"
 			"blur >.noteContent": "updateNote"
-			"click >.destroy": @triggerEvent "deleteNote"
-			"click >.tab": @triggerEvent "tabNote"
-			"click >.untab": @triggerEvent "unTabNote"
+			"click .destroy": @triggerEvent "deleteNote"
 
 			"dragstart .move": @triggerDragEvent "startMove"
 			"dragend .move": @triggerDragEvent "endMove"
