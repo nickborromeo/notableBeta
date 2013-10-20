@@ -20,8 +20,8 @@
 			@allNotesByDepth.fetch success: buildTree
 
 		showContentView: (tree) ->
-			contentView = new App.Note.TreeView(collection: tree)
-			App.contentRegion.show contentView
+			treeView = new App.Note.TreeView(collection: tree)
+			App.contentRegion.currentView.treeRegion.show treeView
 
 	# Initializers -------------------------
 	App.Note.on "start", ->

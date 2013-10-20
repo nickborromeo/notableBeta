@@ -20,15 +20,16 @@ $notableYellow: #FFDC33;
 $notableWhite: #FDFDFD;
 $notableGray: #EAEAEA;
 $notableBlack: #3D3D3D;
+$notableDarkGray: #999999;
 
 html {
-	margin: 0;
+  overflow-y: scroll;
 }
 
 body {
 	height: 100%;
-	background-color: $notableGray;
-	font: 14px 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  background-image:url('satinweave.png');
+  font: 14px 'Helvetica Neue', Helvetica, Arial, sans-serif;
 	line-height: 1.4em;
 	color: $notableBlack;
 	width: 950px;

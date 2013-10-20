@@ -4,12 +4,14 @@ $notableYellow: #FFDC33;
 $notableWhite: #FDFDFD;
 $notableGray: #EAEAEA;
 $notableBlack: #3D3D3D;
+$notableDarkGray: #999999;
 
 #tree {
 	background: $notableWhite;
-	margin-bottom: 5em;
-	border: 3px solid gray;
-	padding: 0 2em;
+	border: 1px solid $notableGray;
+	border-radius: 2px;
+	padding: 0 1.8em;
+	margin: 0 1.8em 1.6em 1.8em;
 	div .move {
 		margin: 0 10px 4px 1px;
 		-webkit-transition: all 0.2s;

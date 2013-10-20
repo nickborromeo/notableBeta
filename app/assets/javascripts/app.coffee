@@ -9,9 +9,9 @@
 
 	# Run BEFORE/DURING/AFTER initializers
 	App.on "initialize:before", ->
+		App.module("Scaffold").start()
 
 	App.addInitializer ->
-		App.module("Scaffold").start()
 		App.module("Note").start()
 		# App.module("Action").start()
 		# App.module("Notification").start()

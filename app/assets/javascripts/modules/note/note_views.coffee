@@ -131,9 +131,7 @@
 		isEmptyBeforeCursor: ->
 			@textBeforeCursor.apply(this, arguments).length is 0
 
-  # class Note.ContentView extends Marionette.CompositeView
-	class Note.TreeView extends Marionette.CompositeView
-		template: "note/noteCollection"
+	class Note.TreeView extends Marionette.CollectionView
 		id: "tree"
 		itemView: Note.ModelView
 
