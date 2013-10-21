@@ -28,6 +28,18 @@ $notableDarkGray: #999999;
 	padding: 0 0 0 0.2em;
 }
 
+.btn-default:focus {
+	outline: none;
+	background-color: white;
+	border-color: #CCCCCC;
+}
+
+.btn-default:active {
+	-webkit-box-shadow: inset 1px 3px 5px rgba(0, 0, 0, 0.17);
+	box-shadow: inset 1px 3px 5px rgba(0, 0, 0, 0.17);
+	background-color: #ebebeb;
+	border-color: #adadad;
+}
 
 	// -----------Notification Sub-Region-------------
 	#notification-region {
@@ -41,7 +53,7 @@ $notableDarkGray: #999999;
 		margin-bottom: 0;
 	}
 
-	// --------------Modeview Sub-Region--------------
+	// --------------Modview Sub-Region--------------
 	#modview-region {
 		display: inline-block;
 		height: inherit;
@@ -52,6 +64,7 @@ $notableDarkGray: #999999;
 		font-size: 16px;
 		border-radius: 3px;
 	}
+
 
 // --------------CONTENT REGION ------------------
 	#content-template {

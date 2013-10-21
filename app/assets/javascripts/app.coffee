@@ -30,3 +30,7 @@
 
 $ ->
 	Notable.start()
+	$(".alert").delay(7000).fadeOut(1400)
+	$('.sidebar-toggle').sidr
+		name: 'sidebar-center'
+		source: '#sidebar-center'

@@ -15,6 +15,7 @@
 //= require lib/backbone
 //= require lib/marionette
 //= require lib/wysiwyg
+//= require lib/sidr
 //= require lib/jquery.hotkeys
 //= require handlebars
 //= require bootstrap
@@ -29,7 +30,3 @@
 //= require_tree ./modules/note
 //= require_tree ./modules/notebook
 //= require_tree ./modules/user
-
-$(function() {
-	$(".alert").delay(7000).fadeOut(1400);
-});

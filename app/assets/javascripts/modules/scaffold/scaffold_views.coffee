@@ -29,8 +29,9 @@
 
 	class Scaffold.SidebarView extends Marionette.Layout
 		template: "scaffold/sidebar"
-		id: "sidebar-center"
 		tagName:	"section"
+		# id: "sidr"
+		id: "sidebar-center"
 		regions:
 			notebookRegion: "#notebook-region"
 			recentNoteRegion: "#recentNote-region"
@@ -43,6 +44,6 @@
 		App.messageRegion.show messageView
 		contentView = new App.Scaffold.ContentView
 		App.contentRegion.show contentView
-		# sidebarView = new App.Scaffold.SidebarView
-		# App.sidebarRegion.show sidebarView
+		sidebarView = new App.Scaffold.SidebarView
+		App.sidebarRegion.show sidebarView
 )
