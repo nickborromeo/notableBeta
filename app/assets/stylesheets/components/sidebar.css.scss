@@ -90,8 +90,7 @@ $sidr-text-color: $notableWhite;
 			border-top: 1px solid lighten($sidr-background, 10%);
 			border-bottom: 1px solid darken($sidr-background, 10%);
 
-			&:hover,
-			&.active,
+			&:active,
 			&.sidr-class-active {
 				border-top: none;
 				line-height: 36px;
@@ -112,7 +111,7 @@ $sidr-text-color: $notableWhite;
 			}
 
 			ul {
-				border-bottom: none;
+				border: 3px solid red;
 				margin: 0;
 				li {
 					line-height: 36px;
@@ -127,7 +126,6 @@ $sidr-text-color: $notableWhite;
 					&.sidr-class-active {
 						border-top: none;
 						line-height: 36px;
-						color: yellow;
 
 						> a, > span {
 							@include single-box-shadow($sidr-background-shadow-color, 0, 0, 15px, 3px, inset);

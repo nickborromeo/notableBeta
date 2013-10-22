@@ -11,9 +11,12 @@
 			modviewRegion: "#modview-region"
 
 		events: ->
+			"click .new-note": "showTooltip"
 			"click .outline": "applyModview"
 			"click .grid": "applyModview"
 			"click .mindmap": "applyModview"
+		showTooltip: ->
+			$(".new-note").tooltip 'toggle'
 		applyModview: (e) ->
 			type = e.currentTarget.classList[3]
 			$(".alert").text(type+" modview is displayed").show()
