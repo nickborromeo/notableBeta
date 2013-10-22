@@ -2,13 +2,13 @@
 
 	# Set up the tree
 	Given -> @allNotesByDepth = new App.Note.Collection()
-	Given -> @trunk = new App.Note.Trunk()
+	Given -> @tree = new App.Note.Tree()
 	Given -> arr = spyOn(@allNotesByDepth, "fetch")
-		.andReturn(window.buildTestTrunk @allNotesByDepth, @trunk)
+		.andReturn(window.buildTestTree @allNotesByDepth, @tree)
 	Given -> @allNotesByDepth.fetch()
 
 	describe "A note model should", ->
-		Given -> @note = new App.Note.Model
+		Given -> @note = new App.Note.Branch
 		Given -> @note.set window.MOCK_GET_NOTE
 		describe "Have the right properties", ->
 			Then -> @note.get('guid')?
@@ -25,14 +25,14 @@
 			Given -> @note.increaseDepth()
 			Then -> expect(@note.save).toHaveBeenCalledWith depth: 1
 
-		Given -> @noteWithDescendants = @trunk.findNote("11369365-3436-4e15-b8e2-2aa20b5f915e")
+		Given -> @noteWithDescendants = @tree.findNote("11369365-3436-4e15-b8e2-2aa20b5f915e")
 		describe "know if it has descendants with #hasDescendants", ->
 			Then -> not @note.hasDescendants()
 
 			Then -> @noteWithDescendants.hasDescendants()
 
 		Given -> @noteWithDeepDescendants =
-			@trunk.findNote("138b785a-4041-4064-867c-8239579ffd3e")
+			@tree.findNote("138b785a-4041-4064-867c-8239579ffd3e")
 		Given -> @deepDescendantList = @noteWithDeepDescendants.getCompleteDescendantList()
 
 		describe "be able to retrieve its descendants with #getCompleteDescendantList", ->
@@ -66,7 +66,7 @@
 				depth: 4
 
 		describe "generate the right attribute with .generateAttributes", ->
-			Given -> @newNote = Note.Model.generateAttributes(@note, "test123")
+			Given -> @newNote = Note.Branch.generateAttributes(@note, "test123")
 			Given -> @newProperties =
 				rank: 1
 				depth: 0,
