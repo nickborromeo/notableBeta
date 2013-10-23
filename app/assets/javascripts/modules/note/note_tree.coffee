@@ -37,8 +37,9 @@
 		createNote: (noteCreatedFrom, textBefore, textAfter) ->
 			hashMap = @dispatchCreation.apply @, arguments
 			newNote = new Note.Branch
-			newNote.save Note.Branch.generateAttributes hashMap.createBeforeNote, hashMap.newNoteTitle
-			if hashMap.rankAdjustment then newNote.increaseRank()
+			newNoteAttributes = Note.Branch.generateAttributes hashMap.createBeforeNote, hashMap.newNoteTitle
+			if hashMap.rankAdjustment then newNoteAttributes.rank += 1
+			newNote.save newNoteAttributes
 			@insertInTree newNote
 			newNote
 		dispatchCreation: (noteCreatedFrom, textBefore, textAfter) ->
@@ -121,7 +122,7 @@
 			findFollowing = @filterFollowingNotes(self)
 			@modifySiblings self.get('parent_id'), modifierFunction, findFollowing
 		increaseRankOfFollowing: (self) ->
-			@modifyRankOfFollowing self, Note.Note.increaseRankOfNote
+			@modifyRankOfFollowing self, Note.increaseRankOfNote
 		decreaseRankOfFollowing: (self) ->
 			@modifyRankOfFollowing self, Note.decreaseRankOfNote
 
