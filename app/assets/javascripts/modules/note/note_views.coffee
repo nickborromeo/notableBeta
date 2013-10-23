@@ -106,15 +106,25 @@
 			sel = window.getSelection()
 			sel.removeAllRanges()
 			sel.addRange range
+		adjustAnchorOffset: (anchorOffset, title) ->
+			slice = 0
+			while (match = title.slice(slice).match /<\/?[a-z]+>/)
+				if match.index < anchorOffset
+					anchorOffset += match[0].length
+				slice = match.index + match[0].length
+			anchorOffset
 		textBeforeCursor: (sel, title) ->
-			textBefore = title.slice(0,sel.anchorOffset)
+			offset = @adjustAnchorOffset(sel.anchorOffset, title)
+			textBefore = title.slice(0,offset)
 		keepTextBeforeCursor: (sel, title) ->
 			textBefore = @textBeforeCursor sel, title
 			@model.save
 				title: textBefore
 			textBefore
 		textAfterCursor: (sel, title) ->
-			textAfter = title.slice(sel.anchorOffset, title.length)
+			offset = @adjustAnchorOffset(sel.anchorOffset, title)
+			console.log offset
+			textAfter = title.slice offset
 		keepTextAfterCursor: (sel, title) ->
 			textAfter = @textAfterCursor sel, title
 			@model.save
