@@ -87,9 +87,9 @@
 		increaseDepth: (magnitude = 1) -> @modifyDepth magnitude
 		decreaseDepth: (magnitude = 1) -> @modifyDepth -magnitude
 		increaseDescendantsDepth: (magnitude = 1) ->
-			@modifyDescendantsDepth increaseDepthOfNote magnitude
+			@modifyDescendantsDepth Note.increaseDepthOfNote magnitude
 		decreaseDescendantsDepth: (magnitude = 1) ->
-			@modifyDescendantsDepth decreaseDepthOfNote magnitude
+			@modifyDescendantsDepth Note.decreaseDepthOfNote magnitude
 		modifyDescendantsDepth: (modifierFunction) ->
 			descendants = @getCompleteDescendantList()
 			_.each descendants, modifierFunction
@@ -101,13 +101,5 @@
 		parent_id: followingNote.get 'parent_id'
 		depth: followingNote.get 'depth'
 
-	# Helper Functions (to be moved)
-	# For use as a higher order function
-	Note.increaseRankOfNote = (note) -> note.increaseRank()
-	Note.decreaseRankOfNote = (note) -> note.decreaseRank()
-	Note.increaseDepthOfNote = (magnitude = 1) ->
-		(note) -> note.increaseDepth(magnitude)
-	Note.decreaseDepthOfNote = (magnitude = 1) ->
-		(note) -> note.decreaseDepth(magnitude)
 
 )
