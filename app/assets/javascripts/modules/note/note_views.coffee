@@ -10,6 +10,7 @@
 			"keypress >.noteContent": "createNote"
 			"blur >.noteContent": "updateNote"
 			"click .destroy": @triggerEvent "deleteNote"
+			"click .move": "testAttribute"
 
 			"dragstart .move": @triggerDragEvent "startMove"
 			"dragend .move": @triggerDragEvent "endMove"
@@ -18,6 +19,8 @@
 			"dragleave .dropTarget": @triggerDragEvent "leaveMove"
 			"dragover .dropTarget": @triggerDragEvent "overMove"
 
+		testAttribute: ->
+			$("div[data-guid=77d11fcc-bf60-481e-b2d7-8ea278daac7a] .trash_icon:first").css("display", "block")
 		initialize: ->
 			@collection = @model.descendants
 			@bindKeyboardShortcuts()
