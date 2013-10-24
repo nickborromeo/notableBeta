@@ -138,10 +138,12 @@
 		getIndexOfNode: (parent, sel) ->
 			parent.innerHTML.indexOf(sel.anchorNode.parentNode.outerHTML)
 		getRealOffsetInNode: (sel) ->
-			sel.anchorOffset + @getOpeningTagLength(sel.anchorNode.parentNode) + @getOffsetOfPreviousSibling(sel)
-		getOffsetOfPreviousSibling: (sel) ->
+			sel.anchorOffset + @getLengthOfNode(sel.anchorNode)
+		getLengthOfNode: (node) ->
+			@getOpeningTagLength(node.parentNode) + @getOffsetOfPreviousSibling(node)
+		getOffsetOfPreviousSibling: (node) ->
 			offset = 0
-			do rec = (node = sel.anchorNode.previousSibling) ->
+			do rec = (node = node.previousSibling) ->
 				if not node?
 					offset
 				else
