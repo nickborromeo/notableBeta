@@ -106,15 +106,69 @@
 			sel = window.getSelection()
 			sel.removeAllRanges()
 			sel.addRange range
-		adjustAnchorOffset: (anchorOffset, title) ->
-			slice = 0
-			while (match = title.slice(slice).match /<\/?[a-z]+>/)
-				if match.index < anchorOffset
-					anchorOffset += match[0].length
-				slice = match.index + match[0].length
-			anchorOffset
+		# getAllMatches: (string, match) ->
+		# 	do rec = (substring = string) ->
+		# 		if match
+		getMatchesLength: (matches) ->
+			(match.length for match in matches).reduce (acc, l) -> acc + l
+		collectAllMatches: (title) ->
+			matches = []
+			while match = Note.matchTag.exec title
+				matches.push
+					match: match[0]
+					index: match.index
+					input: match.input
+			matches
+		filterMatchesBeforeCursor: (offset, matches) ->
+			for match in matches
+				if (match.index < offset)
+					offset+= match.match.length
+					match.match
+				else
+					""
+		adjustAnchorOffset: (sel, title) ->
+			# slice = 0
+			# matches = @collectAllMatches title
+			# matches = @filterMatchesBeforeCursor(anchorOffset, matches, title)
+			anchorOffset = @getRealOffset(sel)
+		getRealOffset: (sel) ->
+			return sel.anchorOffset if (parent = @getContentEditable(sel)).isSameNode(sel.anchorNode) or
+				parent.isSameNode(sel.anchorNode.parentNode)
+			@getIndexOfNode(parent, sel) + @getRealOffsetInNode(sel)
+		getIndexOfNode: (parent, sel) ->
+			parent.innerHTML.indexOf(sel.anchorNode.parentNode.outerHTML)
+		getRealOffsetInNode: (sel) ->
+			sel.anchorOffset + @getOpeningTagLength(sel.anchorNode.parentNode) + @getOffsetOfPreviousSibling(sel)
+		getOffsetOfPreviousSibling: (sel) ->
+			offset = 0
+			do rec = (node = sel.anchorNode.previousSibling) ->
+				if not node?
+					offset
+				else
+					offset += node.outerHTML.length
+					node.previousSibling
+			offset
+		getOpeningTagLength: (node) ->
+			node.tagName.length + 2
+		getContentEditable: (sel) ->
+			do rec = (node = sel.anchorNode) ->
+				if node.contentEditable is "true"
+					node
+				else
+					rec node.parentNode
+		# filterMatchesBeforeCursor: (offset, matches, title)
+		# 	for match in matches
+		# adjustAnchorOffset: (anchorOffset, title) ->
+		# 	slice = 0
+		# 		# while (match = title.slice(slice).match /<\/?[a-z]+>/g)
+		# 		# 	if match.index < anchorOffset
+		# 		# 		anchorOffset += match[0].length
+		# 		# 	slice = match.index + match[0].length
+		# 	matches = @collectAllMatches title
+		# 	matches = filterMatchesBeforeCursor(anchorOffset, matches, title)
+		# 	anchorOffset
 		textBeforeCursor: (sel, title) ->
-			offset = @adjustAnchorOffset(sel.anchorOffset, title)
+			offset = @adjustAnchorOffset(sel, title)
 			textBefore = title.slice(0,offset)
 		keepTextBeforeCursor: (sel, title) ->
 			textBefore = @textBeforeCursor sel, title
@@ -122,9 +176,10 @@
 				title: textBefore
 			textBefore
 		textAfterCursor: (sel, title) ->
-			offset = @adjustAnchorOffset(sel.anchorOffset, title)
-			console.log offset
+			offset = @adjustAnchorOffset(sel, title)
 			textAfter = title.slice offset
+			textAfter = "" if Note.matchTagsEndOfString.test(textAfter)
+			textAfter
 		keepTextAfterCursor: (sel, title) ->
 			textAfter = @textAfterCursor sel, title
 			@model.save
