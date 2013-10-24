@@ -127,36 +127,54 @@
 					match.match
 				else
 					""
-
 		bla: (sel) ->
 			parent = @getContentEditable sel
 			nodeIterator = document.createNodeIterator parent, NodeFilter.SHOW_ELEMENT
 			node = @getNode sel.anchorNode, nodeIterator
 			text = node.outerHTML
 			text = node.innerHTML if nodeIterator.root.isSameNode node
+			# cursor is in a text node, but has styling before it
+			# then collect the offset of previous sibling
+			if parent.childElementCount > 0 and parent.isSameNode node
+				return @getOffsetOfPreviousSiblings(sel.anchorNode) + sel.anchorOffset
 			matches = @collectAllMatches text
 			matches = matches.concat @collectAllMatches text, Note.matchHtmlEntities, 1
 			matches = matches.sort (a,b) -> a.index - b.index
-			adjustOffset = @adjustOffset node, matches, sel
-			adjustOffset += sel.anchorOffset + @getIndexOfNode parent, sel
+			adjustOffset = @adjustOffset matches, sel
+			# if node isn't the deepest node the cursor is in
+			# we need to find the offset from the beginning of that node
+			# to the cursor
+			if node.childNodes.length > 0 and
+				 not node.firstChild.isSameNode(sel.anchorNode) and
+				 not node.firstChild.contains(sel.anchorNode)
+				adjustOffset += @getIndexOfNode node, sel, sel.anchorNode.parentNode, "outerHTML"
+			adjustOffset += @getIndexOfNode parent, sel, node
 		getNode: (searchedNode, nodeIterator) ->
 			node = undefined
 			nodeIterator.nextNode()
 			until not (node = nodeIterator.nextNode())? or node.contains(searchedNode)
 					node = node
 			if node? then node else nodeIterator.root
-		adjustOffset: (node, matches, sel) ->
-			offsetAdjustment = 0
+		adjustOffset: (matches, sel) ->
+			offsetAdjustment = sel.anchorOffset
 			for match in matches
-				if sel.anchorOffset + offsetAdjustment > match.index
+				if offsetAdjustment > match.index
 					offsetAdjustment += match.adjustment
 			offsetAdjustment
-
+		getOffsetOfPreviousSiblings: (elem) ->
+			text = ""
+			do rec = (elem = elem.previousSibling) ->
+				return text.length if not elem?
+				if elem.outerHTML?
+					text += elem.outerHTML
+				else
+					text += elem.data
+				rec elem.previousSibling
 		adjustAnchorOffset: (sel, title) ->
 			# slice = 0
 			# matches = @collectAllMatches title
 			# matches = @filterMatchesBeforeCursor(anchorOffset, matches, title)
-			anchorOffset = @getRealOffset(sel)
+			# anchorOffset = @getRealOffset(sel)
 			anchorOffset = @bla(sel)
 			console.log anchorOffset, title.slice(0, anchorOffset)
 			anchorOffset
@@ -164,9 +182,9 @@
 			return sel.anchorOffset if (parent = @getContentEditable(sel)).isSameNode(sel.anchorNode) or
 				parent.isSameNode(sel.anchorNode.parentNode)
 			@getIndexOfNode(parent, sel) + @getRealOffsetInNode(sel)
-		getIndexOfNode: (parent, sel) ->
+		getIndexOfNode: (parent, sel, node = sel.anchorNode.parentNode, html = "innerHTML") ->
 			return 0 if parent.isSameNode sel.anchorNode.parentNode
-			parent.innerHTML.indexOf(sel.anchorNode.parentNode.outerHTML)
+			parent[html].indexOf(node.outerHTML)
 		getRealOffsetInNode: (sel) ->
 			sel.anchorOffset + @getLengthOfNode(sel.anchorNode)
 		getLengthOfNode: (node) ->
