@@ -136,10 +136,11 @@
 			# cursor is in a text node, but has styling before it
 			# then collect the offset of previous sibling
 			if parent.childElementCount > 0 and parent.isSameNode node
-				return @getOffsetOfPreviousSiblings(sel.anchorNode) + sel.anchorOffset
-			matches = @collectAllMatches text
-			matches = matches.concat @collectAllMatches text, Note.matchHtmlEntities, 1
-			matches = matches.sort (a,b) -> a.index - b.index
+				offset = @getOffsetOfPreviousSiblings(sel.anchorNode)
+				text = parent.innerHTML.slice(offset)
+				matches = @collectMatches text
+				return offset + @adjustOffset matches, sel
+			matches = @collectMatches text
 			adjustOffset = @adjustOffset matches, sel
 			# if node isn't the deepest node the cursor is in
 			# we need to find the offset from the beginning of that node
@@ -149,6 +150,10 @@
 				 not node.firstChild.contains(sel.anchorNode)
 				adjustOffset += @getIndexOfNode node, sel, sel.anchorNode.parentNode, "outerHTML"
 			adjustOffset += @getIndexOfNode parent, sel, node
+		collectMatches: (text) ->
+			matches = @collectAllMatches text
+			matches = matches.concat @collectAllMatches text, Note.matchHtmlEntities, 1
+			matches = matches.sort (a,b) -> a.index - b.index
 		getNode: (searchedNode, nodeIterator) ->
 			node = undefined
 			nodeIterator.nextNode()
