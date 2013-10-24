@@ -111,13 +111,14 @@
 		# 		if match
 		getMatchesLength: (matches) ->
 			(match.length for match in matches).reduce (acc, l) -> acc + l
-		collectAllMatches: (title) ->
+		collectAllMatches: (title, regex = Note.matchTag, adjustment = 0) ->
 			matches = []
-			while match = Note.matchTag.exec title
+			while match = regex.exec title
 				matches.push
 					match: match[0]
 					index: match.index
 					input: match.input
+					adjustment: match[0].length - adjustment
 			matches
 		filterMatchesBeforeCursor: (offset, matches) ->
 			for match in matches
@@ -126,16 +127,45 @@
 					match.match
 				else
 					""
+
+		bla: (sel) ->
+			parent = @getContentEditable sel
+			nodeIterator = document.createNodeIterator parent, NodeFilter.SHOW_ELEMENT
+			node = @getNode sel.anchorNode, nodeIterator
+			text = node.outerHTML
+			text = node.innerHTML if nodeIterator.root.isSameNode node
+			matches = @collectAllMatches text
+			matches = matches.concat @collectAllMatches text, Note.matchHtmlEntities, 1
+			matches = matches.sort (a,b) -> a.index - b.index
+			adjustOffset = @adjustOffset node, matches, sel
+			adjustOffset += sel.anchorOffset + @getIndexOfNode parent, sel
+		getNode: (searchedNode, nodeIterator) ->
+			node = undefined
+			nodeIterator.nextNode()
+			until not (node = nodeIterator.nextNode())? or node.contains(searchedNode)
+					node = node
+			if node? then node else nodeIterator.root
+		adjustOffset: (node, matches, sel) ->
+			offsetAdjustment = 0
+			for match in matches
+				if sel.anchorOffset + offsetAdjustment > match.index
+					offsetAdjustment += match.adjustment
+			offsetAdjustment
+
 		adjustAnchorOffset: (sel, title) ->
 			# slice = 0
 			# matches = @collectAllMatches title
 			# matches = @filterMatchesBeforeCursor(anchorOffset, matches, title)
 			anchorOffset = @getRealOffset(sel)
+			anchorOffset = @bla(sel)
+			console.log anchorOffset, title.slice(0, anchorOffset)
+			anchorOffset
 		getRealOffset: (sel) ->
 			return sel.anchorOffset if (parent = @getContentEditable(sel)).isSameNode(sel.anchorNode) or
 				parent.isSameNode(sel.anchorNode.parentNode)
 			@getIndexOfNode(parent, sel) + @getRealOffsetInNode(sel)
 		getIndexOfNode: (parent, sel) ->
+			return 0 if parent.isSameNode sel.anchorNode.parentNode
 			parent.innerHTML.indexOf(sel.anchorNode.parentNode.outerHTML)
 		getRealOffsetInNode: (sel) ->
 			sel.anchorOffset + @getLengthOfNode(sel.anchorNode)
