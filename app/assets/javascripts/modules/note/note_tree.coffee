@@ -34,24 +34,8 @@
 			collection.remove note
 			@decreaseRankOfFollowing note
 
-		prependStyling: (text) ->
-			matches = Note.collectAllMatches text
-			prepend = ""
-			openTags = []
-			for match in matches
-				opening = @matchingOpeningTag match.match
-				if opening isnt match.match
-					if _.last(openTags) is opening
-						openTags.pop()
-					else
-						prepend = opening + prepend
-				else
-					openTags.push match.match
-			prepend + text
-		matchingOpeningTag: (closingTag) ->
-			closingTag.replace('/', '')
 		createNote: (noteCreatedFrom, textBefore, textAfter) ->
-			textAfter = @prependStyling(textAfter)
+			textAfter = Note.prependStyling(textAfter)
 			hashMap = @dispatchCreation.apply @, arguments
 			newNote = new Note.Branch
 			newNoteAttributes = Note.Branch.generateAttributes hashMap.createBeforeNote, hashMap.newNoteTitle
@@ -60,7 +44,6 @@
 			@insertInTree newNote
 			newNote
 		dispatchCreation: (noteCreatedFrom, textBefore, textAfter) ->
-			console.log arguments
 			if textAfter.length isnt 0
 				@createBefore.apply(@, arguments)
 			else

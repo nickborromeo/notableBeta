@@ -27,17 +27,21 @@
 
 	Note.replaceAll = (find, replace, str) ->
 	  str.replace(new RegExp(find, 'g'), replace);
-	Note.replaceWithHtmlEntities = (text) ->
-		replaceMap =
-			'&' : '&amp;'
-			'>' : '&lt;'
-			'<' : '&gt;'
 
-		for char, replaceString of replaceMap
-			text = Note.replaceAll char, replaceString, text
-		text
-			# do rec = (text) ->
-			# 	if text.indexOf(char) is -1
-			# 		return text
-			# 	rec text.replace char, replaceString
+	Note.prependStyling = (text) ->
+		matches = Note.collectAllMatches text
+		prepend = ""
+		openTags = []
+		for match in matches
+			opening = Note.matchingOpeningTag match.match
+			if opening isnt match.match
+				if _.last(openTags) is opening
+					openTags.pop()
+				else
+					prepend = opening + prepend
+			else
+				openTags.push match.match
+		prepend + text
+	Note.matchingOpeningTag = (closingTag) ->
+		closingTag.replace('/', '')
 )
