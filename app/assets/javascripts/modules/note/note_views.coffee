@@ -94,7 +94,6 @@
 			noteTitle
 		getNoteTitle: ->
 			@ui.noteContent.html().trim()
-
 		setCursor: (endPosition = false) ->
 			@getNoteContent().focus()
 			if endPosition
@@ -106,15 +105,51 @@
 			sel = window.getSelection()
 			sel.removeAllRanges()
 			sel.addRange range
+
+		buildTextBefore: (parent, sel) ->
+			it = document.createNodeIterator parent, NodeFilter.SHOW_TEXT
+			text = ""
+			while n = it.nextNode()
+				if n.isSameNode(sel.anchorNode)
+					text += n.data.slice(0, sel.anchorOffset)
+					break;
+				text += n.data
+			text
+		getContentEditable: (sel) ->
+			do findContentEditable = (node = sel.anchorNode) ->
+				if node.contentEditable is "true"
+					node
+				else
+					findContentEditable node.parentNode
+		collectMatches: (text) ->
+			matches = Note.collectAllMatches text
+			matches = matches.concat Note.collectAllMatches text, Note.matchHtmlEntities, 1
+			matches = matches.sort (a,b) -> a.index - b.index
+		adjustOffset: (matches, previousOffset) ->
+			offsetAdjustment = previousOffset
+			for match in matches
+				if offsetAdjustment > match.index
+					offsetAdjustment += match.adjustment
+			offsetAdjustment
+		adjustAnchorOffset: (sel, title) ->
+			parent = @getContentEditable sel
+			matches = @collectMatches parent.innerHTML
+			textBefore = @buildTextBefore parent, sel
+			@adjustOffset matches, textBefore.length
+
 		textBeforeCursor: (sel, title) ->
-			textBefore = title.slice(0,sel.anchorOffset)
+			offset = @adjustAnchorOffset(sel, title)
+			textBefore = title.slice(0,offset)
 		keepTextBeforeCursor: (sel, title) ->
 			textBefore = @textBeforeCursor sel, title
 			@model.save
 				title: textBefore
 			textBefore
 		textAfterCursor: (sel, title) ->
-			textAfter = title.slice(sel.anchorOffset, title.length)
+			offset = @adjustAnchorOffset(sel, title)
+			textAfter = title.slice offset
+			textAfter = "" if Note.matchTagsEndOfString.test(textAfter)
+			textAfter
 		keepTextAfterCursor: (sel, title) ->
 			textAfter = @textAfterCursor sel, title
 			@model.save

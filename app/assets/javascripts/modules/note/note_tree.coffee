@@ -35,6 +35,7 @@
 			@decreaseRankOfFollowing note
 
 		createNote: (noteCreatedFrom, textBefore, textAfter) ->
+			textAfter = Note.prependStyling(textAfter)
 			hashMap = @dispatchCreation.apply @, arguments
 			newNote = new Note.Branch
 			newNoteAttributes = Note.Branch.generateAttributes hashMap.createBeforeNote, hashMap.newNoteTitle
