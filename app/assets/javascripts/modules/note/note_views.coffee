@@ -94,7 +94,6 @@
 			noteTitle
 		getNoteTitle: ->
 			@ui.noteContent.html().trim()
-
 		setCursor: (endPosition = false) ->
 			@getNoteContent().focus()
 			if endPosition
@@ -133,23 +132,29 @@
 			node = @getNode sel.anchorNode, nodeIterator
 			text = node.outerHTML
 			text = node.innerHTML if nodeIterator.root.isSameNode node
+			text = parent.innerHTML
+			matches = @collectMatches text
+			t = @buildTextBefore parent, sel
+			s = anchorOffset: t.length
+			adjustedOffset = @adjustOffset matches, s
+			adjustedOffset
 			# cursor is in a text node, but has styling before it
 			# then collect the offset of previous sibling
-			if parent.childElementCount > 0 and parent.isSameNode node
-				offset = @getOffsetOfPreviousSiblings(sel.anchorNode)
-				text = parent.innerHTML.slice(offset)
-				matches = @collectMatches text
-				return offset + @adjustOffset matches, sel
-			matches = @collectMatches text
-			adjustOffset = @adjustOffset matches, sel
-			# if node isn't the deepest node the cursor is in
-			# we need to find the offset from the beginning of that node
-			# to the cursor
-			if node.childNodes.length > 0 and
-				 not node.firstChild.isSameNode(sel.anchorNode) and
-				 not node.firstChild.contains(sel.anchorNode)
-				adjustOffset += @getIndexOfNode node, sel, sel.anchorNode.parentNode, "outerHTML"
-			adjustOffset += @getIndexOfNode parent, sel, node
+			# if parent.childElementCount > 0 and parent.isSameNode node
+			# 	offset = @getOffsetOfPreviousSiblings(sel.anchorNode)
+			# 	text = parent.innerHTML.slice(offset)
+			# 	matches = @collectMatches text
+			# 	return offset + @adjustOffset matches, sel
+			# matches = @collectMatches text
+			# adjustOffset = @adjustOffset matches, sel
+			# # if node isn't the deepest node the cursor is in
+			# # we need to find the offset from the beginning of that node
+			# # to the cursor
+			# if node.childNodes.length > 0 and
+			# 	 not node.firstChild.isSameNode(sel.anchorNode) and
+			# 	 not node.firstChild.contains(sel.anchorNode)
+			# 	adjustOffset += @getIndexOfNode node, sel, sel.anchorNode.parentNode, "outerHTML"
+			# adjustOffset += @getIndexOfNode parent, sel, node
 		collectMatches: (text) ->
 			matches = @collectAllMatches text
 			matches = matches.concat @collectAllMatches text, Note.matchHtmlEntities, 1
@@ -175,6 +180,15 @@
 				else
 					text += elem.data
 				rec elem.previousSibling
+		buildTextBefore: (parent, sel) ->
+			it = document.createNodeIterator parent, NodeFilter.SHOW_TEXT
+			text = ""
+			while n = it.nextNode()
+				if n.isSameNode(sel.anchorNode)
+					text += n.data.slice(0, sel.anchorOffset)
+					break;
+				text += n.data
+			text
 		adjustAnchorOffset: (sel, title) ->
 			# slice = 0
 			# matches = @collectAllMatches title
