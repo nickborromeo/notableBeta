@@ -8,7 +8,7 @@ $notableLightGray: #C1C1C1;
 $notableGray: #EAEAEA;
 $notableDarkGray: #999999;
 
-$screen-sm: 768px;
+$screen-sm: 760px;
 $screen-md: 992px;
 $screen-lg: 1200px;
 
@@ -16,39 +16,29 @@ $screen-lg: 1200px;
 // ----------------MOBILE FIRST CSS -------------------
 // ----------------------------------------------------
 
-
-// ----------------------------------------------------
-// ---------------TABLET MEDIA QUERIES ----------------
-// ----------------------------------------------------
-@media (min-width: $screen-sm) {
-	.container {
-		border: 3px solid green;
-	}
-		#content-template {
-		display: block;
-		background-image:url('../cardboard_@2X.png');
-		position: relative;
-		margin-bottom: 2em;
-		border-radius: 7px;
-		border: 1px solid #C1C1C1;
-		h3 {
-			color: $notableDarkGray;
-			font-family: 'Century Gothic', "Arial", sans-serif;
-			text-align:center;
-			font-size: 0.9em;
-			margin: 0.8em auto;
-			font-weight: bold;
-		}
-	}
+html {
+  overflow-y: scroll;
 }
 
-// ----------------------------------------------------
-// --------------LAPTOP MEDIA QUERIES -----------------
-// ----------------------------------------------------
-@media (min-width: $screen-md) {
-	.container {
-		border: 3px solid blue;
-	}
+body {
+	height: 100%;
+  background-image:url('../satinweave.png');
+  font: 14px 'Verdana','Helvetica Neue', Helvetica, Arial, sans-serif;
+	line-height: 1.4em;
+	color: $notableBlack;
+	margin: 0 auto;
+	padding: 70px 0 0 0;
+	-webkit-font-smoothing: antialiased;
+	-moz-font-smoothing: antialiased;
+	-ms-font-smoothing: antialiased;
+	-o-font-smoothing: antialiased;
+	font-smoothing: antialiased;
+}
+
+.container {
+	padding: 0;
+	border: 3px solid yellow;
+}
 
 /* --------------HEADER REGION ------------------ */
 nav {
@@ -113,15 +103,13 @@ nav {
 
 /* --------------CONTENT REGION ------------------ */
 	#content-template {
-		margin-bottom: 5em;
+		margin: 0;
 		border-radius: 10px;
 		h3 {
 			font-size: 1.1em;
 			margin: 1em auto;
 		}
 	}
-
-
 
 /* --------------SIDEBAR REGION ------------------ */
 	/*** Notebooks ***/
@@ -130,6 +118,51 @@ nav {
 	/*** Tags ***/
 
 /* --------------FOOTER REGION ------------------ */
+
+
+// ----------------------------------------------------
+// ---------------TABLET MEDIA QUERIES ----------------
+// ----------------------------------------------------
+@media (min-width: $screen-sm) {
+	.container {
+		padding: 0 15px;
+		max-width: $screen-sm;
+		border: 3px solid green;
+	}
+		#content-template {
+		display: block;
+		background-image:url('../cardboard_@2X.png');
+		position: relative;
+		margin-bottom: 2em;
+		border-radius: 7px;
+		border: 1px solid #C1C1C1;
+		h3 {
+			color: $notableDarkGray;
+			font-family: 'Century Gothic', "Arial", sans-serif;
+			text-align:center;
+			font-size: 0.9em;
+			margin: 0.9em auto;
+			font-weight: bold;
+		}
+	}
+}
+
+// ----------------------------------------------------
+// --------------LAPTOP MEDIA QUERIES -----------------
+// ----------------------------------------------------
+@media (min-width: $screen-md) {
+	.container {
+		border: 3px solid blue;
+		max-width: $screen-md;
+	}
+	#content-template {
+		margin-bottom: 5em;
+		border-radius: 10px;
+		h3 {
+			font-size: 1.1em;
+			margin: 1em auto;
+		}
+	}
 }
 
 // ----------------------------------------------------

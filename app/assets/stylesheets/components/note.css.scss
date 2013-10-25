@@ -8,97 +8,149 @@ $notableLightGray: #C1C1C1;
 $notableGray: #EAEAEA;
 $notableDarkGray: #999999;
 
-$screen-sm: 768px;
+$screen-sm: 760px;
 $screen-md: 992px;
 $screen-lg: 1200px;
 
 // ----------------------------------------------------
 // ----------------MOBILE FIRST CSS -------------------
 // ----------------------------------------------------
-
 #tree {
 	background: $notableWhite;
 	border: 1px solid $notableGray;
-	border-radius: 2px;
-	padding: 0 1.8em;
-	margin: 0 1.8em 1.6em 1.8em;
-	div .move {
-		margin: 0 5px 5px 0;
+	border-radius: px;
+	padding: 0 1.2em;
+	margin: 0;
+	min-height: 450px;
+
+	.noteContent {
+		margin-left: 2px;
+		width: 90%;
+		display: inline-block;
+		outline: none;
 	}
-}
 
-.noteContent {
-	margin-left: 2px;
-	width: 90%;
-	display: inline-block;
-	outline: none;
-}
+	/*** Branches ***/
 
-.branch {
-	position: relative;
-	font-size: 16px;
-	line-height: 1em;
-	font-family: Tahoma, Arial, sans-serif;
-}
-
-.branch {
-	.trash_icon {
-	  cursor: pointer;
-		display: none;
-		position: absolute;
-		top: 1.2em;
-		right: 0;
-	  &:hover {background-position: -26px -2px}
-	  &:active {background-position: -50px -2px;}
+	.branch {
+		position: relative;
+		font-size: 12px;
+		line-height: 0.8em;
+		font-family: Tahoma, Arial, sans-serif;
 	}
-	.trash_icon:hover {
-		-webkit-transform: scale(1.1);
-		-moz-transform: scale(1.1);
-		-ms-transform: scale(1.1);
-		-o-transform: scale(1.1);
-		transform: scale(1.1);
+
+	.branch {
+		.trash_icon {
+		  cursor: pointer;
+			display: none;
+			position: absolute;
+			top: 1.2em;
+			right: 0;
+		  &:hover {background-position: -26px -2px}
+		  &:active {background-position: -50px -2px;}
+		}
+		.trash_icon:hover {
+			-webkit-transform: scale(1.1);
+			-moz-transform: scale(1.1);
+			-ms-transform: scale(1.1);
+			-o-transform: scale(1.1);
+			transform: scale(1.1);
+		}
 	}
+
+	.branch:hover .trash_icon {
+		display: block;
+	}
+
+	.descendants {
+		margin-left: 2em;
+	}
+
+	/*** Drag N Drop ***/
+
+	// Prevent the text contents of draggable elements from being selectable.
+	[draggable] {
+		-moz-user-select: none;
+		-webkit-user-select: none;
+		user-select: none;
+	}
+	.dropTarget {
+		height: 10px;
+		width:100%;
+		display: inline-block;
+	}
+	.dropTarget.over {
+		border-top: 3px dashed #AAAEAE;
+	}
+
 }
 
-.branch:hover .trash_icon {
-	display: block;
-}
-
-.descendants {
-	margin-left: 2.5em;
-}
-
-/*** Drag N Drop ***/
-
-// Prevent the text contents of draggable elements from being selectable.
-[draggable] {
-	-moz-user-select: none;
-	-webkit-user-select: none;
-	user-select: none;
-}
-.dropTarget {
-	height: 10px;
-	width:100%;
-	display: inline-block;
-}
-.dropTarget.over {
-	border-top: 3px dashed #AAAEAE;
+@media (max-width: $screen-sm) {
+	.move {
+		margin: 0;
+		padding: 0 0 5px 0;
+		color: $notableBlack;
+		background-color: $notableWhite;
+		border-color: $notableWhite;
+		line-height: 0.9em;
+		&:after {content: "•";}
+	}
 }
 
 // ----------------------------------------------------
 // ---------------TABLET MEDIA QUERIES ----------------
 // ----------------------------------------------------
 @media (min-width: $screen-sm) {
+	#tree {
+		padding: 0 1.4em;
+		margin: 0 1.4em 1.5em 1.4em;
+		min-height: 600px;
+
+		.move {
+			margin: 0 5px 5px 0;
+			line-height: 1.1em;
+			&:after {content: "lll";}
+		}
+
+		.branch {
+			font-size: 14px;
+			line-height: 0.9em;
+		}
+		.descendants {
+			margin-left: 2.5em;
+		}
+
+	}
 }
 
 // ----------------------------------------------------
 // --------------LAPTOP MEDIA QUERIES -----------------
 // ----------------------------------------------------
 @media (min-width: $screen-md) {
+	#tree {
+		padding: 0 1.8em;
+		margin: 0 1.8em 1.6em 1.8em;
+		min-height: 700px;
+
+		.move {
+			line-height: 1.3em;
+		}
+
+		.branch {
+			font-size: 16px;
+			line-height: 1.0em;
+		}
+
+	}
 }
 
 // ----------------------------------------------------
 // ---------------DESKTOP MEDIA QUERIES ---------------
 // ----------------------------------------------------
 @media (min-width: $screen-lg) {
+	#tree {
+		padding: 0 1.8em;
+		margin: 0 1.8em 1.6em 1.8em;
+		min-height: 800px;
+	}
 }
