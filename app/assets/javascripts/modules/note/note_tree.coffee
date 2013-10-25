@@ -5,8 +5,11 @@
 		model: Note.Branch
 		url:'/notes'
 
-		comparator: (note) ->
-			[note.get('depth'), note.get('rank')]
+		comparator: (note1, note2) ->
+			if note1.get('depth') is note2.get('depth')
+				order = note1.get('rank') - note2.get('rank')
+			else
+				order = note1.get('depth') - note2.get('depth')
 
 	class Note.Tree extends Backbone.Collection
 		model: Note.Branch
