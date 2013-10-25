@@ -3,15 +3,15 @@
 
 	class Note.ModelView extends Marionette.CompositeView
 		template: "note/noteModel"
-		className: "branch"
+		className: "branch-template"
 		ui:
 			noteContent: ">.noteContent"
 		events: ->
 			"keypress >.noteContent": "createNote"
 			"blur >.noteContent": "updateNote"
 			"click .destroy": @triggerEvent "deleteNote"
-			"mouseover .special": "testAttribute"
-			"mouseout .special": "testAttribute2"
+			"mouseover .branch": @toggleDestroyFeat "block"
+			"mouseout .branch": @toggleDestroyFeat "none"
 
 			"dragstart .move": @triggerDragEvent "startMove"
 			"dragend .move": @triggerDragEvent "endMove"
@@ -20,11 +20,6 @@
 			"dragleave .dropTarget": @triggerDragEvent "leaveMove"
 			"dragover .dropTarget": @triggerDragEvent "overMove"
 
-		testAttribute: (e) ->
-			e.stopPropagation()
-			$("div[data-guid=#{@model.get 'guid'}] .trash_icon:first").css("display", "block")
-		testAttribute2: (e) ->
-			$("div[data-guid=#{@model.get 'guid'}] .trash_icon:first").css("display", "none")
 		initialize: ->
 			@collection = @model.descendants
 			@bindKeyboardShortcuts()
@@ -83,6 +78,11 @@
 			e.stopPropagation()
 			if @testCursorPosition "isEmptyBeforeCursor"
 				@triggerShortcut('jumpFocusUp')(e, true)
+
+		toggleDestroyFeat: (toggleType) ->
+			(e) ->
+				e.stopPropagation()
+				$("div[data-guid=#{@model.get 'guid'}] .trash_icon:first").css("display", toggleType)
 
 		createNote: (e) ->
 			ENTER_KEY = 13
