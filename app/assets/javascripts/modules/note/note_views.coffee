@@ -5,10 +5,10 @@
 		template: "note/noteModel"
 		className: "branch-template"
 		ui:
-			noteContent: ">.noteContent"
+			noteContent: ">.branch .noteContent"
 		events: ->
-			"keypress >.noteContent": "createNote"
-			"blur >.noteContent": "updateNote"
+			"keypress >.branch .noteContent": "createNote"
+			"blur >.branch .noteContent": "updateNote"
 			"click .destroy": @triggerEvent "deleteNote"
 			"mouseover .branch": @toggleDestroyFeat "block"
 			"mouseout .branch": @toggleDestroyFeat "none"
@@ -33,7 +33,7 @@
 		appendHtml:(collectionView, itemView, i) ->
 			@$('.descendants:first').append(itemView.el)
 			if i is @collection.length - 1
-				itemView.$('>.descendants').after('<div id="dropAfter" class="dropTarget"></div>')
+				itemView.$('>.branch .descendants').after('<div id="dropAfter" class="dropTarget"></div>')
 		getNoteContent: ->
 			if @ui.noteContent.length is 0 or !@ui.noteContent.focus?
 					@ui.noteContent = @.$('.noteContent:first')
