@@ -221,6 +221,16 @@
 					rank: 1
 				When ->  @tree.jumpPositionUp(@jumpedNote)
 				Then -> window.verifyProperty(@jumpedNote, @expectedProperties, true)
+		describe "#jumpPositionDown in case", ->
+			describe "jumped note is the last descendant of its hierarchy", ->
+				Given -> @jumpedNote = @tree.models[2]
+				Given -> @expectedProperties =
+					parent_id: 'root'
+					rank: @jumpedNote.get('rank')
+					depth: @jumpedNote.get('depth')
+				When -> @tree.jumpPositionUp(@tree.models[2])
+				When -> @tree.jumpPositionDown(@jumpedNote)
+				Then -> window.verifyProperty(@jumpedNote, @expectedProperties, true)
 
 		Given -> @tabbedNote = @tree.findNote('7d13cbb1-27d7-446a-bd64-8abf6a441274')
 		describe "#tabNote", ->

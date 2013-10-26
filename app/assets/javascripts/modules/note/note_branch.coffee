@@ -66,7 +66,7 @@
 		clonableAttributes: ['depth', 'rank', 'parent_id']
 		cloneAttributes: (noteToClone) ->
 			attributesHash = @cloneAttributesNoSaving noteToClone
-			@save
+			@save()
 		cloneAttributesNoSaving: (noteToClone) ->
 			attributesHash = {}
 			attributesHash[attribute] = noteToClone.get(attribute) for attribute in @clonableAttributes
