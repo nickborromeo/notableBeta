@@ -2,20 +2,54 @@ $notableBlue: #14A4FF;
 $notableOrange: #E97C12;
 $notableYellow: #FFDC33;
 $notableWhite: #FDFDFD;
-$notableGray: #EAEAEA;
 $notableBlack: #3D3D3D;
+
+$notableLightGray: #C1C1C1;
+$notableGray: #EAEAEA;
 $notableDarkGray: #999999;
 
-// --------------HEADER REGION ------------------
+$screen-sm: 760px;
+$screen-md: 992px;
+$screen-lg: 1200px;
+
+// ----------------------------------------------------
+// ----------------MOBILE FIRST CSS -------------------
+// ----------------------------------------------------
+
+html {
+  overflow-y: scroll;
+}
+
+body {
+	height: 100%;
+  background-image:url('../satinweave.png');
+  font: 14px 'Verdana','Helvetica Neue', Helvetica, Arial, sans-serif;
+	line-height: 1.4em;
+	color: $notableBlack;
+	margin: 0 auto;
+	padding: 70px 0 0 0;
+	-webkit-font-smoothing: antialiased;
+	-moz-font-smoothing: antialiased;
+	-ms-font-smoothing: antialiased;
+	-o-font-smoothing: antialiased;
+	font-smoothing: antialiased;
+}
+
+.container {
+	padding: 0;
+	border: 3px solid yellow;
+}
+
+/* --------------HEADER REGION ------------------ */
 nav {
 	&.navbar-default {
-	  height: 45px;
-	  background-color: $notableGray; /* Old browsers */
-	  background: -moz-linear-gradient(top, #FDFDFD 0%, #cccccc 100%); /* FF3.6+ */
-	  background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#FDFDFD), color-stop(100%,#cccccc)); /* Chrome,Safari4+ */
-	  background: -webkit-linear-gradient(top, #FDFDFD 0%,#cccccc 100%); /* Chrome10+,Safari5.1+ */
-	  background: -ms-linear-gradient(top, #FDFDFD 0%,#cccccc 100%); /* IE10+ */
-	  background: linear-gradient(to bottom, #FDFDFD 0%,#cccccc 100%); /* W3C */
+		height: 45px;
+		background-color: $notableGray; /* Old browsers */
+		background: -moz-linear-gradient(top, #FDFDFD 0%, #cccccc 100%); /* FF3.6+ */
+		background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#FDFDFD), color-stop(100%,#cccccc)); /* Chrome,Safari4+ */
+		background: -webkit-linear-gradient(top, #FDFDFD 0%,#cccccc 100%); /* Chrome10+,Safari5.1+ */
+		background: -ms-linear-gradient(top, #FDFDFD 0%,#cccccc 100%); /* IE10+ */
+		background: linear-gradient(to bottom, #FDFDFD 0%,#cccccc 100%); /* W3C */
 	}
 	.navbar-brand {
 		padding: 8px 15px;
@@ -30,7 +64,7 @@ nav {
 	}
 }
 
-// --------------MESSAGE REGION ------------------
+/* --------------MESSAGE REGION ------------------ */
 #message-center {
 	display: block;
 	height: 3em;
@@ -55,8 +89,8 @@ nav {
 	border-color: #adadad;
 }
 
-	// -----------Notification Sub-Region-------------
-	#notification-region {
+	/*** Notifications ***/
+		#notification-region {
 		display: inline-block;
 		padding: 0;
 	}
@@ -67,30 +101,75 @@ nav {
 		margin-bottom: 0;
 	}
 
-// --------------CONTENT REGION ------------------
+/* --------------CONTENT REGION ------------------ */
 	#content-template {
-	  display: block;
-	  background-image:url('../cardboard_@2X.png');
-	  position: relative;
-	  margin-bottom: 5em;
-	  border-radius: 10px;
-	  border: 1px solid #C1C1C1;
-	  h3 {
-	    color: $notableDarkGray;
-	    font-family: 'Century Gothic', "Arial", sans-serif;
-	    text-align:center;
-	    font-size: 1.1em;
-	    margin: 1em auto;
-	    font-weight: bold;
-	  }
-	 }
+		margin: 0;
+		border-radius: 10px;
+		h3 {
+			font-size: 1.1em;
+			margin: 1em auto;
+		}
+	}
+
+/* --------------SIDEBAR REGION ------------------ */
+	/*** Notebooks ***/
+	/*** Recent Notes ***/
+	/*** Favorites ***/
+	/*** Tags ***/
+
+/* --------------FOOTER REGION ------------------ */
 
 
+// ----------------------------------------------------
+// ---------------TABLET MEDIA QUERIES ----------------
+// ----------------------------------------------------
+@media (min-width: $screen-sm) {
+	.container {
+		padding: 0 15px;
+		max-width: $screen-sm;
+		border: 3px solid green;
+	}
+		#content-template {
+		display: block;
+		background-image:url('../cardboard_@2X.png');
+		position: relative;
+		margin-bottom: 2em;
+		border-radius: 7px;
+		border: 1px solid #C1C1C1;
+		h3 {
+			color: $notableDarkGray;
+			font-family: 'Century Gothic', "Arial", sans-serif;
+			text-align:center;
+			font-size: 0.9em;
+			margin: 0.9em auto;
+			font-weight: bold;
+		}
+	}
+}
 
-// --------------SIDEBAR REGION ------------------
-	// -----------Notebooks Sub-Region--------------
-	// ----------Recent Notes Sub-Region------------
-	// -----------Favorites Sub-Region--------------
-	// --------------Tags Sub-Region----------------
+// ----------------------------------------------------
+// --------------LAPTOP MEDIA QUERIES -----------------
+// ----------------------------------------------------
+@media (min-width: $screen-md) {
+	.container {
+		border: 3px solid blue;
+		max-width: $screen-md;
+	}
+	#content-template {
+		margin-bottom: 5em;
+		border-radius: 10px;
+		h3 {
+			font-size: 1.1em;
+			margin: 1em auto;
+		}
+	}
+}
 
-// --------------FOOTER REGION ------------------
+// ----------------------------------------------------
+// ---------------DESKTOP MEDIA QUERIES ---------------
+// ----------------------------------------------------
+@media (min-width: $screen-lg) {
+	.container {
+		border: 3px solid red;
+	}
+}
