@@ -23,7 +23,7 @@ html {
 body {
 	height: 100%;
   background-image:url('../satinweave.png');
-  font: 14px 'Verdana','Helvetica Neue', Helvetica, Arial, sans-serif;
+  font: 12px 'Verdana','Helvetica Neue', Helvetica, Arial, sans-serif;
 	line-height: 1.4em;
 	color: $notableBlack;
 	margin: 0 auto;
@@ -151,6 +151,9 @@ nav {
 // --------------LAPTOP MEDIA QUERIES -----------------
 // ----------------------------------------------------
 @media (min-width: $screen-md) {
+	body {
+	  font-size: 14px;
+	}
 	.container {
 		border: 3px solid blue;
 		max-width: $screen-md;

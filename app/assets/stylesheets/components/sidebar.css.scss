@@ -1,9 +1,5 @@
 @import "compass/css3";
 
-// Fonts
-$sidr-font-family: 'lucida grande',tahoma,verdana,arial,sans-serif;
-
-// Colors
 $notableBlue: #14A4FF;
 $notableOrange: #E97C12;
 $notableYellow: #FFDC33;
@@ -12,9 +8,18 @@ $notableGray: #EAEAEA;
 $notableBlack: #3D3D3D;
 $notableDarkGray: #999999;
 
+$screen-sm: 760px;
+$screen-md: 992px;
+$screen-lg: 1200px;
+
 $sidr-background : #333;
 $sidr-background-shadow-color : #222;
 $sidr-text-color: $notableWhite;
+$sidr-font-family: 'lucida grande',tahoma,verdana,arial,sans-serif;
+
+// ----------------------------------------------------
+// ----------------MOBILE FIRST CSS -------------------
+// ----------------------------------------------------
 
 .sidr {
 	/* Default Settings */
@@ -63,19 +68,6 @@ $sidr-text-color: $notableWhite;
 		@include single-box-shadow(rgba(#000, .2), 0, 5px, 5px, 3px);
 	}
 
-	p {
-		font-size: 14px;
-		margin: 0 0 12px;
-		a {
-			color: rgba($sidr-text-color, .9);
-		}
-	}
-
-	> p {
-		margin-left: 15px;
-		margin-right: 15px;
-	}
-
 	ul {
 		display: block;
 		margin: 0;
@@ -107,35 +99,6 @@ $sidr-text-color: $notableWhite;
 				color: $sidr-text-color;
 				&:hover {
 					color: $notableYellow;
-				}
-			}
-
-			ul {
-				border: 3px solid red;
-				margin: 0;
-				li {
-					line-height: 36px;
-					font-size: 14px;
-
-					&:last-child {
-						border-bottom: none;
-					}
-
-					&:hover,
-					&.active,
-					&.sidr-class-active {
-						border-top: none;
-						line-height: 36px;
-
-						> a, > span {
-							@include single-box-shadow($sidr-background-shadow-color, 0, 0, 15px, 3px, inset);
-						}
-					}
-
-					a, span {
-						color: rgba($sidr-text-color, .8);
-						padding-left: 30px;
-					}
 				}
 			}
 		}
@@ -188,4 +151,22 @@ $sidr-text-color: $notableWhite;
 			color: yellow;
 		}
 	}
+}
+
+// ----------------------------------------------------
+// ---------------TABLET MEDIA QUERIES ----------------
+// ----------------------------------------------------
+@media (min-width: $screen-sm) {
+}
+
+// ----------------------------------------------------
+// --------------LAPTOP MEDIA QUERIES -----------------
+// ----------------------------------------------------
+@media (min-width: $screen-md) {
+}
+
+// ----------------------------------------------------
+// ---------------DESKTOP MEDIA QUERIES ---------------
+// ----------------------------------------------------
+@media (min-width: $screen-lg) {
 }
