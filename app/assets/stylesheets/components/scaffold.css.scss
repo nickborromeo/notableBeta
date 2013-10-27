@@ -36,7 +36,6 @@ body {
 
 .container {
 	padding: 0;
-	margin-top: 35px;
 }
 
 /* --------------HEADER REGION ------------------ */
@@ -51,7 +50,7 @@ nav {
 		background: linear-gradient(to bottom, #FDFDFD 0%,#cccccc 100%); /* W3C */
 	}
 	.navbar-header {
-		padding: 5px 15px;
+		padding: 7px 15px;
 	}
 	.sidr-toggle-left, .sidr-toggle-right{
 		display: inline;
@@ -65,6 +64,7 @@ nav {
 		&.logo-name {
 			display: inline;
 			font-size: 18px;
+			text-align: center;
 		}
 	}
 }
