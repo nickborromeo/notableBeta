@@ -112,7 +112,10 @@
 		setCursor: (endPosition = false) ->
 			@getNoteContent().focus()
 			if endPosition
-				@placeCursorAtEnd(@ui.noteContent)
+				if typeof endPosition is "string"
+					@setCursorPosition endPosition
+				else
+					@placeCursorAtEnd(@ui.noteContent)
 		placeCursorAtEnd: (el) ->
 			range = document.createRange();
 			range.selectNodeContents(el[0])
@@ -152,6 +155,31 @@
 			textBefore = @buildTextBefore parent, sel
 			@adjustOffset matches, textBefore.length
 
+		setCursorPosition: (textBefore) ->
+			range = document.createRange()
+			adjustment = @findAdjustment textBefore
+			[node, offset] = @findTargetedNodeAndOffset(textBefore.length - adjustment)
+			range.setStart(@getNoteContent()[0], 0)
+			range.setEnd(node, offset)
+			range.collapse false
+			sel = window.getSelection()
+			sel.removeAllRanges()
+			sel.addRange(range)
+		findAdjustment: (textBefore) ->
+			a = 0;
+			_.each Note.collectAllMatches(textBefore), (m) ->
+				a += m.adjustment
+			a
+		findTargetedNodeAndOffset: (desiredPosition) ->
+			parent = @getNoteContent()[0]
+			it = document.createNodeIterator parent, NodeFilter.SHOW_TEXT
+			offset = 0;
+			while n = it.nextNode()
+				offset += n.data.length
+				if offset >= desiredPosition
+					offset = n.data.length - (offset - desiredPosition)
+					break
+			[n, offset]
 		textBeforeCursor: (sel, title) ->
 			offset = @adjustAnchorOffset(sel, title)
 			textBefore = title.slice(0,offset)
@@ -261,8 +289,9 @@
 		getDropType: (e) ->
 			e.currentTarget.id
 		mergeWithPreceding: (note) ->
-			preceding = @collection.mergeWithPreceding note
-			title = preceding.get('title')
-			Note.eventManager.trigger "setTitle:#{preceding.get('guid')}", preceding.get('title')
-			Note.eventManager.trigger "setCursor:#{preceding.get('guid')}", true
+			[preceding, title] = @collection.mergeWithPreceding note
+			return false unless preceding
+			previousTitle = preceding.get('title')
+			Note.eventManager.trigger "setTitle:#{preceding.get('guid')}", title
+			Note.eventManager.trigger "setCursor:#{preceding.get('guid')}", previousTitle
 )

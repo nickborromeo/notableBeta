@@ -235,13 +235,12 @@
 			(@dropMoveGeneral @setDropAfter.bind @).call(this, dragged, dropAfter)
 
 		mergeWithPreceding: (note) ->
-			if note.hasDescendants()
-				return false
+			return false if note.hasDescendants()
 			preceding = @findPreviousNote note
-			preceding.save
-				title: preceding.get('title') + note.get('title')
+			return false if preceding.get('depth') > note.get('depth')
+			title = preceding.get('title') + note.get('title')
 			@deleteNote note
-			preceding
+			[preceding, title]
 		comparator: (note) ->
 			note.get 'rank'
 
