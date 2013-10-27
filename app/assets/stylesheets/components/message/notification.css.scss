@@ -1,0 +1,45 @@
+$notableBlue: #14A4FF;
+$notableOrange: #E97C12;
+$notableYellow: #FFDC33;
+$notableWhite: #FDFDFD;
+$notableBlack: #3D3D3D;
+
+$notableLightGray: #C1C1C1;
+$notableGray: #EAEAEA;
+$notableDarkGray: #999999;
+
+$screen-sm: 760px;
+$screen-md: 992px;
+$screen-lg: 1200px;
+
+// ----------------------------------------------------
+// ----------------MOBILE FIRST CSS -------------------
+// ----------------------------------------------------
+#notification-region {
+	display: inline-block;
+	padding: 0;
+}
+.notificationHack{
+	padding: 5px 12px;
+	position: relative;
+	right: -1em;
+	margin-bottom: 0;
+}
+
+// ----------------------------------------------------
+// ---------------TABLET MEDIA QUERIES ----------------
+// ----------------------------------------------------
+@media (min-width: $screen-sm) {
+}
+
+// ----------------------------------------------------
+// --------------LAPTOP MEDIA QUERIES -----------------
+// ----------------------------------------------------
+@media (min-width: $screen-md) {
+}
+
+// ----------------------------------------------------
+// ---------------DESKTOP MEDIA QUERIES ---------------
+// ----------------------------------------------------
+@media (min-width: $screen-lg) {
+}
