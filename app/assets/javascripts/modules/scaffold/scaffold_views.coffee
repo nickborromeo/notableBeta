@@ -11,6 +11,7 @@
 			modviewRegion: "#modview-region"
 
 		events: ->
+			"click .sidebar-toggle": "shiftNavbar"
 			"click .new-note": "showTooltip"
 			"click .outline": "applyModview"
 			"click .grid": "applyModview"
@@ -21,6 +22,9 @@
 			type = e.currentTarget.classList[3]
 			$(".alert").text(type+" modview is displayed").show()
 			$(".alert").delay(7000).fadeOut(1400)
+		shiftNavbar: ->
+			$(".navbar-header").toggleClass("navbar-shift")
+			$(".navbar-right").toggleClass("navbar-shift")
 
 	class Scaffold.ContentView extends Marionette.Layout
 		template: "scaffold/content"
