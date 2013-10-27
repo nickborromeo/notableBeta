@@ -1,0 +1,41 @@
+@import "compass/css3";
+
+$notableBlue: #14A4FF;
+$notableOrange: #E97C12;
+$notableYellow: #FFDC33;
+$notableWhite: #FDFDFD;
+$notableGray: #EAEAEA;
+$notableBlack: #3D3D3D;
+$notableDarkGray: #999999;
+
+$screen-sm: 760px;
+$screen-md: 992px;
+$screen-lg: 1200px;
+
+$sidr-background : #333;
+$sidr-background-shadow-color : #222;
+$sidr-text-color: $notableWhite;
+$sidr-font-family: 'lucida grande',tahoma,verdana,arial,sans-serif;
+
+// ----------------------------------------------------
+// ----------------MOBILE FIRST CSS -------------------
+// ----------------------------------------------------
+
+
+// ----------------------------------------------------
+// ---------------TABLET MEDIA QUERIES ----------------
+// ----------------------------------------------------
+@media (min-width: $screen-sm) {
+}
+
+// ----------------------------------------------------
+// --------------LAPTOP MEDIA QUERIES -----------------
+// ----------------------------------------------------
+@media (min-width: $screen-md) {
+}
+
+// ----------------------------------------------------
+// ---------------DESKTOP MEDIA QUERIES ---------------
+// ----------------------------------------------------
+@media (min-width: $screen-lg) {
+}
