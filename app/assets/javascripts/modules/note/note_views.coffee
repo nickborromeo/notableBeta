@@ -27,6 +27,7 @@
 			@listenTo @collection, "sort", @render
 			Note.eventManager.on "setCursor:#{@model.get('guid')}", @setCursor, @
 			Note.eventManager.on "render:#{@model.get('guid')}", @render, @
+			Note.eventManager.on "setTitle:#{@model.get('guid')}", @setNoteTitle, @
 		onRender: ->
 			@getNoteContent().wysiwyg()
 			@addLastDropTarget()
@@ -55,6 +56,7 @@
 			@.$el.on 'keydown', null, 'down', @triggerShortcut 'jumpFocusDown'
 			@.$el.on 'keydown', null, 'right', @arrowRightJumpLine.bind @
 			@.$el.on 'keydown', null, 'left', @arrowLeftJumpLine.bind @
+			@.$el.on 'keydown', null, 'backspace', @mergeWithPreceding.bind @
 		triggerShortcut: (event) -> (e) =>
 			e.preventDefault()
 			e.stopPropagation()
@@ -70,6 +72,10 @@
 				args = ['change', event, @model].concat(Note.sliceArgs arguments, 0)
 				Note.eventManager.trigger.apply(Note.eventManager, args)
 
+		mergeWithPreceding: (e) ->
+			e.stopPropagation()
+			if @testCursorPosition "isEmptyBeforeCursor"
+				@triggerShortcut('mergeWithPreceding')(e)
 		arrowRightJumpLine: (e) ->
 			e.stopPropagation()
 			if @testCursorPosition "isEmptyAfterCursor"
@@ -101,6 +107,8 @@
 			noteTitle
 		getNoteTitle: ->
 			@ui.noteContent.html().trim()
+		setNoteTitle: (title) ->
+			@ui.noteContent.html title
 		setCursor: (endPosition = false) ->
 			@getNoteContent().focus()
 			if endPosition
@@ -252,4 +260,9 @@
 			@drag isnt note and not note.hasInAncestors @drag
 		getDropType: (e) ->
 			e.currentTarget.id
+		mergeWithPreceding: (note) ->
+			preceding = @collection.mergeWithPreceding note
+			title = preceding.get('title')
+			Note.eventManager.trigger "setTitle:#{preceding.get('guid')}", preceding.get('title')
+			Note.eventManager.trigger "setCursor:#{preceding.get('guid')}", true
 )
