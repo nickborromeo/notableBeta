@@ -22,6 +22,7 @@
 		# App.module("Tag").start()
 
 	App.on "initialize:after", ->
+		App.module("Wiring").start()
 		if Backbone.history
 			Backbone.history.start()
 			# {pushState:true}
@@ -30,7 +31,3 @@
 
 $ ->
 	Notable.start()
-	$(".alert").delay(7000).fadeOut(1400)
-	$('.sidebar-toggle').sidr
-		name: 'sidebar-center'
-		source: '#sidebar-center'
