@@ -8,7 +8,7 @@ $notableLightGray: #C1C1C1;
 $notableGray: #EAEAEA;
 $notableDarkGray: #999999;
 
-$screen-sm: 760px;
+$screen-sm: 768px;
 $screen-md: 992px;
 $screen-lg: 1200px;
 
@@ -26,7 +26,7 @@ body {
 	line-height: 1.4em;
 	color: $notableBlack;
 	margin: 0 auto;
-	padding: 70px 0 0 0;
+	padding: 35px 0 0 0;
 	-webkit-font-smoothing: antialiased;
 	-moz-font-smoothing: antialiased;
 	-ms-font-smoothing: antialiased;
@@ -35,14 +35,13 @@ body {
 }
 
 .container {
-	padding: 0;
-	border: 3px solid yellow;
+	padding: 35px 0 0 0;
 }
 
 /* --------------HEADER REGION ------------------ */
 nav {
 	&.navbar-default {
-		height: 45px;
+		height: 35px;
 		background-color: $notableGray; /* Old browsers */
 		background: -moz-linear-gradient(top, #FDFDFD 0%, #cccccc 100%); /* FF3.6+ */
 		background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#FDFDFD), color-stop(100%,#cccccc)); /* Chrome,Safari4+ */
@@ -50,6 +49,7 @@ nav {
 		background: -ms-linear-gradient(top, #FDFDFD 0%,#cccccc 100%); /* IE10+ */
 		background: linear-gradient(to bottom, #FDFDFD 0%,#cccccc 100%); /* W3C */
 	}
+
 	.sidebar-toggle-xs {
 		display: inline-block;
 		margin: 8px 15px;
@@ -69,8 +69,8 @@ nav {
 			font-size: 18px;
 			// This is a hack
 			position: relative;
-			left: 14em;
-			bottom: 2em;
+			left: 10em;
+			bottom: 2.2em;
 		}
 	}
 }
@@ -123,13 +123,29 @@ nav {
 // ---------------TABLET MEDIA QUERIES ----------------
 // ----------------------------------------------------
 @media (min-width: $screen-sm) {
+	body {
+		padding-top: 50px;
+	}
 	.container {
 		padding: 0 15px;
 		max-width: $screen-sm;
-		border: 3px solid green;
 	}
 
 	nav {
+		&.navbar-default {
+			height: 40px;
+		}
+		.navbar-form {
+			margin: 7px 0;
+			.form-control {
+				height: 27px;
+				font-size: 12px;
+			}
+		}
+		.navbar-nav > li > a {
+			padding: 11px 15px;
+		}
+
 		.sidebar-toggle-xs {
 			display: none;
 		}
@@ -150,7 +166,7 @@ nav {
 	#message-center {
 		display: block;
 		height: 3em;
-		padding-top: 0.3em;
+		padding-top: 0;
 		.message-template {
 			display: inline-block;
 			padding: 0 0 0 0.4em;
@@ -183,16 +199,32 @@ nav {
 @media (min-width: $screen-md) {
 	body {
 	  font-size: 14px;
+		padding-top: 60px;
 	}
 	.container {
-		border: 3px solid blue;
 		max-width: $screen-md;
 	}
 
 	nav {
-		.logo.logo-name {
-			font-size: 30px;
+		&.navbar-default {
+			height: 45px;
 		}
+		.navbar-form {
+			.form-control {
+				font-size: 14px;
+				height: 30px;
+			}
+		}
+		.navbar-nav > li > a {
+			padding: 15px;
+		}
+		.logo.logo-name {
+			font-size: 28px;
+		}
+	}
+
+	#message-center {
+		padding-top: 4px;
 	}
 
 	#content-template {
@@ -203,6 +235,7 @@ nav {
 			margin: 1em auto;
 		}
 	}
+
 }
 
 // ----------------------------------------------------
@@ -210,6 +243,6 @@ nav {
 // ----------------------------------------------------
 @media (min-width: $screen-lg) {
 	.container {
-		border: 3px solid red;
+		// border: 3px solid red;
 	}
 }
