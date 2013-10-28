@@ -23,7 +23,7 @@
 		initialize: ->
 			@collection = @model.descendants
 			@bindKeyboardShortcuts()
-			@listenTo @model, "change:created_at", @setCursor
+			# @listenTo @model, "change:created_at", @setCursor
 			@listenTo @collection, "sort", @render
 			Note.eventManager.on "setCursor:#{@model.get('guid')}", @setCursor, @
 			Note.eventManager.on "render:#{@model.get('guid')}", @render, @
@@ -67,7 +67,7 @@
 			Note.eventManager.trigger 'change', event, @ui, e, @model
 			e.stopPropagation()
 		triggerEvent: (event) ->
-			=>
+			(e) =>
 				@updateNote()
 				args = ['change', event, @model].concat(Note.sliceArgs arguments, 0)
 				Note.eventManager.trigger.apply(Note.eventManager, args)
@@ -106,17 +106,16 @@
 					title: noteTitle
 			noteTitle
 		getNoteTitle: ->
-			@ui.noteContent.html().trim()
+			@getNoteContent().html().trim()
 		setNoteTitle: (title) ->
-			@ui.noteContent.html title
+			@getNoteContent().html title
 			@updateNote()
 		setCursor: (endPosition = false) ->
 			@getNoteContent().focus()
-			if endPosition
-				if typeof endPosition is "string"
-					@setCursorPosition endPosition
-				else
-					@placeCursorAtEnd(@ui.noteContent)
+			if typeof endPosition is "string"
+				@setCursorPosition endPosition
+			else if endPosition is true
+				@placeCursorAtEnd(@ui.noteContent)
 		placeCursorAtEnd: (el) ->
 			range = document.createRange();
 			range.selectNodeContents(el[0])
@@ -140,7 +139,7 @@
 					break
 			[n, offset]
 		findDesiredPosition: (textBefore) ->
-			matches = Note.collectAllMatches textBefore
+			matches = @collectMatches textBefore
 			offset = textBefore.length
 			@decreaseOffsetAdjustment matches, offset
 
@@ -222,9 +221,10 @@
 			@render() # Will probably need to do something about rerendering all the time
 			Note.eventManager.trigger "setCursor:#{arguments[1].get 'guid'}"
 		createNote: (createdFrom) ->
-			[newNote, createdFromNewTitle] = @collection.createNote.apply(@collection, arguments)
-			Note.eventManager.trigger "setCursor:#{newNote.get('guid')}"
+			[newNote, createdFromNewTitle, setFocusIn] =
+				@collection.createNote.apply(@collection, arguments)
 			Note.eventManager.trigger "setTitle:#{createdFrom.get('guid')}", createdFromNewTitle
+			Note.eventManager.trigger "setCursor:#{setFocusIn.get('guid')}"
 		deleteNote: (note) ->
 			(@jumpFocusUp note) unless (@jumpFocusDown note)
 			@collection.deleteNote note
