@@ -1,8 +1,10 @@
 @Notable.module("Note", (Note, App, Backbone, Marionette, $, _) ->
 	Note.sliceArgs = (args, slice = 1) ->
 		Array.prototype.slice.call(args, slice)
+	Note.concatWithArgs = (args, addTo) ->
+		args = Note.sliceArgs(args, 0)
+		args.concat(addTo)
 
-	# Helper Functions (to be moved)
 	# For use as a higher order function
 	Note.increaseRankOfNote = (note) -> note.increaseRank()
 	Note.decreaseRankOfNote = (note) -> note.decreaseRank()
@@ -31,17 +33,26 @@
 	Note.prependStyling = (text) ->
 		matches = Note.collectAllMatches text
 		prepend = ""
+		ignoredTags = ["<br>"]
 		openTags = []
 		for match in matches
-			opening = Note.matchingOpeningTag match.match
-			if opening isnt match.match
-				if _.last(openTags) is opening
-					openTags.pop()
+			if match.match not in ignoredTags
+				opening = Note.matchingOpeningTag match.match
+				if opening isnt match.match
+					if _.last(openTags) is opening
+						openTags.pop()
+					else
+						prepend = opening + prepend
 				else
-					prepend = opening + prepend
-			else
-				openTags.push match.match
+					openTags.push match.match
 		prepend + text
 	Note.matchingOpeningTag = (closingTag) ->
 		closingTag.replace('/', '')
+
+	Note.addAdjustment = (previousOffset) -> (acc, match) ->
+		if (acc + previousOffset > match.index) then acc + match.adjustment
+		else acc
+	Note.substractAdjustment = (previousOffset) -> (acc, match) ->
+		acc - match.adjustment
+
 )

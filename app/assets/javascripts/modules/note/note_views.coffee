@@ -27,6 +27,7 @@
 			@listenTo @collection, "sort", @render
 			Note.eventManager.on "setCursor:#{@model.get('guid')}", @setCursor, @
 			Note.eventManager.on "render:#{@model.get('guid')}", @render, @
+			Note.eventManager.on "setTitle:#{@model.get('guid')}", @setNoteTitle, @
 		onRender: ->
 			@getNoteContent().wysiwyg()
 			@addLastDropTarget()
@@ -55,6 +56,7 @@
 			@.$el.on 'keydown', null, 'down', @triggerShortcut 'jumpFocusDown'
 			@.$el.on 'keydown', null, 'right', @arrowRightJumpLine.bind @
 			@.$el.on 'keydown', null, 'left', @arrowLeftJumpLine.bind @
+			@.$el.on 'keydown', null, 'backspace', @mergeWithPreceding.bind @
 		triggerShortcut: (event) -> (e) =>
 			e.preventDefault()
 			e.stopPropagation()
@@ -70,6 +72,10 @@
 				args = ['change', event, @model].concat(Note.sliceArgs arguments, 0)
 				Note.eventManager.trigger.apply(Note.eventManager, args)
 
+		mergeWithPreceding: (e) ->
+			e.stopPropagation()
+			if @testCursorPosition "isEmptyBeforeCursor"
+				@triggerShortcut('mergeWithPreceding')(e)
 		arrowRightJumpLine: (e) ->
 			e.stopPropagation()
 			if @testCursorPosition "isEmptyAfterCursor"
@@ -101,17 +107,49 @@
 			noteTitle
 		getNoteTitle: ->
 			@ui.noteContent.html().trim()
+		setNoteTitle: (title) ->
+			@ui.noteContent.html title
 		setCursor: (endPosition = false) ->
 			@getNoteContent().focus()
 			if endPosition
-				@placeCursorAtEnd(@ui.noteContent)
+				if typeof endPosition is "string"
+					@setCursorPosition endPosition
+				else
+					@placeCursorAtEnd(@ui.noteContent)
 		placeCursorAtEnd: (el) ->
 			range = document.createRange();
 			range.selectNodeContents(el[0])
 			range.collapse false
+			@setSelection range
+		setCursorPosition: (textBefore) ->
+			desiredPosition = @findDesiredPosition textBefore
+			[node, offset] = @findTargetedNodeAndOffset desiredPosition
+			range = @setRangeFromBeginTo node, offset
+			@setSelection range
+		setRangeFromBeginTo: (node, offset) ->
+			range = document.createRange()
+			range.setStart(@getNoteContent()[0], 0)
+			range.setEnd(node, offset)
+			range.collapse false
+			range
+		setSelection: (range) ->
 			sel = window.getSelection()
 			sel.removeAllRanges()
-			sel.addRange range
+			sel.addRange(range)
+		findTargetedNodeAndOffset: (desiredPosition) ->
+			parent = @getNoteContent()[0]
+			it = document.createNodeIterator parent, NodeFilter.SHOW_TEXT
+			offset = 0;
+			while n = it.nextNode()
+				offset += n.data.length
+				if offset >= desiredPosition
+					offset = n.data.length - (offset - desiredPosition)
+					break
+			[n, offset]
+		findDesiredPosition: (textBefore) ->
+			matches = Note.collectAllMatches textBefore
+			offset = textBefore.length
+			@decreaseOffsetAdjustment matches, offset
 
 		buildTextBefore: (parent, sel) ->
 			it = document.createNodeIterator parent, NodeFilter.SHOW_TEXT
@@ -132,12 +170,15 @@
 			matches = Note.collectAllMatches text
 			matches = matches.concat Note.collectAllMatches text, Note.matchHtmlEntities, 1
 			matches = matches.sort (a,b) -> a.index - b.index
-		adjustOffset: (matches, previousOffset) ->
-			offsetAdjustment = previousOffset
-			for match in matches
-				if offsetAdjustment > match.index
-					offsetAdjustment += match.adjustment
-			offsetAdjustment
+		increaseOffsetAdjustment: ->
+			args = Note.concatWithArgs arguments, Note.addAdjustment
+			@adjustOffset.apply this, args
+		decreaseOffsetAdjustment: ->
+			args = Note.concatWithArgs arguments, Note.substractAdjustment
+			@adjustOffset.apply this, args
+		adjustOffset: (matches, previousOffset, adjustmentOperator = Note.addAdjustment) ->
+			adjustment = matches.reduce adjustmentOperator(previousOffset), 0
+			previousOffset + adjustment
 		adjustAnchorOffset: (sel, title) ->
 			parent = @getContentEditable sel
 			matches = @collectMatches parent.innerHTML
@@ -252,4 +293,10 @@
 			@drag isnt note and not note.hasInAncestors @drag
 		getDropType: (e) ->
 			e.currentTarget.id
+		mergeWithPreceding: (note) ->
+			[preceding, title] = @collection.mergeWithPreceding note
+			return false unless preceding
+			previousTitle = preceding.get('title')
+			Note.eventManager.trigger "setTitle:#{preceding.get('guid')}", title
+			Note.eventManager.trigger "setCursor:#{preceding.get('guid')}", previousTitle
 )
