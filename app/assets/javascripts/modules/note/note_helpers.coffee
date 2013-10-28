@@ -16,6 +16,9 @@
 	Note.matchTag = /<\/?[a-z]+>/g
 	Note.matchTagsEndOfString = /^(<\/?[a-z]+>)+$/
 	Note.matchHtmlEntities = /&[a-z]{2,4};/g
+	Note.matchEmptyTag = /<[a-z]+><\/[a-z]+>/g
+	Note.trimEmptyTags = (text) ->
+		text.replace(Note.matchEmptyTag, "")
 
 	Note.collectAllMatches = (title, regex = Note.matchTag, adjustment = 0) ->
 		matches = []

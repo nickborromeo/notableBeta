@@ -106,7 +106,8 @@
 					title: noteTitle
 			noteTitle
 		getNoteTitle: ->
-			@getNoteContent().html().trim()
+			title = @getNoteContent().html().trim()
+			Note.trimEmptyTags title
 		setNoteTitle: (title) ->
 			@getNoteContent().html title
 			@updateNote()
