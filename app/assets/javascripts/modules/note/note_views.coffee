@@ -109,6 +109,7 @@
 			@ui.noteContent.html().trim()
 		setNoteTitle: (title) ->
 			@ui.noteContent.html title
+			@updateNote()
 		setCursor: (endPosition = false) ->
 			@getNoteContent().focus()
 			if endPosition
@@ -120,22 +121,14 @@
 			range = document.createRange();
 			range.selectNodeContents(el[0])
 			range.collapse false
-			@setSelection range
+			Note.setSelection range
 		setCursorPosition: (textBefore) ->
 			desiredPosition = @findDesiredPosition textBefore
 			[node, offset] = @findTargetedNodeAndOffset desiredPosition
 			range = @setRangeFromBeginTo node, offset
-			@setSelection range
+			Note.setSelection range
 		setRangeFromBeginTo: (node, offset) ->
-			range = document.createRange()
-			range.setStart(@getNoteContent()[0], 0)
-			range.setEnd(node, offset)
-			range.collapse false
-			range
-		setSelection: (range) ->
-			sel = window.getSelection()
-			sel.removeAllRanges()
-			sel.addRange(range)
+			Note.setRange @getNoteContent()[0], 0, node, offset
 		findTargetedNodeAndOffset: (desiredPosition) ->
 			parent = @getNoteContent()[0]
 			it = document.createNodeIterator parent, NodeFilter.SHOW_TEXT
@@ -228,9 +221,10 @@
 			@collection[functionName].apply(@collection, Note.sliceArgs arguments)
 			@render() # Will probably need to do something about rerendering all the time
 			Note.eventManager.trigger "setCursor:#{arguments[1].get 'guid'}"
-		createNote: ->
-			newNote = @collection.createNote.apply(@collection, arguments)
+		createNote: (createdFrom) ->
+			[newNote, createdFromNewTitle] = @collection.createNote.apply(@collection, arguments)
 			Note.eventManager.trigger "setCursor:#{newNote.get('guid')}"
+			Note.eventManager.trigger "setTitle:#{createdFrom.get('guid')}", createdFromNewTitle
 		deleteNote: (note) ->
 			(@jumpFocusUp note) unless (@jumpFocusDown note)
 			@collection.deleteNote note

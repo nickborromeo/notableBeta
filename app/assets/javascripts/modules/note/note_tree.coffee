@@ -45,9 +45,9 @@
 			if hashMap.rankAdjustment then newNoteAttributes.rank += 1
 			newNote.save newNoteAttributes
 			@insertInTree newNote
-			newNote
+			[newNote, hashMap.oldNoteNewTitle]
 		dispatchCreation: (noteCreatedFrom, textBefore, textAfter) ->
-			if textAfter.length isnt 0
+			if textBefore.length is 0
 				@createBefore.apply(@, arguments)
 			else
 				@createAfter.apply(@, arguments)
@@ -60,11 +60,11 @@
 			createBeforeNote: createFrom
 			newNoteTitle: textAfter
 			rankAdjustment: rankAdjustment
+			oldNoteNewTitle: textBefore
 		createBefore:  (noteCreatedFrom, textBefore, textAfter) ->
-			noteCreatedFrom.save
-				title: textAfter
 			createBeforeNote: noteCreatedFrom
 			newNoteTitle: textBefore
+			oldNoteNewTitle: textAfter
 		deleteNote: (note) ->
 			descendants = note.getCompleteDescendantList()
 			_.each descendants, (descendant) ->

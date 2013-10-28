@@ -55,4 +55,15 @@
 	Note.substractAdjustment = (previousOffset) -> (acc, match) ->
 		acc - match.adjustment
 
+	Note.setRange = (beginNode, beginOffset, endNode, endOffset) ->
+		range = document.createRange()
+		range.setStart(beginNode, beginOffset)
+		range.setEnd(endNode, endOffset)
+		range.collapse false
+		range
+	Note.setSelection = (range) ->
+		sel = window.getSelection()
+		sel.removeAllRanges()
+		sel.addRange(range)
+
 )
