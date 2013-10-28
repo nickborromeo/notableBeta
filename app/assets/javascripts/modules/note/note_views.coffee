@@ -120,9 +120,36 @@
 			range = document.createRange();
 			range.selectNodeContents(el[0])
 			range.collapse false
+			@setSelection range
+		setCursorPosition: (textBefore) ->
+			desiredPosition = @findDesiredPosition textBefore
+			[node, offset] = @findTargetedNodeAndOffset desiredPosition
+			range = @setRangeFromBeginTo node, offset
+			@setSelection range
+		setRangeFromBeginTo: (node, offset) ->
+			range = document.createRange()
+			range.setStart(@getNoteContent()[0], 0)
+			range.setEnd(node, offset)
+			range.collapse false
+			range
+		setSelection: (range) ->
 			sel = window.getSelection()
 			sel.removeAllRanges()
-			sel.addRange range
+			sel.addRange(range)
+		findTargetedNodeAndOffset: (desiredPosition) ->
+			parent = @getNoteContent()[0]
+			it = document.createNodeIterator parent, NodeFilter.SHOW_TEXT
+			offset = 0;
+			while n = it.nextNode()
+				offset += n.data.length
+				if offset >= desiredPosition
+					offset = n.data.length - (offset - desiredPosition)
+					break
+			[n, offset]
+		findDesiredPosition: (textBefore) ->
+			matches = Note.collectAllMatches textBefore
+			offset = textBefore.length
+			@decreaseOffsetAdjustment matches, offset
 
 		buildTextBefore: (parent, sel) ->
 			it = document.createNodeIterator parent, NodeFilter.SHOW_TEXT
@@ -143,43 +170,21 @@
 			matches = Note.collectAllMatches text
 			matches = matches.concat Note.collectAllMatches text, Note.matchHtmlEntities, 1
 			matches = matches.sort (a,b) -> a.index - b.index
-		adjustOffset: (matches, previousOffset) ->
-			offsetAdjustment = previousOffset
-			for match in matches
-				if offsetAdjustment > match.index
-					offsetAdjustment += match.adjustment
-			offsetAdjustment
+		increaseOffsetAdjustment: ->
+			args = Note.concatWithArgs arguments, Note.addAdjustment
+			@adjustOffset.apply this, args
+		decreaseOffsetAdjustment: ->
+			args = Note.concatWithArgs arguments, Note.substractAdjustment
+			@adjustOffset.apply this, args
+		adjustOffset: (matches, previousOffset, adjustmentOperator = Note.addAdjustment) ->
+			adjustment = matches.reduce adjustmentOperator(previousOffset), 0
+			previousOffset + adjustment
 		adjustAnchorOffset: (sel, title) ->
 			parent = @getContentEditable sel
 			matches = @collectMatches parent.innerHTML
 			textBefore = @buildTextBefore parent, sel
 			@adjustOffset matches, textBefore.length
 
-		setCursorPosition: (textBefore) ->
-			range = document.createRange()
-			adjustment = @findAdjustment textBefore
-			[node, offset] = @findTargetedNodeAndOffset(textBefore.length - adjustment)
-			range.setStart(@getNoteContent()[0], 0)
-			range.setEnd(node, offset)
-			range.collapse false
-			sel = window.getSelection()
-			sel.removeAllRanges()
-			sel.addRange(range)
-		findAdjustment: (textBefore) ->
-			a = 0;
-			_.each Note.collectAllMatches(textBefore), (m) ->
-				a += m.adjustment
-			a
-		findTargetedNodeAndOffset: (desiredPosition) ->
-			parent = @getNoteContent()[0]
-			it = document.createNodeIterator parent, NodeFilter.SHOW_TEXT
-			offset = 0;
-			while n = it.nextNode()
-				offset += n.data.length
-				if offset >= desiredPosition
-					offset = n.data.length - (offset - desiredPosition)
-					break
-			[n, offset]
 		textBeforeCursor: (sel, title) ->
 			offset = @adjustAnchorOffset(sel, title)
 			textBefore = title.slice(0,offset)
