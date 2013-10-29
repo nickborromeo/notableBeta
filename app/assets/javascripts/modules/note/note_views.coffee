@@ -57,6 +57,8 @@
 			@.$el.on 'keydown', null, 'right', @arrowRightJumpLine.bind @
 			@.$el.on 'keydown', null, 'left', @arrowLeftJumpLine.bind @
 			@.$el.on 'keydown', null, 'backspace', @mergeWithPreceding.bind @
+			@.$el.on 'keydown', null, 'ctrl+s', @saveNote.bind @
+			@.$el.on 'keydown', null, 'meta+s', @saveNote.bind @
 		triggerShortcut: (event) -> (e) =>
 			e.preventDefault()
 			e.stopPropagation()
@@ -99,6 +101,10 @@
 				textBefore = @textBeforeCursor sel, title
 				textAfter = @textAfterCursor sel, title
 				Note.eventManager.trigger 'createNote', @model, textBefore, textAfter
+		saveNote: (e) ->
+			e.preventDefault()
+			e.stopPropagation()
+			@updateNote()
 		updateNote: ->
 			noteTitle = @getNoteTitle()
 			if @model.get('title') isnt noteTitle
