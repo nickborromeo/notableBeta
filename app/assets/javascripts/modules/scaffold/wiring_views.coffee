@@ -4,13 +4,12 @@
 	App.Wiring.on "start", ->
 		$(".alert").delay(7000).fadeOut(1400)
 
-		$('.sidebar-toggle').sidr
-			name: 'sidebar-center'
-			source: '#sidebar-center'
 		$('.sidr-toggle-left').sidr
-			name: 'sidebar-center'
-			source: '#sidebar-center'
-		# $('.sidr-toggle-right').sidr
-		# 	name: 'settings-sidebar'
-		# 	source: '#settings-sidebar'
+			name: 'left-sidr-center'
+			source: '#left-sidr-center'
+			side: 'left'
+		$('.sidr-toggle-right').sidr
+			name: 'right-sidr-center'
+			source: '#right-sidr-center'
+			side: 'right'
 )

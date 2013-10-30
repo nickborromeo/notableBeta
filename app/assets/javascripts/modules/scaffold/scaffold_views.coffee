@@ -37,7 +37,6 @@
 	class Scaffold.SidebarView extends Marionette.Layout
 		template: "scaffold/sidebar"
 		tagName:	"section"
-		# id: "sidr"
 		id: "sidebar-center"
 		regions:
 			notebookRegion: "#notebook-region"
