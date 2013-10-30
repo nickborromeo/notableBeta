@@ -76,11 +76,11 @@
 				args = ['change', event, @model].concat(Note.sliceArgs arguments, 0)
 				Note.eventManager.trigger.apply(Note.eventManager, args)
 
-		timeoutAndSave: (cb)-> 
+		timeoutAndSave: (updateCallBack)-> 
 			timer = null
 			return ->
 				clearTimeout timer
-				timer = setTimeout(cb, 3000)
+				timer = setTimeout(updateCallBack, 3000)
 
 		mergeWithPreceding: (e) ->
 			e.stopPropagation()
