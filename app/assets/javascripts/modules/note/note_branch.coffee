@@ -94,6 +94,15 @@
 			descendants = @getCompleteDescendantList()
 			_.each descendants, modifierFunction
 
+		# For dealing with localStorage
+		saveLocally: ->
+			throw "Browser Not Supported" unless window.localStorage?
+			changeQueue = JSON.parse window.localStorage.getItem('changeQueue')
+			changeQueue = changeQueue ? [] 
+			changeQueue.push @
+			window.localStorage.setItem 'changeQueue', JSON.stringify(changeQueue)
+
+
 	# Static Function
 	Note.Branch.generateAttributes = (followingNote, text) ->
 		title: text
