@@ -217,11 +217,15 @@
 
 		initialize: ->
 			@listenTo @collection, "sort", @render
+			@listenTo @collection, "destroy", @addDefaultNote
 			Note.eventManager.on 'createNote', @createNote, this
 			Note.eventManager.on 'change', @dispatchFunction, this
 			@drag = undefined
-		onRender: ->
+		onBeforeRender: -> 
+		onRender: -> @addDefaultNote false
+		addDefaultNote: (render = true) ->
 			if @collection.length is 0 then @collection.create()
+			@render if render
 		dispatchFunction: (functionName) ->
 			return @[functionName].apply(@, Note.sliceArgs arguments) if @[functionName]?
 			@collection[functionName].apply(@collection, Note.sliceArgs arguments)
