@@ -20,6 +20,7 @@
 
     @expects.createNote: ['created_at','depth','guid','id','parent_id','rank','title','subtitle']
     @expects.deleteNote: ['created_at','depth','guid','id','parent_id','rank','title','subtitle']
+    @expects.deleteBranch: ['ancestorNote','childNoteSet']
     @expects.moveNote: ['guid','previous','current']
     @expects.updateContent: ['guid','previous','current']
     # @expects.updateContent: ['guid','deltaContent']
@@ -37,6 +38,12 @@
     @revert.deleteNote: (modelCollection, change) ->
       modelCollection.add change.changes
       return {type: 'createNote', changes: change.changes}
+
+    @revert.deleteBranch: (modelCollection, change) ->
+      modelCollection.add change.changes.ancestorNote
+      for note in change.changes.childNoteSet
+        modelCollection.add note
+      return {type: 'createNote', changes: change.changes.ancestorNote}
 
     @revert.moveNote: (modelCollection, change) ->
       noteReference = modelCollection.getNote 'guid'
@@ -57,9 +64,9 @@
       return change
 
     constructor: (previousHistory, historyLimit) ->
-      # @previousHistory = previousHistory || [];
-      previousHistory = JSON.parse window.localStorage.getItem('history')
-      if previousHistory? then completedItems = previousHistory
+      @previousHistory = previousHistory || [];
+      # previousHistory = JSON.parse window.localStorage.getItem('history')
+      # if previousHistory? then completedItems = previousHistory
       else completedItems = []
       @historyLimit = historyLimit || 100;
 
