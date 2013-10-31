@@ -19,6 +19,8 @@
 			"dragenter .dropTarget": @triggerDragEvent "enterMove"
 			"dragleave .dropTarget": @triggerDragEvent "leaveMove"
 			"dragover .dropTarget": @triggerDragEvent "overMove"
+			"keyup .branch": @timeoutAndSave(@updateNote)
+
 
 		initialize: ->
 			@collection = @model.descendants
@@ -74,6 +76,12 @@
 				args = ['change', event, @model].concat(Note.sliceArgs arguments, 0)
 				Note.eventManager.trigger.apply(Note.eventManager, args)
 
+		timeoutAndSave: (updateCallBack)-> 
+			timer = null
+			return ->
+				clearTimeout timer
+				timer = setTimeout(updateCallBack, 3000)
+
 		mergeWithPreceding: (e) ->
 			e.stopPropagation()
 			if @testCursorPosition "isEmptyBeforeCursor"
@@ -101,15 +109,18 @@
 				textBefore = @textBeforeCursor sel, title
 				textAfter = @textAfterCursor sel, title
 				Note.eventManager.trigger 'createNote', @model, textBefore, textAfter
+
 		saveNote: (e) ->
 			e.preventDefault()
 			e.stopPropagation()
 			@updateNote()
-		updateNote: ->
+
+		updateNote: =>
 			noteTitle = @getNoteTitle()
 			if @model.get('title') isnt noteTitle
 				@model.save
 					title: noteTitle
+				@model.saveLocally()
 			noteTitle
 		getNoteTitle: ->
 			title = @getNoteContent().html().trim()
