@@ -63,7 +63,7 @@
 		describe "#createNote", ->
 			Given -> @noteCreatedFrom = @tree.models[3]
 			describe "has no text before and has text after, then", ->
-				When -> @newNote = @tree.createNote @noteCreatedFrom, "",
+				When -> [@newNote, x, y] = @tree.createNote @noteCreatedFrom, "",
 								                             @noteCreatedFrom.get 'title'
 				describe "new note must spawn before noteCreatedFrom", ->
 					# Given -> @captor = jasmine.captor()
@@ -83,7 +83,7 @@
 					Then -> window.verifyProperty(@noteCreatedFrom, @expectedProperties, true)
 					And -> @previousRank + 1 is @tree.last().get('rank')
 			describe "has text before and no text after, then", ->
-				When -> @newNote = @tree.createNote(@noteCreatedFrom, @noteCreatedFrom.get('title'), "")
+				When -> [@newNote, x,y] = @tree.createNote(@noteCreatedFrom, @noteCreatedFrom.get('title'), "")
 				describe "should create a note right before the following note, " +
 							   "with same depth", ->
 					Given -> @expectedProperties =
