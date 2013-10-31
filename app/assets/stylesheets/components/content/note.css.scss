@@ -23,6 +23,16 @@ $screen-lg: 1200px;
 	margin: 0;
 	min-height: 450px;
 
+	.move {
+		margin: 0;
+		padding: 0 0 5px 0;
+		color: $notableBlack;
+		border: none;
+		background: none;
+		line-height: 0.8em;
+		&:after {content: "•";}
+	}
+
 	.noteContent {
 		margin-left: 2px;
 		width: 90%;
@@ -86,15 +96,6 @@ $screen-lg: 1200px;
 }
 
 @media (max-width: $screen-sm) {
-	.move {
-		margin: 0;
-		padding: 0 0 5px 0;
-		color: $notableBlack;
-		background-color: $notableWhite;
-		border-color: $notableWhite;
-		line-height: 0.9em;
-		&:after {content: "•";}
-	}
 }
 
 // ----------------------------------------------------
@@ -107,9 +108,8 @@ $screen-lg: 1200px;
 		min-height: 600px;
 
 		.move {
-			margin: 0 5px 5px 0;
-			line-height: 1.1em;
-			&:after {content: "lll";}
+			padding: 1px 5px;
+			font-size: 18px;
 		}
 
 		.branch {
@@ -133,11 +133,11 @@ $screen-lg: 1200px;
 		min-height: 700px;
 
 		.move {
-			line-height: 1.3em;
+			line-height: 0.7em;
 		}
 
 		.branch {
-			font-size: 16px;
+			font-size: 15px;
 			line-height: 1.0em;
 		}
 
