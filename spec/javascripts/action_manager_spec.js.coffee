@@ -1,6 +1,26 @@
 @Notable.module("Action", (Action, App, Backbone, Marionette, $, _) ->
   #this part is only to test the action manager standalone
   Given -> @actionManager = new App.Action.Manager @initialHistory
+
+    #FIRST CHECK THAT IT EXISTS!
+    #CHECK THAT IT HAS ACCESSABLE METHODS 
+    #addHistory
+    #undo
+    #redo
+    #exportToServer
+    #exportToLocalStorage
+    #loadPreviousActionHistory
+    #loadHistoryFromLocalStorage
+    #setHistoryLimit
+    #getHistoryLimit 
+
+
+
+
+
+
+
+
     Given -> initialHistory = [
       {type:"createNote", changes:{
         created_at: "timeStamp1"
