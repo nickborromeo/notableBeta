@@ -45,13 +45,13 @@
     return {type: 'createNote', changes: change.changes.ancestorNote}
 
   revert.moveNote: (modelCollection, change) ->
-    noteReference = modelCollection.getNote 'guid'
+    noteReference = modelCollection.findNote change.guid
     for key, val in change.previous
       noteReference[key] = val
     return _swapPrevAndNext(change)
 
   revert.updateContent: (modelCollection, change) ->
-     noteReference = modelCollection.getNote 'guid'
+     noteReference = modelCollection.findNote change.guid
     for key, val in change.previous
       noteReference[key] = val
     return _swapPrevAndNext(change)   

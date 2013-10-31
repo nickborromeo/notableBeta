@@ -1,6 +1,6 @@
 @Notable.module("Action", (Action, App, Backbone, Marionette, $, _) ->
   #this part is only to test the action manager standalone
-  Given -> @actionManager = new App.Action.Manager @initialHistory
+  Given -> @actionManager = new App.Action.Manager
 
     #FIRST CHECK THAT IT EXISTS!
     #CHECK THAT IT HAS ACCESSABLE METHODS 
