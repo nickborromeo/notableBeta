@@ -1,3 +1,4 @@
+#TODO:  attempt to propery connect the model's add, remove, change, move so that;
 #TODO:  write test!!!!!!!
 #FIXME:  deleting an ancestor deletes children... really need to fix this.
 #FIXME:  moving notes around changes subsequent notes as well....
