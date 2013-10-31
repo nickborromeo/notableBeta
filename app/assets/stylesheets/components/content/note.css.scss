@@ -19,7 +19,7 @@ $screen-lg: 1200px;
 	background: $notableWhite;
 	border: 1px solid $notableGray;
 	border-radius: px;
-	padding: 0 1.2em;
+	padding: 0.6em 1.2em;
 	margin: 0;
 	min-height: 450px;
 
@@ -33,20 +33,19 @@ $screen-lg: 1200px;
 		&:after {content: "•";}
 	}
 
-	.noteContent {
-		margin-left: 2px;
-		width: 90%;
-		display: inline-block;
-		outline: none;
-	}
-
 	/*** Branches ***/
 
 	.branch {
 		position: relative;
 		font-size: 12px;
 		line-height: 0.8em;
-		font-family: Tahoma, Arial, sans-serif;
+		font-family: Tahoma, 'Lucida Grande', 'Lucida Sans Unicode', Arial, sans-serif;
+		.noteContent {
+			margin-left: 3px;
+			width: 97%;
+			display: inline-block;
+			outline: none;
+		}
 	}
 
 	.branch {
@@ -73,7 +72,7 @@ $screen-lg: 1200px;
 	}
 
 	.descendants {
-		margin-left: 2em;
+		margin-left: 1.8em;
 	}
 
 	/*** Drag N Drop ***/
@@ -103,21 +102,26 @@ $screen-lg: 1200px;
 // ----------------------------------------------------
 @media (min-width: $screen-sm) {
 	#tree {
-		padding: 0 1.4em;
+		padding: 0.6em 1.4em;
 		margin: 0 1.4em 1.5em 1.4em;
 		min-height: 600px;
 
 		.move {
 			padding: 1px 5px;
-			font-size: 18px;
+			font-size: 16px;
 		}
-
 		.branch {
-			font-size: 14px;
+			font-size: 13px;
 			line-height: 0.9em;
+			font-family: 'Lucida Grande', 'Lucida Sans Unicode', Tahoma, Arial, sans-serif;
+			letter-spacing: -0.1px;
+			.noteContent {
+				margin-left: 0;
+				width: 95%;
+			}
 		}
 		.descendants {
-			margin-left: 2.5em;
+			margin-left: 2.1em;
 		}
 
 	}
@@ -128,17 +132,21 @@ $screen-lg: 1200px;
 // ----------------------------------------------------
 @media (min-width: $screen-md) {
 	#tree {
-		padding: 0 1.8em;
+		padding: 0.7em 1.6em;
 		margin: 0 1.8em 1.6em 1.8em;
 		min-height: 700px;
 
 		.move {
 			line-height: 0.7em;
+			font-size: 18px;
 		}
-
 		.branch {
 			font-size: 15px;
 			line-height: 1.0em;
+			letter-spacing: -0.3px;
+			.noteContent {
+				width: 90%;
+			}
 		}
 
 	}
@@ -149,8 +157,6 @@ $screen-lg: 1200px;
 // ----------------------------------------------------
 @media (min-width: $screen-lg) {
 	#tree {
-		padding: 0 1.8em;
-		margin: 0 1.8em 1.6em 1.8em;
 		min-height: 800px;
 	}
 }
