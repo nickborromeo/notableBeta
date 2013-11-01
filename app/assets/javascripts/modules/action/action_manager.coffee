@@ -117,6 +117,7 @@
 		getHistoryLimit: ->
 			_historyLimit
 
+		## !! this is for testing ONLY
 		_getActionHistory: ->
 			_actionHistory
 

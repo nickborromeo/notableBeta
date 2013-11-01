@@ -33,10 +33,10 @@
 
 
 		describe "thow error on invalid history type", ->
-			Then -> (@actionManager.addHistory( "badEgg", {foo:"bar"} )).toThrow("!!--cannot track this change--!!")
-			And -> (@actionManager.addHistory( "createNote", {created_at: "", depth:0} )).toThrow("!!--cannot track this change--!!")
-			And -> (@actionManager.addHistory( "moveNote", {foo:"bar"} )).toThrow("!!--cannot track this change--!!")
-			And -> (@actionManager.addHistory( "moveNote" )).toThrow("!!--cannot track this change--!!")    
+			Then -> expect(@actionManager.addHistory( "badEgg", {foo:"bar"} )).toThrow("!!--cannot track this change--!!")
+			And -> expect(@actionManager.addHistory( "createNote", {created_at: "", depth:0} )).toThrow("!!--cannot track this change--!!")
+			And -> expect(@actionManager.addHistory( "moveNote", {foo:"bar"} )).toThrow("!!--cannot track this change--!!")
+			And -> expect(@actionManager.addHistory( "moveNote" )).toThrow("!!--cannot track this change--!!")    
 
 		describe "add createNote item to actionHistory", ->
 			Given -> @actionManager.addHistory("createNote",{ guid: "guid1" })
