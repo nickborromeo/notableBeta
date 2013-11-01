@@ -28,8 +28,8 @@
 			And -> @actionManager.getHistoryLimit() > 0
 
 		describe "have empty history list", ->
-			Then -> expect(@actionManager.getActionHistory()).toEqual(jasmine.any(Array))
-			And -> @actionManager.getActionHistory() is 0
+			Then -> Array.isArray(@actionManager._getActionHistory())
+			And -> @actionManager._getActionHistory().length is 0
 
 
 		describe "thow error on invalid history type", ->

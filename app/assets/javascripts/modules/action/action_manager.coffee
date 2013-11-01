@@ -115,9 +115,9 @@
 			_historyLimit = limit
 
 		getHistoryLimit: ->
-			@_historyLimit
+			_historyLimit
 
 		_getActionHistory: ->
-			@_actionHistory
+			_actionHistory
 
 )
