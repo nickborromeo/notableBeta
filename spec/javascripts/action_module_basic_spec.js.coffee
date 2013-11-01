@@ -10,8 +10,8 @@
 	describe "Action manager should", ->
 
 		Given -> @actionManager = new App.Action.Manager()
-		Given -> @tree = new App.Note.Tree()
 
+		# Below are very basic tests
 		describe "contain the methods:", ->
 			Then -> expect(@actionManager.addHistory).toEqual(jasmine.any(Function))
 			And -> expect(@actionManager.undo).toEqual(jasmine.any(Function))
@@ -22,6 +22,7 @@
 			And -> expect(@actionManager.loadHistoryFromLocalStorage).toEqual(jasmine.any(Function))
 			And -> expect(@actionManager.setHistoryLimit).toEqual(jasmine.any(Function))
 			And -> expect(@actionManager.getHistoryLimit).toEqual(jasmine.any(Function))
+			And -> expect(@actionManager._getActionHistory).toEqual(jasmine.any(Function))
 
 		describe "have history limit", ->
 			Then -> expect(@actionManager.getHistoryLimit()).toEqual(jasmine.any(Number))
@@ -58,32 +59,47 @@
 					subtitle: ""},
 				options:{}
 				})
-			Then -> expect(@actionManager._getActionHistory().length).toEqual(2)
-			And -> expect(@actionManager._getActionHistory()[1]['type']).toEqual('deleteNote')
-			And -> expect(@actionManager._getActionHistory()[1]['changes']['note']['guid']).toEqual('guid2')
+			Then -> expect(@actionManager._getActionHistory().length).toEqual(1)
+			And -> expect(@actionManager._getActionHistory()[0]['type']).toEqual('deleteNote')
+			And -> expect(@actionManager._getActionHistory()[0]['changes']['note']['guid']).toEqual('guid2')
 
 		describe "add 'moveNote' item to actionHistory", ->
 			Given -> @actionManager.addHistory("moveNote",{
 				guid: "guid3"
 				previous: {depth:0, rank:3, parent_id:"root"}
 				current: {depth:1, rank:1, parent_id:"guid2"}})
-			Then -> expect(@actionManager._getActionHistory().length).toEqual(3)
-			And -> expect(@actionManager._getActionHistory()[2]['type']).toEqual('moveNote')
-			And -> expect(@actionManager._getActionHistory()[2]['changes']['guid']).toEqual('guid3')
-			And -> expect(@actionManager._getActionHistory()[2]['changes']['previous']['parent_id']).toEqual('root')
-			And -> expect(@actionManager._getActionHistory()[2]['changes']['current']['parent_id']).toEqual('guid2')
+			Then -> expect(@actionManager._getActionHistory().length).toEqual(1)
+			And -> expect(@actionManager._getActionHistory()[0]['type']).toEqual('moveNote')
+			And -> expect(@actionManager._getActionHistory()[0]['changes']['guid']).toEqual('guid3')
+			And -> expect(@actionManager._getActionHistory()[0]['changes']['previous']['parent_id']).toEqual('root')
+			And -> expect(@actionManager._getActionHistory()[0]['changes']['current']['parent_id']).toEqual('guid2')
 
 		describe "add 'updateContent' item to actionHistory", ->
 			Given -> @actionManager.addHistory("updateContent",{
 				guid: "guid2"
 				previous: {title:"this is the second title ever", subtitle:""}
 				current: {title:"second title has been changed! 1", subtitle:""}})
-			Then -> expect(@actionManager._getActionHistory().length).toEqual(4)
-			And -> expect(@actionManager._getActionHistory()[3]['type']).toEqual('updateContent')
-			And -> expect(@actionManager._getActionHistory()[3]['changes']['guid']).toEqual('guid2')
-			And -> expect(@actionManager._getActionHistory()[3]['changes']['previous']['title']).toEqual("this is the second title ever")
+			Then -> expect(@actionManager._getActionHistory().length).toEqual(1)
+			And -> expect(@actionManager._getActionHistory()[0]['type']).toEqual('updateContent')
+			And -> expect(@actionManager._getActionHistory()[0]['changes']['guid']).toEqual('guid2')
+			And -> expect(@actionManager._getActionHistory()[0]['changes']['previous']['title']).toEqual("this is the second title ever")
 
-		# Given -> @actionManager.getHistoryLimit() = []
+
+		describe "get and set history limit", ->
+			Given -> @actionManager.setHistoryLimit(3)
+			Then -> expect(@actionManager.getHistoryLimit()).toEqual(3)
+
+		describe "not go over history limit when adding more than limit", ->
+			Given -> @actionManager.setHistoryLimit(3)
+			Given -> @actionManager.addHistory('createNote',{ guid: "guid-1" })
+			Given -> @actionManager.addHistory('createNote',{ guid: "guid-2" })
+			Given -> @actionManager.addHistory('createNote',{ guid: "guid-3" })
+			Given -> @actionManager.addHistory('createNote',{ guid: "guid-4" })
+			Given -> @actionManager.addHistory('createNote',{ guid: "guid-5" })
+			Then -> expect(@actionManager._getActionHistory().length).toEqual(3)
+			And -> expect(@actionManager._getActionHistory()[0]['changes']['guid']).toEqual("guid-3")
+			And -> expect(@actionManager._getActionHistory()[1]['changes']['guid']).toEqual("guid-4")
+			And -> expect(@actionManager._getActionHistory()[2]['changes']['guid']).toEqual("guid-5")
 
 )
 

@@ -13,61 +13,61 @@
 
 	class Action.Manager
 
+		constructor: ->
+			@_undoStack = []
+			@_redoStack = []
+			@_historyLimit = 100
 
-		_actionHistory = []
-		_undoneHistory = []
-		_historyLimit = 100
+			@_expects = {
+				createNote: ['guid'] #only needs GUID to erase
+				deleteNote: ['note','options'] #needs all data
+				deleteBranch: ['ancestorNote','childNoteSet']
+				moveNote: ['guid','previous','current'] #previous & current expect = {title:"", subtitle:""}
+				updateContent: ['guid','previous','current'] #previous & current= {depth:-, rank:-, parent_id:""}
+				checker: (actionType, changes) ->
+					return false unless @[actionType]?
+					return false unless changes?
+					for property in @[actionType]
+						return false unless changes[property]?
+					return true 
+			}
 
-		_expects = {
-			createNote: ['guid'] #only needs GUID to erase
-			deleteNote: ['note','options'] #needs all data
-			deleteBranch: ['ancestorNote','childNoteSet']
-			moveNote: ['guid','previous','current'] #previous & current expect = {title:"", subtitle:""}
-			updateContent: ['guid','previous','current'] #previous & current= {depth:-, rank:-, parent_id:""}
-			checker: (actionType, changes) ->
-				return false unless @[actionType]?
-				return false unless changes?
-				for property in @[actionType]
-					return false unless changes[property]?
-				return true 
-		}
+			@_revert = {
+				createNote: (tree, change) ->
+					noteReference = tree.findNote change.guid
+					tree.removeFromCollection noteReference
+					return {type: 'deleteNote', changes: {note: noteReference, options: {} } }
 
-		_revert = {
-			createNote: (tree, change) ->
-				noteReference = tree.findNote change.guid
-				tree.removeFromCollection noteReference
-				return {type: 'deleteNote', changes: {note: noteReference, options: {} } }
+				deleteNote: (tree, change) ->
+					tree.insertInTree change.note, change.options
+					return {type: 'createNote', changes: { guid: change.note.guid }}
 
-			deleteNote: (tree, change) ->
-				tree.insertInTree change.note, change.options
-				return {type: 'createNote', changes: { guid: change.note.guid }}
+				# deleteBranch: (tree, change) ->
+				# 	tree.insertInTree change.ancestorNote
+				# 	for note in change.childNoteSet
+				# 		tree.insertInTree note
+				# 	return {type: 'createNote', changes: { guid: change.ancestorNote.guid }}
 
-			# deleteBranch: (tree, change) ->
-			# 	tree.insertInTree change.ancestorNote
-			# 	for note in change.childNoteSet
-			# 		tree.insertInTree note
-			# 	return {type: 'createNote', changes: { guid: change.ancestorNote.guid }}
+				moveNote: (tree, change) ->
+					noteReference = tree.findNote change.guid
+					# need to remove from tree (not delete), then re-insert
+					for key, val in change.previous
+						noteReference.set(key, val)
+					return @_swapPrevAndNext(change)
 
-			moveNote: (tree, change) ->
-				noteReference = tree.findNote change.guid
-				# need to remove from tree (not delete), then re-insert
-				for key, val in change.previous
-					noteReference.set(key, val)
-				return _swapPrevAndNext(change)
+				updateContent: (tree, change) ->
+					noteReference = tree.findNote change.guid
+					for key, val in change.previous
+						noteReference.set(key, val)
+					return @_swapPrevAndNext(change)   
 
-			updateContent: (tree, change) ->
-				noteReference = tree.findNote change.guid
-				for key, val in change.previous
-					noteReference.set(key, val)
-				return _swapPrevAndNext(change)   
-
-			_swapPrevAndNext: (change) ->
-				previous = change.previous
-				change.previous = change.next
-				change.next = previous
-				return change
-		}
-		#only for tests:
+				_swapPrevAndNext: (change) ->
+					previous = change.previous
+					change.previous = change.next
+					change.next = previous
+					return change
+			}
+			#only for tests:
 
 
 		_clearundoneHistory: ->
@@ -80,26 +80,26 @@
 		# Public Methods & Functions
 		# ----------------------
 		addHistory: (actionType, changes) ->
-			throw "!!--cannot track this change--!!" unless _expects.checker(actionType, changes)
-			if _undoneHistory.length > 1 then clearundoneHistory()
-			if _actionHistory.length >= _historyLimit then _actionHistory.shift()
-			_actionHistory.push {type: actionType, changes: changes}
+			throw "!!--cannot track this change--!!" unless @_expects.checker(actionType, changes)
+			if @_redoStack.length > 1 then clearundoneHistory()
+			if @_undoStack.length >= @_historyLimit then @_undoStack.shift()
+			@_undoStack.push {type: actionType, changes: changes}
 
 		undo: (tree) ->
-			throw "nothing to undo" unless _actionHistory.length > 1
-			change = _actionHistory.pop()
-			_undoneHistory.push _revert[change.type](tree, change.changes)
+			throw "nothing to undo" unless @_undoStack.length > 1
+			change = @_undoStack.pop()
+			@_redoStack.push @_revert[change.type](tree, change.changes)
 
 		redo: (tree) ->
-			throw "nothing to redo" unless _undoneHistory.length > 1
-			change = _undoneHistory.pop()
-			_actionHistory.push _revert[change.type](tree, change.changes)
+			throw "nothing to redo" unless @_redoStack.length > 1
+			change = @_redoStack.pop()
+			@_undoStack.push @_revert[change.type](tree, change.changes)
 
 		exportToServer: ->
 			#do something if nessecary 
 
 		exportToLocalStorage: ->
-			window.localStorage.setItem 'history', JSON.stringify(_actionHistory)
+			window.localStorage.setItem 'history', JSON.stringify(@_undoStack)
 		#moves items undone to the change completed change stack...
 
 		loadHistoryFromLocalStorage: ->
@@ -108,17 +108,20 @@
 		loadPreviousActionHistory: (previousHistory) ->
 			throw "-- this is not history! --" unless Array.isArray previousHistory
 			#warning: this will erase all previous history.
-			_actionHistory = previousHistory
+			@_undoStack = previousHistory
 
 		setHistoryLimit: (limit) ->
 			throw "-- cannot set #{limit} " if isNaN limit
-			_historyLimit = limit
+			@_historyLimit = limit
 
 		getHistoryLimit: ->
-			_historyLimit
+			@_historyLimit
 
 		## !! this is for testing ONLY
+		## don't try to erase... its deadly.
 		_getActionHistory: ->
-			_actionHistory
+			@_undoStack
+		_getUndoneHistory: ->
+			@_undoStack
 
 )
