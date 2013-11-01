@@ -18,17 +18,11 @@
     _revert = {}
     _historyLimit = 100;
 
-    # _expects.createNote: ['created_at','depth','guid','id','parent_id','rank','title','subtitle']
-    # _expects.deleteNote: ['created_at','depth','guid','id','parent_id','rank','title','subtitle']
-    # _expects.createNote: ['note','options'] #only needs GUID to erase
     _expects.createNote: ['guid'] #only needs GUID to erase
     _expects.deleteNote: ['note','options'] #needs all data
     _expects.deleteBranch: ['ancestorNote','childNoteSet']
-    _expects.moveNote: ['guid','previous','current']
-                      #previous & current= {title:"", subtitle:""}
-    _expects.updateContent: ['guid','previous','current']
-                      #previous & current= {depth:-, rank:-, parent_id:""}
-    # expects.updateContent: ['guid','deltaContent']
+    _expects.moveNote: ['guid','previous','current'] #previous & current expect = {title:"", subtitle:""}
+    _expects.updateContent: ['guid','previous','current'] #previous & current= {depth:-, rank:-, parent_id:""}
     _expects.checker: (actionType, changeProperties) ->
       return false unless @[actionType]?
       return false unless changeProperties?
@@ -36,30 +30,32 @@
         return false unless changeProperties[property]?
       return true 
 
-    _revert.createNote: (modelCollection, change) ->
-      modelCollection.remove change.changes
-      return {type: 'deleteNote', changes: change.changes}
 
-    _revert.deleteNote: (modelCollection, change) ->
-      modelCollection.insertInTree change.changes.note, change.changes.options
-      return {type: 'createNote', changes: { guid: change.changes.note.guid }}
+    _revert.createNote: (tree, change) ->
+      noteReference = tree.findNote change.guid
+      tree.removeFromCollection noteReference
+      return {type: 'deleteNote', changes: {note: noteReference, options: {} } }
 
-    _revert.deleteBranch: (modelCollection, change) ->
-      modelCollection.insertInTree change.changes.ancestorNote
-      for note in change.changes.childNoteSet
-        modelCollection.insertInTree note
-      return {type: 'createNote', changes: change.changes.ancestorNote}
+    _revert.deleteNote: (tree, change) ->
+      tree.insertInTree change.note, change.options
+      return {type: 'createNote', changes: { guid: change.note.guid }}
 
-    _revert.moveNote: (modelCollection, change) ->
-      noteReference = modelCollection.findNote change.guid
+    _revert.deleteBranch: (tree, change) ->
+      tree.insertInTree change.ancestorNote
+      for note in change.childNoteSet
+        tree.insertInTree note
+      return {type: 'createNote', changes: { guid: change.ancestorNote.guid }}
+
+    _revert.moveNote: (tree, change) ->
+      noteReference = tree.findNote change.guid
       for key, val in change.previous
-        noteReference.attributes}[key] = val
+        noteReference.set(key, val)
       return _swapPrevAndNext(change)
 
-    _revert.updateContent: (modelCollection, change) ->
-       noteReference = modelCollection.findNote change.guid
+    _revert.updateContent: (tree, change) ->
+       noteReference = tree.findNote change.guid
       for key, val in change.previous
-        noteReference.attributes[key] = val
+        noteReference.set(key, val)
       return _swapPrevAndNext(change)   
 
     _revert._swapPrevAndNext: (change) ->
@@ -77,21 +73,21 @@
     # ----------------------
     # Public Methods & Functions
     # ----------------------
-    addHistory: (actionType, changeProperties) ->
+    addHistory: (actionType, changes) ->
       throw "!!--cannot track this change--!!" unless _expects.checker(actionType)
       if undoneHistory.length > 1 then clearundoneHistory()
       if actionHistory.length >= historyLimit then actionHistory.shift()
-      actionHistory.push {type: actionType, changes: changeProperties}
+      actionHistory.push {type: actionType, changes: changes}
 
-    undo: (modelCollection) ->
+    undo: (tree) ->
       throw "nothing to undo" unless actionHistory.length > 1
       change = actionHistory.pop()
-      undoneHistory.push revert[change.type](modelCollection, change)
+      undoneHistory.push revert[change.type](tree, change.changes)
 
-    redo: (modelCollection) ->
+    redo: (tree) ->
       throw "nothing to redo" unless undoneHistory.length > 1
       change = undoneHistory.pop()
-      actionHistory.push revert[change.type](modelCollection, change)
+      actionHistory.push revert[change.type](tree, change.changes)
 
     exportToServer: ->
       #do something if nessecary 
