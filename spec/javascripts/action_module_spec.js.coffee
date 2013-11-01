@@ -23,8 +23,14 @@
 			And -> expect(@actionManager.setHistoryLimit).toEqual(jasmine.any(Function))
 			And -> expect(@actionManager.getHistoryLimit).toEqual(jasmine.any(Function))
 
+		describe "have history limit", ->
+			Then -> expect(@actionManager.getHistoryLimit()).toEqual(jasmine.any(Number))
+			And -> @actionManager.getHistoryLimit() > 0
+
 		describe "have empty history list", ->
-			Then -> @actionManager._actionHistory is []
+			Then -> expect(@actionManager.getActionHistory()).toEqual(jasmine.any(Array))
+			And -> @actionManager.getActionHistory() is 0
+
 
 		describe "thow error on invalid history type", ->
 			Then -> (@actionManager.addHistory( "badEgg", {foo:"bar"} )).toThrow("!!--cannot track this change--!!")
@@ -34,9 +40,9 @@
 
 		describe "add createNote item to actionHistory", ->
 			Given -> @actionManager.addHistory("createNote",{ guid: "guid1" })
-			Then @actionManager._actionHistory.length is 1
-			And @actionManager._actionHistory[0]['type'] is 'createNote'
-			And @actionHistory._actionHistory[0]['changes']['guid'] is 'guid1'
+			Then @actionManager.getHistoryLimit().length is 1
+			And @actionManager.getHistoryLimit()[0]['type'] is 'createNote'
+			And @actionHistory.getHistoryLimit()[0]['changes']['guid'] is 'guid1'
 
 		describe "add deleteNote item to actionHistory", ->
 			Given -> @actionManager.addHistory("deleteNote",{
@@ -51,32 +57,32 @@
 					subtitle: ""},
 				options:{}
 				})
-			Then @actionManager._actionHistory.length is 1
-			And @actionManager._actionHistory[0]['type'] is 'deleteNote'
-			And @actionHistory._actionHistory[0]['changes']['note']['guid'] is 'guid2'
+			Then @actionManager.getHistoryLimit().length is 1
+			And @actionManager.getHistoryLimit()[0]['type'] is 'deleteNote'
+			And @actionHistory.getHistoryLimit()[0]['changes']['note']['guid'] is 'guid2'
 
 		describe "add moveNote item to actionHistory", ->
 			Given -> @actionManager.addHistory("moveNote",{
 				guid: "guid3"
 				previous: {depth:0, rank:3, parent_id:"root"}
 				current: {depth:1, rank:1, parent_id:"guid2"}})
-			Then @actionManager._actionHistory.length is 1
-			And @actionManager._actionHistory[0]['type'] is 'moveNote'
-			And @actionHistory._actionHistory[0]['changes']['guid'] is 'guid3'
-			And @actionHistory._actionHistory[0]['changes']['previous'][parent_id] is 'root'
-			And @actionHistory._actionHistory[0]['changes']['current'][parent_id] is 'guid2'
+			Then @actionManager.getHistoryLimit().length is 1
+			And @actionManager.getHistoryLimit()[0]['type'] is 'moveNote'
+			And @actionHistory.getHistoryLimit()[0]['changes']['guid'] is 'guid3'
+			And @actionHistory.getHistoryLimit()[0]['changes']['previous'][parent_id] is 'root'
+			And @actionHistory.getHistoryLimit()[0]['changes']['current'][parent_id] is 'guid2'
 
 		describe "add updateContent item to actionHistory", ->
 			Given -> @actionManager.addHistory("updateContent",{
 				guid: "guid2"
 				previous: {title:"this is the second title ever", subtitle:""}
 				current: {title:"second title has been changed! 1", subtitle:""}})
-			Then @actionManager._actionHistory.length is 1
-			And @actionManager._actionHistory[0]['type'] is 'updateContent'
-			And @actionHistory._actionHistory[0]['changes']['guid'] is 'guid2'
-			And @actionHistory._actionHistory[0]['changes']['previous']['title'] is "this is the second title ever"
+			Then @actionManager.getHistoryLimit().length is 1
+			And @actionManager.getHistoryLimit()[0]['type'] is 'updateContent'
+			And @actionHistory.getHistoryLimit()[0]['changes']['guid'] is 'guid2'
+			And @actionHistory.getHistoryLimit()[0]['changes']['previous']['title'] is "this is the second title ever"
 
-		# Given -> @actionManager._actionHistory = []
+		# Given -> @actionManager.getHistoryLimit() = []
 
 )
 

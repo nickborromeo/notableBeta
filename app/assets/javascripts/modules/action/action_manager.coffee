@@ -12,6 +12,8 @@
 @Notable.module("Action", (Action, App, Backbone, Marionette, $, _) ->
 
 	class Action.Manager
+
+
 		_actionHistory = []
 		_undoneHistory = []
 		_historyLimit = 100
@@ -65,37 +67,39 @@
 				change.next = previous
 				return change
 		}
+		#only for tests:
+
 
 		_clearundoneHistory: ->
 			# undoneHistory.reverse()
 			# for item in undoneHistory
 			#   actionHistory.push undoneHistory.pop()
-			undoneHistory = []
+			_undoneHistory = []
 
 		# ----------------------
 		# Public Methods & Functions
 		# ----------------------
 		addHistory: (actionType, changes) ->
 			throw "!!--cannot track this change--!!" unless _expects.checker(actionType)
-			if undoneHistory.length > 1 then clearundoneHistory()
-			if actionHistory.length >= historyLimit then actionHistory.shift()
-			actionHistory.push {type: actionType, changes: changes}
+			if _undoneHistory.length > 1 then clearundoneHistory()
+			if _actionHistory.length >= _historyLimit then _actionHistory.shift()
+			_actionHistory.push {type: actionType, changes: changes}
 
 		undo: (tree) ->
-			throw "nothing to undo" unless actionHistory.length > 1
-			change = actionHistory.pop()
-			undoneHistory.push revert[change.type](tree, change.changes)
+			throw "nothing to undo" unless _actionHistory.length > 1
+			change = _actionHistory.pop()
+			_undoneHistory.push _revert[change.type](tree, change.changes)
 
 		redo: (tree) ->
-			throw "nothing to redo" unless undoneHistory.length > 1
-			change = undoneHistory.pop()
-			actionHistory.push revert[change.type](tree, change.changes)
+			throw "nothing to redo" unless _undoneHistory.length > 1
+			change = _undoneHistory.pop()
+			_actionHistory.push _revert[change.type](tree, change.changes)
 
 		exportToServer: ->
 			#do something if nessecary 
 
 		exportToLocalStorage: ->
-			window.localStorage.setItem 'history', JSON.stringify(actionHistory)
+			window.localStorage.setItem 'history', JSON.stringify(_actionHistory)
 		#moves items undone to the change completed change stack...
 
 		loadHistoryFromLocalStorage: ->
@@ -104,13 +108,16 @@
 		loadPreviousActionHistory: (previousHistory) ->
 			throw "-- this is not history! --" unless Array.isArray previousHistory
 			#warning: this will erase all previous history.
-			actionHistory = previousHistory
+			_actionHistory = previousHistory
 
 		setHistoryLimit: (limit) ->
 			throw "-- cannot set #{limit} " if isNaN limit
-			historyLimit = limit
+			_historyLimit = limit
 
 		getHistoryLimit: ->
-			historyLimit
+			@_historyLimit
+
+		_getActionHistory: ->
+			@_actionHistory
 
 )
