@@ -24,11 +24,11 @@
 			deleteBranch: ['ancestorNote','childNoteSet']
 			moveNote: ['guid','previous','current'] #previous & current expect = {title:"", subtitle:""}
 			updateContent: ['guid','previous','current'] #previous & current= {depth:-, rank:-, parent_id:""}
-			checker: (actionType, changeProperties) ->
+			checker: (actionType, changes) ->
 				return false unless @[actionType]?
-				return false unless changeProperties?
+				return false unless changes?
 				for property in @[actionType]
-					return false unless changeProperties[property]?
+					return false unless changes[property]?
 				return true 
 		}
 
@@ -80,7 +80,7 @@
 		# Public Methods & Functions
 		# ----------------------
 		addHistory: (actionType, changes) ->
-			throw "!!--cannot track this change--!!" unless _expects.checker(actionType)
+			throw "!!--cannot track this change--!!" unless _expects.checker(actionType, changes)
 			if _undoneHistory.length > 1 then clearundoneHistory()
 			if _actionHistory.length >= _historyLimit then _actionHistory.shift()
 			_actionHistory.push {type: actionType, changes: changes}
