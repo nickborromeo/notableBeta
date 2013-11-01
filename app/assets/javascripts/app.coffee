@@ -13,7 +13,7 @@
 
 	App.addInitializer ->
 		App.module("Note").start()
-		# App.module("Action").start()
+		App.module("Action").start()
 		# App.module("Notification").start()
 		# App.module("Notebook").start()
 		# App.module("User").start()
