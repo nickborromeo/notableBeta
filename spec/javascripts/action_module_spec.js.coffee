@@ -28,8 +28,8 @@
 			And -> expect(@actionManager.getHistoryLimit()).toBeGreaterThan(0)
 
 		describe "have empty history list", ->
-			Then -> Array.isArray(@actionManager._getActionHistory())
-			And -> expect(@actionManager._getActionHistory().length).toBe(0)
+			Then -> expect(@actionManager._getActionHistory()).toEqual(jasmine.any(Array))
+			And -> expect(@actionManager._getActionHistory().length).toEqual(0)
 
 
 		describe "thow error on invalid history type", ->
@@ -40,9 +40,9 @@
 
 		describe "add createNote item to actionHistory", ->
 			Given -> @actionManager.addHistory("createNote",{ guid: "guid1" })
-			Then expect(@actionManager._getActionHistory().length.toBe(1)
-			And expect(@actionManager._getActionHistory()[0]['type'].toBe('createNote')
-			And expect(@actionManager._getActionHistory()[0]['changes']['guid'].toBe('guid1')
+			Then expect(@actionManager._getActionHistory().length.toEqual(1)
+			And expect(@actionManager._getActionHistory()[0]['type'].toEqual('createNote')
+			And expect(@actionManager._getActionHistory()[0]['changes']['guid'].toEqual('guid1')
 
 		describe "add deleteNote item to actionHistory", ->
 			Given -> @actionManager.addHistory("deleteNote",{
@@ -53,34 +53,34 @@
 					id: 1
 					parent_id: "root"
 					rank: 2
-					title: "this.toBe(the first title ever")
+					title: "this is the first title ever")
 					subtitle: ""},
 				options:{}
 				})
-			Then expect(@actionManager._getActionHistory().length.toBe(1)
-			And expect(@actionManager._getActionHistory()[0]['type'].toBe('deleteNote')
-			And expect(@actionManager._getActionHistory()[0]['changes']['note']['guid'].toBe('guid2')
+			Then expect(@actionManager._getActionHistory().length.toEqual(1)
+			And expect(@actionManager._getActionHistory()[0]['type'].toEqual('deleteNote')
+			And expect(@actionManager._getActionHistory()[0]['changes']['note']['guid'].toEqual('guid2')
 
 		describe "add moveNote item to actionHistory", ->
 			Given -> @actionManager.addHistory("moveNote",{
 				guid: "guid3"
 				previous: {depth:0, rank:3, parent_id:"root"}
 				current: {depth:1, rank:1, parent_id:"guid2"}})
-			Then expect(@actionManager._getActionHistory().length.toBe(1)
-			And expect(@actionManager._getActionHistory()[0]['type'].toBe('moveNote')
-			And expect(@actionManager._getActionHistory()[0]['changes']['guid'].toBe('guid3')
-			And expect(@actionManager._getActionHistory()[0]['changes']['previous'][parent_id].toBe('root')
-			And expect(@actionManager._getActionHistory()[0]['changes']['current'][parent_id].toBe('guid2')
+			Then expect(@actionManager._getActionHistory().length.toEqual(1)
+			And expect(@actionManager._getActionHistory()[0]['type'].toEqual('moveNote')
+			And expect(@actionManager._getActionHistory()[0]['changes']['guid'].toEqual('guid3')
+			And expect(@actionManager._getActionHistory()[0]['changes']['previous'][parent_id].toEqual('root')
+			And expect(@actionManager._getActionHistory()[0]['changes']['current'][parent_id].toEqual('guid2')
 
 		describe "add updateContent item to actionHistory", ->
 			Given -> @actionManager.addHistory("updateContent",{
 				guid: "guid2"
 				previous: {title:"this is the second title ever", subtitle:""}
 				current: {title:"second title has been changed! 1", subtitle:""}})
-			Then expect(@actionManager._getActionHistory().length.toBe(1)
-			And expect(@actionManager._getActionHistory()[0]['type'].toBe('updateContent')
-			And expect(@actionManager._getActionHistory()[0]['changes']['guid'].toBe('guid2')
-			And expect(@actionManager._getActionHistory()[0]['changes']['previous']['title'].toBe("this is the second title ever")
+			Then expect(@actionManager._getActionHistory().length.toEqual(1)
+			And expect(@actionManager._getActionHistory()[0]['type'].toEqual('updateContent')
+			And expect(@actionManager._getActionHistory()[0]['changes']['guid'].toEqual('guid2')
+			And expect(@actionManager._getActionHistory()[0]['changes']['previous']['title'].toEqual("this is the second title ever")
 
 		# Given -> @actionManager.getHistoryLimit() = []
 
