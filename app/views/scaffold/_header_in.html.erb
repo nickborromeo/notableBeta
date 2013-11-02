@@ -30,17 +30,9 @@
 			</ul>
 		</li>
 	</ul>
-
-	<li id="search_field">
-	  <%= form_tag note_search_path, class: "navbar-search", method: :get, remote: true do %>
-	      <%= text_field_tag :query, params[:query], class: "search-query", placeholder:"Search" %>
-	  <% end %>
-	</li>
-
-	<form class="navbar-form navbar-right hidden-xs" role="search">
-		<div class="form-group">
-			<input type="text" class="form-control" placeholder="Search">
-		</div>
+	<form class="navbar-search navbar-right hidden-xs" role="search">
+		<input type="text" class="form-control" placeholder="Search">
+		<span  class="glyphicon glyphicon-search search-btn"></span>
 	</form>
 </nav>
 </header>
