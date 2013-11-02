@@ -121,6 +121,7 @@
 		## don't try to erase... its deadly.
 		_getActionHistory: ->
 			@_undoStack
+
 		_getUndoneHistory: ->
 			@_undoStack
 
