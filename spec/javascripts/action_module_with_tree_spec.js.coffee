@@ -8,7 +8,7 @@
 	describe "Action manager should have history length of 0", ->
 		Then -> expect(@actionManager._getActionHistory().length).toEqual(0)
 	describe "Fake tree & note collection should have populated test data", ->
-		Then -> expect(@noteCollection.length).toEqual(15)
+		Then -> expect(@noteCollection.length).toEqual(14)
 		And -> expect(@tree.length).toEqual(5)
 
 	describe "Action manager should", ->
@@ -33,107 +33,101 @@
 		
 		# Given ->  #spy on something
 		describe "undo last items on list, and add to '_redoStack'", ->
-			Given -> @actionManager.undo(@noteCollection)
-			Given -> @actionManager.undo(@noteCollection)
-			Given -> @actionManager.undo(@noteCollection)
+			Given -> @actionManager.undo(@tree)
+			Given -> @actionManager.undo(@tree)
+			Given -> @actionManager.undo(@tree)
 			Then -> expect(@actionManager._getActionHistory().length).toEqual(11)
 			And -> expect(@actionManager._getUndoneHistory().length).toEqual(3)
 
-		describe "undo 'createItem' and create redoItem with correct properties.", ->
-			Given -> @actionManager.undo(@noteCollection)
-			Given -> @actionManager.undo(@noteCollection)
-			Then -> expect(@actionManager._getUndoneHistory()[0]['type']).toEqual('deleteItem')
-			And -> expect(@actionManager._getUndoneHistory()[0]['changes']['note']).toExist()
-			And -> expect(@actionManager._getUndoneHistory()[0]['changes']['note']['guid']).toExist()
-			And -> expect(@actionManager._getUndoneHistory()[0]['changes']['note']['depth']).toExist()
-			And -> expect(@actionManager._getUndoneHistory()[0]['changes']['note']['rank']).toExist()
-			And -> expect(@actionManager._getUndoneHistory()[0]['changes']['note']['parent_id']).toExist()
-			And -> expect(@actionManager._getUndoneHistory()[0]['changes']['note']['title']).toExist()
-			And -> expect(@actionManager._getUndoneHistory()[0]['changes']['note']['subtitle']).toExist()
-			And -> expect(@actionManager._getUndoneHistory()[1]['type']).toEqual('deleteItem')
-			And -> expect(@actionManager._getUndoneHistory()[1]['changes']['note']).toExist()
-			And -> expect(@actionManager._getUndoneHistory()[1]['changes']['note']['guid']).toExist()
-			And -> expect(@actionManager._getUndoneHistory()[1]['changes']['note']['depth']).toExist()
-			And -> expect(@actionManager._getUndoneHistory()[1]['changes']['note']['rank']).toExist()
-			And -> expect(@actionManager._getUndoneHistory()[1]['changes']['note']['parent_id']).toExist()
-			And -> expect(@actionManager._getUndoneHistory()[1]['changes']['note']['title']).toExist()
-			And -> expect(@actionManager._getUndoneHistory()[1]['changes']['note']['subtitle']).toExist()
+		describe "undo 'createNote' and create redoItem with correct properties.", ->
+			Given -> @actionManager.undo(@tree)
+			Then -> expect(@actionManager._getUndoneHistory()[0]['type']).toEqual('deleteNote')
+			And -> expect(@actionManager._getUndoneHistory()[0]['changes']['note']['guid']).toEqual(jasmine.any(String))
+			And -> expect(@actionManager._getUndoneHistory()[0]['changes']['note']['depth']).toEqual(jasmine.any(Number))
+			And -> expect(@actionManager._getUndoneHistory()[0]['changes']['note']['rank']).toEqual(jasmine.any(Number))
+			And -> expect(@actionManager._getUndoneHistory()[0]['changes']['note']['parent_id']).toEqual(jasmine.any(String))
+			And -> expect(@actionManager._getUndoneHistory()[0]['changes']['note']['title']).toEqual(jasmine.any(String))
+			And -> expect(@actionManager._getUndoneHistory()[0]['changes']['note']['subtitle']).toEqual(jasmine.any(String))
+			And -> expect(@actionManager._getUndoneHistory()[0]['changes']['note']['created_at']).toEqual(jasmine.any(String))
+			And -> expect(@actionManager._getUndoneHistory()[0]['changes']['note']['id']).toEqual(jasmine.any(Number))
+
 
 		describe "put the item back in the '_undoStack' on 'redo' ", ->
-			Given -> @actionManager.undo(@noteCollection)
-			Given -> @actionManager.undo(@noteCollection)
-			Given -> @actionManager.redo(@noteCollection)
+			Given -> @actionManager.undo(@tree)
+			Given -> @actionManager.undo(@tree)
+			Given -> @actionManager.redo(@tree)
 			Then -> expect(@actionManager._getActionHistory().length).toEqual(13)
 			And -> expect(@actionManager._getUndoneHistory().length).toEqual(1)
 
 		describe " have correct properties in '_undoStack' after 'redo' ", ->
-			Given -> @actionManager.undo(@noteCollection)
-			Given -> @actionManager.undo(@noteCollection)
-			Given -> @actionManager.redo(@noteCollection)
-			Then -> expect(@actionManager._getUndoneHistory()[13]['type']).toEqual('createItem')
+			Given -> @actionManager.undo(@tree)
+			Given -> @actionManager.undo(@tree)
+			Given -> @actionManager.redo(@tree)
+			Then -> expect(@actionManager._getUndoneHistory()[13]['type']).toEqual('createNote')
 			And -> expect(@actionManager._getUndoneHistory()[13]['changes']['guid']).toExist()
 
 		describe "remove the item from the collection on 'undo' ", ->
-			Given -> @actionManager.undo(@noteCollection)
-			Given -> @actionManager.undo(@noteCollection)
+			Given -> @actionManager.undo(@tree)
+			Given -> @actionManager.undo(@tree)
 			Then -> expect(@noteCollection.length).toEqual(13)
-			And -> expect(-> @noteCollection.findByGuid("e0a5367a-1688-4c3f-98b4-a6fdfe95e779")).toThrow()
-			And -> expect(-> @noteCollection.findByGuid("8a42c5ad-e9cb-43c9-852b-faff683b1b05")).toThrow()
+			And -> expect(-> @tree.findNote("e0a5367a-1688-4c3f-98b4-a6fdfe95e779")).toThrow()
+			And -> expect(-> @tree.findNote("8a42c5ad-e9cb-43c9-852b-faff683b1b05")).toThrow()
 
 		describe "add the item back to the collection on 'redo' ", ->
-			Given -> @actionManager.undo(@noteCollection)
-			Given -> @actionManager.undo(@noteCollection)
-			Given -> @actionManager.redo(@noteCollection)
+			Given -> @actionManager.undo(@tree)
+			Given -> @actionManager.undo(@tree)
+			Given -> @actionManager.redo(@tree)
 			Then -> expect(@noteCollection.length).toEqual(14)
-			And -> expect(-> @noteCollection.findByGuid("e0a5367a-1688-4c3f-98b4-a6fdfe95e779")).toThrow()
-			And -> expect(-> @noteCollection.findByGuid("8a42c5ad-e9cb-43c9-852b-faff683b1b05")).not.toThrow()
+			And -> expect(-> @tree.findNote("e0a5367a-1688-4c3f-98b4-a6fdfe95e779")).toThrow()
+			And -> expect(-> @tree.findNote("8a42c5ad-e9cb-43c9-852b-faff683b1b05")).not.toThrow()
 
 
 		
+		describe "check update note:", ->
 		# alters and adds some undo history to the _undoStack 
-		Given -> @noteCollection.models[0].set('title', 'test1')
-		Given -> @actionManager.addHistory('updateContent',{
-			guid: "beb2dcaa-ddf2-4d0e-932e-9d5f102d550a"
-			previous: {title: 'Hmm..', subtitle:''}
-			current: {title: 'test1', subtitle:''}
-			});
-		Given -> @noteCollection.models[1].set('title', 'test2')
-		Given -> @actionManager.addHistory('updateContent',{
-			guid: "138b785a-4041-4064-867c-8239579ffd3e"
-			previous: {title: 'put hmm some ya', subtitle:''}
-			current: {title: 'test1', subtitle:''}
-			});
+			Given -> @noteCollection.models[0].set('title', 'test1')
+			Given -> @actionManager.addHistory('updateContent',{
+				guid: "beb2dcaa-ddf2-4d0e-932e-9d5f102d550a"
+				previous: {title: 'Hmm..', subtitle:''}
+				current: {title: 'test1', subtitle:''}
+				});
+			Given -> @noteCollection.models[1].set('title', 'test2')
+			Given -> @actionManager.addHistory('updateContent',{
+				guid: "138b785a-4041-4064-867c-8239579ffd3e"
+				previous: {title: 'put hmm some ya', subtitle:''}
+				current: {title: 'test1', subtitle:''}
+				});
 
-		describe "ensure 'content updates' worked ", ->
-			Then -> expect(@collection.models[0].get('title')).toEqual('test1')
-			And -> expect(@collection.models[1].get('title')).toEqual('test2')
+			describe "ensure 'content updates' worked ", ->
+				Then -> expect(@collection.models[0].get('title')).toEqual('test1')
+				And -> expect(@collection.models[1].get('title')).toEqual('test2')
 
-		describe "ensure adding 'updateContent' items to _undoStack worked ", ->
-			Then -> expect(@collection.models[0].get('title')).toEqual('test1')
-			And -> expect(@collection.models[1].get('title')).toEqual('test2')
-			Then -> expect(@actionManager._getActionHistory()[14]['type']).toEqual('updateItem')
-			Then -> expect(@actionManager._getActionHistory()[15]['type']).toEqual('updateItem')
-			And -> expect(@actionManager._getActionHistory()[15]['changes']['previous']['title']).toEqual('put hmm some ya')
-			And -> expect(@actionManager._getActionHistory()[15]['changes']['current']['title']).toEqual('test1')
+			describe "ensure adding 'updateContent' items to _undoStack worked ", ->
+				Then -> expect(@collection.models[0].get('title')).toEqual('test1')
+				And -> expect(@collection.models[1].get('title')).toEqual('test2')
+				Then -> expect(@actionManager._getActionHistory()[14]['type']).toEqual('updateItem')
+				Then -> expect(@actionManager._getActionHistory()[15]['type']).toEqual('updateItem')
+				And -> expect(@actionManager._getActionHistory()[15]['changes']['previous']['title']).toEqual('put hmm some ya')
+				And -> expect(@actionManager._getActionHistory()[15]['changes']['current']['title']).toEqual('test1')
 
-		describe "undo 'updateItem' and create redoItem with correct properties.", ->
-			Given -> @actionManager.undo(@noteCollection)
-			Given -> @actionManager.undo(@noteCollection)
-			Then -> expect(@actionManager._getUndoneHistory()[0]['type']).toEqual('updateItem')
-			And -> expect(@actionManager._getUndoneHistory()[0]['changes']['previous']['title']).toEqual('test1')
-			And -> expect(@actionManager._getUndoneHistory()[0]['changes']['current']['title']).toEqual('put hmm some ya')
+			describe "undo 'updateItem' and create redoItem with correct properties.", ->
+				Given -> @actionManager.undo(@tree)
+				Given -> @actionManager.undo(@tree)
+				Then -> expect(@actionManager._getUndoneHistory()[0]['type']).toEqual('updateItem')
+				And -> expect(@actionManager._getUndoneHistory()[0]['changes']['previous']['title']).toEqual('test1')
+				And -> expect(@actionManager._getUndoneHistory()[0]['changes']['current']['title']).toEqual('put hmm some ya')
 
-		describe "undo 'updateItem' and change values on the correct tree.", ->
-			Given -> @actionManager.undo(@noteCollection)
-			Given -> @actionManager.undo(@noteCollection)
-			Then -> expect(@collection.models[0].get('title')).toEqual('Hmm..')
-			And -> expect(@collection.models[1].get('title')).toEqual('put hmm some ya')
+			describe "undo 'updateItem' and change values on the correct tree.", ->
+				Given -> @actionManager.undo(@tree)
+				Given -> @actionManager.undo(@tree)
+				Then -> expect(@collection.models[0].get('title')).toEqual('Hmm..')
+				And -> expect(@collection.models[1].get('title')).toEqual('put hmm some ya')
 
-		describe "redo 'updateItem' and change value on the tree", ->
-			Given -> @actionManager.undo(@noteCollection)
-			Given -> @actionManager.undo(@noteCollection)
-			Given -> @actionManager.redo(@noteCollection)
-			Then -> expect(@collection.models[0].get('title')).toEqual('test1')
+			describe "redo 'updateItem' and change value on the tree", ->
+				Given -> @actionManager.undo(@tree)
+				Given -> @actionManager.undo(@tree)
+				Given -> @actionManager.redo(@tree)
+				Then -> expect(@collection.models[0].get('title')).toEqual('test1')
 
 
 		##TODO: implement "move" test

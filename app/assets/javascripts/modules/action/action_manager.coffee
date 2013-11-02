@@ -35,11 +35,14 @@
 			@_revert = {
 				createNote: (tree, change) ->
 					noteReference = tree.findNote change.guid
-					tree.removeFromCollection noteReference
-					return {type: 'deleteNote', changes: {note: noteReference, options: {} } }
+					collectionReference = tree.getCollection noteReference.get('parent_id')  
+					tree.removeFromCollection collectionReference, noteReference
+					return {type: 'deleteNote', changes: {note: @_getAttributes(noteReference), options: {} } }
 
 				deleteNote: (tree, change) ->
-					tree.insertInTree change.note, change.options
+					newBranch = new App.Note.Branch()
+					newBranch = @_setAttributes(newBranch)
+					tree.insertInTree newBranch, change.options
 					return {type: 'createNote', changes: { guid: change.note.guid }}
 
 				# deleteBranch: (tree, change) ->
@@ -51,14 +54,12 @@
 				moveNote: (tree, change) ->
 					noteReference = tree.findNote change.guid
 					# need to remove from tree (not delete), then re-insert
-					for key, val in change.previous
-						noteReference.set(key, val)
+					noteReference = @_setAttributes(noteReference, change.previous)
 					return @_swapPrevAndNext(change)
 
 				updateContent: (tree, change) ->
 					noteReference = tree.findNote change.guid
-					for key, val in change.previous
-						noteReference.set(key, val)
+					noteReference = @_setAttributes(noteReference, change.previous)
 					return @_swapPrevAndNext(change)   
 
 				_swapPrevAndNext: (change) ->
@@ -66,6 +67,18 @@
 					change.previous = change.next
 					change.next = previous
 					return change
+
+				_getAttributes: (noteReference) ->
+					attr = {}
+					for key, val of noteReference.attributes
+						attr[key] = val
+					console.log(attr)
+					return attr
+
+				_setAttributes: (noteReference, attr) ->
+					for key, val of attr
+						noteReference.set(key, val)
+					return noteReference
 			}
 			#only for tests:
 
@@ -123,6 +136,6 @@
 			@_undoStack
 
 		_getUndoneHistory: ->
-			@_undoStack
+			@_redoStack
 
 )
