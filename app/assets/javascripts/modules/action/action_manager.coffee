@@ -72,7 +72,6 @@
 					attr = {}
 					for key, val of noteReference.attributes
 						attr[key] = val
-					console.log(attr)
 					return attr
 
 				_setAttributes: (noteReference, attr) ->

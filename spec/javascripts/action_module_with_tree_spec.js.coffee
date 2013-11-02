@@ -63,8 +63,9 @@
 			Given -> @actionManager.undo(@tree)
 			Given -> @actionManager.undo(@tree)
 			Given -> @actionManager.redo(@tree)
-			Then -> expect(@actionManager._getUndoneHistory()[13]['type']).toEqual('createNote')
-			And -> expect(@actionManager._getUndoneHistory()[13]['changes']['guid']).toExist()
+			# Given -> console.log("this is the length:", @actionManager._getActionHistory().length)
+			Then -> expect(@actionManager._getActionHistory()[12]['type']).toEqual('createNote')
+			And -> expect(@actionManager._getActionHistory()[12]['changes']['guid']).toEqual(jasmine.any(String))
 
 		describe "remove the item from the collection on 'undo' ", ->
 			Given -> @actionManager.undo(@tree)
