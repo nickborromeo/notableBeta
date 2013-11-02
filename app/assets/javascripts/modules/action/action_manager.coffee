@@ -36,15 +36,15 @@
 				createNote: (tree, change) ->
 					noteReference = tree.findNote change.guid
 					noteAttributes = @_getAttributes(noteReference)
-					tree.removeFromCollection tree, noteReference
-					tree.deleteNote noteReference
+					# tree.removeFromCollection tree, noteReference
+					# tree.deleteNote noteReference
 					return {type: 'deleteNote', changes: {note: noteAttributes, options: {} } }
 
 				deleteNote: (tree, change) ->
 					newBranch = new App.Note.Branch()
 					newBranch.save(change.note)
-					console.log "new guid:", newBranch.get('guid')
-					console.log "old guid:", change.note.guid
+					# console.log "new guid:", newBranch.get('guid')
+					# console.log "old guid:", change.note.guid
 					tree.insertInTree newBranch, change.options
 					return {type: 'createNote', changes: { guid: change.note.guid }}
 
@@ -63,7 +63,6 @@
 
 				updateContent: (tree, change) ->
 					noteReference = tree.findNote change.guid
-					# noteReference = @_setAttributes(noteReference, change.previous)
 					noteReference.save(change.previous)
 					return {type: 'updateContent', changes: @_swapPrevAndCurrent(change)}
 
@@ -106,12 +105,12 @@
 			@_undoStack.push {type: actionType, changes: changes}
 
 		undo: (tree) ->
-			throw "nothing to undo" unless @_undoStack.length > 1
+			throw "nothing to undo" unless @_undoStack.length > 0
 			change = @_undoStack.pop()
 			@_redoStack.push @_revert[change.type](tree, change.changes)
 
 		redo: (tree) ->
-			throw "nothing to redo" unless @_redoStack.length > 1
+			throw "nothing to redo" unless @_redoStack.length > 0
 			change = @_redoStack.pop()
 			@_undoStack.push @_revert[change.type](tree, change.changes)
 
