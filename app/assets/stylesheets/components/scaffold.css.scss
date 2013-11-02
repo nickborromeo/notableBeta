@@ -4,8 +4,8 @@ $notableYellow: #FFDC33;
 $notableWhite: #FDFDFD;
 $notableBlack: #3D3D3D;
 
-$notableLightGray: #C1C1C1;
-$notableGray: #EAEAEA;
+$notableLightGray: #EAEAEA;
+$notableGray: #C1C1C1;
 $notableDarkGray: #999999;
 
 $screen-sm: 768px;
@@ -44,7 +44,7 @@ body {
 /* --------------HEADER REGION ------------------ */
 nav {
 	height: 35px;
-	background-color: $notableGray; /* Old browsers */
+	background-color: $notableLightGray; /* Old browsers */
 	background: -moz-linear-gradient(top, #FDFDFD 0%, #cccccc 100%); /* FF3.6+ */
 	background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#FDFDFD), color-stop(100%,#cccccc)); /* Chrome,Safari4+ */
 	background: -webkit-linear-gradient(top, #FDFDFD 0%,#cccccc 100%); /* Chrome10+,Safari5.1+ */
@@ -195,8 +195,41 @@ nav {
 		}
 
 		.navbar-nav > li > a {
-			padding: 11px 15px;
+			margin: 7px 16px 7px 9px;
+			padding: 4px 7px;
+			width: 28px;
+			height: 28px;
+			background-color: white;
+			border: 2px solid #D5D5D5;
+			border-radius: 15px;
+			.glyphicon-play {
+				color: $notableGray;
+				-ms-transform: rotate(90deg); /* IE 9 */
+				-webkit-transform: rotate(90deg); /* Safari and Chrome */
+				transform: rotate(90deg);
+			}
+			&:hover {
+				border-color: $notableYellow;
+				background-color: white;
+				.glyphicon-play { color: $notableYellow; }
+			}
+			&:active {
+				border-color: $notableOrange;
+				background-color: #F0F0F0;
+				.glyphicon-play { color: $notableOrange; }
+			}
+			&:focus {
+				background-color: white;
+			}
+
 		}
+		.nav .open > a:focus {
+			border-color: $notableBlue;
+			background-color: white;
+			.glyphicon-play { color: $notableBlue; }
+		}
+
+
 		.sidr-toggle-left, .sidr-toggle-right {
 			display: none;
 		}
@@ -261,7 +294,13 @@ nav {
 			}
 		}
 		.navbar-nav > li > a {
-			padding: 15px;
+			margin: 7px 19px 7px 9px;
+			padding: 6.5px 7.5px;
+			width: 30.5px;
+			height: 30.5px;
+			&:hover {
+				// color: $notableYellow;
+			}
 		}
 		.logo .logo-icon {
 			width: 136px;
