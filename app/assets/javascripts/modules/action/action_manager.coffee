@@ -35,18 +35,16 @@
 			@_revert = {
 				createNote: (tree, change) ->
 					noteReference = tree.findNote change.guid
-					console.log('the noteReference collection is: ', noteReference.collection)
-					tree.removeFromCollection noteReference.collection, noteReference
-	
-					# collectionReference = tree.getCollection noteReference.get('parent_id')  
-					# console.log "collection reference", collectionReference
-					# tree.removeFromCollection collectionReference, noteReference
-					return {type: 'deleteNote', changes: {note: @_getAttributes(noteReference), options: {} } }
+					noteAttributes = @_getAttributes(noteReference)
+					tree.removeFromCollection tree, noteReference
+					tree.deleteNote noteReference
+					return {type: 'deleteNote', changes: {note: noteAttributes, options: {} } }
 
 				deleteNote: (tree, change) ->
 					newBranch = new App.Note.Branch()
-					# newBranch = @_setAttributes(newBranch)
 					newBranch.save(change.note)
+					console.log "new guid:", newBranch.get('guid')
+					console.log "old guid:", change.note.guid
 					tree.insertInTree newBranch, change.options
 					return {type: 'createNote', changes: { guid: change.note.guid }}
 

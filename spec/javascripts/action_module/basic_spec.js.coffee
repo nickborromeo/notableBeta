@@ -34,10 +34,10 @@
 
 
 		describe "thow error on invalid or incomplete history type", ->
-			Then -> expect(->@actionManager.addHistory( "badEgg", {foo:"bar"} )).toThrow()
-			And -> expect(->@actionManager.addHistory( "createNote", {created_at: "", depth:0} )).toThrow()
-			And -> expect(->@actionManager.addHistory( "moveNote", {foo:"bar"} )).toThrow()
-			And -> expect(->@actionManager.addHistory( "moveNote" )).toThrow()    
+			Then -> expect(=>@actionManager.addHistory( "badEgg", {foo:"bar"} )).toThrow()
+			And -> expect(=>@actionManager.addHistory( "createNote", {created_at: "", depth:0} )).toThrow()
+			And -> expect(=>@actionManager.addHistory( "moveNote", {foo:"bar"} )).toThrow()
+			And -> expect(=>@actionManager.addHistory( "moveNote" )).toThrow()    
 
 		describe "add 'createNote' item to actionHistory", ->
 			# Then -> expect(->@actionManager.addHistory( "createNote", { guid: "guid1" } )).not.toThrow()
