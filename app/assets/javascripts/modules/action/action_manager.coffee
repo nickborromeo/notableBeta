@@ -43,6 +43,7 @@
 				deleteNote: (tree, change) ->
 					newBranch = new App.Note.Branch()
 					newBranch.save(change.note)
+					tree.add(newBranch)
 					# console.log "new guid:", newBranch.get('guid')
 					# console.log "old guid:", change.note.guid
 					tree.insertInTree newBranch, change.options

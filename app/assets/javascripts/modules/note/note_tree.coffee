@@ -16,11 +16,9 @@
 		url:'/notes'
 
 		# Manage note insertion in the nested structure
+
 		add: (note, options) ->
-			pid = note.get 'parent_id'
-			collectionToAddTo =
-			if pid is 'root' or pid is undefined then @
-			else @getDescendantCollection pid
+			collectionToAddTo = @getCollection note.get 'parent_id'
 			Backbone.Collection.prototype.add.call(collectionToAddTo, note, options)
 		insertInTree: (note, options) ->
 			@add note, options
@@ -75,7 +73,7 @@
 
 		# Returns the descendants of matching parent_id
 		getCollection: (parent_id) ->
-			if parent_id is 'root' then @
+			if parent_id is 'root' or parent_id is undefined then @
 			else @getDescendantCollection parent_id
 		getDescendantCollection: (pid) ->
 			@findNote(pid).descendants
