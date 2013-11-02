@@ -35,13 +35,18 @@
 			@_revert = {
 				createNote: (tree, change) ->
 					noteReference = tree.findNote change.guid
-					collectionReference = tree.getCollection noteReference.get('parent_id')  
-					tree.removeFromCollection collectionReference, noteReference
+					console.log('the noteReference collection is: ', noteReference.collection)
+					tree.removeFromCollection noteReference.collection, noteReference
+	
+					# collectionReference = tree.getCollection noteReference.get('parent_id')  
+					# console.log "collection reference", collectionReference
+					# tree.removeFromCollection collectionReference, noteReference
 					return {type: 'deleteNote', changes: {note: @_getAttributes(noteReference), options: {} } }
 
 				deleteNote: (tree, change) ->
 					newBranch = new App.Note.Branch()
-					newBranch = @_setAttributes(newBranch)
+					# newBranch = @_setAttributes(newBranch)
+					newBranch.save(change.note)
 					tree.insertInTree newBranch, change.options
 					return {type: 'createNote', changes: { guid: change.note.guid }}
 
@@ -54,19 +59,22 @@
 				moveNote: (tree, change) ->
 					noteReference = tree.findNote change.guid
 					# need to remove from tree (not delete), then re-insert
-					noteReference = @_setAttributes(noteReference, change.previous)
-					return @_swapPrevAndNext(change)
+					# noteReference = @_setAttributes(noteReference, change.previous)
+					noteReference.save(change.previous)
+					return {type: 'moveNote', changes: @_swapPrevAndNext(change)}
 
 				updateContent: (tree, change) ->
 					noteReference = tree.findNote change.guid
-					noteReference = @_setAttributes(noteReference, change.previous)
-					return @_swapPrevAndNext(change)   
+					# noteReference = @_setAttributes(noteReference, change.previous)
+					noteReference.save(change.previous)
+					return {type: 'updateContent', changes: @_swapPrevAndCurrent(change)}
 
-				_swapPrevAndNext: (change) ->
-					previous = change.previous
-					change.previous = change.next
-					change.next = previous
-					return change
+				_swapPrevAndCurrent: (change) ->
+					tempSwap = {}
+					tempSwap['guid'] = change.guid
+					tempSwap['previous'] = change.current
+					tempSwap['current'] = change.previous
+					return tempSwap
 
 				_getAttributes: (noteReference) ->
 					attr = {}
@@ -75,8 +83,10 @@
 					return attr
 
 				_setAttributes: (noteReference, attr) ->
+					noteReference.save(attr)
 					for key, val of attr
-						noteReference.set(key, val)
+						noteReference.set key, val
+
 					return noteReference
 			}
 			#only for tests:

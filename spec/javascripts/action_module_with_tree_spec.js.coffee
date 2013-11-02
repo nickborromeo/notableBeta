@@ -63,14 +63,13 @@
 			Given -> @actionManager.undo(@tree)
 			Given -> @actionManager.undo(@tree)
 			Given -> @actionManager.redo(@tree)
-			# Given -> console.log("this is the length:", @actionManager._getActionHistory().length)
 			Then -> expect(@actionManager._getActionHistory()[12]['type']).toEqual('createNote')
 			And -> expect(@actionManager._getActionHistory()[12]['changes']['guid']).toEqual(jasmine.any(String))
 
 		describe "remove the item from the collection on 'undo' ", ->
 			Given -> @actionManager.undo(@tree)
 			Given -> @actionManager.undo(@tree)
-			Then -> expect(@noteCollection.length).toEqual(13)
+			Then -> expect(@noteCollection.length).toEqual(12)
 			And -> expect(-> @tree.findNote("e0a5367a-1688-4c3f-98b4-a6fdfe95e779")).toThrow()
 			And -> expect(-> @tree.findNote("8a42c5ad-e9cb-43c9-852b-faff683b1b05")).toThrow()
 
@@ -85,50 +84,53 @@
 
 		
 		describe "check update note:", ->
-		# alters and adds some undo history to the _undoStack 
 			Given -> @noteCollection.models[0].set('title', 'test1')
+			Given -> @noteCollection.models[1].set('title', 'test2')
+		# alters and adds some undo history to the _undoStack 
+		# because of GIVEN this particular part is exceptionally buggy.
+		# it tries to add several things at the same time and thus mixes their order
+		# ... i think
 			Given -> @actionManager.addHistory('updateContent',{
 				guid: "beb2dcaa-ddf2-4d0e-932e-9d5f102d550a"
 				previous: {title: 'Hmm..', subtitle:''}
 				current: {title: 'test1', subtitle:''}
 				});
-			Given -> @noteCollection.models[1].set('title', 'test2')
 			Given -> @actionManager.addHistory('updateContent',{
 				guid: "138b785a-4041-4064-867c-8239579ffd3e"
 				previous: {title: 'put hmm some ya', subtitle:''}
-				current: {title: 'test1', subtitle:''}
+				current: {title: 'test2', subtitle:''}
 				});
 
 			describe "ensure 'content updates' worked ", ->
-				Then -> expect(@collection.models[0].get('title')).toEqual('test1')
-				And -> expect(@collection.models[1].get('title')).toEqual('test2')
-
-			describe "ensure adding 'updateContent' items to _undoStack worked ", ->
-				Then -> expect(@collection.models[0].get('title')).toEqual('test1')
-				And -> expect(@collection.models[1].get('title')).toEqual('test2')
-				Then -> expect(@actionManager._getActionHistory()[14]['type']).toEqual('updateItem')
-				Then -> expect(@actionManager._getActionHistory()[15]['type']).toEqual('updateItem')
+				Then -> expect(@noteCollection.models[0].get('title')).toEqual(
+					@actionManager._getActionHistory()[14]['changes']['current']['title'])
+				And -> expect(@noteCollection.models[1].get('title')).toEqual(
+					@actionManager._getActionHistory()[15]['changes']['current']['title'])
 				And -> expect(@actionManager._getActionHistory()[15]['changes']['previous']['title']).toEqual('put hmm some ya')
-				And -> expect(@actionManager._getActionHistory()[15]['changes']['current']['title']).toEqual('test1')
 
-			describe "undo 'updateItem' and create redoItem with correct properties.", ->
+			describe "undo 'updateContent' and create redoItem with correct properties.", ->
 				Given -> @actionManager.undo(@tree)
 				Given -> @actionManager.undo(@tree)
-				Then -> expect(@actionManager._getUndoneHistory()[0]['type']).toEqual('updateItem')
-				And -> expect(@actionManager._getUndoneHistory()[0]['changes']['previous']['title']).toEqual('test1')
+				Then -> expect(@actionManager._getUndoneHistory()[0]['type']).toEqual('updateContent')
+				And -> expect(@actionManager._getUndoneHistory()[0]['changes']['previous']['title']).toEqual('test2')
 				And -> expect(@actionManager._getUndoneHistory()[0]['changes']['current']['title']).toEqual('put hmm some ya')
+				And -> expect(@actionManager._getUndoneHistory()[1]['changes']['previous']['title']).toEqual('test1')
+				And -> expect(@actionManager._getUndoneHistory()[1]['changes']['current']['title']).toEqual('Hmm..')
 
 			describe "undo 'updateItem' and change values on the correct tree.", ->
 				Given -> @actionManager.undo(@tree)
 				Given -> @actionManager.undo(@tree)
-				Then -> expect(@collection.models[0].get('title')).toEqual('Hmm..')
-				And -> expect(@collection.models[1].get('title')).toEqual('put hmm some ya')
+				Then -> expect(@noteCollection.models[0].get('title')).toEqual('Hmm..')
+				And -> expect(@noteCollection.models[1].get('title')).toEqual('put hmm some ya')
 
+
+				# yet again back to the problem that seems to be  we cannot edit the correct collection
+				# it really feels like the tree structure is not correct.....
 			describe "redo 'updateItem' and change value on the tree", ->
 				Given -> @actionManager.undo(@tree)
 				Given -> @actionManager.undo(@tree)
 				Given -> @actionManager.redo(@tree)
-				Then -> expect(@collection.models[0].get('title')).toEqual('test1')
+				Then -> expect(@noteCollection.models[0].get('title')).toEqual('test1')
 
 
 		##TODO: implement "move" test
