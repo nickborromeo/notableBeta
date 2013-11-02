@@ -18,7 +18,6 @@ $screen-lg: 1200px;
 html {
   overflow-y: scroll;
 }
-
 body {
 	height: 100%;
   background-image: asset-url('satinweave.png', image);
@@ -34,6 +33,9 @@ body {
 	font-smoothing: antialiased;
 }
 
+.btn-info {
+	background-color: $notableBlue;
+}
 .container {
 	padding: 0;
 }
@@ -52,15 +54,15 @@ nav {
 	}
 	.logo {
 		color: $notableBlue;
-		text-align: center;
-		font-size: 18px;
-		padding: 3px 0;
 		.logo-icon {
-			display: none;
+			text-align: left;
 		}
 		.logo-name {
-			display: inline;
+			text-align: center;
 			font-size: 18px;
+			margin: 4px 0 0 0;
+			font-family: "Century Gothic", "Century Gothic Bold", Tahoma, Arial, sans-serif;
+			font-weight: bold;
 		}
 	}
 
@@ -111,9 +113,6 @@ nav {
 // ------------SMARTPHONE MEDIA QUERIES ---------------
 // ----------------------------------------------------
 @media (max-width: $screen-sm) {
-	nav .navbar-nav,.navbar-form {
-		display: none;
-	}
 	nav.navbar-fixed-top {
 		position: static;
 	}
@@ -157,9 +156,19 @@ nav {
 	nav {
 		height: 40px;
 		.navbar-header {
-			padding: 5px 30px;
+			padding: 0.2% 0.5%;
+		}
+		.logo {
+			text-align: left;
+			.logo-icon {
+				padding: 0;
+				margin: 1.4% 0 0 7%;
+				width: 114px;
+				height: 28px;
+			}
 		}
 
+		/*** Search Bar ***/
 		.navbar-form {
 			margin: 7px 0;
 			.form-control {
@@ -167,6 +176,39 @@ nav {
 				font-size: 12px;
 			}
 		}
+
+/*******************
+  Search
+ *******************/
+
+.search_btn {
+  background: $notableWhite;
+  border: none;
+}
+
+input#query:active,input#query:focus {
+  outline: none;
+  border:none !important;
+  box-shadow:none !important;
+   -webkit-appearance:none;
+}
+
+#search_field {
+  padding-top: 5px;
+  height: 30px;
+  & .btn {
+    margin-top: 0px;
+  }
+}
+
+#query {
+  position: relative;
+  bottom: 2px;
+}
+
+/***End old CSS ***/
+
+
 		.navbar-shift {
 			position: relative;
 			left: 260px;
@@ -180,18 +222,8 @@ nav {
 		.sidr-toggle-left, .sidr-toggle-right {
 			display: none;
 		}
-		.logo {
-			text-align: left;
-			margin-left: 3px;
-			.logo-icon {
-				display: inline;
-				font-size: 18px;
-			}
-			.logo-name {
-				font-size: 24px;
-				padding-left: 5px;
-			}
-		}
+
+
 	}
 
 
@@ -249,14 +281,9 @@ nav {
 		.navbar-nav > li > a {
 			padding: 15px;
 		}
-		.logo {
-			margin-left: 8px;
-			.logo-icon {
-				font-size: 20px;
-			}
-			.logo-name {
-				font-size: 28px;
-			}
+		.logo .logo-icon {
+			width: 136px;
+			height: 33px;
 		}
 
 	}
@@ -280,7 +307,4 @@ nav {
 // ---------------DESKTOP MEDIA QUERIES ---------------
 // ----------------------------------------------------
 @media (min-width: $screen-lg) {
-	.container {
-		// border: 3px solid red;
-	}
 }
