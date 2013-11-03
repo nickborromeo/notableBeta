@@ -53,9 +53,8 @@
 			"click h1.sidebar-dropdown": "toggleList"
 
 		toggleList: (e) ->
-			list = e.currentTarget.nextElementSibling.id
-			$("##{list}").toggle(400)
-
+			$(e.currentTarget.nextElementSibling).toggle(400)
+			$(e.currentTarget.firstElementChild).toggleClass("closed")
 
 	# Initializers -------------------------
 	App.Scaffold.on "start", ->

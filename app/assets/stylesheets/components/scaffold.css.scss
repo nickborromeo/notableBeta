@@ -172,8 +172,8 @@ nav {
 		.navbar-shift {
 			position: relative;
 			left: 260px;
-			transition: left 0.2s;
 			-webkit-transition: left 0.2s; /* Safari */
+			transition: left 0.2s;
 		}
 
 		.navbar-search {
@@ -206,6 +206,7 @@ nav {
 			.glyphicon-play {
 				color: $gray;
 				-ms-transform: rotate(90deg); /* IE 9 */
+				-moz-transform: rotate(90deg); /* Mozilla */
 				-webkit-transform: rotate(90deg); /* Safari and Chrome */
 				transform: rotate(90deg);
 			}
