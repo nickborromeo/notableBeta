@@ -15,8 +15,8 @@
 		model: Note.Branch
 		url:'/notes'
 
-		# Manage note insertion in the nested structure
 
+		# Manage note insertion in the nested structure
 		add: (note, options) ->
 			collectionToAddTo = @getCollection note.get 'parent_id'
 			Backbone.Collection.prototype.add.call(collectionToAddTo, note, options)

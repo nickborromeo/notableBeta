@@ -11,138 +11,139 @@
 
 @Notable.module("Action", (Action, App, Backbone, Marionette, $, _) ->
 
-	class Action.Manager
+	_undoStack = []
+	_redoStack = []
+	_historyLimit = 100
 
-		constructor: ->
-			@_undoStack = []
-			@_redoStack = []
-			@_historyLimit = 100
+	_expects = 
+		createNote: ['guid'] #only needs GUID to erase
+		deleteNote: ['note','options'] #needs all data
+		deleteBranch: ['ancestorNote','childNoteSet']
+		moveNote: ['guid','previous','current'] #previous & current expect = {title:"", subtitle:""}
+		updateContent: ['guid','previous','current'] #previous & current= {depth:-, rank:-, parent_id:""}
+		checker: (actionType, changes) ->
+			return false unless @[actionType]?
+			return false unless changes?
+			for property in @[actionType]
+				return false unless changes[property]?
+			return true 
+	
 
-			@_expects = {
-				createNote: ['guid'] #only needs GUID to erase
-				deleteNote: ['note','options'] #needs all data
-				deleteBranch: ['ancestorNote','childNoteSet']
-				moveNote: ['guid','previous','current'] #previous & current expect = {title:"", subtitle:""}
-				updateContent: ['guid','previous','current'] #previous & current= {depth:-, rank:-, parent_id:""}
-				checker: (actionType, changes) ->
-					return false unless @[actionType]?
-					return false unless changes?
-					for property in @[actionType]
-						return false unless changes[property]?
-					return true 
-			}
+	_revert = 
+		createNote: (tree, change) ->
+			noteReference = tree.findNote change.guid
+			noteAttributes = @_getAttributes(noteReference)
+			tree.removeFromCollection tree, noteReference
+			tree.deleteNote noteReference
+			return {type: 'deleteNote', changes: {note: noteAttributes, options: {} } }
 
-			@_revert = {
-				createNote: (tree, change) ->
-					noteReference = tree.findNote change.guid
-					noteAttributes = @_getAttributes(noteReference)
-					tree.removeFromCollection tree, noteReference
-					tree.deleteNote noteReference
-					return {type: 'deleteNote', changes: {note: noteAttributes, options: {} } }
+		deleteNote: (tree, change) ->
+			newBranch = new App.Note.Branch()
+			newBranch.save change.note
+			tree.add newBranch
+			# console.log "new guid:", newBranch.get('guid')
+			# console.log "old guid:", change.note.guid
+			tree.insertInTree newBranch, change.options
+			return {type: 'createNote', changes: { guid: change.note.guid }}
 
-				deleteNote: (tree, change) ->
-					newBranch = new App.Note.Branch()
-					newBranch.save change.note
-					tree.add newBranch
-					# console.log "new guid:", newBranch.get('guid')
-					# console.log "old guid:", change.note.guid
-					tree.insertInTree newBranch, change.options
-					return {type: 'createNote', changes: { guid: change.note.guid }}
+		# deleteBranch: (tree, change) ->
+		# 	tree.insertInTree change.ancestorNote
+		# 	for note in change.childNoteSet
+		# 		tree.insertInTree note
+		# 	return {type: 'createNote', changes: { guid: change.ancestorNote.guid }}
 
-				# deleteBranch: (tree, change) ->
-				# 	tree.insertInTree change.ancestorNote
-				# 	for note in change.childNoteSet
-				# 		tree.insertInTree note
-				# 	return {type: 'createNote', changes: { guid: change.ancestorNote.guid }}
+		moveNote: (tree, change) ->
+			noteReference = tree.findNote change.guid
+			noteReference.save(change.previous)
+			# tree.removeFromCollection tree, noteReference
+			tree.add noteReference
+			return {type: 'moveNote', changes: @_swapPrevAndCurrent(change)}
 
-				moveNote: (tree, change) ->
-					noteReference = tree.findNote change.guid
-					noteReference.save(change.previous)
-					# tree.removeFromCollection tree, noteReference
-					tree.add noteReference
-					return {type: 'moveNote', changes: @_swapPrevAndCurrent(change)}
+		updateContent: (tree, change) ->
+			noteReference = tree.findNote change.guid
+			noteReference.save(change.previous)
+			return {type: 'updateContent', changes: @_swapPrevAndCurrent(change)}
 
-				updateContent: (tree, change) ->
-					noteReference = tree.findNote change.guid
-					noteReference.save(change.previous)
-					return {type: 'updateContent', changes: @_swapPrevAndCurrent(change)}
+		_swapPrevAndCurrent: (change) ->
+			tempSwap = {}
+			tempSwap['guid'] = change.guid
+			tempSwap['previous'] = change.current
+			tempSwap['current'] = change.previous
+			return tempSwap
 
-				_swapPrevAndCurrent: (change) ->
-					tempSwap = {}
-					tempSwap['guid'] = change.guid
-					tempSwap['previous'] = change.current
-					tempSwap['current'] = change.previous
-					return tempSwap
+		_getAttributes: (noteReference) ->
+			attr = {}
+			for key, val of noteReference.attributes
+				attr[key] = val
+			return attr
 
-				_getAttributes: (noteReference) ->
-					attr = {}
-					for key, val of noteReference.attributes
-						attr[key] = val
-					return attr
-
-				_setAttributes: (noteReference, attr) ->
-					noteReference.save(attr)
-					for key, val of attr
-						noteReference.set key, val
-
-					return noteReference
-			}
+		_setAttributes: (noteReference, attr) ->
+			noteReference.save(attr)
+			for key, val of attr
+				noteReference.set key, val
+			return noteReference
+	
 			#only for tests:
 
+	clearundoneHistory = ->
+		# undoneHistory.reverse()
+		# for item in undoneHistory
+		#   actionHistory.push undoneHistory.pop()
+		_undoneHistory = []
 
-		_clearundoneHistory: ->
-			# undoneHistory.reverse()
-			# for item in undoneHistory
-			#   actionHistory.push undoneHistory.pop()
-			_undoneHistory = []
+	# ----------------------
+	# Public Methods & Functions
+	# ----------------------
+	@addHistory = (actionType, changes) ->
+		throw "!!--cannot track this change--!!" unless _expects.checker(actionType, changes)
+		if _redoStack.length > 1 then clearundoneHistory()
+		if _undoStack.length >= _historyLimit then _undoStack.shift()
+		_undoStack.push {type: actionType, changes: changes}
 
-		# ----------------------
-		# Public Methods & Functions
-		# ----------------------
-		addHistory: (actionType, changes) ->
-			throw "!!--cannot track this change--!!" unless @_expects.checker(actionType, changes)
-			if @_redoStack.length > 1 then clearundoneHistory()
-			if @_undoStack.length >= @_historyLimit then @_undoStack.shift()
-			@_undoStack.push {type: actionType, changes: changes}
+	@undo = (tree) ->
+		throw "nothing to undo" unless _undoStack.length > 0
+		change = _undoStack.pop()
+		_redoStack.push _revert[change.type](tree, change.changes)
 
-		undo: (tree) ->
-			throw "nothing to undo" unless @_undoStack.length > 0
-			change = @_undoStack.pop()
-			@_redoStack.push @_revert[change.type](tree, change.changes)
+	@redo = (tree) ->
+		throw "nothing to redo" unless _redoStack.length > 0
+		change = _redoStack.pop()
+		_undoStack.push _revert[change.type](tree, change.changes)
 
-		redo: (tree) ->
-			throw "nothing to redo" unless @_redoStack.length > 0
-			change = @_redoStack.pop()
-			@_undoStack.push @_revert[change.type](tree, change.changes)
+	@exportToServer = ->
+		#do something if nessecary 
 
-		exportToServer: ->
-			#do something if nessecary 
+	@exportToLocalStorage = ->
+		window.localStorage.setItem 'history', JSON.stringify(_undoStack)
+	#moves items undone to the change completed change stack...
 
-		exportToLocalStorage: ->
-			window.localStorage.setItem 'history', JSON.stringify(@_undoStack)
-		#moves items undone to the change completed change stack...
+	@loadHistoryFromLocalStorage = ->
+		loadPreviousActionHistory JSON.parse(window.localStorage.getItem('history'))
 
-		loadHistoryFromLocalStorage: ->
-			loadPreviousActionHistory JSON.parse(window.localStorage.getItem('history'))
+	@loadPreviousActionHistory = (previousHistory) ->
+		throw "-- this is not history! --" unless Array.isArray previousHistory
+		#warning = this will erase all previous history.
+		_undoStack = previousHistory
 
-		loadPreviousActionHistory: (previousHistory) ->
-			throw "-- this is not history! --" unless Array.isArray previousHistory
-			#warning: this will erase all previous history.
-			@_undoStack = previousHistory
+	@setHistoryLimit = (limit) ->
+		throw "-- cannot set #{limit} " if isNaN limit
+		_historyLimit = limit
 
-		setHistoryLimit: (limit) ->
-			throw "-- cannot set #{limit} " if isNaN limit
-			@_historyLimit = limit
+	@getHistoryLimit = ->
+		_historyLimit
 
-		getHistoryLimit: ->
-			@_historyLimit
 
-		## !! this is for testing ONLY
-		## don't try to erase... its deadly.
-		_getActionHistory: ->
-			@_undoStack
+	## !! this is for testing ONLY
+	## don't try to erase... its deadly.
+	@_getActionHistory = ->
+		_undoStack
 
-		_getUndoneHistory: ->
-			@_redoStack
+	@_getUndoneHistory = ->
+		_redoStack
+
+	@_resetActionHistory = ->
+		_undoStack = []
+		_redoStack = []
+
 
 )
