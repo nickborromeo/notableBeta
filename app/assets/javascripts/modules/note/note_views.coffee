@@ -61,6 +61,8 @@
 			@.$el.on 'keydown', null, 'backspace', @mergeWithPreceding.bind @
 			@.$el.on 'keydown', null, 'ctrl+s', @saveNote.bind @
 			@.$el.on 'keydown', null, 'meta+s', @saveNote.bind @
+			@.$el.on 'keydown', null, 'ctrl+z', App.Action.undo @
+			@.$el.on 'keydown', null, 'meta+z', App.Action.undo @
 		triggerShortcut: (event) -> (e) =>
 			e.preventDefault()
 			e.stopPropagation()
