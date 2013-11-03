@@ -49,6 +49,14 @@
 			favoriteRegion: "#favorite-region"
 			tagRegion: "#tag-region"
 
+		events: ->
+			"click h1.sidebar-dropdown": "toggleList"
+
+		toggleList: (e) ->
+			list = e.currentTarget.nextElementSibling.id
+			$("##{list}").toggle(400)
+
+
 	# Initializers -------------------------
 	App.Scaffold.on "start", ->
 		messageView = new App.Scaffold.MessageView
