@@ -4,8 +4,8 @@ $notableYellow: #FFDC33;
 $notableWhite: #FDFDFD;
 $notableBlack: #3D3D3D;
 
-$notableLightGray: #C1C1C1;
-$notableGray: #EAEAEA;
+$notableLightGray: #EAEAEA;
+$notableGray: #C1C1C1;
 $notableDarkGray: #999999;
 
 $screen-sm: 768px;
@@ -15,15 +15,7 @@ $screen-lg: 1200px;
 // ----------------------------------------------------
 // ----------------MOBILE FIRST CSS -------------------
 // ----------------------------------------------------
-#modview-region {
-  display: inline-block;
-  height: inherit;
-  padding: 0;
-}
-.modview-btn {
-  padding: 2px 4px;
-  font-size: 16px;
-  border-radius: 3px;
+@media (max-width: $screen-sm) {
 }
 
 // ----------------------------------------------------
@@ -31,13 +23,35 @@ $screen-lg: 1200px;
 // ----------------------------------------------------
 @media (min-width: $screen-sm) {
 	#modview-region {
-	  padding: 0 0 0 0.5em;
+		display: inline-block;
+		height: inherit;
+		padding: 0.7% 0 0 1.7%;
+		.outline_icon {
+			&:hover { background-position: -2px -93px; }
+			&:active { background-position: -29px -93px; }
+			&.selected:hover { background-position: -206px -61px; }
+		}
+		.mindmap_icon {
+			&:hover { background-position: -125px -61px; }
+			&:active { background-position: -152px -61px; }
+			&.selected:hover { background-position: -98px -61px; }
+		}
+		.grid_icon {
+			&:hover { background-position: -110px -93px; }
+			&:active { background-position: -137px -93px; }
+			&.selected:hover { background-position: -83px -93px; }
+		}
 	}
 	.modview-btn {
-	  padding: 4px 8px;
-	  font-size: 16px;
-	  border-radius: 3px;
+		margin-right: 5px;
+		-webkit-transform: scale(1.2);
+		-moz-transform: scale(1.2);
+		-ms-transform: scale(1.2);
+		-o-transform: scale(1.2);
+		transform: scale(1.2);
+		&:hover { cursor: pointer; }
 	}
+
 }
 
 // ----------------------------------------------------
@@ -45,8 +59,17 @@ $screen-lg: 1200px;
 // ----------------------------------------------------
 @media (min-width: $screen-md) {
 	#modview-region {
-	  padding: 0 0 0 2.5em;
+		padding: 0.6% 0 0 3.3%;
 	}
+	.modview-btn {
+		margin-right: 10px;
+		-webkit-transform: scale(1.5);
+		-moz-transform: scale(1.5);
+		-ms-transform: scale(1.5);
+		-o-transform: scale(1.5);
+		transform: scale(1.5);
+	}
+
 }
 
 // ----------------------------------------------------

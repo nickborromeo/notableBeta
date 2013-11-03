@@ -40,7 +40,8 @@ $screen-lg: 1200px;
 @media (min-width: $screen-md) {
 	.notificationHack {
 		padding: 5px 12px;
-		right: -1em;
+		right: 4em;
+		width: 48em
 	}
 }
 

@@ -13,18 +13,23 @@
 		events: ->
 			"click .sidebar-toggle": "shiftNavbar"
 			"click .new-note": "showTooltip"
-			"click .outline": "applyModview"
-			"click .grid": "applyModview"
-			"click .mindmap": "applyModview"
+			"click .outline_icon": "applyModview"
+			"click .mindmap_icon": "applyModview"
+			"click .grid_icon": "applyModview"
+
 		showTooltip: ->
 			$(".new-note").tooltip 'toggle'
 		applyModview: (e) ->
-			type = e.currentTarget.classList[3]
+			type = e.currentTarget.classList[1]
 			$(".alert").text(type+" modview is displayed").show()
 			$(".alert").delay(7000).fadeOut(1400)
-		shiftNavbar: ->
+			$(".modview-btn").removeClass("selected")
+			$(".#{type}").addClass("selected")
+		shiftNavbar: (e) ->
 			$(".navbar-header").toggleClass("navbar-shift")
 			$(".navbar-right").toggleClass("navbar-shift")
+			type = e.currentTarget.classList[1]
+			$(".#{type}").toggleClass("selected")
 
 	class Scaffold.ContentView extends Marionette.Layout
 		template: "scaffold/content"
