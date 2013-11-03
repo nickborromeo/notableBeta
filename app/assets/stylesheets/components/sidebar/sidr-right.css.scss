@@ -17,6 +17,12 @@ $grayUltraDark: #515151;
 
 .sidr {
 
+	&.right {
+		left: auto;
+		right: -260px;
+		@include single-box-shadow($notableBlack, 7px, 3px, 14px, 3px, inset);
+	}
+
 	form {
 		margin: 0 15px;
 	}

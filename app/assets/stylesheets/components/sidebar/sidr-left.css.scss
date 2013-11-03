@@ -30,7 +30,7 @@ $sidr-font-family: 'lucida grande',tahoma,verdana,arial,sans-serif;
 	position: fixed;
 	top: 0;
 	height: 100%;
-	z-index: 999999;
+	z-index: 88887;
 	width: 260px;
 	overflow-x: none;
 	overflow-y: auto;
@@ -49,7 +49,7 @@ $sidr-font-family: 'lucida grande',tahoma,verdana,arial,sans-serif;
 	font-family: $sidr-font-family;
 	background: $grayUltraDark;
 	color: $sidr-text-color;
-	@include single-box-shadow($notableBlack, -7px, 0px, 14px, 0px, inset);
+	@include single-box-shadow($notableBlack, -7px, 3px, 14px, 3px, inset);
 
 	h1, h2, h3, h4, h5, h6 {
 		font-size: 12px;
@@ -59,13 +59,14 @@ $sidr-font-family: 'lucida grande',tahoma,verdana,arial,sans-serif;
 		background-color: $grayDark;
 		color: $sidr-text-color;
 		line-height: 22px;
+		border-top: 1px solid darken($sidr-background, 14%);
+		@include single-box-shadow($notableBlack, -14px, 0px, 21px, -7px, inset);
 	}
 
 	ul {
 		display: block;
 		margin: 0;
 		padding: 0;
-		border-bottom: 1px solid darken($sidr-background, 14%);
 
 		li {
 			display: block;
@@ -79,7 +80,6 @@ $sidr-font-family: 'lucida grande',tahoma,verdana,arial,sans-serif;
 			&.sidr-class-active {
 				border-top: none;
 				line-height: 36px;
-
 				> a, > span {
 					@include single-box-shadow($notableBlack, 0, 0, 15px, 3px, inset);
 				}
@@ -90,9 +90,11 @@ $sidr-font-family: 'lucida grande',tahoma,verdana,arial,sans-serif;
 				display: block;
 				text-decoration: none;
 				color: $sidr-text-color;
-				background-color: $grayUltraDark;
 				&:hover {
 					color: $notableYellow;
+				}
+				&:active {
+					color: $notableOrange;
 				}
 			}
 		}
