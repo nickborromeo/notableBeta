@@ -4,9 +4,10 @@ $notableYellow: #FFDC33;
 $notableWhite: #FDFDFD;
 $notableBlack: #3D3D3D;
 
-$notableLightGray: #EAEAEA;
-$notableGray: #C1C1C1;
-$notableDarkGray: #999999;
+$grayLight: #EAEAEA;
+$gray: #C1C1C1;
+$grayDark: #989898;
+$grayUltraDark: #515151;
 
 $screen-sm: 768px;
 $screen-md: 992px;
@@ -63,11 +64,11 @@ $screen-lg: 1200px;
 	}
 	.modview-btn {
 		margin-right: 10px;
-		-webkit-transform: scale(1.5);
-		-moz-transform: scale(1.5);
-		-ms-transform: scale(1.5);
-		-o-transform: scale(1.5);
-		transform: scale(1.5);
+		-webkit-transform: scale(1.4);
+		-moz-transform: scale(1.4);
+		-ms-transform: scale(1.4);
+		-o-transform: scale(1.4);
+		transform: scale(1.4);
 	}
 
 }

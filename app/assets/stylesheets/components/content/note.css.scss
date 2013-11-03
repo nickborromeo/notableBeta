@@ -4,9 +4,10 @@ $notableYellow: #FFDC33;
 $notableWhite: #FDFDFD;
 $notableBlack: #3D3D3D;
 
-$notableLightGray: #EAEAEA;
-$notableGray: #C1C1C1;
-$notableDarkGray: #999999;
+$grayLight: #EAEAEA;
+$gray: #C1C1C1;
+$grayDark: #989898;
+$grayUltraDark: #515151;
 
 $screen-sm: 768px;
 $screen-md: 992px;
@@ -17,8 +18,8 @@ $screen-lg: 1200px;
 // ----------------------------------------------------
 #tree {
 	background: $notableWhite;
-	border: 1px solid $notableLightGray;
-	border-radius: px;
+	border: 1px solid $grayLight;
+	border-radius: 2px;
 	padding: 0.6em 1.2em;
 	margin: 0;
 	min-height: 450px;

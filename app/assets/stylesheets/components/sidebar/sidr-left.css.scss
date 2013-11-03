@@ -6,16 +6,16 @@ $notableYellow: #FFDC33;
 $notableWhite: #FDFDFD;
 $notableBlack: #3D3D3D;
 
-$notableLightGray: #EAEAEA;
-$notableGray: #C1C1C1;
-$notableDarkGray: #999999;
+$grayLight: #EAEAEA;
+$gray: #C1C1C1;
+$grayDark: #989898;
+$grayUltraDark: #515151;
 
 $screen-sm: 768px;
 $screen-md: 992px;
 $screen-lg: 1200px;
 
-$sidr-background : #333;
-$sidr-background-shadow-color : #222;
+$sidr-background: $grayDark;
 $sidr-text-color: $notableWhite;
 $sidr-font-family: 'lucida grande',tahoma,verdana,arial,sans-serif;
 
@@ -51,42 +51,41 @@ $sidr-font-family: 'lucida grande',tahoma,verdana,arial,sans-serif;
 
 	/* Theme Settings */
 	font-family: $sidr-font-family;
-	background: $sidr-background;
+	background: $grayUltraDark;
 	color: $sidr-text-color;
-	@include single-box-shadow($sidr-background-shadow-color, 0, 0, 5px, 5px, inset);
+	@include single-box-shadow($notableBlack, -7px, 0px, 14px, 0px, inset);
 
 	h1, h2, h3, h4, h5, h6 {
 		font-size: 12px;
 		font-weight: bold;
 		padding: 0 15px;
 		margin: 0;
+		background-color: $grayDark;
 		color: $sidr-text-color;
 		line-height: 22px;
-		@include background-image(linear-gradient(lighten($sidr-background, 10%), darken($sidr-background, 10%)));
-		@include single-box-shadow(rgba(#000, .2), 0, 5px, 5px, 3px);
 	}
 
 	ul {
 		display: block;
 		margin: 0;
 		padding: 0;
-		border-top: 1px solid darken($sidr-background, 10%);
-		border-bottom: 1px solid lighten($sidr-background, 10%);
+		border-bottom: 1px solid darken($sidr-background, 14%);
 
 		li {
 			display: block;
 			margin: 0;
 			line-height: 36px;
-			border-top: 1px solid lighten($sidr-background, 10%);
-			border-bottom: 1px solid darken($sidr-background, 10%);
-
+			border-bottom: 1px solid $notableBlack;
+			&:last-child {
+				border-bottom: none;
+			}
 			&:active,
 			&.sidr-class-active {
 				border-top: none;
 				line-height: 36px;
 
 				> a, > span {
-					@include single-box-shadow($sidr-background-shadow-color, 0, 0, 15px, 3px, inset);
+					@include single-box-shadow($notableBlack, 0, 0, 15px, 3px, inset);
 				}
 			}
 
@@ -95,6 +94,7 @@ $sidr-font-family: 'lucida grande',tahoma,verdana,arial,sans-serif;
 				display: block;
 				text-decoration: none;
 				color: $sidr-text-color;
+				background-color: $grayUltraDark;
 				&:hover {
 					color: $notableYellow;
 				}

@@ -4,9 +4,10 @@ $notableYellow: #FFDC33;
 $notableWhite: #FDFDFD;
 $notableBlack: #3D3D3D;
 
-$notableLightGray: #EAEAEA;
-$notableGray: #C1C1C1;
-$notableDarkGray: #999999;
+$grayLight: #EAEAEA;
+$gray: #C1C1C1;
+$grayDark: #989898;
+$grayUltraDark: #515151;
 
 $screen-sm: 768px;
 $screen-md: 992px;
@@ -44,7 +45,7 @@ body {
 /* --------------HEADER REGION ------------------ */
 nav {
 	height: 35px;
-	background-color: $notableLightGray; /* Old browsers */
+	background-color: $grayLight; /* Old browsers */
 	background: -moz-linear-gradient(top, #FDFDFD 0%, #cccccc 100%); /* FF3.6+ */
 	background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#FDFDFD), color-stop(100%,#cccccc)); /* Chrome,Safari4+ */
 	background: -webkit-linear-gradient(top, #FDFDFD 0%,#cccccc 100%); /* Chrome10+,Safari5.1+ */
@@ -68,7 +69,7 @@ nav {
 	}
 
 	.dropdown-toggle {
-		color: $notableDarkGray;
+		color: $grayDark;
 	}
 
 }
@@ -187,7 +188,7 @@ nav {
 			}
 			.search-btn {
 				float: right;
-				color: $notableDarkGray;
+				color: $grayDark;
 				position: relative;
 				top: -20px;
 				right: 11px;
@@ -203,7 +204,7 @@ nav {
 			border: 2px solid #D5D5D5;
 			border-radius: 15px;
 			.glyphicon-play {
-				color: $notableGray;
+				color: $gray;
 				-ms-transform: rotate(90deg); /* IE 9 */
 				-webkit-transform: rotate(90deg); /* Safari and Chrome */
 				transform: rotate(90deg);
@@ -262,7 +263,7 @@ nav {
 		border-radius: 7px;
 		border: 1px solid #C1C1C1;
 		h3 {
-			color: $notableDarkGray;
+			color: $grayDark;
 			font-family: 'Century Gothic', "Arial", sans-serif;
 			text-align:center;
 			font-size: 1em;
