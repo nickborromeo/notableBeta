@@ -13,9 +13,9 @@
 		And -> expect(@tree.length).toEqual(5)
 
 	describe "Test data is correct;", ->
-		Given -> @tester1GUID = "e0a5367a-1688-4c3f-98b4-a6fdfe95e779"
-		Given -> @tester2GUID = "8a42c5ad-e9cb-43c9-852b-faff683b1b05"
-		Given -> @tester3GUID = "7d13cbb1-27d7-446a-bd64-8abf6a441274"
+		Given -> @tester1GUID = "beb2dcaa-ddf2-4d0e-932e-9d5f102d550a" #this is a root node (the first)
+		Given -> @tester2GUID = "138b785a-4041-4064-867c-8239579ffd3e" #this is also a root node (the second)
+		Given -> @tester3GUID = "010c12bd-6745-4d3f-8ec4-8071033fff50" #this is a child node on a different branch
 		Given -> @tester1PreviousTitle = @tree.findNote(@tester1GUID).get('title')
 		Given -> @tester2PreviousTitle = @tree.findNote(@tester2GUID).get('title')
 		Given -> @tester3PreviousTitle = @tree.findNote(@tester3GUID).get('title')

@@ -36,14 +36,14 @@
 				createNote: (tree, change) ->
 					noteReference = tree.findNote change.guid
 					noteAttributes = @_getAttributes(noteReference)
-					# tree.removeFromCollection tree, noteReference
-					# tree.deleteNote noteReference
+					tree.removeFromCollection tree, noteReference
+					tree.deleteNote noteReference
 					return {type: 'deleteNote', changes: {note: noteAttributes, options: {} } }
 
 				deleteNote: (tree, change) ->
 					newBranch = new App.Note.Branch()
-					newBranch.save(change.note)
-					tree.add(newBranch)
+					newBranch.save change.note
+					tree.add newBranch
 					# console.log "new guid:", newBranch.get('guid')
 					# console.log "old guid:", change.note.guid
 					tree.insertInTree newBranch, change.options
@@ -57,10 +57,10 @@
 
 				moveNote: (tree, change) ->
 					noteReference = tree.findNote change.guid
-					# need to remove from tree (not delete), then re-insert
-					# noteReference = @_setAttributes(noteReference, change.previous)
 					noteReference.save(change.previous)
-					return {type: 'moveNote', changes: @_swapPrevAndNext(change)}
+					# tree.removeFromCollection tree, noteReference
+					tree.add noteReference
+					return {type: 'moveNote', changes: @_swapPrevAndCurrent(change)}
 
 				updateContent: (tree, change) ->
 					noteReference = tree.findNote change.guid

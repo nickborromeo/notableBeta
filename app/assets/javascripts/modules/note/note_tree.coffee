@@ -98,15 +98,16 @@
 			searchedNote
 
 		getNote: (guid) -> @findNote(guid) # alias
-		findByGuidInCollection: (guid) ->
-			noteSearched = false
-			@every (note) ->
-				if note.get('guid') is guid
-					noteSearched = note
-					false # break
-				else
-					true # continue
-			noteSearched
+
+		# findByGuidInCollection: (guid) ->
+		# 	noteSearched = false
+		# 	@every (note) ->
+		# 		if note.get('guid') is guid
+		# 			noteSearched = note
+		# 			false # break
+		# 		else
+		# 			true # continue
+		# 	noteSearched
 
 		modifySiblings: (parent_id, modifierFunction, filterFunction = false) ->
 			siblingNotes = @getCollection parent_id

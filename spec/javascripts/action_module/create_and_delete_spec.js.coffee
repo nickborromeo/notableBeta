@@ -13,9 +13,9 @@
 
 	describe "Action manager should", ->
 		#adds the "creation" to history
-		Given -> @tester1GUID = "e0a5367a-1688-4c3f-98b4-a6fdfe95e779"
-		Given -> @tester2GUID = "8a42c5ad-e9cb-43c9-852b-faff683b1b05"
-		Given -> @tester3GUID = "7d13cbb1-27d7-446a-bd64-8abf6a441274"
+		Given -> @tester1GUID = "beb2dcaa-ddf2-4d0e-932e-9d5f102d550a" #this is a root node (the first)
+		Given -> @tester2GUID = "138b785a-4041-4064-867c-8239579ffd3e" #this is also a root node (the second)
+		Given -> @tester3GUID = "010c12bd-6745-4d3f-8ec4-8071033fff50" #this is a child node on a different branch
 		Given -> @actionManager.addHistory('createNote',{ guid: @tester1GUID })
 		Given -> @actionManager.addHistory('createNote',{ guid: @tester2GUID })
 		Given -> @actionManager.addHistory('createNote',{ guid: @tester3GUID})
@@ -32,7 +32,7 @@
 		describe "undo last items on list, and add to '_redoStack'", ->
 			Given -> @actionManager.undo(@tree) #delete Note 3
 			Given -> @actionManager.undo(@tree) #delete Note 2
-			Given -> @actionManager.undo(@tree) #delete Note 1
+			Given -> @actionManager.undo(@tree) #delete Note 1 ?????*****************
 			Then -> expect(@actionManager._getUndoneHistory().length).toEqual(3)
 			And -> expect(@actionManager._getActionHistory().length).toEqual(0)
 
@@ -63,7 +63,7 @@
 		describe "undo last item on the list and remove from collection", ->
 			Given -> @actionManager.undo(@tree) #delete note 3
 			Given -> @actionManager.undo(@tree) #delete note 2
-			Then -> expect(=> @tree.findNote(@tester1GUID)).not.toThrow("#{@tester1GUID} not found")
+			Then -> expect(=> @tree.findNote(@tester1GUID)).not.toThrow()
 			And -> expect(=> @tree.findNote(@tester2GUID)).toThrow("#{@tester2GUID} not found. Aborting")
 			And -> expect(=> @tree.findNote(@tester3GUID)).toThrow("#{@tester3GUID} not found. Aborting")
 
