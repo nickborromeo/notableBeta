@@ -1,6 +1,4 @@
-/*
- * Sidr
- * https://github.com/artberri/sidr
+/* Sidr (https://github.com/artberri/sidr)
  *
  * Copyright (c) 2013 Alberto Varela
  * Licensed under the MIT license.
@@ -31,19 +29,6 @@
     // Loads the content into the menu bar
     loadContent: function($menu, content) {
       $menu.html(content);
-    },
-    // Add sidr prefixes
-    addPrefix: function($element) {
-      var elementId = $element.attr('id'),
-          elementClass = $element.attr('class');
-
-      if(typeof elementId === 'string' && '' !== elementId) {
-        $element.attr('id', elementId.replace(/([A-Za-z0-9_.\-]+)/g, 'sidr-id-$1'));
-      }
-      if(typeof elementClass === 'string' && '' !== elementClass && 'sidr-inner' !== elementClass) {
-        $element.attr('class', elementClass.replace(/([A-Za-z0-9_.\-]+)/g, 'sidr-class-$1'));
-      }
-      $element.removeAttr('style');
     },
     execute: function(action, name, callback) {
       // Check arguments
@@ -223,16 +208,12 @@
           selectors   = settings.source.split(',');
 
       $.each(selectors, function(index, element) {
-        htmlContent += '<div class="sidr-inner">' + $(element).html() + '</div>';
+        htmlContent += $(element).html();
       });
 
       // Renaming ids and classes
       if(settings.renaming) {
         var $htmlContent = $('<div />').html(htmlContent);
-        $htmlContent.find('*').each(function(index, element) {
-          var $element = $(element);
-          privateMethods.addPrefix($element);
-        });
         htmlContent = $htmlContent.html();
       }
       privateMethods.loadContent($sideMenu, htmlContent);

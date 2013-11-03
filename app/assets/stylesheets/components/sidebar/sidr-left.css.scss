@@ -35,10 +35,6 @@ $sidr-font-family: 'lucida grande',tahoma,verdana,arial,sans-serif;
 	overflow-x: none;
 	overflow-y: auto;
 
-	.sidr-inner {
-		padding: 0 0 15px;
-	}
-
 	&.right {
 		left: auto;
 		right: -260px;
