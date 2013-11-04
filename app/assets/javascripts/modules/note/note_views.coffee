@@ -18,7 +18,7 @@
 			"drop .dropTarget": @triggerDragEvent "dropMove"
 			"dragenter .dropTarget": @triggerDragEvent "enterMove"
 			"dragleave .dropTarget": @triggerDragEvent "leaveMove"
-			"dragover .dropTarget": @triggerDragEvent "overMove"
+			"dragover .dropTarget": @triggerDragEvent "overMove" 
 			"keyup .branch": @timeoutAndSave(@updateNote)
 
 
@@ -61,8 +61,24 @@
 			@.$el.on 'keydown', null, 'backspace', @mergeWithPreceding.bind @
 			@.$el.on 'keydown', null, 'ctrl+s', @saveNote.bind @
 			@.$el.on 'keydown', null, 'meta+s', @saveNote.bind @
-			@.$el.on 'keydown', null, 'ctrl+z', App.Action.undo @
-			@.$el.on 'keydown', null, 'meta+z', App.Action.undo @
+			# @.$el.on 'keydown', null, 'ctrl+z', App.Action.undo #@ needs to be the tree
+			# @.$el.on 'keydown', null, 'meta+z', App.Action.undo #@ needs to be the tree
+			@.$el.on 'keydown', null, 'ctrl+shift+u', @triggerUndoEvent #@ needs to be the tree
+			@.$el.on 'keydown', null, 'meta+shift+u', @triggerUndoEvent #@ needs to be the tree
+			@.$el.on 'keydown', null, 'ctrl+shift+y', @triggerRedoEvent #@ needs to be the tree
+			@.$el.on 'keydown', null, 'meta+shift+y', @triggerRedoEvent #@ needs to be the tree
+			# needs to make sure @ is proper context ie @ needs to be 
+
+		triggerRedoEvent: (e) =>
+			e.preventDefault()
+			e.stopPropagation()
+			console.log "redo event was fired,", @
+			App.Action.redo(@.collection)
+		triggerUndoEvent: (e) =>
+			e.preventDefault()
+			e.stopPropagation()
+			console.log "undo event was fired,", @
+			App.Action.undo(@.collection)
 		triggerShortcut: (event) -> (e) =>
 			e.preventDefault()
 			e.stopPropagation()
@@ -247,6 +263,7 @@
 			Note.eventManager.trigger "setCursor:#{setFocusIn.get('guid')}"
 		deleteNote: (note) ->
 			(@jumpFocusUp note) unless (@jumpFocusDown note)
+			App.Action.addHistory('deleteNote', {note: note.getAllAtributes(), options:{}})
 			@collection.deleteNote note
 		jumpFocusUp: (note, endOfLine = false) ->
 			previousNote = @collection.jumpFocusUp note

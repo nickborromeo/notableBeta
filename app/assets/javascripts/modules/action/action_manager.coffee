@@ -14,6 +14,8 @@
 	_undoStack = []
 	_redoStack = []
 	_historyLimit = 100
+	_tree = ''
+	_allNotes = ''
 
 	_expects = 
 		createNote: ['guid'] #only needs GUID to erase
@@ -31,22 +33,20 @@
 
 	_revert = 
 		createNote: (tree, change) ->
-			noteReference = tree.findNote change.guid
-			noteAttributes = @_getAttributes(noteReference)
-			tree.removeFromCollection tree, noteReference
-			tree.deleteNote noteReference
+			noteReference = _allNotes.findWhere({guid: change.guid})
+			noteAttributes = noteReference.getAllAtributes()
+			_allNotes.remove noteReference
+			_tree.deleteNote noteReference
 			return {type: 'deleteNote', changes: {note: noteAttributes, options: {} } }
 
 		deleteNote: (tree, change) ->
 			newBranch = new App.Note.Branch()
 			newBranch.save change.note
-			tree.add newBranch
-			# console.log "new guid:", newBranch.get('guid')
-			# console.log "old guid:", change.note.guid
-			tree.insertInTree newBranch, change.options
+			_allNotes.add newBranch
+			_tree.add newBranch
 			return {type: 'createNote', changes: { guid: change.note.guid }}
 
-		# deleteBranch: (tree, change) ->
+		# deleteWholeBranch: (tree, change) ->
 		# 	tree.insertInTree change.ancestorNote
 		# 	for note in change.childNoteSet
 		# 		tree.insertInTree note
@@ -71,18 +71,12 @@
 			tempSwap['current'] = change.previous
 			return tempSwap
 
-		_getAttributes: (noteReference) ->
-			attr = {}
-			for key, val of noteReference.attributes
-				attr[key] = val
-			return attr
-
 		_setAttributes: (noteReference, attr) ->
 			noteReference.save(attr)
 			for key, val of attr
 				noteReference.set key, val
 			return noteReference
-	
+
 			#only for tests:
 
 	clearundoneHistory = ->
@@ -132,6 +126,12 @@
 	@getHistoryLimit = ->
 		_historyLimit
 
+	@setTree = (tree) ->
+		_tree = tree
+
+	@setAllNotesByDepth = (allNotes) ->
+		_allNotes = allNotes
+
 
 	## !! this is for testing ONLY
 	## don't try to erase... its deadly.
@@ -145,5 +145,10 @@
 		_undoStack = []
 		_redoStack = []
 
+	@_getTree = ->
+		_tree
+
+	@_getNoteCollection = ->
+		_allNotes
 
 )

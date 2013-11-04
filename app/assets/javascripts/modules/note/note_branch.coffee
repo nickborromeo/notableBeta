@@ -72,6 +72,11 @@
 			attributesHash[attribute] = noteToClone.get(attribute) for attribute in @clonableAttributes
 			@set attributesHash
 			attributesHash
+		getAllAtributes: =>
+			attributesHash = {}
+			for key, val of @attributes
+				attributesHash[key] = val
+			attributesHash
 
 		# Will generalize for more than one attribute
 		modifyAttributes: (attribute, effect) ->

@@ -7,10 +7,14 @@
 	Given -> @tree = new App.Note.Tree()
 	Given -> window.buildTestTree @noteCollection, @tree
 	Given -> App.Action._resetActionHistory()
+	Given -> App.Action.setTree = @tree
+	Given -> App.Action.setAllNotesByDepth @noteCollection
+
 	# describe "Action manager should have history length of 0", ->
 	# 	Then -> expect(App.Action._getActionHistory().length).toEqual(0)
 	describe "Fake tree & note collection should have populated test data", ->
 		Then -> expect(@noteCollection.length).toEqual(14)
+		And -> expect(App.Action._getNoteCollection().length).toEqual(14)
 		And -> expect(@tree.length).toEqual(5)
 
 	describe "Action manager should", ->
@@ -30,6 +34,12 @@
 			And -> expect(App.Action._getActionHistory()[0]['changes']['guid']).toEqual(@tester1GUID)
 			And -> expect(App.Action._getActionHistory()[1]['changes']['guid']).toEqual(@tester2GUID)
 			And -> expect(App.Action._getActionHistory()[2]['changes']['guid']).toEqual(@tester3GUID)
+			And -> expect(@noteCollection.length).toEqual(14)
+
+			# Given -> console.log @noteCollection.findWhere({guid: @tester1GUID})
+			# Given -> console.log @noteCollection.findWhere({guid: @tester2GUID})
+			# Given -> console.log @noteCollection.findWhere({guid: @tester3GUID})
+			# Then -> true
 
 		describe "undo last items on list, and add to '_redoStack'", ->
 			Given -> App.Action.undo(@tree) #delete Note 3
