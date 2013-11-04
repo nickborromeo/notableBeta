@@ -73,9 +73,10 @@
 			@set attributesHash
 			attributesHash
 		getAllAtributes: =>
+			okayAttrs = ['depth', 'rank', 'parent_id', 'guid', 'title', 'subtitle']
 			attributesHash = {}
-			for key, val of @attributes
-				attributesHash[key] = val
+			for attribute in okayAttrs
+				attributesHash[attribute] = @get(attribute) 
 			attributesHash
 
 		# Will generalize for more than one attribute

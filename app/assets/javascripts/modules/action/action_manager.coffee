@@ -34,6 +34,7 @@
 	_revert = 
 		createNote: (tree, change) ->
 			noteReference = _allNotes.findWhere({guid: change.guid})
+			# noteAttributes = noteReference.getAllAtributes()
 			noteAttributes = noteReference.getAllAtributes()
 			_allNotes.remove noteReference
 			_tree.deleteNote noteReference
@@ -43,7 +44,7 @@
 			newBranch = new App.Note.Branch()
 			newBranch.save change.note
 			_allNotes.add newBranch
-			_tree.add newBranch
+			_tree.add newBranch, change.options
 			return {type: 'createNote', changes: { guid: change.note.guid }}
 
 		# deleteWholeBranch: (tree, change) ->
@@ -53,10 +54,16 @@
 		# 	return {type: 'createNote', changes: { guid: change.ancestorNote.guid }}
 
 		moveNote: (tree, change) ->
-			noteReference = tree.findNote change.guid
+			noteReference = _allNotes.findWhere({guid: change.guid})
+			parent_id = noteReference.get('parent_id') 
+			if parent_id is 'root'
+				_tree.removeFromCollection _tree, noteReference
+			else
+				_tree.removeFromCollection _allNotes.findWhere({guid: parent_id}).collection, noteReference
+
+			# @_setAttributes(noteReference, change.previous)
 			noteReference.save(change.previous)
-			# tree.removeFromCollection tree, noteReference
-			tree.add noteReference
+			_tree.add noteReference
 			return {type: 'moveNote', changes: @_swapPrevAndCurrent(change)}
 
 		updateContent: (tree, change) ->

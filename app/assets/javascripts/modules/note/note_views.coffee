@@ -72,12 +72,12 @@
 		triggerRedoEvent: (e) =>
 			e.preventDefault()
 			e.stopPropagation()
-			console.log "redo event was fired,", @
+			console.log "redo event was fired,"
 			App.Action.redo(@.collection)
 		triggerUndoEvent: (e) =>
 			e.preventDefault()
 			e.stopPropagation()
-			console.log "undo event was fired,", @
+			console.log "undo event was fired,"
 			App.Action.undo(@.collection)
 		triggerShortcut: (event) -> (e) =>
 			e.preventDefault()

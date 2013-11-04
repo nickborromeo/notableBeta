@@ -8,6 +8,8 @@
   Given -> @tree = new App.Note.Tree()
   Given -> window.buildTestTree @noteCollection, @tree
   Given -> App.Action._resetActionHistory()
+  Given -> App.Action.setTree @tree
+  Given -> App.Action.setAllNotesByDepth @noteCollection
   
   describe "Fake data should have been populated", ->
     Then -> expect(@noteCollection.length).toEqual(14)

@@ -7,7 +7,7 @@
 	Given -> @tree = new App.Note.Tree()
 	Given -> window.buildTestTree @noteCollection, @tree
 	Given -> App.Action._resetActionHistory()
-	Given -> App.Action.setTree = @tree
+	Given -> App.Action.setTree @tree
 	Given -> App.Action.setAllNotesByDepth @noteCollection
 
 	# describe "Action manager should have history length of 0", ->
