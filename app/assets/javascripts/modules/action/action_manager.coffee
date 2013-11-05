@@ -1,13 +1,4 @@
-#TODO:  attempt to propery connect the model's add, remove, change, move
-#TODO:  write test!!!!!!!
-#FIXME:  deleting an ancestor deletes children... really need to fix this.
-#FIXME:  moving notes around changes subsequent notes as well....
-			#  some how all notes need to be updated....   
-			# if we CAREFULLY call the "moveNote method" this should be OKAY.
-			# but may have unintented consequences
-
-#TODO:  periodically 30s? update completedHistory localStorage cache 
-#TODO:  history should be added on spacebar up
+#FIXME:  notes have updated information, but are not re-rendered in the view!
 
 @Notable.module("Action", (Action, App, Backbone, Marionette, $, _) ->
 
