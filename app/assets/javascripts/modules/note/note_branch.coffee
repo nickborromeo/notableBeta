@@ -127,6 +127,12 @@
 			_.each completeDescendants, (descendant) ->
 				removedBranchs.childNoteSet.push(descendant.getAllAtributes())
 			App.Action.addHistory('deleteBranch', removedBranchs)
+		addUndoUpdate: (newTitle, newSubtitle) =>
+			App.Action.addHistory 'updateContent', {
+				guid: @get('guid')
+				previous: {title: @get('title'),subtitle: @get('subtitle') }
+				current: {title: newTitle,subtitle: newSubtitle }
+			}
 
 
 	# Static Function

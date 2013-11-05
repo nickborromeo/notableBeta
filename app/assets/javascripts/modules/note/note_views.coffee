@@ -98,17 +98,8 @@
 			timer = null
 			return ->
 				clearTimeout timer
-				timer = setTimeout(updateCallBack, 3000)
-		# timeoutToUndo: (updateCallBack)-> 
-		# 	timer = null
-		# 	startTitle = startTitle || @model.get('title')
-		# 	startSubtitle = startSubtitle || @mode.get('subtitle')
-		# 	console.log('startTitle', startTitle)
-		# 	return ->
-		# 		clearTimeout timer
-		# 		timer = setTimeout(updateCallBack, 300)
-				
-		
+				timer = setTimeout(updateCallBack, 1000)
+
 		mergeWithPreceding: (e) ->
 			e.stopPropagation()
 			if @testCursorPosition "isEmptyBeforeCursor"
@@ -144,9 +135,12 @@
 
 		updateNote: =>
 			noteTitle = @getNoteTitle()
+			noteSubtitle = "" #@getNoteSubtitle()
 			if @model.get('title') isnt noteTitle
+				@model.addUndoUpdate(noteTitle,noteSubtitle)
 				@model.save
 					title: noteTitle
+					noteSubtitle: noteSubtitle
 				@model.saveLocally()
 			noteTitle
 		getNoteTitle: ->

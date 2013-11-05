@@ -70,8 +70,8 @@
 			return {type:'moveNote', changes: changeTemp}
 
 		updateContent: (change) ->
-			noteReference = tree.findNote change.guid
-			noteReference.save(change.previous)
+			reference = @_getReference(change.guid)
+			reference.note.save(change.previous)
 			return {type: 'updateContent', changes: @_swapPrevAndCurrent(change)}
 
 		_swapPrevAndCurrent: (change) ->
