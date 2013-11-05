@@ -29,22 +29,25 @@
 			for property in @[actionType]
 				return false unless changes[property]?
 			return true 
-	
 
 	_revert = 
 		createNote: (change) ->
-			noteReference = _allNotes.findWhere({guid: change.guid})
-			# noteAttributes = noteReference.getAllAtributes()
-			noteAttributes = noteReference.getAllAtributes()
-			_allNotes.remove noteReference
-			_tree.deleteNote noteReference
+			reference = @_getReference(change.guid)
+			noteAttributes = reference.note.getAllAtributes()
+			_allNotes.remove reference.note
+			_tree.deleteNote reference.note, true
+			# FIXME:
+			# this is the only function that will automatically add 
+			# upon calling _tree.deleteNote itself to the undo delete
 			return {type: 'deleteBranch', changes: {note: noteAttributes, options: {} } }
 
 		reverseDeleteNote: (attributes) ->
 			newBranch = new App.Note.Branch()
 			newBranch.save attributes
 			_allNotes.add newBranch
+			reference = @_getReference newBranch.get('guid')
 			_tree.add newBranch
+			# reference.parentCollection.add newBranch
 
 		deleteBranch: (change) ->
 			@reverseDeleteNote(change.ancestorNote)
@@ -53,24 +56,17 @@
 			return {type: 'createNote', changes: { guid: change.ancestorNote.guid }}
 
 		moveNote: (change) ->
-			noteReference = _allNotes.findWhere({guid: change.guid})
-			parent_id = noteReference.get('parent_id') 
-			parentCollection = if parent_id is 'root' then _tree else _allNotes.findWhere({guid: parent_id}).collection
-			# console.log "the change is:", change
-			_tree.removeFromCollection parentCollection, noteReference
-			# if parent_id is 'root'
-			# 	_tree.removeFromCollection _tree, noteReference
-			# else
-			# 	_tree.removeFromCollection _allNotes.findWhere({guid: parent_id}).collection, noteReference
+			reference = @_getReference(change.guid)
+			_tree.removeFromCollection _tree, reference.note
 
 			changeTemp =
 				guid: change.guid
-				depth: noteReference.get('depth')
-				rank: noteReference.get('rank')
-				parent_id: parent_id
+				depth: reference.note.get('depth')
+				rank: reference.note.get('rank')
+				parent_id: reference.parent_id
 
-			noteReference.save change
-			_tree.add noteReference
+			reference.note.save change
+			_tree.add reference.note
 			return {type:'moveNote', changes: changeTemp}
 
 		updateContent: (change) ->
@@ -84,6 +80,15 @@
 			tempSwap['previous'] = _.clone(change.current)
 			tempSwap['current'] = _.clone(change.previous)
 			return tempSwap
+
+		_getReference: (guid) ->
+			note = @_findANote(guid)
+			parent_id = note.get('parent_id')
+			parentCollection = if parent_id is 'root' then _tree else @_findANote(parent_id).collection
+			{note: note, parent_id: parent_id, parentCollection: parentCollection}
+
+		_findANote: (guid) ->
+			_allNotes.findWhere({guid: guid}) ? _tree.findNote(guid)
 
 		# _setAttributes: (noteReference, attr) ->
 		# 	noteReference.save(attr)

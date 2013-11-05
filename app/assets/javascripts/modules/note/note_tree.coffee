@@ -39,6 +39,7 @@
 			textAfter = Note.prependStyling(textAfter)
 			hashMap = @dispatchCreation.apply @, arguments
 			newNote = new Note.Branch
+			newNote.addUndoCreate()
 			newNoteAttributes = Note.Branch.generateAttributes hashMap.createBeforeNote, hashMap.newNoteTitle
 			if hashMap.rankAdjustment then newNoteAttributes.rank += 1
 			newNote.save newNoteAttributes
@@ -65,8 +66,8 @@
 			newNoteTitle: textBefore
 			oldNoteNewTitle: textAfter
 			setFocusIn: noteCreatedFrom
-		deleteNote: (note) ->
-			note.addUndoDelete()
+		deleteNote: (note, isUndo) ->
+			if not isUndo then note.addUndoDelete()
 			descendants = note.getCompleteDescendantList()
 			_.each descendants, (descendant) ->
 				descendant.destroy()

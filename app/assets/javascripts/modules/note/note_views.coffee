@@ -99,7 +99,16 @@
 			return ->
 				clearTimeout timer
 				timer = setTimeout(updateCallBack, 3000)
-
+		# timeoutToUndo: (updateCallBack)-> 
+		# 	timer = null
+		# 	startTitle = startTitle || @model.get('title')
+		# 	startSubtitle = startSubtitle || @mode.get('subtitle')
+		# 	console.log('startTitle', startTitle)
+		# 	return ->
+		# 		clearTimeout timer
+		# 		timer = setTimeout(updateCallBack, 300)
+				
+		
 		mergeWithPreceding: (e) ->
 			e.stopPropagation()
 			if @testCursorPosition "isEmptyBeforeCursor"

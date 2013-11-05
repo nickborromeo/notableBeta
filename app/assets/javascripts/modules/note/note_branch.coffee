@@ -14,7 +14,6 @@
 			if @isNew()
 				@set 'created', Date.now()
 				@set 'guid', @generateGuid()
-				@addUndoCreate()
 		generateGuid: ->
 			guidFormat = "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx"
 			guid = guidFormat.replace(/[xy]/g, (c) ->
@@ -120,7 +119,8 @@
 		addUndoMove: =>
 			App.Action.addHistory 'moveNote', _.extend(@cloneAttributesNoSaving(@), {guid: @get('guid')})
 		addUndoCreate: =>
-			App.Action.addHistory 'createNote', {guid: @get 'guid'}
+			console.log "adding an undoCreate!"
+			App.Action.addHistory 'createNote', {guid: @get('guid')}
 		addUndoDelete: =>
 			removedBranchs = {ancestorNote: @getAllAtributes(), childNoteSet: []}
 			completeDescendants = @getCompleteDescendantList()
