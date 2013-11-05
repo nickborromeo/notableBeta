@@ -71,6 +71,10 @@ GEM
       warden (~> 1.2.3)
     erubis (2.7.0)
     eventmachine (1.0.3)
+    evernote-thrift (1.25.0)
+    evernote_oauth (0.2.1)
+      evernote-thrift
+      oauth (>= 0.4.1)
     execjs (2.0.1)
     fssm (0.2.10)
     google-analytics-rails (0.0.4)
@@ -91,6 +95,7 @@ GEM
       treetop (~> 1.4.8)
     mime-types (1.25)
     multi_json (1.8.0)
+    oauth (0.4.7)
     orm_adapter (0.4.0)
     pg (0.16.0)
     polyglot (0.3.3)
@@ -159,6 +164,7 @@ DEPENDENCIES
   coffee-script-source (= 1.5.0)
   compass-rails
   devise
+  evernote_oauth
   google-analytics-rails
   handlebars_assets
   jasminerice!

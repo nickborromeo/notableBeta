@@ -10,6 +10,7 @@ gem 'active_model_serializers'
 gem 'bootstrap-sass', github: 'thomas-mcdonald/bootstrap-sass'
 gem 'sass-rails', '>= 3.2'
 gem 'compass-rails'
+gem 'evernote_oauth'
 
 # Bundle edge Rails instead:
 # gem 'rails', :git => 'git://github.com/rails/rails.git'
