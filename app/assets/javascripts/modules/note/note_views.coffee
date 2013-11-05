@@ -263,7 +263,7 @@
 			Note.eventManager.trigger "setCursor:#{setFocusIn.get('guid')}"
 		deleteNote: (note) ->
 			(@jumpFocusUp note) unless (@jumpFocusDown note)
-			App.Action.addHistory('deleteNote', {note: note.getAllAtributes(), options:{}})
+			# App.Action.addHistory('deleteNote', {note: note.getAllAtributes(), options:{}})
 			@collection.deleteNote note
 		jumpFocusUp: (note, endOfLine = false) ->
 			previousNote = @collection.jumpFocusUp note
@@ -280,6 +280,7 @@
 		startMove: (ui, e, model) ->
 			# e.preventDefault();
 			# ui.noteContent.style.opacity = '0.7'
+			model.addUndoMove()
 			@drag = model
 			e.dataTransfer.effectAllowed = "move"
 			e.dataTransfer.setData("text", model.get 'guid')

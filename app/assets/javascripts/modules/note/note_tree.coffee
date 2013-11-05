@@ -66,6 +66,7 @@
 			oldNoteNewTitle: textAfter
 			setFocusIn: noteCreatedFrom
 		deleteNote: (note) ->
+			note.addUndoDelete()
 			descendants = note.getCompleteDescendantList()
 			_.each descendants, (descendant) ->
 				descendant.destroy()

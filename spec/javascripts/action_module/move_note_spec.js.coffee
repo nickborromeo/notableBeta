@@ -32,7 +32,7 @@
     Given -> @tree.findNote(@tester1GUID).set('rank', @tester1New['rank'])
     Given -> @tree.findNote(@tester1GUID).set('parent_id', @tester1New['parent_id'])
     #sets data for 2
-        #sets data for 1
+      #sets data for 1
     Given -> @tester2Previous = 
       depth: @tree.findNote(@tester2GUID).get('depth')
       rank: @tree.findNote(@tester2GUID).get('rank')
@@ -59,18 +59,21 @@
 
     Given -> App.Action.addHistory('moveNote',{
       guid: @tester1GUID
-      previous: @tester1Previous
-      current: @tester1New
+      depth: @tester1Previous.depth
+      rank: @tester1Previous.rank
+      parent_id: @tester1Previous.parent_id
       })
     Given -> App.Action.addHistory('moveNote',{
       guid: @tester2GUID
-      previous: @tester2Previous
-      current: @tester2New
+      depth: @tester2Previous.depth
+      rank: @tester2Previous.rank
+      parent_id: @tester2Previous.parent_id
       })
     Given -> App.Action.addHistory('moveNote',{
       guid: @tester3GUID
-      previous: @tester3Previous
-      current: @tester3New
+      depth: @tester3Previous.depth
+      rank: @tester3Previous.rank
+      parent_id: @tester3Previous.parent_id
       })
 
 
@@ -87,12 +90,15 @@
       Given -> App.Action.undo(@tree) # undo tester2 
       Given -> App.Action.undo(@tree) # undo tester1
       Then -> expect(App.Action._getUndoneHistory()[0]['type']).toEqual('moveNote')
-      And -> expect(App.Action._getUndoneHistory()[0]['changes']['previous']['parent_id']).toEqual(@tester3New['parent_id'])
-      And -> expect(App.Action._getUndoneHistory()[0]['changes']['current']['parent_id']).toEqual(@tester3Previous['parent_id'])
-      And -> expect(App.Action._getUndoneHistory()[1]['changes']['previous']['parent_id']).toEqual(@tester2New['parent_id'])
-      And -> expect(App.Action._getUndoneHistory()[1]['changes']['current']['parent_id']).toEqual(@tester2Previous['parent_id'])
-      And -> expect(App.Action._getUndoneHistory()[2]['changes']['previous']['parent_id']).toEqual(@tester1New['parent_id'])
-      And -> expect(App.Action._getUndoneHistory()[2]['changes']['current']['parent_id']).toEqual(@tester1Previous['parent_id'])
+      And -> expect(App.Action._getUndoneHistory()[0]['changes']['parent_id']).toEqual(@tester3New['parent_id'])
+      And -> expect(App.Action._getUndoneHistory()[0]['changes']['rank']).toEqual(@tester3New['rank'])
+      And -> expect(App.Action._getUndoneHistory()[0]['changes']['depth']).toEqual(@tester3New['depth'])
+      And -> expect(App.Action._getUndoneHistory()[1]['changes']['parent_id']).toEqual(@tester2New['parent_id'])
+      And -> expect(App.Action._getUndoneHistory()[1]['changes']['rank']).toEqual(@tester2New['rank'])
+      And -> expect(App.Action._getUndoneHistory()[1]['changes']['depth']).toEqual(@tester2New['depth'])
+      And -> expect(App.Action._getUndoneHistory()[2]['changes']['parent_id']).toEqual(@tester1New['parent_id'])
+      And -> expect(App.Action._getUndoneHistory()[2]['changes']['rank']).toEqual(@tester1New['rank'])
+      And -> expect(App.Action._getUndoneHistory()[2]['changes']['depth']).toEqual(@tester1New['depth'])
 
       describe "undo 'moveNote' and change values on the correct tree.", ->
         Then -> expect( @tree.findNote(@tester1GUID).get('rank') ).toEqual(@tester1Previous['rank'])
@@ -107,20 +113,4 @@
           And -> expect( @tree.findNote(@tester3GUID).get('rank') ).toEqual(@tester3Previous['rank'])
 
 
-    # end checking redo and undo stacks
-    # start checking for the existance 
-
-    # describe "undo last item on the list and remove from collection", ->
-    #   Given -> App.Action.undo(@tree) #delete note 3
-    #   Given -> App.Action.undo(@tree) #delete note 2
-    #   Then -> expect(=> @tree.findNote(@tester1GUID)).not.toThrow()
-    #   And -> expect(=> @tree.findNote(@tester2GUID)).toThrow("#{@tester2GUID} not found. Aborting")
-    #   And -> expect(=> @tree.findNote(@tester3GUID)).toThrow("#{@tester3GUID} not found. Aborting")
-
-    #   describe "then return the item to collection on 'redo' ", ->
-    #     Given -> App.Action.redo(@tree)
-    #     Given -> App.Action.redo(@tree)
-    #     Then -> expect(=> @tree.findNote(@tester1GUID)).not.toThrow()
-    #     And -> expect(=> @tree.findNote(@tester2GUID)).not.toThrow()
-    #     And -> expect(=> @tree.findNote(@tester3GUID)).not.toThrow()
 )

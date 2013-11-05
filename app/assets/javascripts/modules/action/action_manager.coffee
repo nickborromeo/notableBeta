@@ -19,9 +19,9 @@
 
 	_expects = 
 		createNote: ['guid'] #only needs GUID to erase
-		deleteNote: ['note','options'] #needs all data
+		# deleteNote: ['note','options'] #needs all data
 		deleteBranch: ['ancestorNote','childNoteSet']
-		moveNote: ['guid','previous','current'] #previous & current expect = {title:"", subtitle:""}
+		moveNote: ['guid','depth','rank','parent_id']
 		updateContent: ['guid','previous','current'] #previous & current= {depth:-, rank:-, parent_id:""}
 		checker: (actionType, changes) ->
 			return false unless @[actionType]?
@@ -32,41 +32,48 @@
 	
 
 	_revert = 
-		createNote: (tree, change) ->
+		createNote: (change) ->
 			noteReference = _allNotes.findWhere({guid: change.guid})
 			# noteAttributes = noteReference.getAllAtributes()
 			noteAttributes = noteReference.getAllAtributes()
 			_allNotes.remove noteReference
 			_tree.deleteNote noteReference
-			return {type: 'deleteNote', changes: {note: noteAttributes, options: {} } }
+			return {type: 'deleteBranch', changes: {note: noteAttributes, options: {} } }
 
-		deleteNote: (tree, change) ->
+		reverseDeleteNote: (attributes) ->
 			newBranch = new App.Note.Branch()
-			newBranch.save change.note
+			newBranch.save attributes
 			_allNotes.add newBranch
-			_tree.add newBranch, change.options
-			return {type: 'createNote', changes: { guid: change.note.guid }}
+			_tree.add newBranch
 
-		# deleteWholeBranch: (tree, change) ->
-		# 	tree.insertInTree change.ancestorNote
-		# 	for note in change.childNoteSet
-		# 		tree.insertInTree note
-		# 	return {type: 'createNote', changes: { guid: change.ancestorNote.guid }}
+		deleteBranch: (change) ->
+			@reverseDeleteNote(change.ancestorNote)
+			for attributes in change.childNoteSet
+				@reverseDeleteNote(attributes)
+			return {type: 'createNote', changes: { guid: change.ancestorNote.guid }}
 
-		moveNote: (tree, change) ->
+		moveNote: (change) ->
 			noteReference = _allNotes.findWhere({guid: change.guid})
 			parent_id = noteReference.get('parent_id') 
-			if parent_id is 'root'
-				_tree.removeFromCollection _tree, noteReference
-			else
-				_tree.removeFromCollection _allNotes.findWhere({guid: parent_id}).collection, noteReference
+			parentCollection = if parent_id is 'root' then _tree else _allNotes.findWhere({guid: parent_id}).collection
+			# console.log "the change is:", change
+			_tree.removeFromCollection parentCollection, noteReference
+			# if parent_id is 'root'
+			# 	_tree.removeFromCollection _tree, noteReference
+			# else
+			# 	_tree.removeFromCollection _allNotes.findWhere({guid: parent_id}).collection, noteReference
 
-			# @_setAttributes(noteReference, change.previous)
-			noteReference.save(change.previous)
+			changeTemp =
+				guid: change.guid
+				depth: noteReference.get('depth')
+				rank: noteReference.get('rank')
+				parent_id: parent_id
+
+			noteReference.save change
 			_tree.add noteReference
-			return {type: 'moveNote', changes: @_swapPrevAndCurrent(change)}
+			return {type:'moveNote', changes: changeTemp}
 
-		updateContent: (tree, change) ->
+		updateContent: (change) ->
 			noteReference = tree.findNote change.guid
 			noteReference.save(change.previous)
 			return {type: 'updateContent', changes: @_swapPrevAndCurrent(change)}
@@ -74,15 +81,15 @@
 		_swapPrevAndCurrent: (change) ->
 			tempSwap = {}
 			tempSwap['guid'] = change.guid
-			tempSwap['previous'] = change.current
-			tempSwap['current'] = change.previous
+			tempSwap['previous'] = _.clone(change.current)
+			tempSwap['current'] = _.clone(change.previous)
 			return tempSwap
 
-		_setAttributes: (noteReference, attr) ->
-			noteReference.save(attr)
-			for key, val of attr
-				noteReference.set key, val
-			return noteReference
+		# _setAttributes: (noteReference, attr) ->
+		# 	noteReference.save(attr)
+		# 	for key, val of attr
+		# 		noteReference.set key, val
+		# 	return noteReference
 
 			#only for tests:
 
@@ -101,15 +108,15 @@
 		if _undoStack.length >= _historyLimit then _undoStack.shift()
 		_undoStack.push {type: actionType, changes: changes}
 
-	@undo = (tree) ->
+	@undo = ->
 		throw "nothing to undo" unless _undoStack.length > 0
 		change = _undoStack.pop()
-		_redoStack.push _revert[change.type](tree, change.changes)
+		_redoStack.push _revert[change.type](change.changes)
 
-	@redo = (tree) ->
+	@redo = ->
 		throw "nothing to redo" unless _redoStack.length > 0
 		change = _redoStack.pop()
-		_undoStack.push _revert[change.type](tree, change.changes)
+		_undoStack.push _revert[change.type](change.changes)
 
 	@exportToServer = ->
 		#do something if nessecary 

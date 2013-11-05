@@ -64,13 +64,13 @@
 		describe "add 'moveNote' item to actionHistory", ->
 			Given -> App.Action.addHistory("moveNote",{
 				guid: "guid3"
-				previous: {depth:0, rank:3, parent_id:"root"}
-				current: {depth:1, rank:1, parent_id:"guid2"}})
+				depth: 0
+				rank: 3
+				parent_id: "root"})
 			Then -> expect(App.Action._getActionHistory().length).toEqual(1)
 			And -> expect(App.Action._getActionHistory()[0]['type']).toEqual('moveNote')
 			And -> expect(App.Action._getActionHistory()[0]['changes']['guid']).toEqual('guid3')
-			And -> expect(App.Action._getActionHistory()[0]['changes']['previous']['parent_id']).toEqual('root')
-			And -> expect(App.Action._getActionHistory()[0]['changes']['current']['parent_id']).toEqual('guid2')
+			And -> expect(App.Action._getActionHistory()[0]['changes']['parent_id']).toEqual('root')
 
 		describe "add 'updateContent' item to actionHistory", ->
 			Given -> App.Action.addHistory("updateContent",{
