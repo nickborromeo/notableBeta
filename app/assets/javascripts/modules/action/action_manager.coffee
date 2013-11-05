@@ -22,7 +22,7 @@
 		# deleteNote: ['note','options'] #needs all data
 		deleteBranch: ['ancestorNote','childNoteSet']
 		moveNote: ['guid','depth','rank','parent_id']
-		updateContent: ['guid','previous','current'] #previous & current= {depth:-, rank:-, parent_id:""}
+		updateContent: ['guid','title','subtitle'] 
 		checker: (actionType, changes) ->
 			return false unless @[actionType]?
 			return false unless changes?
@@ -33,13 +33,16 @@
 	_revert = 
 		createNote: (change) ->
 			reference = @_getReference(change.guid)
-			noteAttributes = reference.note.getAllAtributes()
+
+			removedBranchs = {ancestorNote: reference.note.getAllAtributes(), childNoteSet: []}
+			completeDescendants = reference.note.getCompleteDescendantList()
+			_.each completeDescendants, (descendant) ->
+				removedBranchs.childNoteSet.push(descendant.getAllAtributes())
+
 			_allNotes.remove reference.note
 			_tree.deleteNote reference.note, true
-			# FIXME:
-			# this is the only function that will automatically add 
-			# upon calling _tree.deleteNote itself to the undo delete
-			return {type: 'deleteBranch', changes: {note: noteAttributes, options: {} } }
+			#trigger update view:
+			return {type: 'deleteBranch', changes: removedBranchs }
 
 		reverseDeleteNote: (attributes) ->
 			newBranch = new App.Note.Branch()
@@ -53,6 +56,7 @@
 			@reverseDeleteNote(change.ancestorNote)
 			for attributes in change.childNoteSet
 				@reverseDeleteNote(attributes)
+			#trigger update view:
 			return {type: 'createNote', changes: { guid: change.ancestorNote.guid }}
 
 		moveNote: (change) ->
@@ -67,19 +71,20 @@
 
 			reference.note.save change
 			_tree.add reference.note
+			#trigger update view!!!!!!!!!!
 			return {type:'moveNote', changes: changeTemp}
 
 		updateContent: (change) ->
 			reference = @_getReference(change.guid)
-			reference.note.save(change.previous)
-			return {type: 'updateContent', changes: @_swapPrevAndCurrent(change)}
 
-		_swapPrevAndCurrent: (change) ->
-			tempSwap = {}
-			tempSwap['guid'] = change.guid
-			tempSwap['previous'] = _.clone(change.current)
-			tempSwap['current'] = _.clone(change.previous)
-			return tempSwap
+			changeTemp =
+				guid: change.guid
+				title: reference.note.get('title')
+				subtitle: reference.note.get('subtitle')
+
+			reference.note.save change
+			reference.note.trigger 'change'
+			return {type: 'updateContent', changes: changeTemp}
 
 		_getReference: (guid) ->
 			note = @_findANote(guid)
@@ -89,14 +94,6 @@
 
 		_findANote: (guid) ->
 			_allNotes.findWhere({guid: guid}) ? _tree.findNote(guid)
-
-		# _setAttributes: (noteReference, attr) ->
-		# 	noteReference.save(attr)
-		# 	for key, val of attr
-		# 		noteReference.set key, val
-		# 	return noteReference
-
-			#only for tests:
 
 	clearundoneHistory = ->
 		# undoneHistory.reverse()

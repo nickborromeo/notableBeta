@@ -117,9 +117,12 @@
 			window.localStorage.setItem 'changeQueue', JSON.stringify(changeQueue)
 
 		addUndoMove: =>
-			App.Action.addHistory 'moveNote', _.extend(@cloneAttributesNoSaving(@), {guid: @get('guid')})
+			App.Action.addHistory 'moveNote', {
+				guid: @get('guid')
+				parent_id: @get('parent_id')
+				depth: @get('depth')
+				rank: @get('rank')}
 		addUndoCreate: =>
-			console.log "adding an undoCreate!"
 			App.Action.addHistory 'createNote', {guid: @get('guid')}
 		addUndoDelete: =>
 			removedBranchs = {ancestorNote: @getAllAtributes(), childNoteSet: []}
@@ -130,8 +133,8 @@
 		addUndoUpdate: (newTitle, newSubtitle) =>
 			App.Action.addHistory 'updateContent', {
 				guid: @get('guid')
-				previous: {title: @get('title'),subtitle: @get('subtitle') }
-				current: {title: newTitle,subtitle: newSubtitle }
+				title: @get('title')
+				subtitle: @get('subtitle')
 			}
 
 

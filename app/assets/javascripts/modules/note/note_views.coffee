@@ -63,10 +63,10 @@
 			@.$el.on 'keydown', null, 'meta+s', @saveNote.bind @
 			# @.$el.on 'keydown', null, 'ctrl+z', App.Action.undo #@ needs to be the tree
 			# @.$el.on 'keydown', null, 'meta+z', App.Action.undo #@ needs to be the tree
-			@.$el.on 'keydown', null, 'ctrl+shift+u', @triggerUndoEvent #@ needs to be the tree
-			@.$el.on 'keydown', null, 'meta+shift+u', @triggerUndoEvent #@ needs to be the tree
-			@.$el.on 'keydown', null, 'ctrl+shift+y', @triggerRedoEvent #@ needs to be the tree
-			@.$el.on 'keydown', null, 'meta+shift+y', @triggerRedoEvent #@ needs to be the tree
+			@.$el.on 'keydown', null, 'ctrl+z', @triggerUndoEvent #@ needs to be the tree
+			@.$el.on 'keydown', null, 'meta+z', @triggerUndoEvent #@ needs to be the tree
+			@.$el.on 'keydown', null, 'ctrl+y', @triggerRedoEvent #@ needs to be the tree
+			@.$el.on 'keydown', null, 'meta+y', @triggerRedoEvent #@ needs to be the tree
 			# needs to make sure @ is proper context ie @ needs to be 
 
 		triggerRedoEvent: (e) =>
@@ -140,7 +140,7 @@
 				@model.addUndoUpdate(noteTitle,noteSubtitle)
 				@model.save
 					title: noteTitle
-					noteSubtitle: noteSubtitle
+					subtitle: noteSubtitle
 				@model.saveLocally()
 			noteTitle
 		getNoteTitle: ->
