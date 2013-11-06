@@ -27,7 +27,7 @@
 			$(".navbar-header").toggleClass("navbar-shift")
 			$(".navbar-right").toggleClass("navbar-shift")
 		checkForEvent: ->
-			App.Alert.checkForClickBinding()
+			App.Notify.checkForClickBinding()
 
 	class Scaffold.ContentView extends Marionette.Layout
 		template: "scaffold/content"

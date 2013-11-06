@@ -1,12 +1,12 @@
-@Notable.module("Alert", (Scaffold, App, Backbone, Marionette, $, _) ->
+@Notable.module("Notify", (Scaffold, App, Backbone, Marionette, $, _) ->
   # Private --------------------------
   _alertTimeOut = 3000
   _fadeOutTime = 300
   _alertTimeOutID = null
   _alertFadeOutID = null
   _regionReference = null
-  _currentAlert: ""
-  
+  _currentAlert = ""
+
   _alertTypes = 
     saving: "saving..."
     saved: "your notes have been saved!"
@@ -16,24 +16,32 @@
     updating: "updating data..."
     complete: "done!"
 
+  _alertClasses = 
+    success: 'success-notification' # green
+    info: 'info-notification' # gray
+    warning: 'warning-notification' #orange
+    danger: 'danger-notification' #red
+
+
   _clickFunctionBinding =
-    deleted: ->
+    deleted: =>
       App.Action.undo()
       @flushAlert()
 
-  _alert = (alertType) ->
+  _alert = (alertType, alertClass) ->
+    $('#notification-region').html("<div class='notify #{_alertClasses[alertClass]}'>#{_alertTypes[alertType]}</div>")
     _currentAlert = alertType
-    $('#notification-region').html("<div>#{_alertTypes[alertType]}</div>")
-    @_alertTimeOutID = setTimeout( _fadeAndFlush , _alertTimeOut)
+    _alertTimeOutID = setTimeout( _fadeAndFlush , _alertTimeOut)
 
   _fadeAndFlush = ->
     $('#notification-region div').fadeOut(_fadeOutTime)
     _alertFadeOutID = setTimeout( @flushAlert, _fadeOutTime)
 
-  @now = (alertType) ->
-    throw "not valid alert" unless _alertTypes[alertType]?
+  @now = (alertType, alertClass) ->
+    throw "invalid alert" unless _alertTypes[alertType]?
+    throw "invalid alert class" unless _alertClasses[alertClass]?
     @flushAlert()
-    _alert(alertType)
+    _alert(alertType, alertClass)
 
   @later = () ->
     throw "can only alert strings!" if typeof message isnt 'String'
@@ -45,9 +53,10 @@
     _alertTimeOutID = null
     _alertFadeOutID = null
     $('#notification-region').html('')
-    _currentAlert = ""
+    @_currentAlert = ""
 
   @checkForClickBinding = ->
-    if @_clickFunctionBinding[@_currentAlert]? then @_clickFunctionBinding[@_currentAlert]()
+    throw "no click binding" unless _clickFunctionBinding[_currentAlert]?
+    _clickFunctionBinding[_currentAlert]()
 
 )
