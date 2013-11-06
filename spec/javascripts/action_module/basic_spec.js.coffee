@@ -44,22 +44,11 @@
 			And -> expect(App.Action._getActionHistory()[0]['type']).toEqual('createNote')
 			And -> expect(App.Action._getActionHistory()[0]['changes']['guid']).toEqual('guid1')
 
-		describe "add 'deleteNote' item to actionHistory", ->
-			Given -> App.Action.addHistory("deleteNote",{
-				note:{
-					created_at: "timeStamp1"
-					depth: 0
-					guid: "guid2"
-					id: 1
-					parent_id: "root"
-					rank: 2
-					title: "this is the first title ever"
-					subtitle: ""},
-				options:{}
-				})
+		describe "add 'deleteBranch' item to actionHistory", ->
+			Given -> App.Action.addHistory("deleteBranch", { ancestorNote: {guid:'guid2'}, childNoteSet: {}} )
 			Then -> expect(App.Action._getActionHistory().length).toEqual(1)
-			And -> expect(App.Action._getActionHistory()[0]['type']).toEqual('deleteNote')
-			And -> expect(App.Action._getActionHistory()[0]['changes']['note']['guid']).toEqual('guid2')
+			And -> expect(App.Action._getActionHistory()[0]['type']).toEqual('deleteBranch')
+			And -> expect(App.Action._getActionHistory()[0]['changes']['ancestorNote']['guid']).toEqual('guid2')
 
 		describe "add 'moveNote' item to actionHistory", ->
 			Given -> App.Action.addHistory("moveNote",{
@@ -75,12 +64,12 @@
 		describe "add 'updateContent' item to actionHistory", ->
 			Given -> App.Action.addHistory("updateContent",{
 				guid: "guid2"
-				previous: {title:"this is the second title ever", subtitle:""}
-				current: {title:"second title has been changed! 1", subtitle:""}})
+				title:"this is the second title ever"
+				subtitle:""})
 			Then -> expect(App.Action._getActionHistory().length).toEqual(1)
 			And -> expect(App.Action._getActionHistory()[0]['type']).toEqual('updateContent')
 			And -> expect(App.Action._getActionHistory()[0]['changes']['guid']).toEqual('guid2')
-			And -> expect(App.Action._getActionHistory()[0]['changes']['previous']['title']).toEqual("this is the second title ever")
+			And -> expect(App.Action._getActionHistory()[0]['changes']['title']).toEqual("this is the second title ever")
 
 
 		describe "get and set history limit", ->

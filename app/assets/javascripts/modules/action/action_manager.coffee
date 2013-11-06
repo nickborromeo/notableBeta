@@ -52,7 +52,6 @@
 
 		moveNote: (change) ->
 			reference = @_getReference(change.guid)
-			_tree.removeFromCollection _tree, reference.note
 
 			changeTemp =
 				guid: change.guid
@@ -60,6 +59,10 @@
 				rank: reference.note.get('rank')
 				parent_id: reference.parent_id
 
+			console.log "old changes: ", change
+			console.log "new changes: ", changeTemp
+			
+			_tree.removeFromCollection _tree, reference.note
 			reference.note.save change
 			_tree.add reference.note
 			#trigger update view!!!!!!!!!!
@@ -73,8 +76,13 @@
 				title: reference.note.get('title')
 				subtitle: reference.note.get('subtitle')
 
+			console.log "old changes: ", change
+			console.log "new changes: ", changeTemp
+
+			_tree.removeFromCollection _tree, reference.note
 			reference.note.save change
-			reference.note.trigger 'change'
+			_tree.add reference.note
+
 			return {type: 'updateContent', changes: changeTemp}
 
 		_getReference: (guid) ->

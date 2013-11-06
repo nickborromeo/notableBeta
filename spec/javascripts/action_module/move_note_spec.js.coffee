@@ -31,6 +31,7 @@
     Given -> @tree.findNote(@tester1GUID).set('depth', @tester1New['depth'])
     Given -> @tree.findNote(@tester1GUID).set('rank', @tester1New['rank'])
     Given -> @tree.findNote(@tester1GUID).set('parent_id', @tester1New['parent_id'])
+    Given -> @tree.findNote(@tester1GUID).save()
     #sets data for 2
       #sets data for 1
     Given -> @tester2Previous = 
@@ -44,6 +45,8 @@
     Given -> @tree.findNote(@tester2GUID).set('depth', @tester2New['depth'])
     Given -> @tree.findNote(@tester2GUID).set('rank', @tester2New['rank'])
     Given -> @tree.findNote(@tester2GUID).set('parent_id', @tester2New['parent_id'])
+    Given -> @tree.findNote(@tester2GUID).save()
+
     #sets data for 3
     Given -> @tester3Previous = 
       depth: @tree.findNote(@tester3GUID).get('depth')
@@ -56,6 +59,8 @@
     Given -> @tree.findNote(@tester3GUID).set('depth', @tester3New['depth'])
     Given -> @tree.findNote(@tester3GUID).set('rank', @tester3New['rank'])
     Given -> @tree.findNote(@tester3GUID).set('parent_id', @tester3New['parent_id'])
+    Given -> @tree.findNote(@tester3GUID).save()
+
 
     Given -> App.Action.addHistory('moveNote',{
       guid: @tester1GUID
@@ -84,6 +89,9 @@
     And -> expect( App.Action._getActionHistory()[0]['changes']['guid']).toEqual(@tester1GUID)
     And -> expect( App.Action._getActionHistory()[1]['changes']['guid']).toEqual(@tester2GUID)
     And -> expect( App.Action._getActionHistory()[2]['changes']['guid']).toEqual(@tester3GUID)
+    And -> expect( App.Action._getActionHistory()[2]['changes']['rank']).toEqual(@tester3Previous.rank)
+    And -> expect( App.Action._getActionHistory()[2]['changes']['depth']).toEqual(@tester3Previous.depth)
+    And -> expect( App.Action._getActionHistory()[2]['changes']['parent_id']).toEqual(@tester3Previous.parent_id)
 
     describe "undo 'moveNote' and create redoItem with correct properties.", ->
       Given -> App.Action.undo(@tree) # undo tester3
