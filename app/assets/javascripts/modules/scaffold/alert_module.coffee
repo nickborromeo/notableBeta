@@ -6,12 +6,15 @@
   _alertFadeOutID = null
   _regionReference = null
   _currentAlert: ""
+  
   _alertTypes = 
     saving: "saving..."
-    saved: "Your notes have been saved!"
+    saved: "your notes have been saved!"
     deleted: "message erased click to <a> undo </a>"
     undo: "change undone"
     redo: "change redone"
+    updating: "updating data..."
+    complete: "done!"
 
   _clickFunctionBinding =
     deleted: ->
