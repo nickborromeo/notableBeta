@@ -10,7 +10,6 @@
 
 	_expects = 
 		createNote: ['guid'] #only needs GUID to erase
-		# deleteNote: ['note','options'] #needs all data
 		deleteBranch: ['ancestorNote','childNoteSet']
 		moveNote: ['guid','depth','rank','parent_id']
 		updateContent: ['guid','title','subtitle'] 
@@ -82,7 +81,6 @@
 			_tree.removeFromCollection _tree, reference.note
 			reference.note.save change
 			_tree.add reference.note
-
 			return {type: 'updateContent', changes: changeTemp}
 
 		_getReference: (guid) ->
