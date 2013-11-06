@@ -1,11 +1,17 @@
 @Notable.module("Notify", (Scaffold, App, Backbone, Marionette, $, _) ->
   # Private --------------------------
   _alertTimeOut = 3000
-  _fadeOutTime = 300
+  _fadeOutTime = 500
   _alertTimeOutID = null
   _alertFadeOutID = null
   _regionReference = null
   _currentAlert = ""
+
+  _alertClasses = 
+    success: 'success-notification' # green
+    info: 'info-notification' # gray
+    warning: 'warning-notification' #orange
+    danger: 'danger-notification' #red
 
   _alertTypes = 
     saving: "saving..."
@@ -15,14 +21,11 @@
     redo: "change redone"
     updating: "updating data..."
     complete: "done!"
+    connectionLost: "Connection has been lost!"
+    connected: "established connection"
 
-  _alertClasses = 
-    success: 'success-notification' # green
-    info: 'info-notification' # gray
-    warning: 'warning-notification' #orange
-    danger: 'danger-notification' #red
-
-
+  # functions can be added here with the SAME name as the alertType.
+  # these will be called upon CLICKING the notification during an alert
   _clickFunctionBinding =
     deleted: =>
       App.Action.undo()
@@ -43,8 +46,10 @@
     @flushAlert()
     _alert(alertType, alertClass)
 
-  @later = () ->
-    throw "can only alert strings!" if typeof message isnt 'String'
+  @later = (alertType, alertClass) ->
+    throw "invalid alert" unless _alertTypes[alertType]?
+    throw "invalid alert class" unless _alertClasses[alertClass]?
+
     #maybe this is a bad idea
 
   @flushAlert = ->
