@@ -55,4 +55,73 @@
         When -> App.Action.redo(@tree) # redo tester1
         Then -> expect( @tree.findNote(@tester1GUID).get('rank') ).toEqual(@tester1New['rank'])
 
+
+
+    # tests drop after deeper in a tree **this also STACKS TWO undo Moves!
+    describe "a test with drop after deeper in the tree", ->
+      Given -> @tester2Previous = 
+        depth: @tree.findNote(@tester2GUID).get('depth')
+        rank: @tree.findNote(@tester2GUID).get('rank')
+        parent_id: @tree.findNote(@tester2GUID).get('parent_id')
+        
+      Given -> @tree.findNote(@tester2GUID).addUndoMove()
+      Given -> @tree.dropBefore @tree.findNote(@tester2GUID), @tree.findNote('11369365-3436-4e15-b8e2-2aa20b5f915e')
+      Given -> @tree.tabNote @tree.findNote(@tester2GUID)
+      
+      Given -> @tester2New = 
+        depth: @tree.findNote(@tester2GUID).get('depth')
+        rank: @tree.findNote(@tester2GUID).get('rank')
+        parent_id: @tree.findNote(@tester2GUID).get('parent_id')  
+
+      Then -> expect( @tree.findNote(@tester2GUID).get('parent_id') ).toEqual(@tester2New['parent_id'])
+      And -> expect( App.Action._getActionHistory().length ).toEqual(2)
+      And -> expect( App.Action._getActionHistory()[1]['changes']['guid']).toEqual(@tester2GUID)
+
+      describe "undo 'moveNote' and create redoItem with correct properties.", ->
+        When -> App.Action.undo(@tree) # undo tester3
+        Then -> expect(App.Action._getUndoneHistory()[0]['type']).toEqual('moveNote')
+        And -> expect(App.Action._getUndoneHistory()[0]['changes']['parent_id']).toEqual(@tester2New['parent_id'])
+        And -> expect(App.Action._getUndoneHistory()[0]['changes']['rank']).toEqual(@tester2New['rank'])
+        And -> expect(App.Action._getUndoneHistory()[0]['changes']['depth']).toEqual(@tester2New['depth'])
+
+        describe "undo 'moveNote' and change values on the correct tree.", ->
+          Then -> expect( @tree.findNote(@tester2GUID).get('rank') ).toEqual(@tester2Previous['rank'])
+            
+        describe "redo 'moveNote' and change value on the tree", ->
+          When -> App.Action.redo(@tree) # redo tester2
+          Then -> expect( @tree.findNote(@tester2GUID).get('rank') ).toEqual(@tester2New['rank'])
+
+      # tests drop after deeper in a tree **this also STACKS THREE undo Moves!
+      describe "a test with drop after deeper in the tree", ->
+        Given -> @tester3Previous = 
+          depth: @tree.findNote(@tester3GUID).get('depth')
+          rank: @tree.findNote(@tester3GUID).get('rank')
+          parent_id: @tree.findNote(@tester3GUID).get('parent_id')
+          
+        Given -> @tree.findNote(@tester3GUID).addUndoMove()
+        Given -> @tree.dropBefore @tree.findNote(@tester3GUID), @tree.findNote('11369365-3436-4e15-b8e2-2aa20b5f915e')
+        Given -> @tree.tabNote @tree.findNote(@tester3GUID)
+        
+        Given -> @tester3New = 
+          depth: @tree.findNote(@tester3GUID).get('depth')
+          rank: @tree.findNote(@tester3GUID).get('rank')
+          parent_id: @tree.findNote(@tester3GUID).get('parent_id')  
+
+        Then -> expect( @tree.findNote(@tester3GUID).get('parent_id') ).toEqual(@tester3New['parent_id'])
+        And -> expect( App.Action._getActionHistory().length ).toEqual(3)
+        And -> expect( App.Action._getActionHistory()[2]['changes']['guid']).toEqual(@tester3GUID)
+
+        describe "undo 'moveNote' and create redoItem with correct properties.", ->
+          When -> App.Action.undo(@tree) # undo tester3
+          Then -> expect(App.Action._getUndoneHistory()[0]['type']).toEqual('moveNote')
+          And -> expect(App.Action._getUndoneHistory()[0]['changes']['parent_id']).toEqual(@tester3New['parent_id'])
+          And -> expect(App.Action._getUndoneHistory()[0]['changes']['rank']).toEqual(@tester3New['rank'])
+          And -> expect(App.Action._getUndoneHistory()[0]['changes']['depth']).toEqual(@tester3New['depth'])
+
+          describe "undo 'moveNote' and change values on the correct tree.", ->
+            Then -> expect( @tree.findNote(@tester3GUID).get('rank') ).toEqual(@tester3Previous['rank'])
+              
+          describe "redo 'moveNote' and change value on the tree", ->
+            When -> App.Action.redo(@tree) # redo tester3
+            Then -> expect( @tree.findNote(@tester3GUID).get('rank') ).toEqual(@tester3New['rank'])
 )
