@@ -3,19 +3,19 @@
 	Given -> App.Note.Branch.prototype.sync = ->
 	Given -> App.Note.Tree.prototype.sync = ->
 
-	Given -> @noteCollection = new App.Note.Collection()
-	Given -> @tree = new App.Note.Tree()
-	Given -> window.buildTestTree @noteCollection, @tree
+	Given -> @noteCollection1s = new App.Note.Collection()
+	Given -> @tree1 = new App.Note.Tree()
+	Given -> window.buildTestTree @noteCollection1s, @tree1
 	Given -> App.Action._resetActionHistory()
-	Given -> App.Action.setTree @tree
-	Given -> App.Action.setAllNotesByDepth @noteCollection
+	Given -> App.Action.setTree @tree1
+	Given -> App.Action.setAllNotesByDepth @noteCollection1s
 
 	# describe "Action manager should have history length of 0", ->
 	# 	Then -> expect(App.Action._getActionHistory().length).toEqual(0)
 	describe "Fake tree & note collection should have populated test data", ->
-		Then -> expect(@noteCollection.length).toEqual(14)
+		Then -> expect(@noteCollection1s.length).toEqual(14)
 		And -> expect(App.Action._getNoteCollection().length).toEqual(14)
-		And -> expect(@tree.length).toEqual(5)
+		And -> expect(@tree1.length).toEqual(5)
 
 	describe "Action manager should", ->
 		#adds the "creation" to history
@@ -27,19 +27,19 @@
 		Given -> App.Action.addHistory('createNote',{ guid: @tester3GUID})
 
 		describe "expect testers to exist", ->
-			Then -> expect(=> @tree.findNote(@tester1GUID)).not.toThrow()
-			And -> expect(=> @tree.findNote(@tester2GUID)).not.toThrow()
-			And -> expect(=> @tree.findNote(@tester3GUID)).not.toThrow()
+			Then -> expect(=> @tree1.findNote(@tester1GUID)).not.toThrow()
+			And -> expect(=> @tree1.findNote(@tester2GUID)).not.toThrow()
+			And -> expect(=> @tree1.findNote(@tester3GUID)).not.toThrow()
 			And -> expect(App.Action._getActionHistory().length).toEqual(3)
 			And -> expect(App.Action._getActionHistory()[0]['changes']['guid']).toEqual(@tester1GUID)
 			And -> expect(App.Action._getActionHistory()[1]['changes']['guid']).toEqual(@tester2GUID)
 			And -> expect(App.Action._getActionHistory()[2]['changes']['guid']).toEqual(@tester3GUID)
-			And -> expect(@noteCollection.length).toEqual(14)
+			And -> expect(@noteCollection1s.length).toEqual(14)
 
 		describe "undo last items on list, and add to '_redoStack'", ->
-			Given -> App.Action.undo(@tree) #delete Note 3
-			Given -> App.Action.undo(@tree) #delete Note 2
-			Given -> App.Action.undo(@tree) #delete Note 1 ?????*****************
+			Given -> App.Action.undo(@tree1) #delete Note 3
+			Given -> App.Action.undo(@tree1) #delete Note 2
+			Given -> App.Action.undo(@tree1) #delete Note 1 ?????*****************
 			Then -> expect(App.Action._getUndoneHistory().length).toEqual(3)
 			And -> expect(App.Action._getActionHistory().length).toEqual(0)
 
@@ -54,8 +54,8 @@
 				And -> expect(App.Action._getUndoneHistory()[0]['changes']['ancestorNote']['created_at']).toEqual(jasmine.any(String))
 
 			describe "give it back to '_undoStack' on 'redo' ", ->
-				Given -> App.Action.redo(@tree) #create Note 1
-				Given -> App.Action.redo(@tree) #create Note 2
+				Given -> App.Action.redo(@tree1) #create Note 1
+				Given -> App.Action.redo(@tree1) #create Note 2
 				Then -> expect(App.Action._getActionHistory().length).toEqual(2)
 				And -> expect(App.Action._getUndoneHistory().length).toEqual(1)
 
@@ -67,17 +67,17 @@
 		# start checking for the existance 
 
 		describe "undo last item on the list and remove from collection", ->
-			Given -> App.Action.undo(@tree) #delete note 3
-			Given -> App.Action.undo(@tree) #delete note 2
-			Then -> expect(=> @tree.findNote(@tester1GUID)).not.toThrow()
-			And -> expect(=> @tree.findNote(@tester2GUID)).toThrow("#{@tester2GUID} not found. Aborting")
-			And -> expect(=> @tree.findNote(@tester3GUID)).toThrow("#{@tester3GUID} not found. Aborting")
+			Given -> App.Action.undo(@tree1) #delete note 3
+			Given -> App.Action.undo(@tree1) #delete note 2
+			Then -> expect(=> @tree1.findNote(@tester1GUID)).not.toThrow()
+			And -> expect(=> @tree1.findNote(@tester2GUID)).toThrow("#{@tester2GUID} not found. Aborting")
+			And -> expect(=> @tree1.findNote(@tester3GUID)).toThrow("#{@tester3GUID} not found. Aborting")
 
 			describe "then return the item to collection on 'redo' ", ->
-				Given -> App.Action.redo(@tree)
-				Given -> App.Action.redo(@tree)
-				Then -> expect(=> @tree.findNote(@tester1GUID)).not.toThrow()
-				And -> expect(=> @tree.findNote(@tester2GUID)).not.toThrow()
-				And -> expect(=> @tree.findNote(@tester3GUID)).not.toThrow()
+				Given -> App.Action.redo(@tree1)
+				Given -> App.Action.redo(@tree1)
+				Then -> expect(=> @tree1.findNote(@tester1GUID)).not.toThrow()
+				And -> expect(=> @tree1.findNote(@tester2GUID)).not.toThrow()
+				And -> expect(=> @tree1.findNote(@tester3GUID)).not.toThrow()
 
 )
