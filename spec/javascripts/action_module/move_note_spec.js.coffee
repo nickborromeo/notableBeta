@@ -110,17 +110,21 @@
 
         describe "undo 'moveNote' and create redoItem with correct properties.", ->
           When -> App.Action.undo(@tree) # undo tester3
-          When -> App.Action.undo(@tree) # undo tester3
-          Then -> expect(App.Action._getUndoneHistory()[0]['type']).toEqual('moveNote')
+          Then -> expect(App.Action._getUndoneHistory().length).toEqual(1)
+          And -> expect(App.Action._getUndoneHistory()[0]['type']).toEqual('moveNote')
           And -> expect(App.Action._getUndoneHistory()[0]['changes']['parent_id']).toEqual(@tester3New['parent_id'])
           And -> expect(App.Action._getUndoneHistory()[0]['changes']['rank']).toEqual(@tester3New['rank'])
           And -> expect(App.Action._getUndoneHistory()[0]['changes']['depth']).toEqual(@tester3New['depth'])
+
+          describe "tabs should be marked as move events", ->
+            When -> @tree.tabNote @tree.findNote(@tester3GUID)
+            Then -> expect( App.Action._getActionHistory().length ).toEqual(3)
+            And -> expect(App.Action._getActionHistory()[2]['type']).toEqual('moveNote')
 
           describe "undo 'moveNote' and change values on the correct tree.", ->
             Then -> expect( @tree.findNote(@tester3GUID).get('rank') ).toEqual(@tester3Previous['rank'])
               
           describe "redo 'moveNote' and change value on the tree", ->
-            When -> App.Action.redo(@tree) # redo tester3
             When -> App.Action.redo(@tree) # redo tester3
             Then -> expect( @tree.findNote(@tester3GUID).get('rank') ).toEqual(@tester3New['rank'])
 )
