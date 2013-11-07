@@ -90,7 +90,7 @@
 				args = ['change', event, @model].concat(Note.sliceArgs arguments, 0)
 				Note.eventManager.trigger.apply(Note.eventManager, args)
 
-		timeoutAndSave: (updateCallBack)-> 
+		timeoutAndSave: (updateCallBack)->
 			timer = null
 			return ->
 				clearTimeout timer
