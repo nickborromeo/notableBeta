@@ -124,7 +124,7 @@
 			'ctrl+i meta+i': 'italic',
 			'ctrl+u meta+u': 'underline',
 			'ctrl+k meta+k': 'strikeThrough'
-			// 'ctrl+z meta+z': 'undo'
+			// 'ctrl+z meta+z': 'undo',
 			// 'ctrl+y meta+y meta+shift+z': 'redo'
 		},
 		commandRole: 'edit',

@@ -39,7 +39,7 @@
 			newBranch.save attributes
 			_allNotes.add newBranch
 			reference = @_getReference newBranch.get('guid')
-			_tree.add newBranch
+			_tree.insertInTree newBranch
 			# reference.parentCollection.add newBranch
 
 		deleteBranch: (change) ->
@@ -58,12 +58,9 @@
 				rank: reference.note.get('rank')
 				parent_id: reference.parent_id
 
-			console.log "old changes: ", change
-			console.log "new changes: ", changeTemp
-			
-			_tree.removeFromCollection _tree, reference.note
+			_tree.removeFromCollection reference.parentCollection, reference.note
 			reference.note.save change
-			_tree.add reference.note
+			_tree.insertInTree reference.note
 			#trigger update view!!!!!!!!!!
 			return {type:'moveNote', changes: changeTemp}
 
@@ -75,18 +72,15 @@
 				title: reference.note.get('title')
 				subtitle: reference.note.get('subtitle')
 
-			console.log "old changes: ", change
-			console.log "new changes: ", changeTemp
-
-			_tree.removeFromCollection _tree, reference.note
+			_tree.removeFromCollection reference.parentCollection, reference.note
 			reference.note.save change
-			_tree.add reference.note
+			_tree.insertInTree reference.note
 			return {type: 'updateContent', changes: changeTemp}
 
 		_getReference: (guid) ->
 			note = @_findANote(guid)
 			parent_id = note.get('parent_id')
-			parentCollection = if parent_id is 'root' then _tree else @_findANote(parent_id).collection
+			parentCollection = _tree.getCollection(parent_id)
 			{note: note, parent_id: parent_id, parentCollection: parentCollection}
 
 		_findANote: (guid) ->

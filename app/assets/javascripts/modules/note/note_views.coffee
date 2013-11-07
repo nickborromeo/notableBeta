@@ -61,8 +61,6 @@
 			@.$el.on 'keydown', null, 'backspace', @mergeWithPreceding.bind @
 			@.$el.on 'keydown', null, 'ctrl+s', @saveNote.bind @
 			@.$el.on 'keydown', null, 'meta+s', @saveNote.bind @
-			# @.$el.on 'keydown', null, 'ctrl+z', App.Action.undo #@ needs to be the tree
-			# @.$el.on 'keydown', null, 'meta+z', App.Action.undo #@ needs to be the tree
 			@.$el.on 'keydown', null, 'ctrl+z', @triggerUndoEvent #@ needs to be the tree
 			@.$el.on 'keydown', null, 'meta+z', @triggerUndoEvent #@ needs to be the tree
 			@.$el.on 'keydown', null, 'ctrl+y', @triggerRedoEvent #@ needs to be the tree
@@ -72,12 +70,10 @@
 		triggerRedoEvent: (e) =>
 			e.preventDefault()
 			e.stopPropagation()
-			console.log "redo event was fired,"
 			App.Action.redo(@.collection)
 		triggerUndoEvent: (e) =>
 			e.preventDefault()
 			e.stopPropagation()
-			console.log "undo event was fired,"
 			App.Action.undo(@.collection)
 		triggerShortcut: (event) -> (e) =>
 			e.preventDefault()
