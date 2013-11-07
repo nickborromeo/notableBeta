@@ -262,7 +262,6 @@
 			Note.eventManager.trigger "setCursor:#{setFocusIn.get('guid')}"
 		deleteNote: (note) ->
 			(@jumpFocusUp note) unless (@jumpFocusDown note)
-			# App.Action.addHistory('deleteNote', {note: note.getAllAtributes(), options:{}})
 			@collection.deleteNote note
 		jumpFocusUp: (note, endOfLine = false) ->
 			previousNote = @collection.jumpFocusUp note

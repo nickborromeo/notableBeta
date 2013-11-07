@@ -3,7 +3,8 @@
 	##-----------------
 	# set some data up:
 	##-----------------
-	# Given -> App.Action = new App.Action.Manager()
+	Given -> App.Note.Branch.prototype.sync = ->
+	Given -> App.Note.Tree.prototype.sync = ->
 	Given -> @noteCollection = new App.Note.Collection()
 	Given -> @tree = new App.Note.Tree()
 	Given -> window.buildTestTree @noteCollection, @tree
@@ -29,21 +30,20 @@
 		Given -> @tree.findNote(@tester2GUID).set('title', @tester2NewTitle)
 		Given -> @tree.findNote(@tester3GUID).set('title', @tester3NewTitle)
 
-		Given -> App.Action.addHistory('updateContent',{
+		Given -> App.Action.addHistory 'updateContent', {
 			guid: @tester1GUID
-			previous: {title: @tester1PreviousTitle, subtitle:''}
-			current: {title: @tester1NewTitle, subtitle:''}
-			});
-		Given -> App.Action.addHistory('updateContent',{
+			title: @tester1PreviousTitle
+			subtitle:'' }
+		Given -> App.Action.addHistory 'updateContent',{
 			guid: @tester2GUID
-			previous: {title: @tester2PreviousTitle, subtitle:''}
-			current: {title: @tester2NewTitle, subtitle:''}
-			});
-		Given -> App.Action.addHistory('updateContent',{
+			title: @tester2PreviousTitle
+			subtitle:'' }
+
+		Given -> App.Action.addHistory 'updateContent',{
 			guid: @tester3GUID
-			previous: {title: @tester3PreviousTitle, subtitle:''}
-			current: {title: @tester3NewTitle, subtitle:''}
-			});
+			title: @tester3PreviousTitle
+			subtitle:'' }
+			
 		Then -> expect( @tree.findNote(@tester1GUID).get('title') ).toEqual(@tester1NewTitle)
 		And -> expect( @tree.findNote(@tester2GUID).get('title') ).toEqual(@tester2NewTitle)
 		And -> expect( @tree.findNote(@tester3GUID).get('title') ).toEqual(@tester3NewTitle)
@@ -57,12 +57,9 @@
 			Given -> App.Action.undo(@tree) # undo tester2 
 			Given -> App.Action.undo(@tree) # undo tester1
 			Then -> expect(App.Action._getUndoneHistory()[0]['type']).toEqual('updateContent')
-			And -> expect(App.Action._getUndoneHistory()[0]['changes']['previous']['title']).toEqual(@tester3NewTitle)
-			And -> expect(App.Action._getUndoneHistory()[0]['changes']['current']['title']).toEqual(@tester3PreviousTitle)
-			And -> expect(App.Action._getUndoneHistory()[1]['changes']['previous']['title']).toEqual(@tester2NewTitle)
-			And -> expect(App.Action._getUndoneHistory()[1]['changes']['current']['title']).toEqual(@tester2PreviousTitle)
-			And -> expect(App.Action._getUndoneHistory()[2]['changes']['previous']['title']).toEqual(@tester1NewTitle)
-			And -> expect(App.Action._getUndoneHistory()[2]['changes']['current']['title']).toEqual(@tester1PreviousTitle)
+			And -> expect(App.Action._getUndoneHistory()[0]['changes']['title']).toEqual(@tester3NewTitle)
+			And -> expect(App.Action._getUndoneHistory()[1]['changes']['title']).toEqual(@tester2NewTitle)
+			And -> expect(App.Action._getUndoneHistory()[2]['changes']['title']).toEqual(@tester1NewTitle)
 
 			describe "undo 'updateItem' and change values on the correct tree.", ->
 				Then -> expect( @tree.findNote(@tester1GUID).get('title') ).toEqual(@tester1PreviousTitle)

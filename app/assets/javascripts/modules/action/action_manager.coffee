@@ -86,18 +86,18 @@
 		_findANote: (guid) ->
 			_allNotes.findWhere({guid: guid}) ? _tree.findNote(guid)
 
-	clearundoneHistory = ->
-		# undoneHistory.reverse()
-		# for item in undoneHistory
-		#   actionHistory.push undoneHistory.pop()
-		_undoneHistory = []
+	clearRedoHistory = ->
+		# _redoStack.reverse()
+		# for item in _redoStack
+		#   actionHistory.push _redoStack.pop()
+		_redoStack = []
 
 	# ----------------------
 	# Public Methods & Functions
 	# ----------------------
 	@addHistory = (actionType, changes) ->
 		throw "!!--cannot track this change--!!" unless _expects.checker(actionType, changes)
-		if _redoStack.length > 1 then clearundoneHistory()
+		if _redoStack.length > 1 then clearRedoHistory()
 		if _undoStack.length >= _historyLimit then _undoStack.shift()
 		_undoStack.push {type: actionType, changes: changes}
 

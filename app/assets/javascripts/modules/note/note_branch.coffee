@@ -73,7 +73,7 @@
 			@set attributesHash
 			attributesHash
 		getAllAtributes: =>
-			okayAttrs = ['depth', 'rank', 'parent_id', 'guid', 'title', 'subtitle']
+			okayAttrs = ['depth', 'rank', 'parent_id', 'guid', 'title', 'subtitle', 'created_at']
 			attributesHash = {}
 			for attribute in okayAttrs
 				attributesHash[attribute] = @get(attribute) 
@@ -134,8 +134,7 @@
 			App.Action.addHistory 'updateContent', {
 				guid: @get('guid')
 				title: @get('title')
-				subtitle: @get('subtitle')
-			}
+				subtitle: @get('subtitle')}
 
 
 	# Static Function
