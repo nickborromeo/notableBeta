@@ -198,6 +198,7 @@
 
 		tabNote: (note, parent = @findPrecedingInCollection note) ->
 			return false unless note.get('rank') > 1
+			note.addUndoMove()
 			previousParentCollection = @getCollection note.get 'parent_id'
 			@removeFromCollection previousParentCollection, note
 			note.save
@@ -207,6 +208,7 @@
 			@insertInTree note
 		unTabNote: (note, followingNote = false) ->
 			return false if note.isARoot()
+			note.addUndoMove()
 			previousParent = @getNote note.get 'parent_id'
 			@removeFromCollection previousParent.descendants, note
 			@generateNewUnTabAttributes note, followingNote, previousParent

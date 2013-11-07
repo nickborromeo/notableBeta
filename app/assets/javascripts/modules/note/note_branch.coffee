@@ -122,14 +122,17 @@
 				parent_id: @get('parent_id')
 				depth: @get('depth')
 				rank: @get('rank')}
+			App.Notify.alert 'moved', 'info'
 		addUndoCreate: =>
 			App.Action.addHistory 'createNote', {guid: @get('guid')}
+			App.Notify.alert 'newNote', 'info'
 		addUndoDelete: =>
 			removedBranchs = {ancestorNote: @getAllAtributes(), childNoteSet: []}
 			completeDescendants = @getCompleteDescendantList()
 			_.each completeDescendants, (descendant) ->
 				removedBranchs.childNoteSet.push(descendant.getAllAtributes())
 			App.Action.addHistory('deleteBranch', removedBranchs)
+			App.Notify.alert 'deleted', 'warning'
 		addUndoUpdate: (newTitle, newSubtitle) =>
 			App.Action.addHistory 'updateContent', {
 				guid: @get('guid')

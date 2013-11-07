@@ -24,6 +24,7 @@
     connectionLost: "Connection has been lost!"
     connected: "established connection"
     newNote: "new note added"
+    moved: "note has been moved"
 
   # functions can be added here with the SAME name as the alertType.
   # these will be called upon CLICKING the notification during an alert

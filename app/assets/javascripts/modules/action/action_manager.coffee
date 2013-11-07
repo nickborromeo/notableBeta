@@ -110,6 +110,7 @@
 		throw "nothing to redo" unless _redoStack.length > 0
 		change = _redoStack.pop()
 		_undoStack.push _revert[change.type](change.changes)
+		if change.type is 'createNote' then App.Notify.alert 'deleted', 'warning'
 
 	@exportToServer = ->
 		#do something if nessecary 
@@ -138,7 +139,6 @@
 
 	@setAllNotesByDepth = (allNotes) ->
 		_allNotes = allNotes
-
 
 	## !! this is for testing ONLY
 	## don't try to erase... its deadly.
