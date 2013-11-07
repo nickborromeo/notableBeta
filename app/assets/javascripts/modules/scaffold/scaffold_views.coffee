@@ -18,7 +18,7 @@
 			"click .mindmap": "applyModview"
 			"click #notification-region": "checkForEvent"
 		showTooltip: ->
-			$(".new-note").tooltip 'toggle'
+			App.Notify.alert 'newNote','success'
 		applyModview: (e) ->
 			type = e.currentTarget.classList[3]
 			$(".alert").text(type+" modview is displayed").show()

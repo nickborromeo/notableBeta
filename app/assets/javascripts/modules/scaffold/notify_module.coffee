@@ -1,6 +1,6 @@
-@Notable.module("Notify", (Scaffold, App, Backbone, Marionette, $, _) ->
+@Notable.module("Notify", (Notify, App, Backbone, Marionette, $, _) ->
   # Private --------------------------
-  _alertTimeOut = 3000
+  _alertTimeOut = 7000
   _fadeOutTime = 500
   _alertTimeOutID = null
   _alertFadeOutID = null
@@ -10,7 +10,7 @@
   _alertClasses = 
     success: 'success-notification' # green
     info: 'info-notification' # gray
-    warning: 'warning-notification' #orange
+    warning: 'warning-notification' #orange (yellow)
     danger: 'danger-notification' #red
 
   _alertTypes = 
@@ -23,6 +23,7 @@
     complete: "done!"
     connectionLost: "Connection has been lost!"
     connected: "established connection"
+    newNote: "new note added"
 
   # functions can be added here with the SAME name as the alertType.
   # these will be called upon CLICKING the notification during an alert
@@ -40,17 +41,11 @@
     $('#notification-region div').fadeOut(_fadeOutTime)
     _alertFadeOutID = setTimeout( @flushAlert, _fadeOutTime)
 
-  @now = (alertType, alertClass) ->
+  @alert = (alertType, alertClass) ->
     throw "invalid alert" unless _alertTypes[alertType]?
     throw "invalid alert class" unless _alertClasses[alertClass]?
     @flushAlert()
     _alert(alertType, alertClass)
-
-  @later = (alertType, alertClass) ->
-    throw "invalid alert" unless _alertTypes[alertType]?
-    throw "invalid alert class" unless _alertClasses[alertClass]?
-
-    #maybe this is a bad idea
 
   @flushAlert = ->
     clearTimeout _alertTimeOutID
