@@ -72,6 +72,20 @@
 			attributesHash[attribute] = noteToClone.get(attribute) for attribute in @clonableAttributes
 			@set attributesHash
 			attributesHash
+		getAllAtributes: =>
+			okayAttrs = ['depth', 'rank', 'parent_id', 'guid', 'title', 'subtitle', 'created_at']
+			attributesHash = {}
+			for attribute in okayAttrs
+				attributesHash[attribute] = @get(attribute) 
+			attributesHash
+		# getMoveAttributes: =>
+		# 	moveAttributes = {}
+		# 	okayAttrs = ['depth', 'rank', 'parent_id']
+		# 	for attribute in okayAttrs
+		# 		moveAttributes[attribute] if @.changed[attribute] then @.changed[attribute] else @get(attribute)
+		# 	moveAttributes
+
+			
 
 		# Will generalize for more than one attribute
 		modifyAttributes: (attribute, effect) ->
@@ -101,6 +115,29 @@
 			changeQueue = changeQueue ? [] 
 			changeQueue.push @
 			window.localStorage.setItem 'changeQueue', JSON.stringify(changeQueue)
+
+		addUndoMove: =>
+			App.Action.addHistory 'moveNote', {
+				guid: @get('guid')
+				parent_id: @get('parent_id')
+				depth: @get('depth')
+				rank: @get('rank')}
+			App.Notify.alert 'moved', 'info'
+		addUndoCreate: =>
+			App.Action.addHistory 'createNote', {guid: @get('guid')}
+			App.Notify.alert 'newNote', 'info'
+		addUndoDelete: =>
+			removedBranchs = {ancestorNote: @getAllAtributes(), childNoteSet: []}
+			completeDescendants = @getCompleteDescendantList()
+			_.each completeDescendants, (descendant) ->
+				removedBranchs.childNoteSet.push(descendant.getAllAtributes())
+			App.Action.addHistory('deleteBranch', removedBranchs)
+			App.Notify.alert 'deleted', 'warning'
+		addUndoUpdate: (newTitle, newSubtitle) =>
+			App.Action.addHistory 'updateContent', {
+				guid: @get('guid')
+				title: @get('title')
+				subtitle: @get('subtitle')}
 
 
 	# Static Function

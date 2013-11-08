@@ -18,7 +18,7 @@
 			"drop .dropTarget": @triggerDragEvent "dropMove"
 			"dragenter .dropTarget": @triggerDragEvent "enterMove"
 			"dragleave .dropTarget": @triggerDragEvent "leaveMove"
-			"dragover .dropTarget": @triggerDragEvent "overMove"
+			"dragover .dropTarget": @triggerDragEvent "overMove" 
 			"keyup .branch": @timeoutAndSave(@updateNote)
 
 
@@ -61,6 +61,20 @@
 			@.$el.on 'keydown', null, 'backspace', @mergeWithPreceding.bind @
 			@.$el.on 'keydown', null, 'ctrl+s', @saveNote.bind @
 			@.$el.on 'keydown', null, 'meta+s', @saveNote.bind @
+			@.$el.on 'keydown', null, 'ctrl+z', @triggerUndoEvent #@ needs to be the tree
+			@.$el.on 'keydown', null, 'meta+z', @triggerUndoEvent #@ needs to be the tree
+			@.$el.on 'keydown', null, 'ctrl+y', @triggerRedoEvent #@ needs to be the tree
+			@.$el.on 'keydown', null, 'meta+y', @triggerRedoEvent #@ needs to be the tree
+			# needs to make sure @ is proper context ie @ needs to be 
+
+		triggerRedoEvent: (e) =>
+			e.preventDefault()
+			e.stopPropagation()
+			App.Action.redo(@.collection)
+		triggerUndoEvent: (e) =>
+			e.preventDefault()
+			e.stopPropagation()
+			App.Action.undo(@.collection)
 		triggerShortcut: (event) -> (e) =>
 			e.preventDefault()
 			e.stopPropagation()
@@ -80,7 +94,7 @@
 			timer = null
 			return ->
 				clearTimeout timer
-				timer = setTimeout(updateCallBack, 3000)
+				timer = setTimeout(updateCallBack, 1000)
 
 		mergeWithPreceding: (e) ->
 			e.stopPropagation()
@@ -117,9 +131,12 @@
 
 		updateNote: =>
 			noteTitle = @getNoteTitle()
+			noteSubtitle = "" #@getNoteSubtitle()
 			if @model.get('title') isnt noteTitle
+				@model.addUndoUpdate(noteTitle,noteSubtitle)
 				@model.save
 					title: noteTitle
+					subtitle: noteSubtitle
 				@model.saveLocally()
 			noteTitle
 		getNoteTitle: ->
@@ -261,6 +278,7 @@
 		startMove: (ui, e, model) ->
 			# e.preventDefault();
 			# ui.noteContent.style.opacity = '0.7'
+			model.addUndoMove()
 			@drag = model
 			e.dataTransfer.effectAllowed = "move"
 			e.dataTransfer.setData("text", model.get 'guid')

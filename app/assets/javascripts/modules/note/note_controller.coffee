@@ -11,6 +11,8 @@
 		initialize: (options) ->
 			@allNotesByDepth = new App.Note.Collection()
 			@tree = new App.Note.Tree()
+			App.Action.setTree @tree
+			App.Action.setAllNotesByDepth @allNotesByDepth
 
 		start: ->
 			buildTree = (allNotes) =>

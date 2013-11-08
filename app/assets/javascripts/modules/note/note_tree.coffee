@@ -15,12 +15,10 @@
 		model: Note.Branch
 		url:'/notes'
 
+
 		# Manage note insertion in the nested structure
 		add: (note, options) ->
-			pid = note.get 'parent_id'
-			collectionToAddTo =
-			if pid is 'root' or pid is undefined then @
-			else @getDescendantCollection pid
+			collectionToAddTo = @getCollection note.get 'parent_id'
 			Backbone.Collection.prototype.add.call(collectionToAddTo, note, options)
 		insertInTree: (note, options) ->
 			@add note, options
@@ -41,6 +39,7 @@
 			textAfter = Note.prependStyling(textAfter)
 			hashMap = @dispatchCreation.apply @, arguments
 			newNote = new Note.Branch
+			newNote.addUndoCreate()
 			newNoteAttributes = Note.Branch.generateAttributes hashMap.createBeforeNote, hashMap.newNoteTitle
 			if hashMap.rankAdjustment then newNoteAttributes.rank += 1
 			newNote.save newNoteAttributes
@@ -67,7 +66,8 @@
 			newNoteTitle: textBefore
 			oldNoteNewTitle: textAfter
 			setFocusIn: noteCreatedFrom
-		deleteNote: (note) ->
+		deleteNote: (note, isUndo) -> #ignore isUndo unless dealing with action manager!
+			if not isUndo then note.addUndoDelete()
 			descendants = note.getCompleteDescendantList()
 			_.each descendants, (descendant) ->
 				descendant.destroy()
@@ -75,7 +75,7 @@
 
 		# Returns the descendants of matching parent_id
 		getCollection: (parent_id) ->
-			if parent_id is 'root' then @
+			if parent_id is 'root' or parent_id is undefined then @
 			else @getDescendantCollection parent_id
 		getDescendantCollection: (pid) ->
 			@findNote(pid).descendants
@@ -100,15 +100,16 @@
 			searchedNote
 
 		getNote: (guid) -> @findNote(guid) # alias
-		findByGuidInCollection: (guid) ->
-			noteSearched = false
-			@every (note) ->
-				if note.get('guid') is guid
-					noteSearched = note
-					false # break
-				else
-					true # continue
-			noteSearched
+
+		# findByGuidInCollection: (guid) ->
+		# 	noteSearched = false
+		# 	@every (note) ->
+		# 		if note.get('guid') is guid
+		# 			noteSearched = note
+		# 			false # break
+		# 		else
+		# 			true # continue
+		# 	noteSearched
 
 		modifySiblings: (parent_id, modifierFunction, filterFunction = false) ->
 			siblingNotes = @getCollection parent_id
@@ -197,6 +198,7 @@
 
 		tabNote: (note, parent = @findPrecedingInCollection note) ->
 			return false unless note.get('rank') > 1
+			note.addUndoMove()
 			previousParentCollection = @getCollection note.get 'parent_id'
 			@removeFromCollection previousParentCollection, note
 			note.save
@@ -206,6 +208,7 @@
 			@insertInTree note
 		unTabNote: (note, followingNote = false) ->
 			return false if note.isARoot()
+			note.addUndoMove()
 			previousParent = @getNote note.get 'parent_id'
 			@removeFromCollection previousParent.descendants, note
 			@generateNewUnTabAttributes note, followingNote, previousParent

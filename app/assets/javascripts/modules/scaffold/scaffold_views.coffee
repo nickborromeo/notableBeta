@@ -7,7 +7,7 @@
 		id: "message-center"
 		tagName: "section"
 		regions:
-			notificationRegion: "#notification-region"
+			notificationRegion: "#notification-region" #THIS IS WHERE WE RENDER THE NOTIFICATION!
 			modviewRegion: "#modview-region"
 
 		events: ->
@@ -16,9 +16,9 @@
 			"click .outline_icon": "applyModview"
 			"click .mindmap_icon": "applyModview"
 			"click .grid_icon": "applyModview"
-
+			"click #notification-region": "checkForEvent"
 		showTooltip: ->
-			$(".new-note").tooltip 'toggle'
+			App.Notify.alert 'newNote','success'
 		applyModview: (e) ->
 			type = e.currentTarget.classList[1]
 			$(".alert").text(type+" modview is displayed").show()
@@ -30,6 +30,8 @@
 			$(".navbar-right").toggleClass("navbar-shift")
 			type = e.currentTarget.classList[1]
 			$(".#{type}").toggleClass("selected")
+		checkForEvent: ->
+			App.Notify.checkForClickBinding()
 
 	class Scaffold.ContentView extends Marionette.Layout
 		template: "scaffold/content"

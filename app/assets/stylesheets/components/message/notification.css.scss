@@ -9,6 +9,18 @@ $gray: #C1C1C1;
 $grayDark: #989898;
 $grayUltraDark: #515151;
 
+$successNotificationBorderColor: #d6e9c6;
+$successNotificationBackgroundColor: #dff0d8;
+$successNotificationColor: #468847;
+
+$warningNotificationBorderColor: #faebcc;
+$warningNotificationBackgroundColor: #fcf8e3;
+$warningNotificationColor: #c09853;
+
+$dangerNotificationBorderColor: #ebccd1;
+$dangerNotificationBackgroundColor: #f2dede;
+$dangerNotificationColor: #b94a48;
+
 $screen-sm: 768px;
 $screen-md: 992px;
 $screen-lg: 1200px;
@@ -27,22 +39,74 @@ $screen-lg: 1200px;
 		display: inline-block;
 		padding: 0;
 	}
-	.notificationHack {
+	.notify {
 		padding: 5px 12px;
 		position: relative;
-		right: 2.8em;
+		// left: 1.5em;
+		width: 96%;
 		margin-bottom: 0;
+		border-radius: 4px;		
+	}
+	.success-notification{
+		background-color: $successNotificationBackgroundColor;
+		color: $successNotificationColor;
+		border: 1px solid $successNotificationBorderColor;
+	}
+	.warning-notification{
+		background-color: $warningNotificationBackgroundColor;
+		color: $warningNotificationColor;
+		border: 1px solid $warningNotificationBorderColor;
+	}
+	.danger-notification{
+		background-color: $dangerNotificationBackgroundColor;
+		color: $dangerNotificationColor;
+		border: 1px solid $dangerNotificationBorderColor;
+	}
+	.info-notification{
+		color: $grayDark;
 	}
 }
+
+
 
 // ----------------------------------------------------
 // --------------LAPTOP MEDIA QUERIES -----------------
 // ----------------------------------------------------
 @media (min-width: $screen-md) {
-	.notificationHack {
+	#notification-region {
+		display: inline-block;
+		padding: 0;
+	}
+	.notify {
 		padding: 5px 12px;
-		right: 4em;
-		width: 48em
+// <<<<<<< HEAD
+		// right: 4em;
+		// width: 48em
+// =======
+		position: relative;
+		left: 1.5em;
+		// width: 96%;
+		margin-bottom: 0;
+		border-radius: 4px;		
+	}
+	.success-notification{
+		background-color: $successNotificationBackgroundColor;
+		color: $successNotificationColor;
+		border: 1px solid $successNotificationBorderColor;
+	}
+	.warning-notification{
+		background-color: $warningNotificationBackgroundColor;
+		color: $warningNotificationColor;
+		border: 1px solid $warningNotificationBorderColor;
+	}
+	.danger-notification{
+		background-color: $dangerNotificationBackgroundColor;
+		color: $dangerNotificationColor;
+		border: 1px solid $dangerNotificationBorderColor;
+	}
+	.info-notification{
+		color: $grayDark;
+// >>>>>>> Ticket0478
 	}
 }
 
