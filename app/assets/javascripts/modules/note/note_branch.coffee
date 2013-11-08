@@ -9,6 +9,15 @@
 			rank: 1
 			depth: 0
 
+		save: (attributes = null, options = {}) ->
+			App.Notify.alert 'saving', 'info'
+			options.success =  -> 
+				App.Notify.alert 'saved', 'success'
+			options.error = -> 
+				App.Notify.alert 'connectionLost', 'danger' 
+			Backbone.Model.prototype.save.call(@, attributes, options)
+
+
 		initialize: ->
 			@descendants = new App.Note.Tree()
 			if @isNew()
