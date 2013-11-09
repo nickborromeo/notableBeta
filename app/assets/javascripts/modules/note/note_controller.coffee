@@ -18,11 +18,12 @@
 
 		start: ->
 			buildTree = (allNotes) =>
-				allNotes.each (note) =>
+				allNotes.each (note) => 
 					@tree.add(note)
+				App.CrashPrevent.checkAndLoadLocal()
 				@showContentView @tree
-			# @allNotesByDepth.fetch success: buildTree
-			@allNotesByDepth.fetch success:(allNotes) ->App.CrashPrevent.checkAndLoadLocal(buildTree, allNotes)
+
+			@allNotesByDepth.fetch success: buildTree
 
 		showContentView: (tree) ->
 			treeView = new App.Note.TreeView(collection: tree)

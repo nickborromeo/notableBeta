@@ -37,16 +37,19 @@
     _addToStorage note.getAllAtributes()
     if _backOffTimeoutID isnt null then _startBackOff _backOffInterval
 
-  @checkAndLoadLocal = (buildTreeCallback, allNotes) ->
+
+  # these are all for intializing the application!
+  @checkAndLoadLocal = ->
     storageHash = JSON.parse window.localStorage.getItem _storeLocation 
-    if storageHash?
+    if _localStorageEnabled and storageHash?
       _.each storageHash, (attributes, guid) -> 
         _loadAndSave guid, attributes
-    buildTreeCallback(allNotes)
+    window.localStorage.clear()
+      
+      
 
   _loadAndSave = (guid, attributes) ->
-    # noteReference = _tree.findNote guid
-    noteReference = _allNotes.get guid
+    noteReference = _allNotes.findWhere {guid: guid}
     if noteReference? then noteReference.save attributes
     else
       newBranch = new App.Note.Branch()
@@ -54,13 +57,11 @@
       _allNotes.add newBranch
       _tree.insertInTree newBranch
 
+  # _buildTree = (allNotes) =>
+  #       allNotes.each (note) =>
+  #         _tree.add(note)
+  #       @showContentView @tree
 
-  _buildTree = (allNotes) =>
-        allNotes.each (note) =>
-          @tree.add(note)
-        @showContentView @tree
-    # check local storage for changes that were not cashed
-    # 
 
   _clearBackOff = () ->
     _backOffTimeoutID = null
@@ -83,4 +84,4 @@
 
 
 ######  dev console test data:
-localStorage.setItem('unsyncedChanges', JSON.stringify({'theBestGUIDever':{'depth':0, 'rank':1, 'parent_id':'root', 'guid':'theBestGUIDever', 'title':"i'm a little teapot", 'subtitle': '', 'created_at': new Date()}}))
+# localStorage.setItem('unsyncedChanges', JSON.stringify({'theBestGUIDever':{'depth':0, 'rank':1, 'parent_id':'root', 'guid':'theBestGUIDever', 'title':"i'm a little teapot", 'subtitle': '', 'created_at': new Date()}}))
