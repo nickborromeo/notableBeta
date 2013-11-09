@@ -13,13 +13,16 @@
 			@tree = new App.Note.Tree()
 			App.Action.setTree @tree
 			App.Action.setAllNotesByDepth @allNotesByDepth
+			App.CrashPrevent.setTree @tree
+			App.CrashPrevent.setAllNotesByDepth @allNotesByDepth
 
 		start: ->
 			buildTree = (allNotes) =>
 				allNotes.each (note) =>
 					@tree.add(note)
 				@showContentView @tree
-			@allNotesByDepth.fetch success: buildTree
+			# @allNotesByDepth.fetch success: buildTree
+			@allNotesByDepth.fetch success:(allNotes) ->App.CrashPrevent.checkAndLoadLocal(buildTree, allNotes)
 
 		showContentView: (tree) ->
 			treeView = new App.Note.TreeView(collection: tree)
