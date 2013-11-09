@@ -12,6 +12,7 @@
 			"click .destroy": @triggerEvent "deleteNote"
 			"mouseover .branch": @toggleDestroyFeat "block"
 			"mouseout .branch": @toggleDestroyFeat "none"
+			"keyup .branch": @timeoutAndSave(@updateNote)
 
 			"dragstart .move": @triggerDragEvent "startMove"
 			"dragend .move": @triggerDragEvent "endMove"
@@ -19,7 +20,6 @@
 			"dragenter .dropTarget": @triggerDragEvent "enterMove"
 			"dragleave .dropTarget": @triggerDragEvent "leaveMove"
 			"dragover .dropTarget": @triggerDragEvent "overMove" 
-			"keyup .branch": @timeoutAndSave(@updateNote)
 
 
 		initialize: ->
@@ -37,7 +37,7 @@
 				@$('>.branch>.descendants>.branch-template>.branch>#dropAfter.dropTarget')[0...-1].remove()
 		getNoteContent: ->
 			if @ui.noteContent.length is 0 or !@ui.noteContent.focus?
-					@ui.noteContent = @.$('.noteContent:first')
+				@ui.noteContent = @.$('.noteContent:first')
 			@ui.noteContent
 		bindKeyboardShortcuts: ->
 			@.$el.on 'keydown', null, 'ctrl+shift+backspace', @triggerShortcut 'deleteNote'
