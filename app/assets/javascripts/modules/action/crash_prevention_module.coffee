@@ -14,8 +14,9 @@
     storageHash[attributes.guid] = attributes
     window.localStorage.setItem _storeLocation, JSON.stringify(storageHash)
   
-  # _startBackOff = (time)->
-  #   _backOffTimeoutID = setTimeout(->_fullSync(null,time), time)
+  _startBackOff = (time)->
+    console.log 'start backoff starts here!'
+    # _backOffTimeoutID = setTimeout(->_fullSync(null,time), time)
 
   _fullSync = (notesToSync = _allNotes.models, time) ->
     # storageHash = JSON.parse window.localStorage.getItem _storeLocation 
@@ -34,6 +35,7 @@
     else _startBackOff time
 
   @addAndStart = (note) ->
+    @connectionLost = true
     _addToStorage note.getAllAtributes()
     if _backOffTimeoutID isnt null then _startBackOff _backOffInterval
 
@@ -46,8 +48,6 @@
         _loadAndSave guid, attributes
     window.localStorage.clear()
       
-      
-
   _loadAndSave = (guid, attributes) ->
     noteReference = _allNotes.findWhere {guid: guid}
     if noteReference? then noteReference.save attributes
@@ -65,9 +65,18 @@
 
   _clearBackOff = () ->
     _backOffTimeoutID = null
+    @connectionLost = false
+
+
+  #erase this later!! its on'y a test
+  # @testPeriodicSync = ->
+  #   console.log "-------- this is the periodic test sync -------"
+  #   _allNotes.fetch success:(data)->
+  #     console.log 'the data', data
+  #   setTimeout @testPeriodicSync , 15000
+
 
   @fullSync = ->
-
 
   @informConnectionSuccess = ->
 

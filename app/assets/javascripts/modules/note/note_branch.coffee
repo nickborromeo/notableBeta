@@ -17,7 +17,7 @@
 			options.error = (model, xhr, options) => 
 				App.Notify.alert 'connectionLost', 'danger' 
 				#TODO: add save to local
-				#App.CrashPrevent.addAndStart(@)
+				App.CrashPrevent.addAndStart(@)
 			Backbone.Model.prototype.save.call(@, attributes, options)
 
 
