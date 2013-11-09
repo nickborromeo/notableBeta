@@ -21,7 +21,7 @@
     redo: "change redone"
     updating: "updating data..."
     complete: "done!"
-    connectionLost: "Connection has been lost!"
+    connectionLost: "Connection has been lost! Your changes will not be saved to the server until connection can be found again! But they won't be lost as long as you stay on this page."
     connected: "established connection"
     newNote: "new note added"
     moved: "note has been moved"

@@ -38,7 +38,7 @@
 			newBranch = new App.Note.Branch()
 			newBranch.save attributes
 			_allNotes.add newBranch
-			reference = @_getReference newBranch.get('guid')
+			# reference = @_getReference newBranch.get('guid')
 			_tree.insertInTree newBranch
 			# reference.parentCollection.add newBranch
 

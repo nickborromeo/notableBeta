@@ -137,7 +137,6 @@
 				@model.save
 					title: noteTitle
 					subtitle: noteSubtitle
-				@model.saveLocally()
 			noteTitle
 		getNoteTitle: ->
 			title = @getNoteContent().html().trim()

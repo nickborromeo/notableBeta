@@ -11,10 +11,13 @@
 
 		save: (attributes = null, options = {}) ->
 			App.Notify.alert 'saving', 'info'
-			options.success =  -> 
+			options.success =  => 
 				App.Notify.alert 'saved', 'success'
-			options.error = -> 
+				#App.CrashPrevent.informConnectionSuccess()
+			options.error = => 
 				App.Notify.alert 'connectionLost', 'danger' 
+				#TODO: add save to local
+				#App.CrashPrevent.addAndStart(@)
 			Backbone.Model.prototype.save.call(@, attributes, options)
 
 
@@ -85,7 +88,7 @@
 			okayAttrs = ['depth', 'rank', 'parent_id', 'guid', 'title', 'subtitle', 'created_at']
 			attributesHash = {}
 			for attribute in okayAttrs
-				attributesHash[attribute] = @get(attribute) 
+				attributesHash[attribute] = @get attribute
 			attributesHash
 		# getMoveAttributes: =>
 		# 	moveAttributes = {}
@@ -116,14 +119,6 @@
 		modifyDescendantsDepth: (modifierFunction) ->
 			descendants = @getCompleteDescendantList()
 			_.each descendants, modifierFunction
-
-		# For dealing with localStorage
-		saveLocally: ->
-			throw "Browser Not Supported" unless window.localStorage?
-			changeQueue = JSON.parse window.localStorage.getItem('changeQueue')
-			changeQueue = changeQueue ? [] 
-			changeQueue.push @
-			window.localStorage.setItem 'changeQueue', JSON.stringify(changeQueue)
 
 		addUndoMove: =>
 			App.Action.addHistory 'moveNote', {
