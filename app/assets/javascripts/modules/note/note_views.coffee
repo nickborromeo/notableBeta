@@ -30,23 +30,30 @@
 			Note.eventManager.on "setCursor:#{@model.get('guid')}", @setCursor, @
 			Note.eventManager.on "render:#{@model.get('guid')}", @render, @
 			Note.eventManager.on "setTitle:#{@model.get('guid')}", @setNoteTitle, @
+		onBeforeRender: ->
+			# console.log @$(">.branch .descendants+#dropAfter.dropTarget")
+			# @$(">.branch .descendants+#dropAfter.dropTarget").remove()
 		onRender: ->
 			@getNoteContent().wysiwyg()
 			@addLastDropTarget()
 		appendHtml:(collectionView, itemView, i) ->
 			@$('.descendants:first').append(itemView.el)
 			if i is @collection.length - 1
-				itemView.$('>.branch .descendants').after('<div id="dropAfter" class="dropTarget"></div>')
+				console.log i, @collection.length, @collection, @model
+				# itemView.$('>.branch .descendants').after('<div id="dropAfter" class="dropTarget"></div>')
+				# @$('>.branch .descendants+dropAfter.dropTarget').remove()
+				@$('>.branch>.descendants>.branch-template>.branch>#dropAfter.dropTarget')[0...-1].remove()
+				# @$('>.branch>.descendants>.branch-template>.branch>#dropAfter.dropTarget')[0...-1].remove()
+				# @$('>.branch .descendants>.branch-template>.branch>#dropAfter.dropTarget')[0...-1].remove()
 		getNoteContent: ->
 			if @ui.noteContent.length is 0 or !@ui.noteContent.focus?
 					@ui.noteContent = @.$('.noteContent:first')
 			@ui.noteContent
 		addLastDropTarget: ->
-			if @model.isARoot()
-				@model.collection.sort(silent: true)
-				if @model.collection.where(parent_id: 'root')[-1..][0] is @model
-					@$el.append('<div id="dropAfter" class="dropTarget"></div>')
-
+		# 	if @model.isARoot()
+		# 		@model.collection.sort(silent: true)
+		# 		if @model.collection.where(parent_id: 'root')[-1..][0] is @model
+		# 			@$el.append('<div id="dropAfter" class="dropTarget"></div>')
 		bindKeyboardShortcuts: ->
 			@.$el.on 'keydown', null, 'ctrl+shift+backspace', @triggerShortcut 'deleteNote'
 			@.$el.on 'keydown', null, 'meta+shift+backspace', @triggerShortcut 'deleteNote'
