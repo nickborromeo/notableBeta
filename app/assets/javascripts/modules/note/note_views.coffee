@@ -31,10 +31,14 @@
 			Note.eventManager.on "setTitle:#{@model.get('guid')}", @setNoteTitle, @
 		onRender: ->
 			@getNoteContent().wysiwyg()
+			@trimExtraDropTarget()
 		appendHtml:(collectionView, itemView, i) ->
 			@$('.descendants:first').append(itemView.el)
 			if i is @collection.length - 1
 				@$('>.branch>.descendants>.branch-template>.branch>#dropAfter.dropTarget')[0...-1].remove()
+		trimExtraDropTarget: ->
+			if @model.isARoot() and @model.get('rank') isnt 1
+				@$(">.branch>#dropBefore").remove()
 		getNoteContent: ->
 			if @ui.noteContent.length is 0 or !@ui.noteContent.focus?
 				@ui.noteContent = @.$('.noteContent:first')
