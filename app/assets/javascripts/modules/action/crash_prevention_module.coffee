@@ -14,31 +14,26 @@
     storageHash[attributes.guid] = attributes
     window.localStorage.setItem _storeLocation, JSON.stringify(storageHash)
   
-  _startBackOff = (time)->
-    console.log 'start backoff starts here!'
-    # _backOffTimeoutID = setTimeout(->_fullSync(null,time), time)
+  _startBackOff = (time) ->
+    if not _backOffTimeoutID?
+      _backOffTimeoutID = setTimeout (-> _fullSync(time)), time
 
-  _fullSync = (notesToSync = _allNotes.models, time) ->
-    # storageHash = JSON.parse window.localStorage.getItem _storeLocation 
-    # get all from memory!
-    connected = false
+  _fullSync = (time) ->
+    allCurrentNotes = _tree.getAllSubNotes()
     options = 
       success: ->
-        connected = true
+        _clearBackOff()
+        App.Notify.alert 'saved', 'success'
       error: ->
-        connected = false
-    _.each storageHash, (attributes, guid)->
-      noteReference = _tree.findNote guid
-      Backbone.Model.prototype.save.call(noteReference, attributes, options)
-    if connected then _clearBackOff()
-    else if time < 60000 then _startBackOff time*2
-    else _startBackOff time
+        _clearBackOff()
+        if time < 60000 then _startBackOff time*2
+        else _startBackOff time
+    _.each allCurrentNotes, (note) ->
+      Backbone.Model.prototype.save.call(note, null, options)
 
   @addAndStart = (note) ->
-    @connectionLost = true
     _addToStorage note.getAllAtributes()
-    if _backOffTimeoutID isnt null then _startBackOff _backOffInterval
-
+    _startBackOff _backOffInterval
 
   # these are all for intializing the application!
   @checkAndLoadLocal = ->
@@ -47,6 +42,7 @@
       _.each storageHash, (attributes, guid) -> 
         _loadAndSave guid, attributes
     window.localStorage.clear()
+    console.log(_tree)
       
   _loadAndSave = (guid, attributes) ->
     noteReference = _allNotes.findWhere {guid: guid}
@@ -64,8 +60,8 @@
 
 
   _clearBackOff = () ->
+    clearTimeout _backOffTimeoutID
     _backOffTimeoutID = null
-    @connectionLost = false
 
 
   #erase this later!! its on'y a test

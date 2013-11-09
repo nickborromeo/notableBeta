@@ -101,6 +101,16 @@
 
 		getNote: (guid) -> @findNote(guid) # alias
 
+		# will return a list of all branches starting at the current node
+
+		getAllSubNotes: () =>
+			allNotes = []
+			_.each @models, (branch)  ->
+				allNotes.push(branch)
+				allNotes.concat branch.descendants.getAllSubNotes()
+			return allNotes
+
+
 		# findByGuidInCollection: (guid) ->
 		# 	noteSearched = false
 		# 	@every (note) ->
