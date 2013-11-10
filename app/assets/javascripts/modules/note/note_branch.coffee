@@ -17,9 +17,16 @@
 			options.error = (model, xhr, options) => 
 				App.Notify.alert 'connectionLost', 'danger' 
 				#TODO: add save to local
-				App.CrashPrevent.addAndStart(@)
+				App.CrashPrevent.addChangeAndStart(@)
 			Backbone.Model.prototype.save.call(@, attributes, options)
 
+		destroy: (options = {}) ->
+			options.success = (model, response, options) ->
+				console.log 'note deleted'
+			options.error = (model, xhr, options) =>
+				App.Notify.alert 'connectionLost', 'danger' 
+				App.CrashPrevent.addDeleteAndStart(@)
+			Backbone.Model.prototype.destroy.call(@, options)
 
 		initialize: ->
 			@descendants = new App.Note.Tree()

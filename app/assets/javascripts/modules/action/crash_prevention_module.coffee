@@ -1,19 +1,35 @@
+#TODO: handle deletes
+#TODO: ensure that EVERYTHING is synced before stopping the timer
+
 @Notable.module("CrashPrevent", (CrashPrevent, App, Backbone, Marionette, $, _) ->
 
   _backOffTimeoutID = null
   _backOffInterval = 2000
   _fullSyncTimeoutID = null
   _fullSyncInterval = 45000
-  _storeLocation = 'unsyncedChanges'
-  _tree = ''
-  _allNotes = ''
+  _cachedChanges = 'unsyncedChanges'
+  _cachedDeletes = 'unsyncedDeletes'
+  _tree = null
+  _allNotes = null
   _localStorageEnabled = true
 
-  _addToStorage = (attributes) ->
-    storageHash = JSON.parse(window.localStorage.getItem(_storeLocation)) ? {}
+  _addToChangeStorage = (attributes) ->
+    storageHash = JSON.parse(window.localStorage.getItem(_cachedChanges)) ? {}
     storageHash[attributes.guid] = attributes
-    window.localStorage.setItem _storeLocation, JSON.stringify(storageHash)
+    window.localStorage.setItem _cachedChanges, JSON.stringify(storageHash)
   
+  _addToDeleteStorage = (guid)->
+    storageHash = JSON.parse(window.localStorage.getItem(_cachedDeletes)) ? {}
+    storageHash[guid] = true
+    window.localStorage.setItem _cachedDeletes, JSON.stringify(storageHash)
+
+  #this must be called by ActionManager!
+  @removeFromDeleteStorage = (guid) ->
+    if _localStorageEnabled    
+      storageHash = JSON.parse(window.localStorage.getItem(_cachedDeletes)) ? {}
+      storageHash[guid] = false
+      window.localStorage.setItem _cachedDeletes, JSON.stringify(storageHash)
+
   _startBackOff = (time) ->
     if not _backOffTimeoutID?
       _backOffTimeoutID = setTimeout (-> _fullSync(time)), time
@@ -31,18 +47,30 @@
     _.each allCurrentNotes, (note) ->
       Backbone.Model.prototype.save.call(note, null, options)
 
-  @addAndStart = (note) ->
-    _addToStorage note.getAllAtributes()
-    _startBackOff _backOffInterval
+  @addChangeAndStart = (note) ->
+    if _localStorageEnabled
+      _addToChangeStorage note.getAllAtributes()
+      _startBackOff _backOffInterval
+
+  @addDeleteAndStart = (note) ->
+    if _localStorageEnabled
+      _addToDeleteStorage note.get('guid')
+      _startBackOff _backOffInterval
 
   # these are all for intializing the application!
   @checkAndLoadLocal = ->
-    storageHash = JSON.parse window.localStorage.getItem _storeLocation 
-    if _localStorageEnabled and storageHash?
-      _.each storageHash, (attributes, guid) -> 
-        _loadAndSave guid, attributes
-    window.localStorage.clear()
-    console.log(_tree)
+    if _localStorageEnabled
+      changeHash = JSON.parse window.localStorage.getItem _cachedChanges 
+      deleteHash = JSON.parse window.localStorage.getItem _cachedDeletes
+      if changeHash?
+        _.each changeHash, (attributes, guid) -> 
+          _loadAndSave guid, attributes      
+      if deleteHash?
+        _.each deleteHash, (toDelete, guid) ->
+          if toDelete
+            _deleteAndSave guid
+    window.localStorage.setItem _cachedChanges, '{}'
+    window.localStorage.setItem _cachedDeletes, '{}'
       
   _loadAndSave = (guid, attributes) ->
     noteReference = _allNotes.findWhere {guid: guid}
@@ -53,23 +81,16 @@
       _allNotes.add newBranch
       _tree.insertInTree newBranch
 
-  # _buildTree = (allNotes) =>
-  #       allNotes.each (note) =>
-  #         _tree.add(note)
-  #       @showContentView @tree
-
-
+  _deleteAndSave = (guid) ->
+    try
+      noteReference = _tree.findNote guid
+      _tree.deleteNote noteReference
+    catch e
+      console.log 'nothing to delete'
+    
   _clearBackOff = () ->
     clearTimeout _backOffTimeoutID
     _backOffTimeoutID = null
-
-
-  #erase this later!! its on'y a test
-  # @testPeriodicSync = ->
-  #   console.log "-------- this is the periodic test sync -------"
-  #   _allNotes.fetch success:(data)->
-  #     console.log 'the data', data
-  #   setTimeout @testPeriodicSync , 15000
 
 
   @fullSync = ->

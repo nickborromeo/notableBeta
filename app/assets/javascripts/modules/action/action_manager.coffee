@@ -40,6 +40,8 @@
 			_allNotes.add newBranch
 			# reference = @_getReference newBranch.get('guid')
 			_tree.insertInTree newBranch
+			#remove from storage if offline
+			App.CrashPrevent.removeFromDeleteStorage attributes.guid
 			# reference.parentCollection.add newBranch
 
 		deleteBranch: (change) ->
