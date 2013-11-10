@@ -12,13 +12,16 @@
 
 		events: ->
 			"click .sidebar-toggle": "shiftNavbar"
-			"click .new-note": "showTooltip"
+			"click .new-note": "createNote"
 			"click .outline_icon": "applyModview"
 			"click .mindmap_icon": "applyModview"
 			"click .grid_icon": "applyModview"
 			"click #notification-region": "checkForEvent"
-		showTooltip: ->
+		createNote: ->
 			App.Notify.alert 'newNote','success'
+			lastNote = App.Note.tree.last()
+			App.Note.tree.create
+				rank: lastNote.get('rank') + 1
 		applyModview: (e) ->
 			type = e.currentTarget.classList[1]
 			$(".alert").text(type+" modview is displayed").show()
