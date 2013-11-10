@@ -22,6 +22,8 @@
 			lastNote = App.Note.tree.last()
 			App.Note.tree.create
 				rank: lastNote.get('rank') + 1
+				title: ""
+			App.Note.eventManager.trigger "setCursor:#{App.Note.tree.last().get('guid')}"
 		applyModview: (e) ->
 			type = e.currentTarget.classList[1]
 			$(".alert").text(type+" modview is displayed").show()
