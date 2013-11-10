@@ -12,7 +12,7 @@
 			"click .destroy": @triggerEvent "deleteNote"
 			"mouseover .branch": @toggleDestroyFeat "block"
 			"mouseout .branch": @toggleDestroyFeat "none"
-			"keyup .branch": @timeoutAndSave(@updateNote)
+			"keyup >.branch>.noteContent": @timeoutAndSave @updateNote
 
 			"dragstart .move": @triggerDragEvent "startMove"
 			"dragend .move": @triggerDragEvent "endMove"
