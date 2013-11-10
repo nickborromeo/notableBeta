@@ -35,10 +35,10 @@
 		appendHtml:(collectionView, itemView, i) ->
 			@$('.descendants:first').append(itemView.el)
 			if i is @collection.length - 1
-				@$('>.branch>.descendants>.branch-template>.branch>#dropAfter.dropTarget')[0...-1].remove()
+				@$('>.branch>.descendants>.branch-template>.branch>.dropAfter.dropTarget')[0...-1].remove()
 		trimExtraDropTarget: ->
 			if @model.isARoot() and @model.get('rank') isnt 1
-				@$(">.branch>#dropBefore").remove()
+				@$(">.branch>.dropBefore").remove()
 		getNoteContent: ->
 			if @ui.noteContent.length is 0 or !@ui.noteContent.focus?
 				@ui.noteContent = @.$('.noteContent:first')
@@ -318,7 +318,7 @@
 		dropAllowedAfter: (note) ->
 			@drag isnt note and not note.hasInAncestors @drag
 		getDropType: (e) ->
-			e.currentTarget.id
+			e.currentTarget.classList[1]
 		mergeWithPreceding: (note) ->
 			[preceding, title] = @collection.mergeWithPreceding note
 			return false unless preceding
