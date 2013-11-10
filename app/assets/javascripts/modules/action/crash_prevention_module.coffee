@@ -23,6 +23,11 @@
     storageHash[guid] = true
     window.localStorage.setItem _cachedDeletes, JSON.stringify(storageHash)
 
+  @addDeleteAndStart = (note) ->
+    if _localStorageEnabled
+      _addToDeleteStorage note.get('guid')
+      _startBackOff _backOffInterval
+
   #this must be called by ActionManager!
   @removeFromDeleteStorage = (guid) ->
     if _localStorageEnabled    
@@ -30,64 +35,88 @@
       storageHash[guid] = false
       window.localStorage.setItem _cachedDeletes, JSON.stringify(storageHash)
 
+  _syncDeletes = () ->
+    deleteHash = JSON.parse window.localStorage.getItem _cachedDeletes
+    if deleteHash?
+      _allNotes.fetch success: ->
+        _.each deleteHash, (toDelete, guid) ->
+          if toDelete
+            _deleteAndSave guid
+    _clearCachedDeletes()
+
+  _deleteAndSave = (guid) ->
+    noteReference = _allNotes.findWhere {guid: guid}
+    noteReference.destroy()
+
   _startBackOff = (time) ->
     if not _backOffTimeoutID?
-      _backOffTimeoutID = setTimeout (-> _fullSync(time)), time
+      _backOffTimeoutID = setTimeout (-> 
+        App.Notify.alert 'saving', 'info'
+        _fullSyncNoAsync _tree.getAllSubNotes() ,time
+        ), time
 
-  _fullSync = (time) ->
-    allCurrentNotes = _tree.getAllSubNotes()
+  _fullSyncNoAsync = (allCurrentNotes, time) ->
     options = 
       success: ->
         _clearBackOff()
-        App.Notify.alert 'saved', 'success'
+        if allCurrentNotes.length > 0 then _fullSyncNoAsync(allCurrentNotes, time)
+        else #this means all are done
+          App.Notify.alert 'saved', 'success'
+          _syncDeletes(time)
+          _clearCachedChanges()
       error: ->
+        App.Notify.alert 'connectionLost', 'danger'
         _clearBackOff()
         if time < 60000 then _startBackOff time*2
         else _startBackOff time
-    _.each allCurrentNotes, (note) ->
-      Backbone.Model.prototype.save.call(note, null, options)
+    Backbone.Model.prototype.save.call(allCurrentNotes.pop(),null,options)
 
   @addChangeAndStart = (note) ->
     if _localStorageEnabled
       _addToChangeStorage note.getAllAtributes()
       _startBackOff _backOffInterval
 
-  @addDeleteAndStart = (note) ->
-    if _localStorageEnabled
-      _addToDeleteStorage note.get('guid')
-      _startBackOff _backOffInterval
-
   # these are all for intializing the application!
   @checkAndLoadLocal = ->
     if _localStorageEnabled
       changeHash = JSON.parse window.localStorage.getItem _cachedChanges 
-      deleteHash = JSON.parse window.localStorage.getItem _cachedDeletes
       if changeHash?
-        _.each changeHash, (attributes, guid) -> 
-          _loadAndSave guid, attributes      
-      if deleteHash?
-        _.each deleteHash, (toDelete, guid) ->
-          if toDelete
-            _deleteAndSave guid
-    window.localStorage.setItem _cachedChanges, '{}'
-    window.localStorage.setItem _cachedDeletes, '{}'
-      
-  _loadAndSave = (guid, attributes) ->
+        changeHashGUIDs = Object.keys changeHash
+        _changeOnlySyncNoAsync changeHash, changeHashGUIDs
+      else
+        _syncDeletes()
+
+  _changeOnlySyncNoAsync = (changeHash, changeHashGUIDs) ->
+    console.log 'called _changeOnlySyncNoAsync'
+    options = 
+      success: =>
+        if changeHashGUIDs.length > 0 
+          _changeOnlySyncNoAsync(changeHash, changeHashGUIDs)
+        else #this means all are done
+          App.Notify.alert 'saved', 'success'
+          _syncDeletes()
+          _clearCachedChanges()
+      error: =>
+        _startBackOff time
+    tempGuid = changeHashGUIDs.pop()
+    _loadAndSave tempGuid, changeHash[tempGuid], options
+
+  _loadAndSave = (guid, attributes, options) ->
     noteReference = _allNotes.findWhere {guid: guid}
-    if noteReference? then noteReference.save attributes
+    if noteReference? 
+      Backbone.Model.prototype.save.call(noteReference,attributes,options)
     else
       newBranch = new App.Note.Branch()
-      newBranch.save attributes
+      Backbone.Model.prototype.save.call(newBranch,attributes,options)
       _allNotes.add newBranch
       _tree.insertInTree newBranch
 
-  _deleteAndSave = (guid) ->
-    try
-      noteReference = _tree.findNote guid
-      _tree.deleteNote noteReference
-    catch e
-      console.log 'nothing to delete'
-    
+
+  _clearCachedChanges = ->
+    window.localStorage.setItem _cachedChanges, '{}'
+  _clearCachedDeletes = ->
+    window.localStorage.setItem _cachedDeletes, '{}'
+
   _clearBackOff = () ->
     clearTimeout _backOffTimeoutID
     _backOffTimeoutID = null
