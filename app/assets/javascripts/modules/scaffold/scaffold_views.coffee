@@ -7,24 +7,31 @@
 		id: "message-center"
 		tagName: "section"
 		regions:
-			notificationRegion: "#notification-region"
+			notificationRegion: "#notification-region" #THIS IS WHERE WE RENDER THE NOTIFICATION!
 			modviewRegion: "#modview-region"
 
 		events: ->
 			"click .sidebar-toggle": "shiftNavbar"
 			"click .new-note": "showTooltip"
-			"click .outline": "applyModview"
-			"click .grid": "applyModview"
-			"click .mindmap": "applyModview"
+			"click .outline_icon": "applyModview"
+			"click .mindmap_icon": "applyModview"
+			"click .grid_icon": "applyModview"
+			"click #notification-region": "checkForEvent"
 		showTooltip: ->
-			$(".new-note").tooltip 'toggle'
+			App.Notify.alert 'newNote','success'
 		applyModview: (e) ->
-			type = e.currentTarget.classList[3]
+			type = e.currentTarget.classList[1]
 			$(".alert").text(type+" modview is displayed").show()
 			$(".alert").delay(7000).fadeOut(1400)
-		shiftNavbar: ->
+			$(".modview-btn").removeClass("selected")
+			$(".#{type}").addClass("selected")
+		shiftNavbar: (e) ->
 			$(".navbar-header").toggleClass("navbar-shift")
 			$(".navbar-right").toggleClass("navbar-shift")
+			type = e.currentTarget.classList[1]
+			$(".#{type}").toggleClass("selected")
+		checkForEvent: ->
+			App.Notify.checkForClickBinding()
 
 	class Scaffold.ContentView extends Marionette.Layout
 		template: "scaffold/content"
@@ -43,6 +50,13 @@
 			recentNoteRegion: "#recentNote-region"
 			favoriteRegion: "#favorite-region"
 			tagRegion: "#tag-region"
+
+		events: ->
+			"click h1.sidebar-dropdown": "toggleList"
+
+		toggleList: (e) ->
+			$(e.currentTarget.nextElementSibling).toggle(400)
+			$(e.currentTarget.firstElementChild).toggleClass("closed")
 
 	# Initializers -------------------------
 	App.Scaffold.on "start", ->

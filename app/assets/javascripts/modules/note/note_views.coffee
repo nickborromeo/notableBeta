@@ -12,41 +12,37 @@
 			"click .destroy": @triggerEvent "deleteNote"
 			"mouseover .branch": @toggleDestroyFeat "block"
 			"mouseout .branch": @toggleDestroyFeat "none"
+			"keyup >.branch>.noteContent": @timeoutAndSave @updateNote
 
 			"dragstart .move": @triggerDragEvent "startMove"
 			"dragend .move": @triggerDragEvent "endMove"
 			"drop .dropTarget": @triggerDragEvent "dropMove"
 			"dragenter .dropTarget": @triggerDragEvent "enterMove"
 			"dragleave .dropTarget": @triggerDragEvent "leaveMove"
-			"dragover .dropTarget": @triggerDragEvent "overMove"
-			"keyup .branch": @timeoutAndSave(@updateNote)
+			"dragover .dropTarget": @triggerDragEvent "overMove" 
 
 
 		initialize: ->
 			@collection = @model.descendants
 			@bindKeyboardShortcuts()
-			# @listenTo @model, "change:created_at", @setCursor
 			@listenTo @collection, "sort", @render
 			Note.eventManager.on "setCursor:#{@model.get('guid')}", @setCursor, @
 			Note.eventManager.on "render:#{@model.get('guid')}", @render, @
 			Note.eventManager.on "setTitle:#{@model.get('guid')}", @setNoteTitle, @
 		onRender: ->
 			@getNoteContent().wysiwyg()
-			@addLastDropTarget()
+			@trimExtraDropTarget()
 		appendHtml:(collectionView, itemView, i) ->
 			@$('.descendants:first').append(itemView.el)
 			if i is @collection.length - 1
-				itemView.$('>.branch .descendants').after('<div id="dropAfter" class="dropTarget"></div>')
+				@$('>.branch>.descendants>.branch-template>.branch>.dropAfter.dropTarget')[0...-1].remove()
+		trimExtraDropTarget: ->
+			if @model.isARoot() and @model.get('rank') isnt 1
+				@$(">.branch>.dropBefore").remove()
 		getNoteContent: ->
 			if @ui.noteContent.length is 0 or !@ui.noteContent.focus?
-					@ui.noteContent = @.$('.noteContent:first')
+				@ui.noteContent = @.$('.noteContent:first')
 			@ui.noteContent
-		addLastDropTarget: ->
-			if @model.isARoot()
-				@model.collection.sort(silent: true)
-				if @model.collection.where(parent_id: 'root')[-1..][0] is @model
-					@$el.append('<div id="dropAfter" class="dropTarget"></div>')
-
 		bindKeyboardShortcuts: ->
 			@.$el.on 'keydown', null, 'ctrl+shift+backspace', @triggerShortcut 'deleteNote'
 			@.$el.on 'keydown', null, 'meta+shift+backspace', @triggerShortcut 'deleteNote'
@@ -61,6 +57,20 @@
 			@.$el.on 'keydown', null, 'backspace', @mergeWithPreceding.bind @
 			@.$el.on 'keydown', null, 'ctrl+s', @saveNote.bind @
 			@.$el.on 'keydown', null, 'meta+s', @saveNote.bind @
+			@.$el.on 'keydown', null, 'ctrl+z', @triggerUndoEvent #@ needs to be the tree
+			@.$el.on 'keydown', null, 'meta+z', @triggerUndoEvent #@ needs to be the tree
+			@.$el.on 'keydown', null, 'ctrl+y', @triggerRedoEvent #@ needs to be the tree
+			@.$el.on 'keydown', null, 'meta+y', @triggerRedoEvent #@ needs to be the tree
+			# needs to make sure @ is proper context ie @ needs to be 
+
+		triggerRedoEvent: (e) =>
+			e.preventDefault()
+			e.stopPropagation()
+			App.Action.redo(@.collection)
+		triggerUndoEvent: (e) =>
+			e.preventDefault()
+			e.stopPropagation()
+			App.Action.undo(@.collection)
 		triggerShortcut: (event) -> (e) =>
 			e.preventDefault()
 			e.stopPropagation()
@@ -76,11 +86,11 @@
 				args = ['change', event, @model].concat(Note.sliceArgs arguments, 0)
 				Note.eventManager.trigger.apply(Note.eventManager, args)
 
-		timeoutAndSave: (updateCallBack)-> 
+		timeoutAndSave: (updateCallBack)->
 			timer = null
 			return ->
 				clearTimeout timer
-				timer = setTimeout(updateCallBack, 3000)
+				timer = setTimeout(updateCallBack, 1000)
 
 		mergeWithPreceding: (e) ->
 			e.stopPropagation()
@@ -117,9 +127,12 @@
 
 		updateNote: =>
 			noteTitle = @getNoteTitle()
+			noteSubtitle = "" #@getNoteSubtitle()
 			if @model.get('title') isnt noteTitle
+				@model.addUndoUpdate(noteTitle,noteSubtitle)
 				@model.save
 					title: noteTitle
+					subtitle: noteSubtitle
 				@model.saveLocally()
 			noteTitle
 		getNoteTitle: ->
@@ -265,6 +278,7 @@
 		startMove: (ui, e, model) ->
 			# e.preventDefault();
 			# ui.noteContent.style.opacity = '0.7'
+			model.addUndoMove()
 			@drag = model
 			e.dataTransfer.effectAllowed = "move"
 			e.dataTransfer.setData("text", model.get 'guid')
@@ -308,7 +322,7 @@
 		dropAllowedAfter: (note) ->
 			@drag isnt note and not note.hasInAncestors @drag
 		getDropType: (e) ->
-			e.currentTarget.id
+			e.currentTarget.classList[1]
 		mergeWithPreceding: (note) ->
 			[preceding, title] = @collection.mergeWithPreceding note
 			return false unless preceding

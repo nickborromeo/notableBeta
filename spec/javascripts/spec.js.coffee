@@ -6,5 +6,6 @@
 # spec/lib/jasmine/*.js
 #
 # =require ../../app/assets/javascripts/application
-# =require_tree ./
 # =require_tree ./helpers
+# =require_tree ./
+# =require_tree ./action_module

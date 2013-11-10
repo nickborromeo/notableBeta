@@ -1,114 +1,161 @@
-#TODO:  attempt to propery connect the model's add, remove, change, move
-#TODO:  write test!!!!!!!
-#FIXME:  deleting an ancestor deletes children... really need to fix this.
-#FIXME:  moving notes around changes subsequent notes as well....
-      #  some how all notes need to be updated....   
-      # if we CAREFULLY call the "moveNote method" this should be OKAY.
-      # but may have unintented consequences
-
-#TODO:  periodically 30s? update completedHistory localStorage cache 
-#TODO:  history should be added on spacebar up
+#FIXME:  notes have updated information, but are not re-rendered in the view!
 
 @Notable.module("Action", (Action, App, Backbone, Marionette, $, _) ->
 
-  class Action.Manager
-    _actionHistory = []
-    _undoneHistory = []
-    _expects = {}
-    _revert = {}
-    _historyLimit = 100;
+	_undoStack = []
+	_redoStack = []
+	_historyLimit = 100
+	_tree = ''
+	_allNotes = ''
 
-    _expects.createNote: ['guid'] #only needs GUID to erase
-    _expects.deleteNote: ['note','options'] #needs all data
-    _expects.deleteBranch: ['ancestorNote','childNoteSet']
-    _expects.moveNote: ['guid','previous','current'] #previous & current expect = {title:"", subtitle:""}
-    _expects.updateContent: ['guid','previous','current'] #previous & current= {depth:-, rank:-, parent_id:""}
-    _expects.checker: (actionType, changeProperties) ->
-      return false unless @[actionType]?
-      return false unless changeProperties?
-      for property in @[actionType]
-        return false unless changeProperties[property]?
-      return true 
+	_expects = 
+		createNote: ['guid'] #only needs GUID to erase
+		deleteBranch: ['ancestorNote','childNoteSet']
+		moveNote: ['guid','depth','rank','parent_id']
+		updateContent: ['guid','title','subtitle'] 
+		checker: (actionType, changes) ->
+			return false unless @[actionType]?
+			return false unless changes?
+			for property in @[actionType]
+				return false unless changes[property]?
+			return true 
 
+	_revert = 
+		createNote: (change) ->
+			reference = @_getReference(change.guid)
 
-    _revert.createNote: (tree, change) ->
-      noteReference = tree.findNote change.guid
-      tree.removeFromCollection noteReference
-      return {type: 'deleteNote', changes: {note: noteReference, options: {} } }
+			removedBranchs = {ancestorNote: reference.note.getAllAtributes(), childNoteSet: []}
+			completeDescendants = reference.note.getCompleteDescendantList()
+			_.each completeDescendants, (descendant) ->
+				removedBranchs.childNoteSet.push(descendant.getAllAtributes())
 
-    _revert.deleteNote: (tree, change) ->
-      tree.insertInTree change.note, change.options
-      return {type: 'createNote', changes: { guid: change.note.guid }}
+			_allNotes.remove reference.note
+			_tree.deleteNote reference.note, true
+			#trigger update view:
+			return {type: 'deleteBranch', changes: removedBranchs }
 
-    _revert.deleteBranch: (tree, change) ->
-      tree.insertInTree change.ancestorNote
-      for note in change.childNoteSet
-        tree.insertInTree note
-      return {type: 'createNote', changes: { guid: change.ancestorNote.guid }}
+		reverseDeleteNote: (attributes) ->
+			newBranch = new App.Note.Branch()
+			newBranch.save attributes
+			_allNotes.add newBranch
+			reference = @_getReference newBranch.get('guid')
+			_tree.insertInTree newBranch
+			# reference.parentCollection.add newBranch
 
-    _revert.moveNote: (tree, change) ->
-      noteReference = tree.findNote change.guid
-      for key, val in change.previous
-        noteReference.set(key, val)
-      return _swapPrevAndNext(change)
+		deleteBranch: (change) ->
+			@reverseDeleteNote(change.ancestorNote)
+			for attributes in change.childNoteSet
+				@reverseDeleteNote(attributes)
+			#trigger update view:
+			return {type: 'createNote', changes: { guid: change.ancestorNote.guid }}
 
-    _revert.updateContent: (tree, change) ->
-       noteReference = tree.findNote change.guid
-      for key, val in change.previous
-        noteReference.set(key, val)
-      return _swapPrevAndNext(change)   
+		moveNote: (change) ->
+			reference = @_getReference(change.guid)
 
-    _revert._swapPrevAndNext: (change) ->
-      previous = change.previous
-      change.previous = change.next
-      change.next = previous
-      return change
+			changeTemp =
+				guid: change.guid
+				depth: reference.note.get('depth')
+				rank: reference.note.get('rank')
+				parent_id: reference.parent_id
 
-    _clearundoneHistory: ->
-      # undoneHistory.reverse()
-      # for item in undoneHistory
-      #   actionHistory.push undoneHistory.pop()
-      undoneHistory = []
+			_tree.removeFromCollection reference.parentCollection, reference.note
+			reference.note.save change
+			_tree.insertInTree reference.note
+			#trigger update view!!!!!!!!!!
+			return {type:'moveNote', changes: changeTemp}
 
-    # ----------------------
-    # Public Methods & Functions
-    # ----------------------
-    addHistory: (actionType, changes) ->
-      throw "!!--cannot track this change--!!" unless _expects.checker(actionType)
-      if undoneHistory.length > 1 then clearundoneHistory()
-      if actionHistory.length >= historyLimit then actionHistory.shift()
-      actionHistory.push {type: actionType, changes: changes}
+		updateContent: (change) ->
+			reference = @_getReference(change.guid)
 
-    undo: (tree) ->
-      throw "nothing to undo" unless actionHistory.length > 1
-      change = actionHistory.pop()
-      undoneHistory.push revert[change.type](tree, change.changes)
+			changeTemp =
+				guid: change.guid
+				title: reference.note.get('title')
+				subtitle: reference.note.get('subtitle')
 
-    redo: (tree) ->
-      throw "nothing to redo" unless undoneHistory.length > 1
-      change = undoneHistory.pop()
-      actionHistory.push revert[change.type](tree, change.changes)
+			_tree.removeFromCollection reference.parentCollection, reference.note
+			reference.note.save change
+			_tree.insertInTree reference.note
+			return {type: 'updateContent', changes: changeTemp}
 
-    exportToServer: ->
-      #do something if nessecary 
+		_getReference: (guid) ->
+			note = @_findANote(guid)
+			parent_id = note.get('parent_id')
+			parentCollection = _tree.getCollection(parent_id)
+			{note: note, parent_id: parent_id, parentCollection: parentCollection}
 
-    exportToLocalStorage: ->
-      window.localStorage.setItem 'history', JSON.stringify(actionHistory)
-    #moves items undone to the change completed change stack...
+		_findANote: (guid) ->
+			_allNotes.findWhere({guid: guid}) ? _tree.findNote(guid)
 
-    loadHistoryFromLocalStorage: ->
-      loadPreviousActionHistory JSON.parse(window.localStorage.getItem('history'))
+	clearRedoHistory = ->
+		# _redoStack.reverse()
+		# for item in _redoStack
+		#   actionHistory.push _redoStack.pop()
+		_redoStack = []
 
-    loadPreviousActionHistory: (previousHistory) ->
-      throw "-- this is not history! --" unless Array.isArray previousHistory
-      #warning: this will erase all previous history.
-      actionHistory = previousHistory
+	# ----------------------
+	# Public Methods & Functions
+	# ----------------------
+	@addHistory = (actionType, changes) ->
+		throw "!!--cannot track this change--!!" unless _expects.checker(actionType, changes)
+		if _redoStack.length > 1 then clearRedoHistory()
+		if _undoStack.length >= _historyLimit then _undoStack.shift()
+		_undoStack.push {type: actionType, changes: changes}
 
-    setHistoryLimit: (limit) ->
-      throw "-- cannot set #{limit} " if isNaN limit
-      historyLimit = limit
+	@undo = ->
+		throw "nothing to undo" unless _undoStack.length > 0
+		change = _undoStack.pop()
+		_redoStack.push _revert[change.type](change.changes)
 
-    getHistoryLimit: ->
-      historyLimit
+	@redo = ->
+		throw "nothing to redo" unless _redoStack.length > 0
+		change = _redoStack.pop()
+		_undoStack.push _revert[change.type](change.changes)
+		if change.type is 'createNote' then App.Notify.alert 'deleted', 'warning'
+
+	@exportToServer = ->
+		#do something if nessecary 
+
+	@exportToLocalStorage = ->
+		window.localStorage.setItem 'history', JSON.stringify(_undoStack)
+	#moves items undone to the change completed change stack...
+
+	@loadHistoryFromLocalStorage = ->
+		loadPreviousActionHistory JSON.parse(window.localStorage.getItem('history'))
+
+	@loadPreviousActionHistory = (previousHistory) ->
+		throw "-- this is not history! --" unless Array.isArray previousHistory
+		#warning = this will erase all previous history.
+		_undoStack = previousHistory
+
+	@setHistoryLimit = (limit) ->
+		throw "-- cannot set #{limit} " if isNaN limit
+		_historyLimit = limit
+
+	@getHistoryLimit = ->
+		_historyLimit
+
+	@setTree = (tree) ->
+		_tree = tree
+
+	@setAllNotesByDepth = (allNotes) ->
+		_allNotes = allNotes
+
+	## !! this is for testing ONLY
+	## don't try to erase... its deadly.
+	@_getActionHistory = ->
+		_undoStack
+
+	@_getUndoneHistory = ->
+		_redoStack
+
+	@_resetActionHistory = ->
+		_undoStack = []
+		_redoStack = []
+
+	@_getTree = ->
+		_tree
+
+	@_getNoteCollection = ->
+		_allNotes
 
 )

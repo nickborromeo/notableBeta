@@ -4,15 +4,24 @@ $notableBlue: #14A4FF;
 $notableOrange: #E97C12;
 $notableYellow: #FFDC33;
 $notableWhite: #FDFDFD;
-$notableGray: #EAEAEA;
 $notableBlack: #3D3D3D;
-$notableDarkGray: #999999;
+
+$grayLight: #EAEAEA;
+$gray: #C1C1C1;
+$grayDark: #989898;
+$grayUltraDark: #515151;
 
 // ----------------------------------------------------
 // ----------------MOBILE FIRST CSS -------------------
 // ----------------------------------------------------
 
 .sidr {
+
+	&.right {
+		left: auto;
+		right: -260px;
+		@include single-box-shadow($notableBlack, 7px, 3px, 14px, 3px, inset);
+	}
 
 	form {
 		margin: 0 15px;
@@ -39,7 +48,7 @@ $notableDarkGray: #999999;
 		@include box-sizing(border-box);
 		@include border-radius(15px);
 		margin: 0.5em 0;
-		border: $notableGray;
+		border: $gray;
 		display: inline-block;
 		clear: both;
 	}
