@@ -66,11 +66,11 @@
 		triggerRedoEvent: (e) =>
 			e.preventDefault()
 			e.stopPropagation()
-			App.Action.redo(@.collection)
+			App.Action.redo()
 		triggerUndoEvent: (e) =>
 			e.preventDefault()
 			e.stopPropagation()
-			App.Action.undo(@.collection)
+			App.Action.undo()
 		triggerShortcut: (event) -> (e) =>
 			e.preventDefault()
 			e.stopPropagation()
