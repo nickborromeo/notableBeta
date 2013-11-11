@@ -12,7 +12,7 @@
 			"mouseover .branch": @toggleDestroyFeat "block"
 			"mouseout .branch": @toggleDestroyFeat "none"
 			"keyup >.branch>.noteContent": @timeoutAndSave @updateNote
-			"click >.branch>.move": "zoomIn"
+			"dblclick >.branch>.move": "zoomIn"
 
 			"dragstart .move": @triggerDragEvent "startMove"
 			"dragend .move": @triggerDragEvent "endMove"
