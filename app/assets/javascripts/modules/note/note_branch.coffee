@@ -122,10 +122,8 @@
 				parent_id: @get('parent_id')
 				depth: @get('depth')
 				rank: @get('rank')}
-			App.Notify.alert 'moved', 'info'
 		addUndoCreate: =>
 			App.Action.addHistory 'createNote', {guid: @get('guid')}
-			App.Notify.alert 'newNote', 'info'
 		addUndoDelete: =>
 			removedBranchs = {ancestorNote: @getAllAtributes(), childNoteSet: []}
 			completeDescendants = @getCompleteDescendantList()
