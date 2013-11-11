@@ -90,9 +90,10 @@
 			timer = null
 			return ->
 				clearTimeout timer
-				timer = setTimeout(updateCallBack, 1000)
+				# timer = setTimeout(updateCallBack, 1000)
 
 		mergeWithPreceding: (e) ->
+			return true if document.getSelection().isCollapsed is false
 			e.stopPropagation()
 			if @testCursorPosition "isEmptyBeforeCursor"
 				@triggerShortcut('mergeWithPreceding')(e)
