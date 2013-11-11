@@ -45,8 +45,13 @@
     _clearCachedDeletes()
 
   _deleteAndSave = (guid) ->
-    noteReference = _allNotes.findWhere {guid: guid}
-    noteReference.destroy()
+    #should be wrapped in try catch just ensure bad data is ignored
+    try
+      noteReference = _allNotes.findWhere {guid: guid}
+      noteReference.destroy()
+    catch e
+      console.error(e)
+    
 
   _startBackOff = (time) ->
     if not _backOffTimeoutID?
@@ -55,7 +60,7 @@
         _fullSyncNoAsync _tree.getAllSubNotes() ,time
         ), time
 
-  _fullSyncNoAsync = (allCurrentNotes, time) ->
+  _fullSyncNoAsync = (allCurrentNotes, time = _backOffInterval) ->
     options = 
       success: ->
         _clearBackOff()
@@ -121,10 +126,10 @@
     clearTimeout _backOffTimeoutID
     _backOffTimeoutID = null
 
-
-  @fullSync = ->
-
   @informConnectionSuccess = ->
+    if _backOffTimeoutID?
+      _clearBackOff()
+      _fullSyncNoAsync _tree.getAllSubNotes()
 
   @setTree = (tree) ->
     _tree = tree
