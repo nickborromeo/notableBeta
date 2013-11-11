@@ -3,5 +3,6 @@
 	class Router extends Backbone.Marionette.AppRouter
 		appRoutes:
 			"*filter": "filterItems"
+			"zoom/:guid": "test"
 )
 ###

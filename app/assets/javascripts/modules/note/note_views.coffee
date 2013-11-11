@@ -1,5 +1,4 @@
 @Notable.module("Note", (Note, App, Backbone, Marionette, $, _) ->
-	Note.eventManager = _.extend {}, Backbone.Events
 
 	class Note.ModelView extends Marionette.CompositeView
 		template: "note/noteModel"
@@ -13,6 +12,7 @@
 			"mouseover .branch": @toggleDestroyFeat "block"
 			"mouseout .branch": @toggleDestroyFeat "none"
 			"keyup >.branch>.noteContent": @timeoutAndSave @updateNote
+			"click >.branch>.move": "zoomIn"
 
 			"dragstart .move": @triggerDragEvent "startMove"
 			"dragend .move": @triggerDragEvent "endMove"
@@ -22,6 +22,8 @@
 			"dragover .dropTarget": @triggerDragEvent "overMove" 
 
 
+		zoomIn: ->
+			Backbone.history.navigate "#/zoom/#{@model.get('guid')}"
 		initialize: ->
 			@collection = @model.descendants
 			@bindKeyboardShortcuts()
@@ -249,8 +251,8 @@
 		onBeforeRender: -> 
 		onRender: -> @addDefaultNote false
 		addDefaultNote: (render = true) ->
-			if @collection.length is 0 then @collection.create()
-			@render if render
+			# if @collection.length is 0 then @collection.create()
+			# @render if render
 		dispatchFunction: (functionName) ->
 			return @[functionName].apply(@, Note.sliceArgs arguments) if @[functionName]?
 			@collection[functionName].apply(@collection, Note.sliceArgs arguments)

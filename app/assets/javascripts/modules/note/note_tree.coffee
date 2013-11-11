@@ -15,7 +15,8 @@
 		model: Note.Branch
 		url:'/notes'
 
-
+		initialize: (branch) ->
+			@add branch if branch
 		# Manage note insertion in the nested structure
 		add: (note, options) ->
 			collectionToAddTo = @getCollection note.get 'parent_id'
