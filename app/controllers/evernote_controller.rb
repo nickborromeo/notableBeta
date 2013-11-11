@@ -1,5 +1,13 @@
 class EvernoteController < ApplicationController
 
+  def start
+    @foovariable = "chocolate"
+  end
+
+  def end
+    @barvariable = "strawberry"
+  end
+
   def client
     @client ||= EvernoteOAuth::Client.new(token: auth_token, consumer_key:OAUTH_CONSUMER_KEY,
       consumer_secret:OAUTH_CONSUMER_SECRET, sandbox: SANDBOX)

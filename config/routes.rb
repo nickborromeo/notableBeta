@@ -4,6 +4,8 @@ Notable::Application.routes.draw do
 
   root :to => 'scaffold#index'
 
+  get "start" => "evernote#start"
+  get "end" => "evernote#end"
 
   # The priority is based upon order of creation:
   # first created -> highest priority.
