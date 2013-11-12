@@ -19,10 +19,25 @@
 			"click #notification-region": "checkForEvent"
 		createNote: ->
 			App.Notify.alert 'newNote','success'
-			lastNote = App.Note.tree.last()
-			App.Note.tree.create
-				rank: lastNote.get('rank') + 1
-				title: ""
+			if App.Note.activeTree.models.length is 0
+				if App.Note.activeBranch is 'root'
+					lastNote =
+						rank: 1
+						title: ""
+				else
+					lastNote =
+						rank: 1
+						title: ""
+						depth: App.Note.activeBranch.get('depth') + 1
+						parent_id: App.Note.activeBranch.get('guid')
+				App.Note.tree.create lastNote
+			else
+				lastNote = App.Note.activeTree.last()
+				App.Note.tree.create
+					depth: lastNote.get('depth')
+					parent_id: lastNote.get('parent_id')
+					rank: lastNote.get('rank') + 1
+					title: ""
 			App.Note.eventManager.trigger "setCursor:#{App.Note.tree.last().get('guid')}"
 		applyModview: (e) ->
 			type = e.currentTarget.classList[1]

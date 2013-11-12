@@ -16,6 +16,8 @@
 			@allNotesByDepth = new App.Note.Collection()
 			@tree = new App.Note.Tree()
 			App.Note.tree = @tree
+			App.Note.activeTree = @tree
+			App.Note.activeBranch = "root"
 			App.Action.setTree @tree
 			App.Action.setAllNotesByDepth @allNotesByDepth
 
@@ -34,14 +36,19 @@
 			console.log "clearZoom"
 			setTimeout =>
 				@showContentView App.Note.tree
+				App.Note.activeTree = App.Note.tree
+				App.Note.activeBranch = "root"
 			, 1000
 
 		zoomIn: (guid) ->
-			console.log App.Note.tree, guid, App.Note.tree.findNote guid
-			@showContentView App.Note.tree.getCollection guid
-			crownView = new App.Note.CrownView(model: App.Note.tree.findNote(guid))
-			App.contentRegion.currentView.crownRegion.show crownView
-
+			setTimeout =>
+				console.log App.Note.tree, guid, App.Note.tree.findNote guid
+				App.Note.activeTree = App.Note.tree.getCollection guid
+				App.Note.activeBranch = App.Note.tree.findNote(guid)
+				@showContentView App.Note.activeTree
+				crownView = new App.Note.CrownView(model: App.Note.activeBranch)
+				App.contentRegion.currentView.crownRegion.show crownView
+			, 1000
 	# Initializers -------------------------
 	Note.addInitializer ->
 		noteController = new Note.Controller()
