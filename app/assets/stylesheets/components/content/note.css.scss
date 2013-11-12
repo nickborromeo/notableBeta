@@ -112,6 +112,7 @@ $screen-lg: 1200px;
 // --------------LAPTOP MEDIA QUERIES -----------------
 // ----------------------------------------------------
 @media (min-width: $screen-md) {
+
 	#tree {
 		padding: 0.7em 1.6em;
 		margin: 0 1.8em 1.6em 1.8em;
@@ -130,7 +131,7 @@ $screen-lg: 1200px;
 			}
 		}
 
-		.branch {
+		.crown {
 			&:hover .trash_icon {
 				display: block;
 			}

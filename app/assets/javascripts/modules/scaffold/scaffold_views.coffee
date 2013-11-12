@@ -7,7 +7,7 @@
 		id: "message-center"
 		tagName: "section"
 		regions:
-			notificationRegion: "#notification-region" #THIS IS WHERE WE RENDER THE NOTIFICATION!
+			notificationRegion: "#notification-region"
 			modviewRegion: "#modview-region"
 
 		events: ->
@@ -43,8 +43,8 @@
 		id: "content-center"
 		tagName: "section"
 		regions:
+			crownRegion: "#crown-region"
 			treeRegion: "#tree-region"
-			dirtRegion: "#dirt-region"
 
 	class Scaffold.SidebarView extends Marionette.Layout
 		template: "scaffold/sidebar"

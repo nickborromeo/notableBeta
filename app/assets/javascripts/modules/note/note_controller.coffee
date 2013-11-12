@@ -35,10 +35,12 @@
 			setTimeout =>
 				@showContentView App.Note.tree
 			, 1000
-			
+
 		zoomIn: (guid) ->
-				console.log App.Note.tree, guid, App.Note.tree.findNote guid
-				@showContentView App.Note.tree.getCollection guid
+			console.log App.Note.tree, guid, App.Note.tree.findNote guid
+			@showContentView App.Note.tree.getCollection guid
+			crownView = new App.Note.CrownView(model: App.Note.tree.findNote(guid))
+			App.contentRegion.currentView.crownRegion.show crownView
 
 	# Initializers -------------------------
 	Note.addInitializer ->

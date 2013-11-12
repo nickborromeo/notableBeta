@@ -1,7 +1,7 @@
 @Notable.module("Note", (Note, App, Backbone, Marionette, $, _) ->
 
-	class Note.ModelView extends Marionette.CompositeView
-		template: "note/noteModel"
+	class Note.BranchView extends Marionette.CompositeView
+		template: "note/branchModel"
 		className: "branch-template"
 		ui:
 			noteContent: ">.branch .noteContent"
@@ -19,8 +19,7 @@
 			"drop .dropTarget": @triggerDragEvent "dropMove"
 			"dragenter .dropTarget": @triggerDragEvent "enterMove"
 			"dragleave .dropTarget": @triggerDragEvent "leaveMove"
-			"dragover .dropTarget": @triggerDragEvent "overMove" 
-
+			"dragover .dropTarget": @triggerDragEvent "overMove"
 
 		zoomIn: ->
 			Backbone.history.navigate "#/zoom/#{@model.get('guid')}"
@@ -240,7 +239,7 @@
 
 	class Note.TreeView extends Marionette.CollectionView
 		id: "tree"
-		itemView: Note.ModelView
+		itemView: Note.BranchView
 
 		initialize: ->
 			@listenTo @collection, "sort", @render
@@ -248,7 +247,7 @@
 			Note.eventManager.on 'createNote', @createNote, this
 			Note.eventManager.on 'change', @dispatchFunction, this
 			@drag = undefined
-		onBeforeRender: -> 
+		onBeforeRender: ->
 		onRender: -> @addDefaultNote false
 		addDefaultNote: (render = true) ->
 			# if @collection.length is 0 then @collection.create()
@@ -332,4 +331,9 @@
 			previousTitle = preceding.get('title')
 			Note.eventManager.trigger "setTitle:#{preceding.get('guid')}", title
 			Note.eventManager.trigger "setCursor:#{preceding.get('guid')}", previousTitle
+
+	class Note.CrownView extends Marionette.ItemView
+		id: "crown"
+		template: "note/crownModel"
+
 )

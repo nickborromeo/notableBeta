@@ -6,7 +6,8 @@
 				<span class="glyphicon glyphicon-align-justify"></span>
 			</button>
 		</div><div class="col-xs-9 col-sm-12 logo">
-			<%= image_tag("logo/logo.png", alt: "Notable", class: "logo-icon hidden-xs")%>
+			<%= link_to image_tag("logo/logo.png", alt: "Notable",
+				 class: "logo-icon hidden-xs"), root_path %>
 			<h2 class="logo-name visible-xs">Notable</h2>
 		</div><div class="col-xs-2 xs-toggle-right">
 			<button type="button" class="btn btn-info btn-xs sidr-toggle-right">
