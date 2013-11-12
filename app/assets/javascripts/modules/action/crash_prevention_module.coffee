@@ -95,7 +95,7 @@
     catch e
       #this means note wasn't found
       noteReference = new App.Note.Branch()
-      _tree.insertInTree noteReference
+      _tree.add noteReference
     finally
       Backbone.Model.prototype.save.call(noteReference,attributes,options)
     
@@ -118,10 +118,16 @@
     window.localStorage.setItem _cachedChanges, JSON.stringify(storageHash)
 
 
-  @saveAndStartBackOff = (note) ->
+  # @saveAndStartBackOff = (note) ->
+  #   if _localStorageEnabled
+  #     # _addToChangeStorage note.getAllAtributes()
+  #     _saveAllToLocal(_tree.getAllSubNotes())
+  #     _startBackOff _backOffInterval
+
+  @addChangeAndStart = (note) ->
     if _localStorageEnabled
-      # _addToChangeStorage note.getAllAtributes()
-      _saveAllToLocal(_tree.getAllSubNotes())
+      _addToChangeStorage note.getAllAtributes()
+      # _saveAllToLocal(_tree.getAllSubNotes())
       _startBackOff _backOffInterval
 
 
