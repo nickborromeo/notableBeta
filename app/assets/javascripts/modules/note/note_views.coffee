@@ -6,6 +6,7 @@
 		className: "branch-template"
 		ui:
 			noteContent: ">.branch .noteContent"
+			descendants: ">.branch .descendants"
 		events: ->
 			"keypress >.branch .noteContent": "createNote"
 			"blur >.branch .noteContent": "updateNote"
@@ -13,6 +14,7 @@
 			"mouseover .branch": @toggleDestroyFeat "block"
 			"mouseout .branch": @toggleDestroyFeat "none"
 			"keyup >.branch>.noteContent": @timeoutAndSave @updateNote
+			"click >.branch>.move": "collapse"
 
 			"dragstart .move": @triggerDragEvent "startMove"
 			"dragend .move": @triggerDragEvent "endMove"
@@ -20,7 +22,6 @@
 			"dragenter .dropTarget": @triggerDragEvent "enterMove"
 			"dragleave .dropTarget": @triggerDragEvent "leaveMove"
 			"dragover .dropTarget": @triggerDragEvent "overMove" 
-
 
 		initialize: ->
 			@collection = @model.descendants
@@ -106,6 +107,8 @@
 			if @testCursorPosition "isEmptyBeforeCursor"
 				@triggerShortcut('jumpFocusUp')(e, true)
 
+		collapse: ->
+			@ui.descendants.slideToggle("fast")
 		toggleDestroyFeat: (toggleType) ->
 			(e) ->
 				e.stopPropagation()
