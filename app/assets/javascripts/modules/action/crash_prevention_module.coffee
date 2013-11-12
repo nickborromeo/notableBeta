@@ -77,15 +77,27 @@
     tempGuid = changeHashGUIDs.pop()
     _loadAndSave tempGuid, changeHash[tempGuid], options
 
+  # _loadAndSave = (guid, attributes, options) ->
+  #   noteReference = _allNotes.findWhere {guid: guid}
+  #   if noteReference? 
+  #     Backbone.Model.prototype.save.call(noteReference,attributes,options)
+  #   else
+  #     newBranch = new App.Note.Branch()
+  #     Backbone.Model.prototype.save.call(newBranch,attributes,options)
+  #     _allNotes.add newBranch
+  #     _tree.insertInTree newBranch
+
   _loadAndSave = (guid, attributes, options) ->
-    noteReference = _allNotes.findWhere {guid: guid}
-    if noteReference? 
+    noteReference = null
+    try
+      noteReference = _tree.findNote(guid)
+    catch e
+      #this means note wasn't found
+      noteReference = new App.Note.Branch()
+      _tree.add noteReference
+    finally
       Backbone.Model.prototype.save.call(noteReference,attributes,options)
-    else
-      newBranch = new App.Note.Branch()
-      Backbone.Model.prototype.save.call(newBranch,attributes,options)
-      _allNotes.add newBranch
-      _tree.insertInTree newBranch
+    
 
 
   _clearCachedChanges = ->
@@ -108,9 +120,7 @@
     if _localStorageEnabled
       changeHash = JSON.parse window.localStorage.getItem _cachedChanges 
       if changeHash?
-        changeHashGUIDs = Object.keys changeHash
-        console.log 'called check and load local storage'
-        
+        changeHashGUIDs = Object.keys changeHash        
         _changeOnlySyncNoAsync changeHash, changeHashGUIDs
       else
         _syncDeletes()
