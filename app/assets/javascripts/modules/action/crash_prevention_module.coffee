@@ -89,15 +89,11 @@
   #     _tree.insertInTree newBranch
 
   _loadAndSave = (guid, attributes, options) ->
-    noteReference = null
-    try
-      noteReference = _tree.findNote(guid)
-    catch e
-      #this means note wasn't found
+    noteReference = _allNotes.findWhere {guid: guid}
+    if not noteReference?
       noteReference = new App.Note.Branch()
-      _tree.add noteReference
-    finally
-      Backbone.Model.prototype.save.call(noteReference,attributes,options)
+      _allNotes.add noteReference
+    Backbone.Model.prototype.save.call(noteReference,attributes,options)
     
 
 
