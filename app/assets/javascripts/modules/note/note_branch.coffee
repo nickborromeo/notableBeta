@@ -13,7 +13,7 @@
 			App.Notify.alert 'saving', 'info'
 			options.success = (model, response, options)  => 
 				App.Notify.alert 'saved', 'success'
-				#App.CrashPrevent.informConnectionSuccess()
+				App.CrashPrevent.informConnectionSuccess()
 			options.error = (model, xhr, options) => 
 				App.Notify.alert 'connectionLost', 'danger' 
 				#TODO: add save to local

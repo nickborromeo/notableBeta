@@ -103,11 +103,11 @@
 
 		# will return a list of all branches starting at the current node
 
-		getAllSubNotes: () =>
+		getAllSubNotes: () ->
 			allNotes = []
 			_.each @models, (branch)  ->
 				allNotes.push(branch)
-				allNotes.concat branch.descendants.getAllSubNotes()
+				allNotes = Array.prototype.concat.call(allNotes, branch.descendants.getAllSubNotes())
 			return allNotes
 
 

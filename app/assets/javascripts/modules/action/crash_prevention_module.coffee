@@ -50,21 +50,24 @@
       noteReference = _allNotes.findWhere {guid: guid}
       noteReference.destroy()
     catch e
-      console.error(e)
+      console.error 'ignoring the error: #{e}'
     
 
   _startBackOff = (time) ->
     if not _backOffTimeoutID?
       _backOffTimeoutID = setTimeout (-> 
         App.Notify.alert 'saving', 'info'
-        _fullSyncNoAsync _tree.getAllSubNotes() ,time
+        allCurrentNotes = _tree.getAllSubNotes()
+        _fullSyncNoAsync allCurrentNotes ,time
         ), time
 
   _fullSyncNoAsync = (allCurrentNotes, time = _backOffInterval) ->
+    console.log 'fullsync called'
     options = 
       success: ->
         _clearBackOff()
-        if allCurrentNotes.length > 0 then _fullSyncNoAsync(allCurrentNotes, time)
+        if allCurrentNotes.length > 0 
+          _fullSyncNoAsync(allCurrentNotes, time)
         else #this means all are done
           App.Notify.alert 'saved', 'success'
           _syncDeletes(time)
@@ -92,7 +95,6 @@
         _syncDeletes()
 
   _changeOnlySyncNoAsync = (changeHash, changeHashGUIDs) ->
-    console.log 'called _changeOnlySyncNoAsync'
     options = 
       success: =>
         if changeHashGUIDs.length > 0 
@@ -129,7 +131,8 @@
   @informConnectionSuccess = ->
     if _backOffTimeoutID?
       _clearBackOff()
-      _fullSyncNoAsync _tree.getAllSubNotes()
+      allCurrentNotes = _tree.getAllSubNotes()
+      _fullSyncNoAsync allCurrentNotes
 
   @setTree = (tree) ->
     _tree = tree
