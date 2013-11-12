@@ -1,12 +1,7 @@
-#TODO: handle deletes
-#TODO: ensure that EVERYTHING is synced before stopping the timer
-
 @Notable.module("CrashPrevent", (CrashPrevent, App, Backbone, Marionette, $, _) ->
 
   _backOffTimeoutID = null
   _backOffInterval = 2000
-  _fullSyncTimeoutID = null
-  _fullSyncInterval = 45000
   _cachedChanges = 'unsyncedChanges'
   _cachedDeletes = 'unsyncedDeletes'
   _tree = null
@@ -23,17 +18,6 @@
     storageHash[guid] = true
     window.localStorage.setItem _cachedDeletes, JSON.stringify(storageHash)
 
-  @addDeleteAndStart = (note) ->
-    if _localStorageEnabled
-      _addToDeleteStorage note.get('guid')
-      _startBackOff _backOffInterval
-
-  #this must be called by ActionManager!
-  @removeFromDeleteStorage = (guid) ->
-    if _localStorageEnabled    
-      storageHash = JSON.parse(window.localStorage.getItem(_cachedDeletes)) ? {}
-      storageHash[guid] = false
-      window.localStorage.setItem _cachedDeletes, JSON.stringify(storageHash)
 
   _syncDeletes = () ->
     deleteHash = JSON.parse window.localStorage.getItem _cachedDeletes
@@ -79,21 +63,6 @@
         else _startBackOff time
     Backbone.Model.prototype.save.call(allCurrentNotes.pop(),null,options)
 
-  @addChangeAndStart = (note) ->
-    if _localStorageEnabled
-      _addToChangeStorage note.getAllAtributes()
-      _startBackOff _backOffInterval
-
-  # these are all for intializing the application!
-  @checkAndLoadLocal = ->
-    if _localStorageEnabled
-      changeHash = JSON.parse window.localStorage.getItem _cachedChanges 
-      if changeHash?
-        changeHashGUIDs = Object.keys changeHash
-        _changeOnlySyncNoAsync changeHash, changeHashGUIDs
-      else
-        _syncDeletes()
-
   _changeOnlySyncNoAsync = (changeHash, changeHashGUIDs) ->
     options = 
       success: =>
@@ -128,6 +97,37 @@
     clearTimeout _backOffTimeoutID
     _backOffTimeoutID = null
 
+
+  @addChangeAndStart = (note) ->
+    if _localStorageEnabled
+      _addToChangeStorage note.getAllAtributes()
+      _startBackOff _backOffInterval
+
+  # these are all for intializing the application!
+  @checkAndLoadLocal = ->
+    if _localStorageEnabled
+      changeHash = JSON.parse window.localStorage.getItem _cachedChanges 
+      if changeHash?
+        changeHashGUIDs = Object.keys changeHash
+        console.log 'called check and load local storage'
+        
+        _changeOnlySyncNoAsync changeHash, changeHashGUIDs
+      else
+        _syncDeletes()
+
+
+  @addDeleteAndStart = (note) ->
+    if _localStorageEnabled
+      _addToDeleteStorage note.get('guid')
+      _startBackOff _backOffInterval
+
+  #this must be called by ActionManager!
+  @removeFromDeleteStorage = (guid) ->
+    if _localStorageEnabled    
+      storageHash = JSON.parse(window.localStorage.getItem(_cachedDeletes)) ? {}
+      storageHash[guid] = false
+      window.localStorage.setItem _cachedDeletes, JSON.stringify(storageHash)
+
   @informConnectionSuccess = ->
     if _backOffTimeoutID?
       _clearBackOff()
@@ -142,6 +142,7 @@
 
   @setLocalStorageEnabled = (localStorageEnabled) ->
     _localStorageEnabled = localStorageEnabled
+
   )
 
 

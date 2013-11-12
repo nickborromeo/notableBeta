@@ -15,6 +15,7 @@
 				App.Notify.alert 'saved', 'success'
 				App.CrashPrevent.informConnectionSuccess()
 			options.error = (model, xhr, options) => 
+				console.log model, xhr, options
 				App.Notify.alert 'connectionLost', 'danger' 
 				#TODO: add save to local
 				App.CrashPrevent.addChangeAndStart(@)
