@@ -17,7 +17,6 @@
 					App.CrashPrevent.informConnectionSuccess()
 					if options.success? then options.success(model, response, opts)
 				error: (model, xhr, opts) => 
-					console.log model, xhr, options
 					App.Notify.alert 'connectionLost', 'danger' 
 					App.CrashPrevent.addChangeAndStart(@)
 					if options.error? then options.error(model, response, opts)
