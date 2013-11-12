@@ -15,9 +15,12 @@
 		initialize: (options) ->
 			@allNotesByDepth = new App.Note.Collection()
 			@tree = new App.Note.Tree()
-			App.Note.tree = @tree
-			App.Note.activeTree = @tree
-			App.Note.activeBranch = "root"
+
+			Note.initializedTree = $.Deferred();
+			Note.tree = @tree
+			Note.activeTree = @tree
+			Note.activeBranch = "root"
+
 			App.Action.setTree @tree
 			App.Action.setAllNotesByDepth @allNotesByDepth
 
@@ -26,6 +29,7 @@
 				allNotes.each (note) =>
 					@tree.add(note)
 				@showContentView @tree
+				App.Note.initializedTree.resolve()
 			@allNotesByDepth.fetch success: buildTree
 
 		showContentView: (tree) ->
@@ -33,22 +37,18 @@
 			App.contentRegion.currentView.treeRegion.show treeView
 
 		clearZoom: ->
-			console.log "clearZoom"
-			setTimeout =>
+			App.Note.initializedTree.then =>
 				@showContentView App.Note.tree
 				App.Note.activeTree = App.Note.tree
 				App.Note.activeBranch = "root"
-			, 1000
 
 		zoomIn: (guid) ->
-			setTimeout =>
-				console.log App.Note.tree, guid, App.Note.tree.findNote guid
+			App.Note.initializedTree.then =>
 				App.Note.activeTree = App.Note.tree.getCollection guid
 				App.Note.activeBranch = App.Note.tree.findNote(guid)
 				@showContentView App.Note.activeTree
 				crownView = new App.Note.CrownView(model: App.Note.activeBranch)
 				App.contentRegion.currentView.crownRegion.show crownView
-			, 1000
 	# Initializers -------------------------
 	Note.addInitializer ->
 		noteController = new Note.Controller()
