@@ -19,7 +19,7 @@
 		start: ->
 			buildTree = (allNotes) =>
 				allNotes.each (note) => 
-					@tree.add(note)
+					@tree.insertInTree(note)
 				App.CrashPrevent.checkAndLoadLocal()
 				@showContentView @tree
 
