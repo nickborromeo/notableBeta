@@ -140,8 +140,8 @@
   @checkAndLoadLocal = ->
     if _localStorageEnabled
       changeHash = JSON.parse window.localStorage.getItem _cachedChanges 
-      if changeHash?
-        changeHashGUIDs = Object.keys changeHash        
+      changeHashGUIDs = Object.keys changeHash        
+      if changeHashGUIDs.length > 0
         _changeOnlySyncNoAsync changeHash, changeHashGUIDs
       else
         _syncDeletes()
