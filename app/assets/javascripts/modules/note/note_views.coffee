@@ -14,7 +14,7 @@
 			"mouseover .branch": @toggleDestroyFeat "block"
 			"mouseout .branch": @toggleDestroyFeat "none"
 			"keyup >.branch>.noteContent": @timeoutAndSave @updateNote
-			"click >.branch>.move": "collapse"
+			"click >.branch>.collapsable": "collapse"
 
 			"dragstart .move": @triggerDragEvent "startMove"
 			"dragend .move": @triggerDragEvent "endMove"
@@ -33,6 +33,7 @@
 		onRender: ->
 			@getNoteContent().wysiwyg()
 			@trimExtraDropTarget()
+			@$(">.branch>.move").addClass("collapsable") if @collection.models.length isnt 0
 		appendHtml:(collectionView, itemView, i) ->
 			@$('.descendants:first').append(itemView.el)
 			if i is @collection.length - 1
@@ -109,6 +110,7 @@
 
 		collapse: ->
 			@ui.descendants.slideToggle("fast")
+			@$(">.branch>.move").toggleClass("is-collapsed")
 		toggleDestroyFeat: (toggleType) ->
 			(e) ->
 				e.stopPropagation()
