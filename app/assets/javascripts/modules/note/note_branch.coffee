@@ -15,12 +15,12 @@
 				success: (model, response, opts)  => 
 					App.Notify.alert 'saved', 'success'
 					App.CrashPrevent.informConnectionSuccess()
-					options.success()
+					if options.success? then options.success(model, response, opts)
 				error: (model, xhr, opts) => 
 					console.log model, xhr, options
 					App.Notify.alert 'connectionLost', 'danger' 
 					App.CrashPrevent.addChangeAndStart(@)
-					options.error()
+					if options.error? then options.error(model, response, opts)
 			#this fills in other options that might be provided
 			_(callBackOptions).defaults(options)
 			Backbone.Model.prototype.save.call(@, attributes, callBackOptions)
@@ -30,11 +30,11 @@
 				success: (model, response, opts) =>
 					console.log 'note deleted', @
 					# @collection.decreaseRankOfFollowing @
-					options.success()
+					if options.success? then options.success(model, response, opts)
 				error: (model, xhr, opts) =>
 					App.Notify.alert 'connectionLost', 'danger' 
 					App.CrashPrevent.addDeleteAndStart(@)
-					options.error()
+					if options.error? then options.error(model, response, opts)
 			#fill in other options possibly provided:
 			_(callBackOptions).defaults(options)
 
