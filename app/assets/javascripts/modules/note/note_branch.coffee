@@ -9,25 +9,36 @@
 			rank: 1
 			depth: 0
 
-		save: (attributes = null, options = {}) ->
+		save: (attributes = null, options = {}) =>
 			App.Notify.alert 'saving', 'info'
-			options.success = (model, response, options)  => 
-				App.Notify.alert 'saved', 'success'
-				App.CrashPrevent.informConnectionSuccess()
-			options.error = (model, xhr, options) => 
-				console.log model, xhr, options
-				App.Notify.alert 'connectionLost', 'danger' 
-				#TODO: add save to local
-				App.CrashPrevent.addChangeAndStart(@)
-			Backbone.Model.prototype.save.call(@, attributes, options)
+			callBackOptions =
+				success: (model, response, opts)  => 
+					App.Notify.alert 'saved', 'success'
+					App.CrashPrevent.informConnectionSuccess()
+					options.success()
+				error: (model, xhr, opts) => 
+					console.log model, xhr, options
+					App.Notify.alert 'connectionLost', 'danger' 
+					App.CrashPrevent.addChangeAndStart(@)
+					options.error()
+			#this fills in other options that might be provided
+			_(callBackOptions).defaults(options)
+			Backbone.Model.prototype.save.call(@, attributes, callBackOptions)
 
-		destroy: (options = {}) ->
-			options.success = (model, response, options) ->
-				console.log 'note deleted'
-			options.error = (model, xhr, options) =>
-				App.Notify.alert 'connectionLost', 'danger' 
-				App.CrashPrevent.addDeleteAndStart(@)
-			Backbone.Model.prototype.destroy.call(@, options)
+		destroy: (options = {}) =>
+			callBackOptions = 
+				success: (model, response, opts) =>
+					console.log 'note deleted', @
+					# @collection.decreaseRankOfFollowing @
+					options.success()
+				error: (model, xhr, opts) =>
+					App.Notify.alert 'connectionLost', 'danger' 
+					App.CrashPrevent.addDeleteAndStart(@)
+					options.error()
+			#fill in other options possibly provided:
+			_(callBackOptions).defaults(options)
+
+			Backbone.Model.prototype.destroy.call(@, callBackOptions)
 
 		initialize: ->
 			@descendants = new App.Note.Tree()

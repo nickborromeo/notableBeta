@@ -72,6 +72,7 @@
           App.Notify.alert 'saved', 'success'
           _syncDeletes()
           _clearCachedChanges()
+          # Note.eventManager.trigger "render"
       error: =>
         _startBackOff time
     tempGuid = changeHashGUIDs.pop()
@@ -110,11 +111,24 @@
     _backOffTimeoutID = null
 
 
-  @addChangeAndStart = (note) ->
-    if _localStorageEnabled
+  _saveAllToLocal = (allCurrentNotes) ->
+    storageHash = JSON.parse(window.localStorage.getItem(_cachedChanges)) ? {}
+    _(allCurrentNotes).each (note) ->
+      storageHash[attributes.guid] = attributes
+    window.localStorage.setItem _cachedChanges, JSON.stringify(storageHash)
 
-      _addToChangeStorage note.getAllAtributes()
+
+  @saveAndStartBackOff = (note) ->
+    if _localStorageEnabled
+      # _addToChangeStorage note.getAllAtributes()
+      _saveAllToLocal(_tree.getAllSubNotes())
       _startBackOff _backOffInterval
+
+
+
+  @addChange = (note) ->
+    if _localStorageEnabled
+      _addToChangeStorage note.getAllAtributes()
 
   # these are all for intializing the application!
   @checkAndLoadLocal = ->
