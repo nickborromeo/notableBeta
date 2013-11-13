@@ -7,24 +7,24 @@
   _regionReference = null
   _currentAlert = ""
 
-  _alertClasses =
-    success: 'success-notification' # green
-    info: 'info-notification' # gray
-    warning: 'warning-notification' #orange (yellow)
-    danger: 'danger-notification' #red
+  # _alertClasses =
+  #   success: 'success-notification' # green
+  #   info: 'info-notification' # gray
+  #   warning: 'warning-notification' #orange (yellow)
+  #   danger: 'danger-notification' #red
 
-  _alertTypes =
-    saving: "<i>saving...</i>"
-    saved: "Saved."
-    deleted: "Note deleted. <a>Undo.</a>"
-    undo: "Change undone."
-    redo: "Change redone."
-    updating: "<i>updating data...</i>"
-    complete: "Done updating, back to learning!"
-    connectionLost: "Connection has been lost."
-    connected: "We're back online!"
-    newNote: "New note has been added."
-    moved: "Note has been moved."
+  # _alertTypes =
+  #   saving: "<i>saving...</i>"
+  #   saved: "Saved."
+  #   deleted: "Note deleted. <a>Undo.</a>"
+  #   undo: "Change undone."
+  #   redo: "Change redone."
+  #   updating: "<i>updating data...</i>"
+  #   complete: "Done updating, back to learning!"
+  #   connectionLost: "Connection has been lost."
+  #   connected: "We're back online!"
+  #   newNote: "New note has been added."
+  #   moved: "Note has been moved."
 
   # functions can be added here with the SAME name as the alertType.
   # these will be called upon CLICKING the notification during an alert
