@@ -8,6 +8,8 @@
     template: 'manager/notification'
     events:
       'click': 'clickCallback'
+      # 'click .textArea': 'clickCallback'
+      # 'click .closeBox': 'clickCallback'
 
     initialize: ->
       if @model.get('selfDestruct')

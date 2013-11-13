@@ -30,7 +30,8 @@
   # these will be called upon CLICKING the notification during an alert
 
   _renderNotification = (notificationAttributes) ->
-    Notify.alerts.add new Notify.Alert notificationAttributes
+    if not Notify.alerts.findWhere({alertType: notificationAttributes.alertType})?
+      Notify.alerts.add new Notify.Alert notificationAttributes
 
   # _alert = (alertType, alertClass) ->
   #   $('#notification-region').html("<div class='notify1 #{notificationType[alertClass]}'>#{_alertTypes[alertType]}</div>")
@@ -45,6 +46,7 @@
     throw "invalid alert" unless _alertTypes[alertType]?
     throw "invalid alert class" unless notificationType[alertClass]?
     _renderNotification
+      alertType: alertType
       notificationType: notificationType[alertClass]
       notification: _alertTypes[alertType]
       selfDestruct: true
