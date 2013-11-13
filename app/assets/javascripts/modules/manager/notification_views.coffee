@@ -21,8 +21,8 @@
       console.log 'should check the model! for a callback!'
       @onClickCallback
 
-    onShow: =>
-      @$el.slideDown(800)
+    onRender: =>
+      @$el.slideDown('fast','linear')
 
     remove: =>
       clearTimeout @timeoutID
