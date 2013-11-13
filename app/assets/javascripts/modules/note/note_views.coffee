@@ -63,7 +63,8 @@
 			@.$el.on 'keydown', null, 'ctrl+y', @triggerRedoEvent #@ needs to be the tree
 			@.$el.on 'keydown', null, 'meta+y', @triggerRedoEvent #@ needs to be the tree
 			# needs to make sure @ is proper context ie @ needs to be 
-
+		onClose: ->
+			@.$el.off()
 		triggerRedoEvent: (e) =>
 			e.preventDefault()
 			e.stopPropagation()

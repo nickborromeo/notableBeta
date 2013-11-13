@@ -7,6 +7,7 @@
 
 	Note.Router = Marionette.AppRouter.extend
 		appRoutes:
+			"": "clearZoom"
 			"zoom/:guid": "zoomIn"
 
 	Note.Controller = Marionette.Controller.extend
@@ -32,8 +33,12 @@
 			@allNotesByDepth.fetch success: buildTree
 
 		showContentView: (tree) ->
-			treeView = new App.Note.TreeView(collection: tree)
-			App.contentRegion.currentView.treeRegion.show treeView
+			if @treeView?
+				@treeView.collection = tree
+				@treeView.render()
+			else
+				@treeView = new App.Note.TreeView(collection: tree)
+				App.contentRegion.currentView.treeRegion.show @treeView
 
 		clearZoom: ->
 			App.Note.initializedTree.then =>
