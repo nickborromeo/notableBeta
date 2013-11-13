@@ -30,6 +30,7 @@
 
   _deleteAndSave = (guid) ->
     #should be wrapped in try catch just ensure bad data is ignored
+    #this should never have to happen.... 
     try
       noteReference = _allNotes.findWhere {guid: guid}
       noteReference.destroy()
@@ -73,21 +74,10 @@
           buildTreeCallBack()
           _syncDeletes()
           _clearCachedChanges()
-          # Note.eventManager.trigger "render"
       error: ->
         _startBackOff time
     tempGuid = changeHashGUIDs.pop()
     _loadAndSave tempGuid, changeHash[tempGuid], options
-
-  # _loadAndSave = (guid, attributes, options) ->
-  #   noteReference = _allNotes.findWhere {guid: guid}
-  #   if noteReference? 
-  #     Backbone.Model.prototype.save.call(noteReference,attributes,options)
-  #   else
-  #     newBranch = new App.Note.Branch()
-  #     Backbone.Model.prototype.save.call(newBranch,attributes,options)
-  #     _allNotes.add newBranch
-  #     _tree.insertInTree newBranch
 
   _loadAndSave = (guid, attributes, options) ->
     noteReference = _allNotes.findWhere {guid: guid}
@@ -95,8 +85,6 @@
       noteReference = new App.Note.Branch()
       _allNotes.add noteReference
     Backbone.Model.prototype.save.call(noteReference,attributes,options)
-    
-
 
   _clearCachedChanges = ->
     window.localStorage.setItem _cachedChanges, '{}'
@@ -107,27 +95,16 @@
     clearTimeout _backOffTimeoutID
     _backOffTimeoutID = null
 
-
   _saveAllToLocal = (allCurrentNotes) ->
     storageHash = JSON.parse(window.localStorage.getItem(_cachedChanges)) ? {}
     _(allCurrentNotes).each (note) ->
       storageHash[attributes.guid] = attributes
     window.localStorage.setItem _cachedChanges, JSON.stringify(storageHash)
 
-
-  # @saveAndStartBackOff = (note) ->
-  #   if _localStorageEnabled
-  #     # _addToChangeStorage note.getAllAtributes()
-  #     _saveAllToLocal(_tree.getAllSubNotes())
-  #     _startBackOff _backOffInterval
-
   @addChangeAndStart = (note) ->
     if _localStorageEnabled
       _addToChangeStorage note.getAllAtributes()
-      # _saveAllToLocal(_tree.getAllSubNotes())
       _startBackOff _backOffInterval
-
-
 
   @addChange = (note) ->
     if _localStorageEnabled
@@ -142,6 +119,8 @@
         changeHashGUIDs = Object.keys changeHash        
         if changeHashGUIDs.length > 0
           _changeOnlySyncNoAsync changeHash, changeHashGUIDs, buildTreeCallBack
+        else 
+          buildTreeCallBack()
       else if deleteHash?
         buildTreeCallBack()
         _syncDeletes(deleteHash)
@@ -182,5 +161,5 @@
 
 
 
-######  dev console test data:
+######  dev console test data:   this is not nessasarally safe as it will add an item with
 # localStorage.setItem('unsyncedChanges', JSON.stringify({'theBestGUIDever':{'depth':0, 'rank':1, 'parent_id':'root', 'guid':'theBestGUIDever', 'title':"i'm a little teapot", 'subtitle': '', 'created_at': new Date()}}))
