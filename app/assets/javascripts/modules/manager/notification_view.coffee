@@ -1,26 +1,29 @@
-NotificationView = Backbone.View.extend({
+@Notable.module("Notify", (Notify, App, Backbone, Marionette, $, _) ->
+
+  class NotificationView extends ItemView:
  
-  model: NotificationModel
-  tagName: 'div'
-  template: 'layout/manager/notification.jst.hbs'
-  class: @model.alertClass
-  region: 
+    model: NotificationModel
+    template: 'layout/manager/notification.jst.hbs'
+    tagName: 'div'
+    className: @model.alertClass
 
-  events:
-    'click': 'checkModelCallback'
+    events:
+      'click': 'checkModelCallback'
 
-  checkModelCallback: ->
-    console.log 'should check the model! for a callback!'
+    checkModelCallback: ->
+      console.log 'should check the model! for a callback!'
+      @onClickCallback
 
-  onShow: =>
-    @$el.slideDown(800)
+    onShow: =>
+      @$el.slideDown(800)
 
-  close: (args) =>
-    # // fancy fade-out effects
-    Backbone.Marionette.View.prototype.close.apply(@, argss);
+    close: (args) =>
+      # // fancy fade-out effects
+      Backbone.Marionette.View.prototype.close.apply(@, argss);
 
-  remove: =>
-    this.$el.fadeOut -> 
-      $(@).remove()
+    remove: =>
+      this.$el.fadeOut -> 
+        $(@).remove()
 
-})
+
+)
