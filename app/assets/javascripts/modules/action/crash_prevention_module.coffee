@@ -18,15 +18,31 @@
     storageHash[guid] = true
     window.localStorage.setItem _cachedDeletes, JSON.stringify(storageHash)
 
+  _changeOnlySyncNoAsync = (changeHash, changeHashGUIDs, buildTreeCallBack) ->
+    options = 
+      success: ->
+        if changeHashGUIDs.length > 0 
+          _changeOnlySyncNoAsync(changeHash, changeHashGUIDs, buildTreeCallBack)
+        else #this means all are done
+          App.Notify.alert 'saved', 'success'
+          buildTreeCallBack()
+          _syncDeletes()
+          _clearCachedChanges()
+      error: ->
+        _startBackOff time
+    tempGuid = changeHashGUIDs.pop()
+    _loadAndSave tempGuid, changeHash[tempGuid], options
 
-  _syncDeletes = () ->
-    deleteHash = JSON.parse window.localStorage.getItem _cachedDeletes
-    if deleteHash? and Object.keys(deleteHash).length > 0
-      _allNotes.fetch success: ->
-        _.each deleteHash, (toDelete, guid) ->
-          if toDelete
-            _deleteAndSave guid
-    _clearCachedDeletes()
+
+  _clearCachedChanges = ->
+    window.localStorage.setItem _cachedChanges, '{}'
+
+  _clearCachedDeletes = ->
+    window.localStorage.setItem _cachedDeletes, '{}'
+
+  _clearBackOff = () ->
+    clearTimeout _backOffTimeoutID
+    _backOffTimeoutID = null
 
   _deleteAndSave = (guid) ->
     #should be wrapped in try catch just ensure bad data is ignored
@@ -36,15 +52,6 @@
       noteReference.destroy()
     catch e
       console.error 'ignoring the error: #{e}'
-    
-
-  _startBackOff = (time) ->
-    if not _backOffTimeoutID?
-      _backOffTimeoutID = setTimeout (-> 
-        App.Notify.alert 'saving', 'info'
-        allCurrentNotes = _tree.getAllSubNotes()
-        _fullSyncNoAsync allCurrentNotes ,time
-        ), time
 
   _fullSyncNoAsync = (allCurrentNotes, time = _backOffInterval) ->
     console.log 'fullsync called'
@@ -63,22 +70,7 @@
         if time < 60000 then _startBackOff time*2
         else _startBackOff time
     Backbone.Model.prototype.save.call(allCurrentNotes.pop(),null,options)
-
-  _changeOnlySyncNoAsync = (changeHash, changeHashGUIDs, buildTreeCallBack) ->
-    options = 
-      success: ->
-        if changeHashGUIDs.length > 0 
-          _changeOnlySyncNoAsync(changeHash, changeHashGUIDs, buildTreeCallBack)
-        else #this means all are done
-          App.Notify.alert 'saved', 'success'
-          buildTreeCallBack()
-          _syncDeletes()
-          _clearCachedChanges()
-      error: ->
-        _startBackOff time
-    tempGuid = changeHashGUIDs.pop()
-    _loadAndSave tempGuid, changeHash[tempGuid], options
-
+    
   _loadAndSave = (guid, attributes, options) ->
     noteReference = _allNotes.findWhere {guid: guid}
     if not noteReference?
@@ -86,20 +78,28 @@
       _allNotes.add noteReference
     Backbone.Model.prototype.save.call(noteReference,attributes,options)
 
-  _clearCachedChanges = ->
-    window.localStorage.setItem _cachedChanges, '{}'
-  _clearCachedDeletes = ->
-    window.localStorage.setItem _cachedDeletes, '{}'
-
-  _clearBackOff = () ->
-    clearTimeout _backOffTimeoutID
-    _backOffTimeoutID = null
-
   _saveAllToLocal = (allCurrentNotes) ->
     storageHash = JSON.parse(window.localStorage.getItem(_cachedChanges)) ? {}
     _(allCurrentNotes).each (note) ->
       storageHash[attributes.guid] = attributes
     window.localStorage.setItem _cachedChanges, JSON.stringify(storageHash)
+
+  _startBackOff = (time) ->
+    if not _backOffTimeoutID?
+      _backOffTimeoutID = setTimeout (-> 
+        App.Notify.alert 'saving', 'info'
+        allCurrentNotes = _tree.getAllSubNotes()
+        _fullSyncNoAsync allCurrentNotes ,time
+        ), time
+
+  _syncDeletes = () ->
+    deleteHash = JSON.parse window.localStorage.getItem _cachedDeletes
+    if deleteHash? and Object.keys(deleteHash).length > 0
+      _allNotes.fetch success: ->
+        _.each deleteHash, (toDelete, guid) ->
+          if toDelete
+            _deleteAndSave guid
+    _clearCachedDeletes()
 
   @addChangeAndStart = (note) ->
     if _localStorageEnabled
@@ -109,6 +109,11 @@
   @addChange = (note) ->
     if _localStorageEnabled
       _addToChangeStorage note.getAllAtributes()
+
+  @addDeleteAndStart = (note) ->
+    if _localStorageEnabled
+      _addToDeleteStorage note.get('guid')
+      _startBackOff _backOffInterval
 
   # these are all for intializing the application!
   @checkAndLoadLocal = (buildTreeCallBack) ->
@@ -125,10 +130,11 @@
       buildTreeCallBack()
       _syncDeletes()
 
-  @addDeleteAndStart = (note) ->
-    if _localStorageEnabled
-      _addToDeleteStorage note.get('guid')
-      _startBackOff _backOffInterval
+  @informConnectionSuccess = ->
+    if _backOffTimeoutID?
+      _clearBackOff()
+      allCurrentNotes = _tree.getAllSubNotes()
+      _fullSyncNoAsync allCurrentNotes
 
   #this must be called by ActionManager!
   @removeFromDeleteStorage = (guid) ->
@@ -136,12 +142,6 @@
       storageHash = JSON.parse(window.localStorage.getItem(_cachedDeletes)) ? {}
       storageHash[guid] = false
       window.localStorage.setItem _cachedDeletes, JSON.stringify(storageHash)
-
-  @informConnectionSuccess = ->
-    if _backOffTimeoutID?
-      _clearBackOff()
-      allCurrentNotes = _tree.getAllSubNotes()
-      _fullSyncNoAsync allCurrentNotes
 
   @setTree = (tree) ->
     _tree = tree
@@ -152,7 +152,7 @@
   @setLocalStorageEnabled = (localStorageEnabled) ->
     _localStorageEnabled = localStorageEnabled
 
-  )
+)
 
 
 
