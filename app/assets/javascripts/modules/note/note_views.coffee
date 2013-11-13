@@ -45,6 +45,8 @@
 				@ui.noteContent = @.$('.noteContent:first')
 			@ui.noteContent
 		bindKeyboardShortcuts: ->
+			@.$el.on 'keydown', null, 'ctrl+left', @triggerShortcut 'zoomOut'
+			@.$el.on 'keydown', null, 'ctrl+right', @triggerShortcut 'zoomIn'
 			@.$el.on 'keydown', null, 'ctrl+shift+backspace', @triggerShortcut 'deleteNote'
 			@.$el.on 'keydown', null, 'meta+shift+backspace', @triggerShortcut 'deleteNote'
 			@.$el.on 'keydown', null, 'tab', @triggerShortcut 'tabNote'
@@ -332,10 +334,20 @@
 			previousTitle = preceding.get('title')
 			Note.eventManager.trigger "setTitle:#{preceding.get('guid')}", title
 			Note.eventManager.trigger "setCursor:#{preceding.get('guid')}", previousTitle
+		zoomOut: ->
+			if App.Note.activeBranch  isnt "root" and App.Note.activeBranch.get('parent_id') isnt "root"
+				@zoomIn
+					get: () -> App.Note.activeBranch.get('parent_id')
+				Note.eventManager.trigger "setCursor:#{App.Note.activeTree.first().get('guid')}"
+				# Note.eventManager.trigger "setCursor:#{App.Note.tree.findNote(App.Note.activeBranch.get("guid").getCompleteDescendantList().first().get('guid'))}"
+			else
+				@clearZoom()
+		zoomIn: (model) ->
+			Backbone.history.navigate "#/zoom/#{model.get('guid')}"
+
 		clearZoom: ->
 			Backbone.history.navigate ""
 			Note.eventManager.trigger "clearZoom"
-
 	class Note.CrownView extends Marionette.ItemView
 		id: "crown"
 		template: "note/crownModel"

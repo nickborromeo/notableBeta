@@ -7,8 +7,8 @@
 
 	Note.Router = Marionette.AppRouter.extend
 		appRoutes:
-			"": "clearZoom"
 			"zoom/:guid": "zoomIn"
+			"*index": "clearZoom"
 
 	Note.Controller = Marionette.Controller.extend
 		initialize: (options) ->
@@ -42,6 +42,7 @@
 
 		clearZoom: ->
 			App.Note.initializedTree.then =>
+				console.log "clear"
 				@showContentView App.Note.tree
 				App.Note.activeTree = App.Note.tree
 				App.Note.activeBranch = "root"
