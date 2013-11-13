@@ -39,21 +39,32 @@
 			else
 				@treeView = new App.Note.TreeView(collection: tree)
 				App.contentRegion.currentView.treeRegion.show @treeView
+		showCrownView: ->
+			if @crownView?
+				@crownView.model = App.Note.activeBranch
+				@crownView.render()
+			else
+				@crownView = new App.Note.CrownView(model: App.Note.activeBranch)
+				App.contentRegion.currentView.crownRegion.show @crownView
+		clearCrownView: ->
+			if @crownView?
+				@crownView.close()
+				delete @crownView
+			App.Note.activeBranch = "root"
 
 		clearZoom: ->
 			App.Note.initializedTree.then =>
-				console.log "clear"
-				@showContentView App.Note.tree
 				App.Note.activeTree = App.Note.tree
-				App.Note.activeBranch = "root"
+				@clearCrownView()
+				@showContentView App.Note.tree
 
 		zoomIn: (guid) ->
 			App.Note.initializedTree.then =>
 				App.Note.activeTree = App.Note.tree.getCollection guid
 				App.Note.activeBranch = App.Note.tree.findNote(guid)
+				@showCrownView()
 				@showContentView App.Note.activeTree
-				crownView = new App.Note.CrownView(model: App.Note.activeBranch)
-				App.contentRegion.currentView.crownRegion.show crownView
+
 	# Initializers -------------------------
 	Note.addInitializer ->
 		noteController = new Note.Controller()
