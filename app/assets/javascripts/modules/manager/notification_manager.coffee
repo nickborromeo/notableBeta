@@ -1,7 +1,7 @@
 @Notable.module("Notify", (Notify, App, Backbone, Marionette, $, _) ->
   # Private --------------------------
-  _alertTimeOut = 7000
-  _fadeOutTime = 500
+  @_alertTimeOut = 7000
+  @_fadeOutTime = 1000
   _alertTimeOutID = null
   _alertFadeOutID = null
   _regionReference = null
@@ -29,12 +29,6 @@
   # functions can be added here with the SAME name as the alertType.
   # these will be called upon CLICKING the notification during an alert
 
-
-  # _clickFunctionBinding =
-  #   deleted: =>
-  #     App.Action.undo()
-  #     @flushAlert()
-
   _renderNotification = (notificationAttributes) ->
     Notify.alerts.add new Notify.Alert notificationAttributes
 
@@ -47,13 +41,15 @@
   #   $('#notification-region div').fadeOut(_fadeOutTime)
   #   _alertFadeOutID = setTimeout( @flushAlert, _fadeOutTime)
 
-  @alert = (alertType, alertClass, selfDestruct = true) ->
+  @alert = (alertType, alertClass, selfDestruct = true, destructTime = Notify._alertTimeOut, customCallBack) ->
     throw "invalid alert" unless _alertTypes[alertType]?
     throw "invalid alert class" unless notificationType[alertClass]?
     _renderNotification
       notificationType: notificationType[alertClass]
       notification: _alertTypes[alertType]
       selfDestruct: true
+      destructTime: destructTime
+
     # @flushAlert()
     # _alert(alertType, alertClass)
 

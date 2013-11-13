@@ -9,12 +9,21 @@
     events:
       'click': 'clickCallback'
 
+    initialize: ->
+      if @model.get('selfDestruct')
+        setTimeout (=>
+          @model.collection.remove @model
+        ), @model.get('destructTime')
+
     clickCallback: ->
       console.log 'should check the model! for a callback!'
       @onClickCallback
 
     onShow: =>
       @$el.slideDown(800)
+
+    remove: =>
+      @$el.fadeOut Notify._fadeOutTime
 
     #effects!
 
