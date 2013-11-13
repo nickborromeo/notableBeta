@@ -1,10 +1,10 @@
 @Notable.module("Notify", (Notify, App, Backbone, Marionette, $, _) ->
 
-  class EmptyNotificationView extends Marionette.ItemView:
+  class EmptyNotificationView extends Marionette.ItemView
     tagName: 'div'
 
 
-  class NotificationView extends Marionette.ItemView: 
+  class NotificationView extends Marionette.ItemView
     template: 'manager/notification'
     events:
       'click': 'clickCallback'
@@ -15,7 +15,7 @@
 
     onShow: =>
       @$el.slideDown(800)
-      
+
     close: (args) =>
       # // fancy fade-out effects
       Backbone.Marionette.View.prototype.close.apply(@, args);
@@ -23,7 +23,7 @@
       this.$el.fadeOut -> 
         $(@).remove()
 
-  class NotificationsView extends Marionette.CollectionView:
+  class NotificationsView extends Marionette.CollectionView
     itemView: NotificationView
     emptyView: EmptyNotificationView
 
