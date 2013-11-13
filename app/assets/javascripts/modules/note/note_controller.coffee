@@ -17,15 +17,23 @@
 			App.CrashPrevent.setAllNotesByDepth @allNotesByDepth
 
 		start: ->
-			buildTree = (allNotes) =>
-				allNotes.each (note) => 
-					@tree.add(note)
-				App.CrashPrevent.checkAndLoadLocal()
-				@showContentView @tree
+			@allNotesByDepth.fetch success: => App.CrashPrevent.checkAndLoadLocal (_.bind @buildTree, @)
 
-			@allNotesByDepth.fetch success: buildTree
+			# buildTree = (allNotes) =>
+				# allNotes.each (note) => 
+				# 	@tree.add(note)
+				# App.CrashPrevent.checkAndLoadLocal()
+				# @showContentView @tree
 
-		showContentView: (tree) ->
+			# @allNotesByDepth.fetch success: buildTree
+
+		buildTree: ->
+			@allNotesByDepth.sort()
+			@allNotesByDepth.each (note) =>
+				@tree.add(note)
+			@showContentView(@tree)
+
+		showContentView: (tree) =>
 			treeView = new App.Note.TreeView(collection: tree)
 			App.contentRegion.currentView.treeRegion.show treeView
 

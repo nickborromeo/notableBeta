@@ -21,7 +21,7 @@
 
   _syncDeletes = () ->
     deleteHash = JSON.parse window.localStorage.getItem _cachedDeletes
-    if deleteHash?
+    if deleteHash? and Object.keys(deleteHash).length > 0
       _allNotes.fetch success: ->
         _.each deleteHash, (toDelete, guid) ->
           if toDelete
@@ -63,17 +63,18 @@
         else _startBackOff time
     Backbone.Model.prototype.save.call(allCurrentNotes.pop(),null,options)
 
-  _changeOnlySyncNoAsync = (changeHash, changeHashGUIDs) ->
+  _changeOnlySyncNoAsync = (changeHash, changeHashGUIDs, buildTreeCallBack) ->
     options = 
-      success: =>
+      success: ->
         if changeHashGUIDs.length > 0 
-          _changeOnlySyncNoAsync(changeHash, changeHashGUIDs)
+          _changeOnlySyncNoAsync(changeHash, changeHashGUIDs, buildTreeCallBack)
         else #this means all are done
           App.Notify.alert 'saved', 'success'
+          buildTreeCallBack()
           _syncDeletes()
           _clearCachedChanges()
           # Note.eventManager.trigger "render"
-      error: =>
+      error: ->
         _startBackOff time
     tempGuid = changeHashGUIDs.pop()
     _loadAndSave tempGuid, changeHash[tempGuid], options
@@ -133,15 +134,16 @@
       _addToChangeStorage note.getAllAtributes()
 
   # these are all for intializing the application!
-  @checkAndLoadLocal = ->
+  @checkAndLoadLocal = (buildTreeCallBack) ->
     if _localStorageEnabled
       changeHash = JSON.parse window.localStorage.getItem _cachedChanges 
       if changeHash?
         changeHashGUIDs = Object.keys changeHash        
         if changeHashGUIDs.length > 0
-          _changeOnlySyncNoAsync changeHash, changeHashGUIDs
-      else
-        _syncDeletes()
+          _changeOnlySyncNoAsync changeHash, changeHashGUIDs, buildTreeCallBack
+        else
+          buildTreeCallBack()
+          _syncDeletes()
 
 
   @addDeleteAndStart = (note) ->
