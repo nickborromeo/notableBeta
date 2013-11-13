@@ -55,18 +55,6 @@
   @flushAlerts = ->
     Notify.alerts.reset()
 
-  # @flushAlert = ->
-  #   clearTimeout _alertTimeOutID
-  #   clearTimeout _alertFadeOutID
-  #   _alertTimeOutID = null
-  #   _alertFadeOutID = null
-  #   $('#notification-region').html('')
-  #   @_currentAlert = ""
-
-  # @checkForClickBinding = ->
-  #   throw "no click binding" unless _clickFunctionBinding[_currentAlert]?
-  #   _clickFunctionBinding[_currentAlert]()
-
   Notify.addInitializer ->
     Notify.alerts = new Notify.Alerts()
     App.messageRegion.currentView.notificationRegion.show new Notify.AlertsView({collection: Notify.alerts})
