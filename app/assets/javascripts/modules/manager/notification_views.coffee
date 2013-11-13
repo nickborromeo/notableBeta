@@ -1,7 +1,7 @@
 @Notable.module("Notify", (Notify, App, Backbone, Marionette, $, _) ->
 
   class Notify.EmptyAlertView extends Marionette.ItemView
-    tagName: 'div'
+    template: 'manager/empty_notification'
 
 
   class Notify.AlertView extends Marionette.ItemView

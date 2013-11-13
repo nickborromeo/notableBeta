@@ -38,8 +38,8 @@
   _renderNotification = (notificationAttributes) ->
     model = new Notify.Alert notificationAttributes
     view = new Notify.AlertView model: model
-    console.log App.messageRegion.currentView.notificationRegion
-    App.messageRegion.currentView.notificationRegion.show view
+    # console.log App.messageRegion.currentView.notificationRegion
+    # App.messageRegion.currentView.notificationRegion.show view
     # App.messageRegion.notificationRegion.show(view)
     console.log model, view
     # app.layout.notificationRegion.show new NotificationView(new NotificationModel({attributes}))
@@ -75,6 +75,7 @@
   #   _clickFunctionBinding[_currentAlert]()
 
   Notify.addInitializer ->
-    Notify.
+    Notify.alerts = new Notify.Alerts()
+    App.messageRegion.currentView.notificationRegion.show new Notify.AlertsView({collection: Notify.alerts})
 
 )
