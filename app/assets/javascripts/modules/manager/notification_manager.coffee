@@ -36,13 +36,7 @@
   #     @flushAlert()
 
   _renderNotification = (notificationAttributes) ->
-    model = new Notify.Alert notificationAttributes
-    view = new Notify.AlertView model: model
-    # console.log App.messageRegion.currentView.notificationRegion
-    # App.messageRegion.currentView.notificationRegion.show view
-    # App.messageRegion.notificationRegion.show(view)
-    console.log model, view
-    # app.layout.notificationRegion.show new NotificationView(new NotificationModel({attributes}))
+    Notify.alerts.add new Notify.Alert notificationAttributes
 
   # _alert = (alertType, alertClass) ->
   #   $('#notification-region').html("<div class='notify1 #{notificationType[alertClass]}'>#{_alertTypes[alertType]}</div>")
@@ -59,6 +53,7 @@
     _renderNotification
       notificationType: notificationType[alertClass]
       notification: _alertTypes[alertType]
+      selfDestruct: true
     # @flushAlert()
     # _alert(alertType, alertClass)
 
