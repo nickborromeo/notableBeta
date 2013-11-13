@@ -28,16 +28,6 @@
       clearTimeout @timeoutID
       @$el.fadeOut Notify._fadeOutTime
 
-    #effects!
-
-    # close: (args) =>
-    #   # // fancy fade-out effects
-    #   Backbone.Marionette.View.prototype.close.apply(@, args);
-
-    # remove: =>
-    #   this.$el.fadeOut -> 
-    #     $(@).remove()
-
   class Notify.AlertsView extends Marionette.CollectionView
     itemView: Notify.AlertView
     emptyView: Notify.EmptyAlertView
