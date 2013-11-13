@@ -19,14 +19,6 @@
 		start: ->
 			@allNotesByDepth.fetch success: => App.CrashPrevent.checkAndLoadLocal (_.bind @buildTree, @)
 
-			# buildTree = (allNotes) =>
-				# allNotes.each (note) => 
-				# 	@tree.add(note)
-				# App.CrashPrevent.checkAndLoadLocal()
-				# @showContentView @tree
-
-			# @allNotesByDepth.fetch success: buildTree
-
 		buildTree: ->
 			@allNotesByDepth.sort()
 			@allNotesByDepth.each (note) =>

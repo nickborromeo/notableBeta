@@ -19,8 +19,8 @@
     window.localStorage.setItem _cachedDeletes, JSON.stringify(storageHash)
 
 
-  _syncDeletes = () ->
-    deleteHash = JSON.parse window.localStorage.getItem _cachedDeletes
+  _syncDeletes = (deleteHash) ->
+    deleteHash = deleteHash? JSON.parse window.localStorage.getItem _cachedDeletes
     if deleteHash? and Object.keys(deleteHash).length > 0
       _allNotes.fetch success: ->
         _.each deleteHash, (toDelete, guid) ->
@@ -54,7 +54,7 @@
           _fullSyncNoAsync(allCurrentNotes, time)
         else #this means all are done
           App.Notify.alert 'saved', 'success'
-          _syncDeletes(time)
+          _syncDeletes()
           _clearCachedChanges()
       error: ->
         App.Notify.alert 'connectionLost', 'danger'
@@ -137,13 +137,18 @@
   @checkAndLoadLocal = (buildTreeCallBack) ->
     if _localStorageEnabled
       changeHash = JSON.parse window.localStorage.getItem _cachedChanges 
+      deleteHash = JSON.parse window.localStorage.getItem _cachedChanges 
       if changeHash?
         changeHashGUIDs = Object.keys changeHash        
         if changeHashGUIDs.length > 0
           _changeOnlySyncNoAsync changeHash, changeHashGUIDs, buildTreeCallBack
-        else
-          buildTreeCallBack()
-          _syncDeletes()
+      else if deleteHash?
+        buildTreeCallBack()
+        _syncDeletes(deleteHash)
+      else
+        buildTreeCallBack()
+    else
+      buildTreeCallBack()
 
 
   @addDeleteAndStart = (note) ->
