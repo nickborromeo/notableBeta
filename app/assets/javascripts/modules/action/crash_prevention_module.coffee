@@ -19,8 +19,8 @@
     window.localStorage.setItem _cachedDeletes, JSON.stringify(storageHash)
 
 
-  _syncDeletes = (deleteHash) ->
-    deleteHash = deleteHash? JSON.parse window.localStorage.getItem _cachedDeletes
+  _syncDeletes = () ->
+    deleteHash = JSON.parse window.localStorage.getItem _cachedDeletes
     if deleteHash? and Object.keys(deleteHash).length > 0
       _allNotes.fetch success: ->
         _.each deleteHash, (toDelete, guid) ->
@@ -112,23 +112,18 @@
 
   # these are all for intializing the application!
   @checkAndLoadLocal = (buildTreeCallBack) ->
-    if _localStorageEnabled
-      changeHash = JSON.parse window.localStorage.getItem _cachedChanges 
-      deleteHash = JSON.parse window.localStorage.getItem _cachedChanges 
-      if changeHash?
-        changeHashGUIDs = Object.keys changeHash        
-        if changeHashGUIDs.length > 0
-          _changeOnlySyncNoAsync changeHash, changeHashGUIDs, buildTreeCallBack
-        else 
-          buildTreeCallBack()
-      else if deleteHash?
-        buildTreeCallBack()
-        _syncDeletes(deleteHash)
-      else
+    if not _localStorageEnabled then return buildTreeCallBack()
+
+    changeHash = JSON.parse window.localStorage.getItem _cachedChanges 
+    if changeHash?
+      changeHashGUIDs = Object.keys changeHash        
+      if changeHashGUIDs.length > 0
+        _changeOnlySyncNoAsync changeHash, changeHashGUIDs, buildTreeCallBack
+      else 
         buildTreeCallBack()
     else
       buildTreeCallBack()
-
+      _syncDeletes()
 
   @addDeleteAndStart = (note) ->
     if _localStorageEnabled
