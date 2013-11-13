@@ -29,6 +29,7 @@
           _syncDeletes()
           _clearCachedChanges()
       error: ->
+        console.log 'error! starting backoff!'
         _startBackOff time
     tempGuid = changeHashGUIDs.pop()
     _loadAndSave tempGuid, changeHash[tempGuid], options
@@ -106,7 +107,7 @@
       _addToChangeStorage note.getAllAtributes()
       _startBackOff _backOffInterval
 
-  @addChange = (note) ->
+  @addChange = (note) -> #this guy is for testing!
     if _localStorageEnabled
       _addToChangeStorage note.getAllAtributes()
 
@@ -118,7 +119,6 @@
   # these are all for intializing the application!
   @checkAndLoadLocal = (buildTreeCallBack) ->
     if not _localStorageEnabled then return buildTreeCallBack()
-
     changeHash = JSON.parse window.localStorage.getItem _cachedChanges 
     if changeHash?
       changeHashGUIDs = Object.keys changeHash        
