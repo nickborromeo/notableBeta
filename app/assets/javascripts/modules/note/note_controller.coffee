@@ -3,16 +3,15 @@
 	Note.startWithParent = false
 
 	# Public -------------------------
+	Note.eventManager = _.extend {}, Backbone.Events
+
 	Note.Router = Marionette.AppRouter.extend
 		appRoutes:
-			"": "clearZoom"
 			"zoom/:guid": "zoomIn"
-			# "*index": ""
-
-	Note.eventManager = _.extend {}, Backbone.Events
 
 	Note.Controller = Marionette.Controller.extend
 		initialize: (options) ->
+			Note.eventManager.on "clearZoom", @clearZoom, @
 			@allNotesByDepth = new App.Note.Collection()
 			@tree = new App.Note.Tree()
 

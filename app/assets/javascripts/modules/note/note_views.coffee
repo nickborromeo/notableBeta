@@ -331,6 +331,9 @@
 			previousTitle = preceding.get('title')
 			Note.eventManager.trigger "setTitle:#{preceding.get('guid')}", title
 			Note.eventManager.trigger "setCursor:#{preceding.get('guid')}", previousTitle
+		clearZoom: ->
+			Backbone.history.navigate ""
+			Note.eventManager.trigger "clearZoom"
 
 	class Note.CrownView extends Marionette.ItemView
 		id: "crown"
