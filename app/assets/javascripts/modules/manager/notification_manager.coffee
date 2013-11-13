@@ -22,19 +22,35 @@
     newNote: "New note has been added."
     moved: "Note has been moved."
 
-  _renderNotification = (notificationAttributes) ->
-    if not Notify.alerts.findWhere({alertType: notificationAttributes.alertType})?
-      Notify.alerts.add new Notify.Alert notificationAttributes
+  _renderNotification = (alertAttributes) ->
+    Notify.alerts.add new Notify.Alert alertAttributes
 
-  @alert = (alertType, alertClass, selfDestruct = true, destructTime = Notify._alertTimeOut, customCallBack) ->
-    throw "invalid alert" unless _alertTypes[alertType]?
-    throw "invalid alert class" unless notificationType[alertClass]?
-    _renderNotification
+  _renderNotificationOnly = (alertAttributes) ->
+    Notify.alerts.reset new Notify.Alert alertAttributes
+
+  _buildAlertAttributes = (alertType, alertClass, options = {}) ->
+    alertDefaults = 
       alertType: alertType
       notificationType: notificationType[alertClass]
       notification: _alertTypes[alertType]
       selfDestruct: true
-      destructTime: destructTime
+      destructTime: Notify._alertTimeOut
+    _.defaults options, alertDefaults
+
+  # Usefull options: 
+  #         selfDistruct: [boolean]
+  #         destructTime: [time in ms]  // time until it is destroyed
+  #         customClickCallBack: [function]  // until it is destroyed
+  @alert = (alertType, alertClass, options) ->
+    throw "invalid alert" unless _alertTypes[alertType]?
+    throw "invalid alert class" unless notificationType[alertClass]?
+    if not Notify.alerts.findWhere({alertType: alertType})?
+      _renderNotification _buildAlertAttributes(alertType, alertClass, options)
+
+  @alertOnly = (alertType, alertClass, options) ->
+    throw "invalid alert" unless _alertTypes[alertType]?
+    throw "invalid alert class" unless notificationType[alertClass]?
+    _renderNotificationOnly _buildAlertAttributes(alertType, alertClass, options)
 
   @flushAlerts = ->
     Notify.alerts.reset()
