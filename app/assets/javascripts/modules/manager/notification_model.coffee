@@ -1,9 +1,9 @@
 @Notable.module("Notify", (Notify, App, Backbone, Marionette, $, _) ->
 
-  # class NotificationCollection extends Backbone.Collection
-  #   model: NotificationModel
+  class Notify.Alerts extends Backbone.Collection
+    model: Notify.Alert
 
-  class Notify.NotificationModel extends Backbone.Model
+  class Notify.Alert extends Backbone.Model
 
     defaults:
       notificationType: 'info-notification'

@@ -36,8 +36,8 @@
   #     @flushAlert()
 
   _renderNotification = (notificationAttributes) ->
-    model = new Notify.NotificationModel notificationAttributes
-    view = new Notify.NotificationView model: model
+    model = new Notify.Alert notificationAttributes
+    view = new Notify.AlertView model: model
     console.log App.messageRegion.currentView.notificationRegion
     App.messageRegion.currentView.notificationRegion.show view
     # App.messageRegion.notificationRegion.show(view)
@@ -73,5 +73,8 @@
   # @checkForClickBinding = ->
   #   throw "no click binding" unless _clickFunctionBinding[_currentAlert]?
   #   _clickFunctionBinding[_currentAlert]()
+
+  Notify.addInitializer ->
+    Notify.
 
 )
