@@ -7,7 +7,7 @@
   _regionReference = null
   _currentAlert = ""
 
-  _alertClasses =
+  notificationType =
     success: 'success-notification' # green
     info: 'info-notification' # gray
     warning: 'warning-notification' #orange (yellow)
@@ -39,7 +39,7 @@
     app.layout.notificationRegion.show new NotificationView(new NotificationModel({attributes}))
 
   _alert = (alertType, alertClass) ->
-    $('#notification-region').html("<div class='notify1 #{_alertClasses[alertClass]}'>#{_alertTypes[alertType]}</div>")
+    $('#notification-region').html("<div class='notify1 #{notificationType[alertClass]}'>#{_alertTypes[alertType]}</div>")
     _currentAlert = alertType
     _alertTimeOutID = setTimeout( _fadeAndFlush , _alertTimeOut)
 
@@ -49,7 +49,7 @@
 
   @alert = (alertType, alertClass) ->
     throw "invalid alert" unless _alertTypes[alertType]?
-    throw "invalid alert class" unless _alertClasses[alertClass]?
+    throw "invalid alert class" unless notificationType[alertClass]?
     @flushAlert()
     _alert(alertType, alertClass)
 

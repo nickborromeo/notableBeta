@@ -1,13 +1,16 @@
 @Notable.module("Notify", (Notify, App, Backbone, Marionette, $, _) ->
 
-  class NotificationView extends ItemView:
+  class NotificationCollection extends Backbone.Collection:
+    model: NotificationModel
+
+  class NotificationModel extends Backbone.Model:
 
     defaults:
-      alertClass: 'info-notification'
-      notification: ''
+      notificationType: 'info-notification'
+      notification: 'blank notification'
 
     initalize: (options) ->
-      # expects options.alertClass,  options.notification
+      # expects options.notificationType,  options.notification
       # optional options.callback
       if options.callback?
         @onClickCallback = options.callback
