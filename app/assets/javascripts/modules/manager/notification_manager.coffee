@@ -2,10 +2,6 @@
   # Private --------------------------
   @_alertTimeOut = 7000
   @_fadeOutTime = 1000
-  _alertTimeOutID = null
-  _alertFadeOutID = null
-  _regionReference = null
-  _currentAlert = ""
 
   notificationType =
     success: 'success-notification' # green
@@ -26,21 +22,9 @@
     newNote: "New note has been added."
     moved: "Note has been moved."
 
-  # functions can be added here with the SAME name as the alertType.
-  # these will be called upon CLICKING the notification during an alert
-
   _renderNotification = (notificationAttributes) ->
     if not Notify.alerts.findWhere({alertType: notificationAttributes.alertType})?
       Notify.alerts.add new Notify.Alert notificationAttributes
-
-  # _alert = (alertType, alertClass) ->
-  #   $('#notification-region').html("<div class='notify1 #{notificationType[alertClass]}'>#{_alertTypes[alertType]}</div>")
-  #   _currentAlert = alertType
-  #   _alertTimeOutID = setTimeout( _fadeAndFlush , _alertTimeOut)
-
-  # _fadeAndFlush = ->
-  #   $('#notification-region div').fadeOut(_fadeOutTime)
-  #   _alertFadeOutID = setTimeout( @flushAlert, _fadeOutTime)
 
   @alert = (alertType, alertClass, selfDestruct = true, destructTime = Notify._alertTimeOut, customCallBack) ->
     throw "invalid alert" unless _alertTypes[alertType]?
@@ -52,8 +36,8 @@
       selfDestruct: true
       destructTime: destructTime
 
-    # @flushAlert()
-    # _alert(alertType, alertClass)
+  @flushAlerts = ->
+    Notify.alerts.reset()
 
   # @flushAlert = ->
   #   clearTimeout _alertTimeOutID

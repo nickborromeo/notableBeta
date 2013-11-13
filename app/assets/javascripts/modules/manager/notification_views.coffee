@@ -13,7 +13,7 @@
 
     initialize: ->
       if @model.get('selfDestruct')
-        setTimeout (=>
+        @timeoutID = setTimeout (=>
           @model.collection.remove @model
         ), @model.get('destructTime')
 
@@ -25,6 +25,7 @@
       @$el.slideDown(800)
 
     remove: =>
+      clearTimeout @timeoutID
       @$el.fadeOut Notify._fadeOutTime
 
     #effects!
