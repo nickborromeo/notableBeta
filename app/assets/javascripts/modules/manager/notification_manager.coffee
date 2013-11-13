@@ -36,8 +36,12 @@
   #     @flushAlert()
 
   _renderNotification = (notificationAttributes) ->
-    model = new App.Notify.NotificationModel notificationAttributes
-    console.log model
+    model = new Notify.NotificationModel notificationAttributes
+    view = new Notify.NotificationView model: model
+    console.log App.messageRegion.currentView.notificationRegion
+    App.messageRegion.currentView.notificationRegion.show view
+    # App.messageRegion.notificationRegion.show(view)
+    console.log model, view
     # app.layout.notificationRegion.show new NotificationView(new NotificationModel({attributes}))
 
   # _alert = (alertType, alertClass) ->

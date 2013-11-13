@@ -16,12 +16,15 @@
     onShow: =>
       @$el.slideDown(800)
 
-    close: (args) =>
-      # // fancy fade-out effects
-      Backbone.Marionette.View.prototype.close.apply(@, args);
-    remove: =>
-      this.$el.fadeOut -> 
-        $(@).remove()
+    #effects!
+    
+    # close: (args) =>
+    #   # // fancy fade-out effects
+    #   Backbone.Marionette.View.prototype.close.apply(@, args);
+
+    # remove: =>
+    #   this.$el.fadeOut -> 
+    #     $(@).remove()
 
   # class NotificationsView extends Marionette.CollectionView
   #   itemView: NotificationView
