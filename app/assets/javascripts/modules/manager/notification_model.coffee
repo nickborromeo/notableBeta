@@ -1,13 +1,24 @@
-NotificationView = Backbone.Model.extend({
+NotificationModel = Backbone.Model.extend({
 
   defaults:
     alertClass: 'info-notification'
+    alertType: ''
     notification: ''
 
   initalize: (options) ->
-    # expects options.alertClass & options.notification
-    if options.alertClass? then @alertClass = @_alertClasses[options.alertClass]
-    if options.notification then @notification = @_alertTypes[options.notification]
+    # expects options.alertClass & options.type
+    # optional notification (will override default notification)
+    # optional callback
+    if options.alertType? and not options.notification?
+      @notification = @_alertTypes[options.alertType]
+    if options.callback?
+      @onClickCallback = options.callback
+
+  onClickCallback: ->
+    try
+      _defaultOnClickBindings[@alertType]()
+    catch e
+      console.log 'no default onClickCallback'
 
   _alertClasses:
     success: 'success-notification' # green
@@ -27,5 +38,9 @@ NotificationView = Backbone.Model.extend({
     connected: "We're back online!"
     newNote: "New note has been added."
     moved: "Note has been moved."
+
+  _defaultOnClickBindings:
+    deleted: =>
+      App.Action.undo()
 
 })

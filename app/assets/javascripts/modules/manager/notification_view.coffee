@@ -1,9 +1,8 @@
 NotificationView = Backbone.View.extend({
  
-  el: ""
-  tagName:
-  template: 'layout/manager/notification.jst.hbs'
   model: NotificationModel
+  tagName: 'div'
+  template: 'layout/manager/notification.jst.hbs'
   class: @model.alertClass
   region: 
 
@@ -16,9 +15,12 @@ NotificationView = Backbone.View.extend({
   onShow: =>
     @$el.slideDown(800)
 
+  close: (args) =>
+    # // fancy fade-out effects
+    Backbone.Marionette.View.prototype.close.apply(@, argss);
+
   remove: =>
     this.$el.fadeOut -> 
       $(@).remove()
-
 
 })
