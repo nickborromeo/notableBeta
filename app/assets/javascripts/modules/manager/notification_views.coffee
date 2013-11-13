@@ -1,10 +1,10 @@
 @Notable.module("Notify", (Notify, App, Backbone, Marionette, $, _) ->
 
-  class EmptyNotificationView extends Marionette.ItemView
-    tagName: 'div'
+  # class EmptyNotificationView extends Marionette.ItemView
+  #   tagName: 'div'
 
 
-  class NotificationView extends Marionette.ItemView
+  class Notify.NotificationView extends Marionette.ItemView
     template: 'manager/notification'
     events:
       'click': 'clickCallback'
@@ -23,8 +23,8 @@
       this.$el.fadeOut -> 
         $(@).remove()
 
-  class NotificationsView extends Marionette.CollectionView
-    itemView: NotificationView
-    emptyView: EmptyNotificationView
+  # class NotificationsView extends Marionette.CollectionView
+  #   itemView: NotificationView
+  #   emptyView: EmptyNotificationView
 
 )

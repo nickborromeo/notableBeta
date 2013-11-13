@@ -1,9 +1,9 @@
 @Notable.module("Notify", (Notify, App, Backbone, Marionette, $, _) ->
 
-  class NotificationCollection extends Backbone.Collection
-    model: NotificationModel
+  # class NotificationCollection extends Backbone.Collection
+  #   model: NotificationModel
 
-  class NotificationModel extends Backbone.Model
+  class Notify.NotificationModel extends Backbone.Model
 
     defaults:
       notificationType: 'info-notification'
@@ -16,8 +16,8 @@
         @onClickCallback = options.callback
 
     onClickCallback: ->
-      # this is the default callback
       console.log 'nothing to do'
+      # this is the default callback
       # possibly trigger help?
 )
 

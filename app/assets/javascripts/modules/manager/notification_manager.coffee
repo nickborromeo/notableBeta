@@ -30,39 +30,44 @@
   # these will be called upon CLICKING the notification during an alert
 
 
-  _clickFunctionBinding =
-    deleted: =>
-      App.Action.undo()
-      @flushAlert()
+  # _clickFunctionBinding =
+  #   deleted: =>
+  #     App.Action.undo()
+  #     @flushAlert()
 
-  _renderNotification = ->
-    app.layout.notificationRegion.show new NotificationView(new NotificationModel({attributes}))
+  _renderNotification = (notificationAttributes) ->
+    model = new App.Notify.NotificationModel notificationAttributes
+    console.log model
+    # app.layout.notificationRegion.show new NotificationView(new NotificationModel({attributes}))
 
-  _alert = (alertType, alertClass) ->
-    $('#notification-region').html("<div class='notify1 #{notificationType[alertClass]}'>#{_alertTypes[alertType]}</div>")
-    _currentAlert = alertType
-    _alertTimeOutID = setTimeout( _fadeAndFlush , _alertTimeOut)
+  # _alert = (alertType, alertClass) ->
+  #   $('#notification-region').html("<div class='notify1 #{notificationType[alertClass]}'>#{_alertTypes[alertType]}</div>")
+  #   _currentAlert = alertType
+  #   _alertTimeOutID = setTimeout( _fadeAndFlush , _alertTimeOut)
 
-  _fadeAndFlush = ->
-    $('#notification-region div').fadeOut(_fadeOutTime)
-    _alertFadeOutID = setTimeout( @flushAlert, _fadeOutTime)
+  # _fadeAndFlush = ->
+  #   $('#notification-region div').fadeOut(_fadeOutTime)
+  #   _alertFadeOutID = setTimeout( @flushAlert, _fadeOutTime)
 
-  @alert = (alertType, alertClass) ->
+  @alert = (alertType, alertClass, selfDestruct = true) ->
     throw "invalid alert" unless _alertTypes[alertType]?
     throw "invalid alert class" unless notificationType[alertClass]?
-    @flushAlert()
-    _alert(alertType, alertClass)
+    _renderNotification
+      notificationType: notificationType[alertClass]
+      notification: _alertTypes[alertType]
+    # @flushAlert()
+    # _alert(alertType, alertClass)
 
-  @flushAlert = ->
-    clearTimeout _alertTimeOutID
-    clearTimeout _alertFadeOutID
-    _alertTimeOutID = null
-    _alertFadeOutID = null
-    $('#notification-region').html('')
-    @_currentAlert = ""
+  # @flushAlert = ->
+  #   clearTimeout _alertTimeOutID
+  #   clearTimeout _alertFadeOutID
+  #   _alertTimeOutID = null
+  #   _alertFadeOutID = null
+  #   $('#notification-region').html('')
+  #   @_currentAlert = ""
 
-  @checkForClickBinding = ->
-    throw "no click binding" unless _clickFunctionBinding[_currentAlert]?
-    _clickFunctionBinding[_currentAlert]()
+  # @checkForClickBinding = ->
+  #   throw "no click binding" unless _clickFunctionBinding[_currentAlert]?
+  #   _clickFunctionBinding[_currentAlert]()
 
 )
