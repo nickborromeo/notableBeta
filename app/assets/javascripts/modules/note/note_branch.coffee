@@ -24,7 +24,7 @@
 			guid
 
 		isARoot: ->
-			@get('parent_id') is 'root'
+			@get('parent_id') is "root" or (Note.activeBranch isnt "root" and @get('parent_id') is Note.activeBranch.get('guid'))
 		isATemporaryRoot: (parent_id) ->
 			@get('parent_id') is parent_id
 		isInSameCollection: (note) ->
