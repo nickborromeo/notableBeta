@@ -25,6 +25,8 @@
 
 		isARoot: ->
 			@get('parent_id') is 'root'
+		isATemporaryRoot: (parent_id) ->
+			@get('parent_id') is parent_id
 		isInSameCollection: (note) ->
 			@get('parent_id') is note.get('parent_id')
 
