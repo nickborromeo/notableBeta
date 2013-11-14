@@ -1,18 +1,18 @@
 @Notable.module("Notify", (Notify, App, Backbone, Marionette, $, _) ->
   # Private --------------------------
-  @_alertTimeOut = 7000
+  @_alertTimeOut = 97000
   @_fadeOutTime = 400
 
   _notificationType =
     success: 'success-notification' # green
-    info: 'info-notification' # gray
-    warning: 'warning-notification' #orange (yellow)
+    warning: 'warning-notification' #yellow
     danger: 'danger-notification' #red
+    info: 'info-notification'
 
   _alertTypes =
     saving: "<i>saving...</i>"
     saved: "Saved."
-    deleted: "Note deleted. Click to undo!"
+    deleted: "Note deleted. <a>Undo</a>"
     undo: "Change undone."
     redo: "Change redone."
     updating: "<i>updating data...</i>"
@@ -33,7 +33,7 @@
     Notify.alerts.reset new Notify.Alert alertAttributes
 
   _buildAlertAttributes = (alertType, alertClass, options = {}) ->
-    alertDefaults = 
+    alertDefaults =
       alertType: alertType
       notificationType: _notificationType[alertClass]
       notification: _alertTypes[alertType]
@@ -51,10 +51,10 @@
     _timeoutID = setTimeout (=>$('#infoOnlyRegion').first().fadeOut(Notify._fadeOutTime)), Notify._alertTimeOut
   #----------  end info notification region
 
-  # Usefull options: 
-  #         selfDistruct: [boolean]
-  #         destructTime: [time in ms]  // time until it is destroyed
-  #         customClickCallBack: [function]  // until it is destroyed
+  # Useful options:
+  #   selfDistruct: [boolean]
+  #   destructTime: [time in ms]  // time until it is destroyed
+  #   customClickCallBack: [function]  // until it is destroyed
   @alert = (alertType, alertClass, options) ->
     throw "invalid alert" unless _alertTypes[alertType]?
     throw "invalid alert class" unless _notificationType[alertClass]?
