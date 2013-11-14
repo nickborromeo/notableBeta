@@ -57,6 +57,8 @@
 			@.$el.on 'keydown', null, 'right', @arrowRightJumpLine.bind @
 			@.$el.on 'keydown', null, 'left', @arrowLeftJumpLine.bind @
 			@.$el.on 'keydown', null, 'backspace', @mergeWithPreceding.bind @
+			@.$el.on 'keydown', null, 'ctrl+up', @triggerLocalShortcut @collapse.bind @
+			@.$el.on 'keydown', null, 'ctrl+down', @triggerLocalShortcut @expand.bind @
 			@.$el.on 'keydown', null, 'ctrl+s', @saveNote.bind @
 			@.$el.on 'keydown', null, 'meta+s', @saveNote.bind @
 			@.$el.on 'keydown', null, 'ctrl+z', @triggerUndoEvent #@ needs to be the tree
@@ -77,6 +79,12 @@
 			e.preventDefault()
 			e.stopPropagation()
 			@triggerEvent(event).apply(@, Note.sliceArgs arguments)
+		triggerLocalShortcut: (behaviorFn) -> (e) =>
+			e.preventDefault()
+			e.stopPropagation()
+			behaviorFn.apply(@, Note.sliceArgs arguments)
+		# remainder
+		local: ->
 		triggerDragEvent: (event) -> (e) =>
 			@updateNote()
 			e.dataTransfer = e.originalEvent.dataTransfer;
@@ -108,9 +116,20 @@
 			if @testCursorPosition "isEmptyBeforeCursor"
 				@triggerShortcut('jumpFocusUp')(e, true)
 
-		collapse: ->
+		toggleCollapse: ->
 			@ui.descendants.slideToggle("fast")
 			@$(">.branch>.move").toggleClass("is-collapsed")
+		collapse: ->
+			if not @isCollapsed()
+				@ui.descendants.slideToggle("fast")
+				@$(">.branch>.move").addClass("is-collapsed")
+		expand: ->
+			if @isCollapsed()
+				@ui.descendants.slideToggle("fast")
+				@$(">.branch>.move").removeClass("is-collapsed")
+		isCollapsed: ->
+			console.log "is-collapsed" in @$(">.branch>.move")[0].classList
+			"is-collapsed" in @$(">.branch>.move")[0].classList
 		toggleDestroyFeat: (toggleType) ->
 			(e) ->
 				e.stopPropagation()
