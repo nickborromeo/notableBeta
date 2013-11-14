@@ -33,12 +33,13 @@
 				App.Note.tree.create lastNote
 			else
 				lastNote = App.Note.activeTree.last()
-				App.Note.tree.create
+				App.Note.activeTree.create
 					depth: lastNote.get('depth')
 					parent_id: lastNote.get('parent_id')
 					rank: lastNote.get('rank') + 1
 					title: ""
-			App.Note.eventManager.trigger "setCursor:#{App.Note.tree.last().get('guid')}"
+			App.Note.eventManager.trigger "render:#{App.Note.activeBranch.get('guid')}" if App.Note.activeBranch isnt "root"
+			App.Note.eventManager.trigger "setCursor:#{App.Note.activeTree.last().get('guid')}"
 		applyModview: (e) ->
 			type = e.currentTarget.classList[1]
 			$(".alert").text(type+" modview is displayed").show()

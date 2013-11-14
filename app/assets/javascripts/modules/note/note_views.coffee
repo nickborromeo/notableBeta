@@ -27,9 +27,17 @@
 			@collection = @model.descendants
 			@bindKeyboardShortcuts()
 			@listenTo @collection, "sort", @render
+			@listenTo @collection, "add", @renderAdd
+			@listenTo @collection, "remove", @renderRemove
 			Note.eventManager.on "setCursor:#{@model.get('guid')}", @setCursor, @
 			Note.eventManager.on "render:#{@model.get('guid')}", @render, @
 			Note.eventManager.on "setTitle:#{@model.get('guid')}", @setNoteTitle, @
+		renderAdd: ->
+			console.log "add", @model
+			@render()
+		renderRemove: ->
+			console.log "removed", @model
+			@render()
 		onRender: ->
 			@getNoteContent().wysiwyg()
 			@trimExtraDropTarget()
@@ -73,7 +81,9 @@
 			@.$el.on 'keydown', null, 'ctrl+y', @triggerRedoEvent #@ needs to be the tree
 			@.$el.on 'keydown', null, 'meta+y', @triggerRedoEvent #@ needs to be the tree
 			# needs to make sure @ is proper context ie @ needs to be 
-		onClose: ->
+		onBeforeClose: ->
+			console.log "view being closed", @
+			delete @triggerShortcut
 			@.$el.off()
 		triggerRedoEvent: (e) =>
 			e.preventDefault()
@@ -258,6 +268,7 @@
 			Note.eventManager.on 'createNote', @createNote, this
 			Note.eventManager.on 'change', @dispatchFunction, this
 			@drag = undefined
+		onClose: ->
 		onBeforeRender: ->
 		onRender: -> @addDefaultNote false
 		addDefaultNote: (render = true) ->
