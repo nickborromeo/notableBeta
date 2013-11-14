@@ -94,7 +94,7 @@
 			timer = null
 			return ->
 				clearTimeout timer
-				timer = setTimeout(updateCallBack, 1000)
+				# timer = setTimeout(updateCallBack, 1000)
 
 		mergeWithPreceding: (e) ->
 			e.stopPropagation()
