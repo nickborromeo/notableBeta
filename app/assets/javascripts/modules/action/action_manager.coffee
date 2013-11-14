@@ -24,6 +24,9 @@
 		createNote: (change) ->
 			reference = @_getReference(change.guid)
 
+			# followingNote = reference.note.collection.jumpFocusDown reference.note
+			# console.log followingNote
+
 			removedBranchs = {ancestorNote: reference.note.getAllAtributes(), childNoteSet: []}
 			completeDescendants = reference.note.getCompleteDescendantList()
 			_.each completeDescendants, (descendant) ->
@@ -32,6 +35,8 @@
 			_allNotes.remove reference.note
 			_tree.deleteNote reference.note, true
 			#trigger update view:
+			# App.Note.eventManager.trigger "setCursor:#{followingNote.note.get('guid')}"
+			App.Note.eventManager.trigger "setCursor:#{App.Note.tree.last().get('guid')}"
 			return {type: 'deleteBranch', changes: removedBranchs }
 
 		reverseDeleteNote: (attributes) ->
@@ -40,6 +45,9 @@
 			_allNotes.add newBranch
 			reference = @_getReference newBranch.get('guid')
 			_tree.insertInTree newBranch
+			# Note.eventManager.trigger "setTitle:#{createdFrom.get('guid')}", createdFromNewTitle
+			App.Note.eventManager.trigger "setCursor:#{attributes.guid}"
+
 			# reference.parentCollection.add newBranch
 
 		deleteBranch: (change) ->
@@ -61,6 +69,9 @@
 			_tree.removeFromCollection reference.parentCollection, reference.note
 			reference.note.save change
 			_tree.insertInTree reference.note
+			
+			App.Note.eventManager.trigger "setCursor:#{reference.note.get('guid')}"
+
 			#trigger update view!!!!!!!!!!
 			return {type:'moveNote', changes: changeTemp}
 
@@ -75,6 +86,8 @@
 			_tree.removeFromCollection reference.parentCollection, reference.note
 			reference.note.save change
 			_tree.insertInTree reference.note
+
+			App.Note.eventManager.trigger "setCursor:#{reference.note.get('guid')}"
 			return {type: 'updateContent', changes: changeTemp}
 
 		_getReference: (guid) ->
