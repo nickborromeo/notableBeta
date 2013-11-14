@@ -2,7 +2,7 @@
 	Wiring.startWithParent = false
 
 	App.Wiring.on "start", ->
-		$(".alert").delay(7000).fadeOut(1400)
+		# $(".alert").delay(7000).fadeOut(1400)
 
 		$('.sidebar-toggle').sidr
 			name: 'left-sidr-center'

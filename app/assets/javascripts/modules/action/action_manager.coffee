@@ -26,6 +26,10 @@
 
 			# followingNote = reference.note.collection.jumpFocusDown reference.note
 			# console.log followingNote
+			array = reference.parentCollection.models
+			console.log array
+			index = array.length-2
+			console.log array[index].get('guid')
 
 			removedBranchs = {ancestorNote: reference.note.getAllAtributes(), childNoteSet: []}
 			completeDescendants = reference.note.getCompleteDescendantList()
@@ -35,8 +39,10 @@
 			_allNotes.remove reference.note
 			_tree.deleteNote reference.note, true
 			#trigger update view:
-			# App.Note.eventManager.trigger "setCursor:#{followingNote.note.get('guid')}"
-			App.Note.eventManager.trigger "setCursor:#{App.Note.tree.last().get('guid')}"
+			if reference.parent isnt 'root'
+				App.Note.eventManager.trigger "setCursor:#{reference.parent_id}"
+			else
+				App.Note.eventManager.trigger "setCursor:#{App.Note.tree.first().get('guid')}"
 			return {type: 'deleteBranch', changes: removedBranchs }
 
 		reverseDeleteNote: (attributes) ->
