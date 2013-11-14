@@ -16,7 +16,6 @@
 			"click .outline_icon": "applyModview"
 			"click .mindmap_icon": "applyModview"
 			"click .grid_icon": "applyModview"
-			"click #notification-region": "checkForEvent"
 		createNote: ->
 			App.Notify.alert 'newNote','success'
 			lastNote = App.Note.tree.last()
@@ -26,8 +25,8 @@
 			App.Note.eventManager.trigger "setCursor:#{App.Note.tree.last().get('guid')}"
 		applyModview: (e) ->
 			type = e.currentTarget.classList[1]
-			$(".alert").text(type+" modview is displayed").show()
-			$(".alert").delay(7000).fadeOut(1400)
+			# $(".alert").text(type+" modview is displayed").show()
+			# $(".alert").delay(7000).fadeOut(1400)
 			$(".modview-btn").removeClass("selected")
 			$(".#{type}").addClass("selected")
 		shiftNavbar: (e) ->
@@ -35,8 +34,6 @@
 			$(".navbar-right").toggleClass("navbar-shift")
 			type = e.currentTarget.classList[1]
 			$(".#{type}").toggleClass("selected")
-		checkForEvent: ->
-			App.Notify.checkForClickBinding()
 
 	class Scaffold.ContentView extends Marionette.Layout
 		template: "scaffold/content"
