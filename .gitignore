@@ -22,4 +22,5 @@ doc/
 .DS_Store
 .idea
 logfile
+start_server.sh
 typescript
