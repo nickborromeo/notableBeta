@@ -359,7 +359,7 @@
 		initalize: ->
 			
 	class Note.BreadcrumbsView extends Marionette.CollectionView
-		id: "breadcrumb"
+		id: "breadcrumbs"
 		className: "breadcrumb"
 		itemView: Note.BreadcrumbView
 
@@ -372,42 +372,5 @@
 		# itemViewOptions: (model, index) ->
 		# 	active = index is collection.length - 1
 		# 	active: active
-
-	class Note.Breadcrumb extends Backbone.Model
-		initialize: (branch) ->
-			@attributes = {}
-			if (route = branch.get('route'))?
-				@set "route", route
-			else
-				@set "route", "#/zoom/#{branch.get('guid')}"
-			@set "title", branch.get('title')
-			@set "depth", branch.get('depth')
-
-	class Note.Breadcrumbs extends Backbone.Collection
-		model: Note.Breadcrumb
-		initialize: (models, branch) ->
-			@buildBreadcrumbs(branch) if branch isnt "root"
-			@addRoot()
-
-		addRoot: ->
-			breadcrumb = new Note.Breadcrumb
-				attributes:
-					route: "#/"
-					title: "root"
-					depth: -1
-					
-				get: (attr) ->
-					@attributes[attr]
-				
-			@add breadcrumb
-
-		buildBreadcrumbs: (branch) ->
-			breadcrumb = new Note.Breadcrumb branch
-			@add breadcrumb
-			return if branch.isARoot()
-			@buildBreadcrumbs App.Note.tree.findNote branch.get 'parent_id'
-
-		comparator: (breadcrumb) ->
-			breadcrumb.get('depth')
 			
 )
