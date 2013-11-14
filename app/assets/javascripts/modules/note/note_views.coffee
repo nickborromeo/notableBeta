@@ -7,7 +7,9 @@
 			noteContent: ">.branch .note-content"
 			descendants: ">.branch .descendants"
 		events: ->
-			"blur >.branch .note-content": "updateNote"
+			"blur >.branch>.noteContent": "updateNote"
+			"paste >.branch>.noteContent": "pasteContent"
+
 			"click .destroy": @triggerEvent "deleteNote"
 			"mouseover .branch": @toggleDestroyFeat "block"
 			"mouseout .branch": @toggleDestroyFeat "none"
@@ -187,11 +189,11 @@
 					if timeOut > _timeout then timeOut -= _timeout else timeOut = _timeout
 					fun()
 				, timer - new Date().getTime() + timeOut
+
 		saveNote: (e) ->
 			e.preventDefault()
 			e.stopPropagation()
 			@updateNote()
-
 		updateNote: =>
 			noteTitle = @getNoteTitle()
 			noteSubtitle = "" #@getNoteSubtitle()
@@ -201,16 +203,26 @@
 					title: noteTitle
 					subtitle: noteSubtitle
 			noteTitle
+
+		pasteContent: (e)->
+			e.preventDefault()
+			pasteText = e.originalEvent.clipboardData.getData("Text")
+			textAfter = @textAfterCursor()
+			@getNoteContent().html(@textBeforeCursor() + pasteText)
+			text = @getNoteContent().text()
+			@getNoteContent().append(textAfter)
+			@setCursorPosition(text)
+
 		getNoteTitle: ->
 			title = @getNoteContent().html().trim()
 			Note.trimEmptyTags title
 		setNoteTitle: (title) ->
 			@getNoteContent().html title
 			@updateNote()
+
 		setCursor: (position = false) ->
 			(noteContent = @getNoteContent()).focus()
 			@cursorApi.setCursor noteContent, position
-
 		keepTextBeforeCursor: (sel, title) ->
 			textBefore = @cursorApi.textBeforeCursor sel, title
 			@model.save
