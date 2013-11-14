@@ -26,7 +26,7 @@
         else #this means all are done
           App.Notify.alert 'saved', 'success'
           buildTreeCallBack()
-          _syncDeletes()
+          _syncDeletesOnFirstLoad()
           _clearCachedChanges()
       error: ->
         console.log 'error! starting backoff!'
@@ -46,13 +46,8 @@
     _backOffTimeoutID = null
 
   _deleteAndSave = (guid) ->
-    #should be wrapped in try catch just ensure bad data is ignored
-    #this should never have to happen.... 
-    try
-      noteReference = _allNotes.findWhere {guid: guid}
-      noteReference.destroy()
-    catch e
-      console.error 'ignoring the error: #{e}'
+    noteReference = _allNotes.findWhere {guid: guid}
+    noteReference.destroy()
 
   _fullSyncNoAsync = (allCurrentNotes, time = _backOffInterval) ->
     console.log 'fullsync called'
@@ -102,6 +97,26 @@
             _deleteAndSave guid
     _clearCachedDeletes()
 
+  _syncDeletesOnFirstLoad = () ->
+    deleteHash = JSON.parse window.localStorage.getItem _cachedDeletes
+    if deleteHash? and Object.keys(deleteHash).length > 0
+      _deleteFromTreeNoAsync Object.keys(deleteHash), deleteHash
+    _clearCachedDeletes()
+
+  _deleteFromTreeNoAsync = (guidList, deleteHash) ->
+    unless guidList.length > 0 then return
+    guid = guidList.shift()
+    try
+      noteReference = _tree.findNote(guid)
+      if deleteHash[guid]
+        noteReference.destroy
+          success: (self) ->
+            _tree.decreaseRankOfFollowing(self)
+            _deleteFromTree guidList, deleteHash
+    catch e
+      _deleteFromTree guidList, deleteHash
+    
+
   @addChangeAndStart = (note) ->
     if _localStorageEnabled
       _addToChangeStorage note.getAllAtributes()
@@ -121,14 +136,14 @@
     if not _localStorageEnabled then return buildTreeCallBack()
     changeHash = JSON.parse window.localStorage.getItem _cachedChanges 
     if changeHash?
-      changeHashGUIDs = Object.keys changeHash        
+      changeHashGUIDs = Object.keys changeHash 
       if changeHashGUIDs.length > 0
         _changeOnlySyncNoAsync changeHash, changeHashGUIDs, buildTreeCallBack
       else 
         buildTreeCallBack()
     else
       buildTreeCallBack()
-      _syncDeletes()
+      _syncDeletesOnFirstLoad()
 
   @informConnectionSuccess = ->
     if _backOffTimeoutID?
