@@ -28,13 +28,13 @@
       event.stopPropagation()
       @model.collection.remove @model
 
-    onRender: =>
-      @$el.slideDown('fast','linear')
+    onShow: =>
+     @$el.hide().slideDown(Notify._fadeOutTime)
 
     remove: =>
       clearTimeout @timeoutID
-      @$el.fadeOut Notify._fadeOutTime
-      @$el.remove()
+      @$el.slideUp Notify._fadeOutTime, =>
+        @$el.remove()
 
   class Notify.AlertsView extends Marionette.CollectionView
     itemView: Notify.AlertView

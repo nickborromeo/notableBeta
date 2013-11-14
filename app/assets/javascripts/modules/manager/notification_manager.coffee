@@ -1,7 +1,7 @@
 @Notable.module("Notify", (Notify, App, Backbone, Marionette, $, _) ->
   # Private --------------------------
   @_alertTimeOut = 7000
-  @_fadeOutTime = 1000
+  @_fadeOutTime = 400
 
   _notificationType =
     success: 'success-notification' # green
