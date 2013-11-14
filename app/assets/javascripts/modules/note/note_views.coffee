@@ -49,10 +49,20 @@
 			@.$el.on 'keydown', null, 'meta+shift+backspace', @triggerShortcut 'deleteNote'
 			@.$el.on 'keydown', null, 'tab', @triggerShortcut 'tabNote'
 			@.$el.on 'keydown', null, 'shift+tab', @triggerShortcut 'unTabNote'
-			@.$el.on 'keydown', null, 'ctrl+shift+up', @triggerShortcut 'jumpPositionUp'
-			@.$el.on 'keydown', null, 'ctrl+shift+down', @triggerShortcut 'jumpPositionDown'
+			@.$el.on 'keydown', null, 'alt+right', @triggerShortcut 'tabNote'
+			@.$el.on 'keydown', null, 'alt+left', @triggerShortcut 'unTabNote'
+			@.$el.on 'keydown', null, 'alt+up', @triggerShortcut 'jumpPositionUp'
+			@.$el.on 'keydown', null, 'alt+down', @triggerShortcut 'jumpPositionDown'
+			@.$el.on 'keydown', null, 'meta+right', @triggerShortcut 'tabNote'
+			@.$el.on 'keydown', null, 'meta+left', @triggerShortcut 'unTabNote'
+			@.$el.on 'keydown', null, 'meta+up', @triggerShortcut 'jumpPositionUp'
+			@.$el.on 'keydown', null, 'meta+down', @triggerShortcut 'jumpPositionDown'
 			@.$el.on 'keydown', null, 'up', @triggerShortcut 'jumpFocusUp'
 			@.$el.on 'keydown', null, 'down', @triggerShortcut 'jumpFocusDown'
+			@.$el.on 'keydown', null, 'alt+ctrl+left', @triggerShortcut 'zoomOut'
+			@.$el.on 'keydown', null, 'alt+ctrl+right', @triggerShortcut 'zoomIn'
+			@.$el.on 'keydown', null, 'meta+ctrl+left', @triggerShortcut 'zoomOut'
+			@.$el.on 'keydown', null, 'meta+ctrl+right', @triggerShortcut 'zoomIn'
 			@.$el.on 'keydown', null, 'right', @arrowRightJumpLine.bind @
 			@.$el.on 'keydown', null, 'left', @arrowLeftJumpLine.bind @
 			@.$el.on 'keydown', null, 'backspace', @mergeWithPreceding.bind @
@@ -332,12 +342,18 @@
 			previousTitle = preceding.get('title')
 			Note.eventManager.trigger "setTitle:#{preceding.get('guid')}", title
 			Note.eventManager.trigger "setCursor:#{preceding.get('guid')}", previousTitle
+		zoomOut: ->
+			if App.Note.activeBranch  isnt "root" and App.Note.activeBranch.get('parent_id') isnt "root"
+				@zoomIn
+					get: () -> App.Note.activeBranch.get('parent_id')
+				Note.eventManager.trigger "setCursor:#{App.Note.activeTree.first().get('guid')}"
+				# Note.eventManager.trigger "setCursor:#{App.Note.tree.findNote(App.Note.activeBranch.get("guid").getCompleteDescendantList().first().get('guid'))}"
+			else
+				@clearZoom()
+		zoomIn: (model) ->
+			Backbone.history.navigate "#/zoom/#{model.get('guid')}"
+
 		clearZoom: ->
 			Backbone.history.navigate ""
 			Note.eventManager.trigger "clearZoom"
-
-	class Note.CrownView extends Marionette.ItemView
-		id: "crown"
-		template: "note/crownModel"
-
 )
