@@ -3,7 +3,7 @@
   @_alertTimeOut = 7000
   @_fadeOutTime = 1000
 
-  notificationType =
+  _notificationType =
     success: 'success-notification' # green
     info: 'info-notification' # gray
     warning: 'warning-notification' #orange (yellow)
@@ -12,7 +12,7 @@
   _alertTypes =
     saving: "<i>saving...</i>"
     saved: "Saved."
-    deleted: "Note deleted. <a>Undo.</a>"
+    deleted: "Note deleted. Click to undo!"
     undo: "Change undone."
     redo: "Change redone."
     updating: "<i>updating data...</i>"
@@ -21,6 +21,7 @@
     connected: "We're back online!"
     newNote: "New note has been added."
     moved: "Note has been moved."
+
 
   _renderNotification = (alertAttributes) ->
     Notify.alerts.add new Notify.Alert alertAttributes
@@ -31,10 +32,11 @@
   _buildAlertAttributes = (alertType, alertClass, options = {}) ->
     alertDefaults = 
       alertType: alertType
-      notificationType: notificationType[alertClass]
+      _notificationType: _notificationType[alertClass]
       notification: _alertTypes[alertType]
       selfDestruct: true
       destructTime: Notify._alertTimeOut
+
     _.defaults options, alertDefaults
 
   # Usefull options: 
@@ -43,13 +45,13 @@
   #         customClickCallBack: [function]  // until it is destroyed
   @alert = (alertType, alertClass, options) ->
     throw "invalid alert" unless _alertTypes[alertType]?
-    throw "invalid alert class" unless notificationType[alertClass]?
+    throw "invalid alert class" unless _notificationType[alertClass]?
     if not Notify.alerts.findWhere({alertType: alertType})?
       _renderNotification _buildAlertAttributes(alertType, alertClass, options)
 
   @alertOnly = (alertType, alertClass, options) ->
     throw "invalid alert" unless _alertTypes[alertType]?
-    throw "invalid alert class" unless notificationType[alertClass]?
+    throw "invalid alert class" unless _notificationType[alertClass]?
     _renderNotificationOnly _buildAlertAttributes(alertType, alertClass, options)
 
   @flushAlerts = ->
