@@ -58,6 +58,7 @@
 		id: "content-center"
 		tagName: "section"
 		regions:
+			breadcrumbRegion: "#breadcrumb-region"
 			crownRegion: "#crown-region"
 			treeRegion: "#tree-region"
 
