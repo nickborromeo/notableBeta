@@ -45,16 +45,24 @@
 				@ui.noteContent = @.$('.noteContent:first')
 			@ui.noteContent
 		bindKeyboardShortcuts: ->
-			@.$el.on 'keydown', null, 'ctrl+left', @triggerShortcut 'zoomOut'
-			@.$el.on 'keydown', null, 'ctrl+right', @triggerShortcut 'zoomIn'
 			@.$el.on 'keydown', null, 'ctrl+shift+backspace', @triggerShortcut 'deleteNote'
 			@.$el.on 'keydown', null, 'meta+shift+backspace', @triggerShortcut 'deleteNote'
 			@.$el.on 'keydown', null, 'tab', @triggerShortcut 'tabNote'
 			@.$el.on 'keydown', null, 'shift+tab', @triggerShortcut 'unTabNote'
-			@.$el.on 'keydown', null, 'ctrl+shift+up', @triggerShortcut 'jumpPositionUp'
-			@.$el.on 'keydown', null, 'ctrl+shift+down', @triggerShortcut 'jumpPositionDown'
+			@.$el.on 'keydown', null, 'alt+right', @triggerShortcut 'tabNote'
+			@.$el.on 'keydown', null, 'alt+left', @triggerShortcut 'unTabNote'
+			@.$el.on 'keydown', null, 'alt+up', @triggerShortcut 'jumpPositionUp'
+			@.$el.on 'keydown', null, 'alt+down', @triggerShortcut 'jumpPositionDown'
+			@.$el.on 'keydown', null, 'meta+right', @triggerShortcut 'tabNote'
+			@.$el.on 'keydown', null, 'meta+left', @triggerShortcut 'unTabNote'
+			@.$el.on 'keydown', null, 'meta+up', @triggerShortcut 'jumpPositionUp'
+			@.$el.on 'keydown', null, 'meta+down', @triggerShortcut 'jumpPositionDown'
 			@.$el.on 'keydown', null, 'up', @triggerShortcut 'jumpFocusUp'
 			@.$el.on 'keydown', null, 'down', @triggerShortcut 'jumpFocusDown'
+			@.$el.on 'keydown', null, 'alt+ctrl+left', @triggerShortcut 'zoomOut'
+			@.$el.on 'keydown', null, 'alt+ctrl+right', @triggerShortcut 'zoomIn'
+			@.$el.on 'keydown', null, 'meta+ctrl+left', @triggerShortcut 'zoomOut'
+			@.$el.on 'keydown', null, 'meta+ctrl+right', @triggerShortcut 'zoomIn'
 			@.$el.on 'keydown', null, 'right', @arrowRightJumpLine.bind @
 			@.$el.on 'keydown', null, 'left', @arrowLeftJumpLine.bind @
 			@.$el.on 'keydown', null, 'backspace', @mergeWithPreceding.bind @
