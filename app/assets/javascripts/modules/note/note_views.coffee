@@ -83,7 +83,6 @@
 			# needs to make sure @ is proper context ie @ needs to be 
 		onBeforeClose: ->
 			console.log "view being closed", @
-			delete @triggerShortcut
 			@.$el.off()
 		triggerRedoEvent: (e) =>
 			e.preventDefault()
@@ -184,6 +183,7 @@
 			Note.setRange @getNoteContent()[0], 0, node, offset
 		findTargetedNodeAndOffset: (desiredPosition) ->
 			parent = @getNoteContent()[0]
+			return [parent, 0] if desiredPosition is 0
 			it = document.createNodeIterator parent, NodeFilter.SHOW_TEXT
 			offset = 0;
 			while n = it.nextNode()
