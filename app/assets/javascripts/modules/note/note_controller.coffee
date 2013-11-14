@@ -71,6 +71,8 @@
 				@clearCrownView()
 				@showContentView App.Note.tree
 				@clearBreadcrumbView()
+				if Note.tree.first()?
+					Note.eventManager.trigger "setCursor:#{Note.tree.first().get('guid')}"
 
 		zoomIn: (guid) ->
 			App.Note.initializedTree.then =>
@@ -79,6 +81,8 @@
 				@showCrownView()
 				@showContentView App.Note.activeTree
 				@showBreadcrumbView()
+				if Note.activeTree.first()?
+					Note.eventManager.trigger "setCursor:#{Note.activeTree.first().get('guid')}"
 
 	# Initializers -------------------------
 	Note.addInitializer ->
