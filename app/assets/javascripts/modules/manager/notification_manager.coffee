@@ -32,7 +32,7 @@
   _buildAlertAttributes = (alertType, alertClass, options = {}) ->
     alertDefaults = 
       alertType: alertType
-      _notificationType: _notificationType[alertClass]
+      notificationType: _notificationType[alertClass]
       notification: _alertTypes[alertType]
       selfDestruct: true
       destructTime: Notify._alertTimeOut
