@@ -6,7 +6,7 @@
   class Notify.EmptyAlertView extends Marionette.ItemView
     template: 'manager/empty_notification'
     onRender: =>
-      @$el.fadeIn(Notify._fadeOutTime)
+      @$el.fadeIn(Notify._fadeOutTime + 100)
 
   class Notify.AlertView extends Marionette.ItemView
     template: 'manager/notification'
@@ -22,10 +22,11 @@
 
     specialClickCallback: (event) =>
       event.stopPropagation()
-      @model.onClickCallback()
+      @model.clickCallback()
 
     closeAlertClick: (event) =>
       event.stopPropagation()
+      # if @model.get('selfDestruct')
       @model.collection.remove @model
 
     onShow: =>

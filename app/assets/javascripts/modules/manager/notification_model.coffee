@@ -11,11 +11,10 @@
       destructTime: Notify._alertTimeOut
 
     initialize: (options) ->
-      # optional options.callback
-      if options.callback?
-        @onClickCallback = options.callback
+      if options.clickCallback?
+        @clickCallback = options.clickCallback
 
-    onClickCallback: ->
+    clickCallback: ->
       console.log 'nothing to do'
       # this is the default callback
       # possibly trigger help?

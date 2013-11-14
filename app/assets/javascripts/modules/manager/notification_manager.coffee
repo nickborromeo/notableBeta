@@ -22,6 +22,9 @@
     newNote: "New note has been added."
     moved: "Note has been moved."
 
+  _alertClickCallbacks =
+    deleted: ->
+      App.Action.undo()
 
   _renderNotification = (alertAttributes) ->
     Notify.alerts.add new Notify.Alert alertAttributes
@@ -36,7 +39,8 @@
       notification: _alertTypes[alertType]
       selfDestruct: true
       destructTime: Notify._alertTimeOut
-
+    if _alertClickCallbacks[alertType]?
+      alertDefaults.clickCallback = _alertClickCallbacks[alertType]
     _.defaults options, alertDefaults
 
   # Usefull options: 
