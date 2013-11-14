@@ -14,7 +14,7 @@
 			"mouseover .branch": @toggleDestroyFeat "block"
 			"mouseout .branch": @toggleDestroyFeat "none"
 			"keyup >.branch>.noteContent": @timeoutAndSave @updateNote
-			"click >.branch>.collapsable": "collapse"
+			"click >.branch>.collapsable": "toggleCollapse"
 
 			"dragstart .move": @triggerDragEvent "startMove"
 			"dragend .move": @triggerDragEvent "endMove"
@@ -120,16 +120,17 @@
 			@ui.descendants.slideToggle("fast")
 			@$(">.branch>.move").toggleClass("is-collapsed")
 		collapse: ->
-			if not @isCollapsed()
+			if @collapsable() and not @isCollapsed()
 				@ui.descendants.slideToggle("fast")
 				@$(">.branch>.move").addClass("is-collapsed")
 		expand: ->
-			if @isCollapsed()
+			if @collapsable() and @isCollapsed()
 				@ui.descendants.slideToggle("fast")
 				@$(">.branch>.move").removeClass("is-collapsed")
 		isCollapsed: ->
-			console.log "is-collapsed" in @$(">.branch>.move")[0].classList
 			"is-collapsed" in @$(">.branch>.move")[0].classList
+		collapsable: ->
+			@collection.length isnt 0
 		toggleDestroyFeat: (toggleType) ->
 			(e) ->
 				e.stopPropagation()
