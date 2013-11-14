@@ -70,7 +70,9 @@
 			descendants = note.getCompleteDescendantList()
 			_.each descendants, (descendant) ->
 				descendant.destroy()
-			note.destroy success: (self) => @decreaseRankOfFollowing self
+			note.destroy 
+				success: (self) => @decreaseRankOfFollowing self
+				error: (self) => @decreaseRankOfFollowing self
 
 		# Returns the descendants of matching parent_id
 		getCollection: (parent_id) ->

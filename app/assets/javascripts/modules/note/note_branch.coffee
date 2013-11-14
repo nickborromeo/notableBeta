@@ -19,7 +19,7 @@
 				error: (model, xhr, opts) => 
 					App.Notify.alert 'connectionLost', 'danger' 
 					App.CrashPrevent.addChangeAndStart(@)
-					if options.error? then options.error(model, response, opts)
+					if options.error? then options.error(model, xhr, opts)
 			#this fills in other options that might be provided
 			_(callBackOptions).defaults(options)
 			Backbone.Model.prototype.save.call(@, attributes, callBackOptions)
@@ -33,7 +33,7 @@
 				error: (model, xhr, opts) =>
 					App.Notify.alert 'connectionLost', 'danger' 
 					App.CrashPrevent.addDeleteAndStart(@)
-					if options.error? then options.error(model, response, opts)
+					if options.error? then options.error(model, xhr, opts)
 			#fill in other options possibly provided:
 			_(callBackOptions).defaults(options)
 
