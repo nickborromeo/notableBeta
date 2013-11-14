@@ -43,6 +43,14 @@
       alertDefaults.clickCallback = _alertClickCallbacks[alertType]
     _.defaults options, alertDefaults
 
+  #----------  info notification region
+  _timeoutID = null
+  _insertInfoNotification = (alertType) ->
+    clearTimeout _timeoutID
+    $('#infoOnlyRegion').html("<div> #{ _alertTypes[alertType]} </div>").show()
+    _timeoutID = setTimeout (=>$('#infoOnlyRegion').first().fadeOut(Notify._fadeOutTime)), Notify._alertTimeOut
+  #----------  end info notification region
+
   # Usefull options: 
   #         selfDistruct: [boolean]
   #         destructTime: [time in ms]  // time until it is destroyed
@@ -50,6 +58,7 @@
   @alert = (alertType, alertClass, options) ->
     throw "invalid alert" unless _alertTypes[alertType]?
     throw "invalid alert class" unless _notificationType[alertClass]?
+    if alertClass is 'info' then return _insertInfoNotification(alertType)
     if not Notify.alerts.findWhere({alertType: alertType})?
       _renderNotification _buildAlertAttributes(alertType, alertClass, options)
 
@@ -64,5 +73,6 @@
   Notify.addInitializer ->
     Notify.alerts = new Notify.Alerts()
     App.messageRegion.currentView.notificationRegion.show new Notify.AlertsView({collection: Notify.alerts})
+
 
 )

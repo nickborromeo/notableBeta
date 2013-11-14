@@ -3,8 +3,8 @@
   # this emty alert view could be the view where we render saves
   # since they will only be visible when other more important info 
   # is not avaliable
-  class Notify.EmptyAlertView extends Marionette.ItemView
-    template: 'manager/empty_notification'
+  class Notify.InfoAlertView extends Marionette.ItemView
+    template: 'manager/info_notification'
     onRender: =>
       @$el.fadeIn(Notify._fadeOutTime + 100)
 
@@ -39,6 +39,6 @@
 
   class Notify.AlertsView extends Marionette.CollectionView
     itemView: Notify.AlertView
-    emptyView: Notify.EmptyAlertView
+    emptyView: Notify.InfoAlertView
 
 )
