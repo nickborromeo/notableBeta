@@ -112,14 +112,16 @@
 			descendants = @getCompleteDescendantList()
 			_.each descendants, modifierFunction
 
-		# For dealing with localStorage
-		saveLocally: ->
-			throw "Browser Not Supported" unless window.localStorage?
-			changeQueue = JSON.parse window.localStorage.getItem('changeQueue')
-			changeQueue = changeQueue ? [] 
-			changeQueue.push @
-			window.localStorage.setItem 'changeQueue', JSON.stringify(changeQueue)
+		timeoutAndSave: (e) =>
+			e.stopPropagation()
+			if @timeoutAndSaveID? then clearTimeout @timeoutAndSaveID
+			@timeoutAndSaveID = setTimeout (=>
+				console.log 'erase all, then try to update..:', @get('guid')
+				Note.eventManager.trigger "timeoutUpdate:#{@get('guid')}"
+			 ), 750
 
+
+		# these methods are for adding history to the action manager!
 		addUndoMove: =>
 			App.Action.addHistory 'moveNote', {
 				guid: @get('guid')

@@ -13,7 +13,7 @@
 			"click .destroy": @triggerEvent "deleteNote"
 			"mouseover .branch": @toggleDestroyFeat "block"
 			"mouseout .branch": @toggleDestroyFeat "none"
-			"keyup >.branch>.noteContent": @timeoutAndSave @updateNote
+			"keyup > .branch > .noteContent": @model.timeoutAndSave
 			"click >.branch>.collapsable": "toggleCollapse"
 
 			"dragstart .move": @triggerDragEvent "startMove"
@@ -30,6 +30,7 @@
 			Note.eventManager.on "setCursor:#{@model.get('guid')}", @setCursor, @
 			Note.eventManager.on "render:#{@model.get('guid')}", @render, @
 			Note.eventManager.on "setTitle:#{@model.get('guid')}", @setNoteTitle, @
+			Note.eventManager.on "timeoutUpdate:#{@model.get('guid')}", @updateNote, @
 		onRender: ->
 			@getNoteContent().wysiwyg()
 			@trimExtraDropTarget()
@@ -96,12 +97,6 @@
 				args = ['change', event, @model].concat(Note.sliceArgs arguments, 0)
 				Note.eventManager.trigger.apply(Note.eventManager, args)
 
-		timeoutAndSave: (updateCallBack)->
-			timer = null
-			return ->
-				clearTimeout timer
-				# timer = setTimeout(updateCallBack, 1000)
-
 		mergeWithPreceding: (e) ->
 			return true if document.getSelection().isCollapsed is false
 			e.stopPropagation()
@@ -159,7 +154,6 @@
 				@model.save
 					title: noteTitle
 					subtitle: noteSubtitle
-				@model.saveLocally()
 			noteTitle
 		getNoteTitle: ->
 			title = @getNoteContent().html().trim()
