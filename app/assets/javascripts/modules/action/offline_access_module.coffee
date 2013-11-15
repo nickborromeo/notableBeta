@@ -33,8 +33,8 @@
 
   _loadCached = ->
     if _localStorageEnabled
-      _inMemoryCachedChanges = window.localStorage.getItem _cachedChanges
-      _inMemoryCachedDeletes = window.localStorage.getItem _cachedDeletes
+      _inMemoryCachedChanges = window.localStorage.getItem _cachedChanges || {}
+      _inMemoryCachedDeletes = window.localStorage.getItem _cachedDeletes || {}
 
   @addChangeAndStart = (note) ->
     _addToChangeCache note.getAllAtributes()
@@ -100,67 +100,30 @@
         else _startBackOff time, true
 
   _startAllNoteSync = (time) ->
-    changeHash = _.clone(_inMemoryCachedChanges)
     changeHashGUIDs = Object.keys _inMemoryCachedChanges
-    _fullSyncNoAsync changeHash, changeHashGUIDs, time
-
-  # _startAllNoteSync = (time) ->
-  #   allCurrentNotesList = _tree.getAllSubNotes()
-  #   _fullSyncNoAsync allCurrentNotesList, time
-
-  # _fullSyncNoAsync = (allCurrentNotesList, time) ->
-  #   unless allCurrentNotesList.length > 0
-  #     App.Notify.alert 'saved', 'success'
-  #     return _clearCachedChanges()
-  #   note = allCurrentNotesList.pop()
-  #   options = 
-  #     success: ->
-  #       _clearBackOff()
-  #       _fullSyncNoAsync allCurrentNotesList, time
-  #     error: ->
-  #       App.Notify.alert 'connectionLost', 'danger', {selfDestruct: false}
-  #       if time < 60000 then _startBackOff time*2, true
-  #       else _startBackOff time, true
-  #   Backbone.Model.prototype.save.call(note,null,options)
+    _fullSyncNoAsync changeHashGUIDs, time
 
 
-  _fullSyncNoAsync = (changeHash, changeHashGUIDs, time) ->
+  # ------------ shared by both offline and connection interupt  ------------ 
+
+
+  _fullSyncNoAsync = (changeHashGUIDs, time = _backOffInterval, callBack) ->
     unless changeHashGUIDs.length > 0
       App.Notify.alert 'saved', 'success'
-      return _clearCachedChanges()
+      _clearCachedChanges()
+      if callback? then return callback() else return
 
     options = 
       success: ->
         _clearBackOff()
-        _fullSyncNoAsync changeHash, changeHashGUIDs, time
+        _fullSyncNoAsync changeHashGUIDs, time, callBack
       error: ->
         App.Notify.alert 'connectionLost', 'danger', {selfDestruct: false}
         if time < 60000 then _startBackOff time*2, true
         else _startBackOff time, true
     
     guid = changeHashGUIDs.pop()
-    _loadAndSave guid, changeHash[guid], options
-
-
-
-
-
-  _changeOnlySyncNoAsync = (changeHash, changeHashGUIDs, buildTreeCallBack) ->
-    options = 
-      success: ->
-        if changeHashGUIDs.length > 0 
-          _changeOnlySyncNoAsync(changeHash, changeHashGUIDs, buildTreeCallBack)
-        else #this means all are done
-          App.Notify.alert 'saved', 'success'
-          buildTreeCallBack()
-          _syncDeletesOnFirstLoad()
-          _clearCachedChanges()
-      error: ->
-        console.log 'error! starting backoff!'
-        _startBackOff time
-    tempGuid = changeHashGUIDs.pop()
-    _loadAndSave tempGuid, changeHash[tempGuid], options
-
+    _loadAndSave guid, _inMemoryCachedChanges[guid], options
 
   _loadAndSave = (guid, attributes, options) ->
     noteReference = _allNotes.findWhere {guid: guid}
@@ -168,6 +131,68 @@
       noteReference = new App.Note.Branch()
       _allNotes.add noteReference
     Backbone.Model.prototype.save.call(noteReference,attributes,options)
+
+
+  # ------------ sync on FIRST LOAD connection only   ------------ 
+
+  @checkAndLoadLocal = (buildTreeCallBack) ->
+    if not _localStorageEnabled then return buildTreeCallBack()
+    _loadCached()
+    _fullSyncNoAsync Object.keys(_inMemoryCachedChanges), null, ->
+      buildTreeCallBack()
+      _deleteFromTreeNoAsync Object.keys(deleteHash)
+
+  # _syncDeletesOnFirstLoad = () ->
+  #   deleteHash = JSON.parse window.localStorage.getItem _cachedDeletes
+  #   if deleteHash? and Object.keys(deleteHash).length > 0
+  #     _deleteFromTreeNoAsync Object.keys(deleteHash), deleteHash
+  #   _clearCachedDeletes()
+
+  # _deleteFromTreeNoAsync = (guidList, deleteHash) ->
+  #   unless guidList.length > 0 then return
+  #   guid = guidList.shift()
+  #   try
+  #     noteReference = _tree.findNote(guid)
+  #     if deleteHash[guid]
+  #       noteReference.destroy
+  #         success: (self) ->
+  #           # _tree.decreaseRankOfFollowing(self)
+  #           _deleteFromTreeNoAsync guidList, deleteHash
+  #   catch e
+  #     _deleteFromTreeNoAsync guidList, deleteHash
+    
+
+
+
+    # if _inMemoryCachedChanges?
+    #   changeHashGUIDs = Object.keys changeHash 
+    #   if changeHashGUIDs.length > 0
+    #     _changeOnlySyncNoAsync changeHash, changeHashGUIDs, buildTreeCallBack
+    #   else 
+    #     buildTreeCallBack()
+    # else
+    #   buildTreeCallBack()
+    #   _syncDeletesOnFirstLoad()
+
+
+
+  # _changeOnlySyncNoAsync = (changeHash, changeHashGUIDs, buildTreeCallBack) ->
+  #   options = 
+  #     success: ->
+  #       if changeHashGUIDs.length > 0 
+  #         _changeOnlySyncNoAsync(changeHash, changeHashGUIDs, buildTreeCallBack)
+  #       else #this means all are done
+  #         App.Notify.alert 'saved', 'success'
+  #         buildTreeCallBack()
+  #         _syncDeletesOnFirstLoad()
+  #         _clearCachedChanges()
+  #     error: ->
+  #       console.log 'error! starting backoff!'
+  #       _startBackOff time
+  #   tempGuid = changeHashGUIDs.pop()
+  #   _loadAndSave tempGuid, changeHash[tempGuid], options
+
+
 
 
 
@@ -182,41 +207,11 @@
 
 
 
-  _syncDeletesOnFirstLoad = () ->
-    deleteHash = JSON.parse window.localStorage.getItem _cachedDeletes
-    if deleteHash? and Object.keys(deleteHash).length > 0
-      _deleteFromTreeNoAsync Object.keys(deleteHash), deleteHash
-    _clearCachedDeletes()
-
-  _deleteFromTreeNoAsync = (guidList, deleteHash) ->
-    unless guidList.length > 0 then return
-    guid = guidList.shift()
-    try
-      noteReference = _tree.findNote(guid)
-      if deleteHash[guid]
-        noteReference.destroy
-          success: (self) ->
-            # _tree.decreaseRankOfFollowing(self)
-            _deleteFromTreeNoAsync guidList, deleteHash
-    catch e
-      _deleteFromTreeNoAsync guidList, deleteHash
-    
 
 
 
   # these are all for intializing the application!
-  @checkAndLoadLocal = (buildTreeCallBack) ->
-    if not _localStorageEnabled then return buildTreeCallBack()
-    changeHash = JSON.parse window.localStorage.getItem _cachedChanges 
-    if changeHash?
-      changeHashGUIDs = Object.keys changeHash 
-      if changeHashGUIDs.length > 0
-        _changeOnlySyncNoAsync changeHash, changeHashGUIDs, buildTreeCallBack
-      else 
-        buildTreeCallBack()
-    else
-      buildTreeCallBack()
-      _syncDeletesOnFirstLoad()
+
 
 
 
