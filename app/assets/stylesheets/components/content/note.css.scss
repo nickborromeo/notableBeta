@@ -32,6 +32,10 @@ $screen-lg: 1200px;
 		background: none;
 		line-height: 0.8em;
 		&:after {content: "•";}
+		outline: none;
+		&.is-collapsed {
+			color: $notableBlue;
+		}
 	}
 
 	/*** Branches ***/

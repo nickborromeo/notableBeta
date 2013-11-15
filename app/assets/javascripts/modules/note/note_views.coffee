@@ -6,6 +6,7 @@
 		className: "branch-template"
 		ui:
 			noteContent: ">.branch .noteContent"
+			descendants: ">.branch .descendants"
 		events: ->
 			"keypress >.branch .noteContent": "createNote"
 			"blur >.branch .noteContent": "updateNote"
@@ -13,6 +14,7 @@
 			"mouseover .branch": @toggleDestroyFeat "block"
 			"mouseout .branch": @toggleDestroyFeat "none"
 			"keyup >.branch>.noteContent": @timeoutAndSave @updateNote
+			"click >.branch>.collapsable": "toggleCollapse"
 
 			"dragstart .move": @triggerDragEvent "startMove"
 			"dragend .move": @triggerDragEvent "endMove"
@@ -20,7 +22,6 @@
 			"dragenter .dropTarget": @triggerDragEvent "enterMove"
 			"dragleave .dropTarget": @triggerDragEvent "leaveMove"
 			"dragover .dropTarget": @triggerDragEvent "overMove" 
-
 
 		initialize: ->
 			@collection = @model.descendants
@@ -32,6 +33,7 @@
 		onRender: ->
 			@getNoteContent().wysiwyg()
 			@trimExtraDropTarget()
+			@$(">.branch>.move").addClass("collapsable") if @collection.models.length isnt 0
 		appendHtml:(collectionView, itemView, i) ->
 			@$('.descendants:first').append(itemView.el)
 			if i is @collection.length - 1
@@ -55,6 +57,8 @@
 			@.$el.on 'keydown', null, 'right', @arrowRightJumpLine.bind @
 			@.$el.on 'keydown', null, 'left', @arrowLeftJumpLine.bind @
 			@.$el.on 'keydown', null, 'backspace', @mergeWithPreceding.bind @
+			@.$el.on 'keydown', null, 'ctrl+up', @triggerLocalShortcut @collapse.bind @
+			@.$el.on 'keydown', null, 'ctrl+down', @triggerLocalShortcut @expand.bind @
 			@.$el.on 'keydown', null, 'ctrl+s', @saveNote.bind @
 			@.$el.on 'keydown', null, 'meta+s', @saveNote.bind @
 			@.$el.on 'keydown', null, 'ctrl+z', @triggerUndoEvent #@ needs to be the tree
@@ -75,6 +79,12 @@
 			e.preventDefault()
 			e.stopPropagation()
 			@triggerEvent(event).apply(@, Note.sliceArgs arguments)
+		triggerLocalShortcut: (behaviorFn) -> (e) =>
+			e.preventDefault()
+			e.stopPropagation()
+			behaviorFn.apply(@, Note.sliceArgs arguments)
+		# remainder
+		local: ->
 		triggerDragEvent: (event) -> (e) =>
 			@updateNote()
 			e.dataTransfer = e.originalEvent.dataTransfer;
@@ -106,6 +116,21 @@
 			if @testCursorPosition "isEmptyBeforeCursor"
 				@triggerShortcut('jumpFocusUp')(e, true)
 
+		toggleCollapse: ->
+			@ui.descendants.slideToggle("fast")
+			@$(">.branch>.move").toggleClass("is-collapsed")
+		collapse: ->
+			if @collapsable() and not @isCollapsed()
+				@ui.descendants.slideToggle("fast")
+				@$(">.branch>.move").addClass("is-collapsed")
+		expand: ->
+			if @collapsable() and @isCollapsed()
+				@ui.descendants.slideToggle("fast")
+				@$(">.branch>.move").removeClass("is-collapsed")
+		isCollapsed: ->
+			"is-collapsed" in @$(">.branch>.move")[0].classList
+		collapsable: ->
+			@collection.length isnt 0
 		toggleDestroyFeat: (toggleType) ->
 			(e) ->
 				e.stopPropagation()
