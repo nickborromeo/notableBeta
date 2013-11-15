@@ -31,3 +31,4 @@
 //= require_tree ./modules/notebook
 //= require_tree ./modules/user
 //= require_tree ./modules/action
+//= require_tree ./modules/breadcrumb
