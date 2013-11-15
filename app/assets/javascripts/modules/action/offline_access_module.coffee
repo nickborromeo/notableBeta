@@ -21,19 +21,16 @@
     if _localStorageEnabled
       window.localStorage.setItem _cachedDeletes, JSON.stringify(_inMemoryCachedDeletes)
 
-  _clearCachedChanges = ->
+  _clearCached = ->
     _inMemoryCachedChanges = {}
-    window.localStorage.setItem _cachedChanges, JSON.stringify(_inMemoryCachedChanges)
-
-  _clearCachedDeletes = ->
     _inMemoryCachedDeletes = {}
+    window.localStorage.setItem _cachedChanges, JSON.stringify(_inMemoryCachedChanges)
     window.localStorage.setItem _cachedDeletes, JSON.stringify(_inMemoryCachedDeletes)
 
   _loadCached = ->
     if _localStorageEnabled
       _inMemoryCachedChanges = JSON.parse( window.localStorage.getItem _cachedChanges ) ? {}
       _inMemoryCachedDeletes = JSON.parse( window.localStorage.getItem _cachedDeletes ) ? {}
-      console.log _inMemoryCachedDeletes
 
   @addChangeAndStart = (note) ->
     _addToChangeCache note.getAllAtributes()
@@ -87,7 +84,6 @@
     noteReference = _allNotes.findWhere {guid: notesToDelete.shift()}
     noteReference.destroy
       success: (note)->
-        console.log 'destroyed ', note
         _clearBackOff()
         _deleteAndSave notesToDelete, time, callback
       error: -> _notifyFailureAndBackOff(time)
@@ -101,9 +97,7 @@
   _fullSyncNoAsync = (changeHashGUIDs, time, callback) ->
     unless changeHashGUIDs.length > 0
       App.Notify.alert 'saved', 'success'
-      _clearCachedChanges()
-      _clearCachedDeletes()
-      console.log _allNotes
+      _clearCached()
       if callback? then return callback() else return
 
     options = 
