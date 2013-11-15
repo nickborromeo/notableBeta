@@ -47,19 +47,76 @@
     _addToDeleteCache note.get('guid')
     _startBackOff()
 
-  @removeFromDeleteCache = (guid) ->
-    _addToDeleteCache guid, false
 
-  _startBackOff = (time = _backOffInterval) ->
+  # ------------ back off methods ------------ 
+
+  _startBackOff = (time = _backOffInterval, clearFirst = false) ->
+    if clearFirst then _clearBackOff()
     unless _backOffTimeoutID?
       _backOffTimeoutID = setTimeout (-> 
         App.Notify.alert 'saving', 'info' ######################################################## notifications
-        _fullSyncNoAsync _tree.getAllSubNotes() ,time
+        _startSync time
         ), time
 
+  _clearBackOff = () ->
+    clearTimeout _backOffTimeoutID
+    _backOffTimeoutID = null
+
+  @informConnectionSuccess = ->
+    if _backOffTimeoutID?
+      _clearBackOff()
+      _startSync()
 
   # ------------ sync on lost connection only ------------ 
-  
+
+  # this fixes the server's IDs first
+  _startSync = (time) ->
+    console.log 'trying to sync...'
+    App.Notify.alert 'saving', 'info' ########################################################
+    notesToDelete = Object.keys _inMemoryCachedDeletes
+    if notesToDelete.length > 0
+      _allNotes.fetch 
+        success: -> _deleteAndSave notesToDelete, time
+        error: -> 
+          App.Notify.alert 'connectionLost', 'danger', {selfDestruct: false}
+          if time < 60000 then _startBackOff time*2, true
+          else _startBackOff time, true
+    else
+      _startAllNoteSync(time)
+
+  _deleteAndSave = (notesToDelete, time) ->
+    unless notesToDelete.length > 0
+      _clearCachedDeletes()
+      return _startAllNoteSync(time)
+    guid = notesToDelete.shift()
+    noteReference = _allNotes.findWhere {guid: guid}
+    noteReference.destroy
+      success: ->
+        _clearBackOff()
+        _deleteAndSave notesToDelete, time
+      error: ->
+        App.Notify.alert 'connectionLost', 'danger', {selfDestruct: false}
+        if time < 60000 then _startBackOff time*2, true
+        else _startBackOff time, true
+
+  _startAllNoteSync = (time) ->
+    allCurrentNotesList = _tree.getAllSubNotes()
+    _fullSyncNoAsync allCurrentNotesList, time
+
+  _fullSyncNoAsync = (allCurrentNotesList, time) ->
+    unless allCurrentNotesList.length > 0
+      App.Notify.alert 'saved', 'success'
+      return _clearCachedChanges()
+    note = allCurrentNotesList.pop()
+    options = 
+      success: ->
+        _clearBackOff()
+        _fullSyncNoAsync allCurrentNotesList, time
+      error: ->
+        App.Notify.alert 'connectionLost', 'danger', {selfDestruct: false}
+        if time < 60000 then _startBackOff time*2, true
+        else _startBackOff time, true
+    Backbone.Model.prototype.save.call(note,null,options)
 
 
 
@@ -89,31 +146,11 @@
 
 
 
-  _clearBackOff = () ->
-    clearTimeout _backOffTimeoutID
-    _backOffTimeoutID = null
 
-  _deleteAndSave = (guid) ->
-    noteReference = _allNotes.findWhere {guid: guid}
-    noteReference.destroy()
 
-  _fullSyncNoAsync = (allCurrentNotes, time = _backOffInterval) ->
-    console.log 'fullsync called'
-    options = 
-      success: ->
-        _clearBackOff()
-        if allCurrentNotes.length > 0 
-          _fullSyncNoAsync(allCurrentNotes, time)
-        else #this means all are done
-          App.Notify.alert 'saved', 'success'
-          _syncDeletes()
-          _clearCachedChanges()
-      error: ->
-        App.Notify.alert 'connectionLost', 'danger'
-        _clearBackOff()
-        if time < 60000 then _startBackOff time*2
-        else _startBackOff time
-    Backbone.Model.prototype.save.call(allCurrentNotes.pop(),null,options)
+
+
+  
     
   _loadAndSave = (guid, attributes, options) ->
     noteReference = _allNotes.findWhere {guid: guid}
@@ -130,14 +167,7 @@
 
 
 
-  _syncDeletes = () ->
-    deleteHash = JSON.parse window.localStorage.getItem _cachedDeletes
-    if deleteHash? and Object.keys(deleteHash).length > 0
-      _allNotes.fetch success: ->
-        _.each deleteHash, (toDelete, guid) ->
-          if toDelete
-            _deleteAndSave guid
-    _clearCachedDeletes()
+
 
   _syncDeletesOnFirstLoad = () ->
     deleteHash = JSON.parse window.localStorage.getItem _cachedDeletes
@@ -175,11 +205,7 @@
       buildTreeCallBack()
       _syncDeletesOnFirstLoad()
 
-  @informConnectionSuccess = ->
-    if _backOffTimeoutID?
-      _clearBackOff()
-      allCurrentNotes = _tree.getAllSubNotes()
-      _fullSyncNoAsync allCurrentNotes
+
 
   #this must be called by ActionManager!
 
