@@ -11,15 +11,17 @@
   _inMemoryCachedDeletes = {}
   _inMemoryCachedChanges = {}
 
-  # localStorageWorkers! ----- 
+  # ------------  cached changes & deletes ------------ 
 
   _addToChangeCache = (attributes) ->
     _inMemoryCachedChanges[attributes.guid] = attributes
-    window.localStorage.setItem _cachedChanges, JSON.stringify(_inMemoryCachedChanges)
+    if _localStorageEnabled
+      window.localStorage.setItem _cachedChanges, JSON.stringify(_inMemoryCachedChanges)
   
   _addToDeleteCache = (guid)->
     _inMemoryCachedDeletes[guid] = true
-    window.localStorage.setItem _cachedDeletes, JSON.stringify(_inMemoryCachedDeletes)
+    if _localStorageEnabled
+      window.localStorage.setItem _cachedDeletes, JSON.stringify(_inMemoryCachedDeletes)
 
   _clearCachedChanges = ->
     _inMemoryCachedChanges = {}
@@ -29,9 +31,44 @@
     _inMemoryCachedDeletes = {}
     window.localStorage.setItem _cachedDeletes, JSON.stringify(_inMemoryCachedDeletes)
 
-  # _load
+  _loadCached = ->
+    if _localStorageEnabled
+      _inMemoryCachedChanges = window.localStorage.getItem _cachedChanges
+      _inMemoryCachedDeletes = window.localStorage.getItem _cachedDeletes
+
+  @addChangeAndStart = (note) ->
+    _addToChangeCache note.getAllAtributes()
+    _startBackOff _backOffInterval
+
+  @addChange = (note) -> #this guy is for testing!
+    _addToChangeCache note.getAllAtributes()
+
+  @addDeleteAndStart = (note) ->
+    if _localStorageEnabled
+      _addToDeleteCache note.get('guid')
+      _startBackOff _backOffInterval
+
+  _startBackOff = (time) ->
+    unless _backOffTimeoutID?
+      _backOffTimeoutID = setTimeout (-> 
+        App.Notify.alert 'saving', 'info' ######################################################## notifications
+        _fullSyncNoAsync _tree.getAllSubNotes() ,time
+        ), time
 
 
+  # ------------ sync on lost connection only ------------ 
+  
+
+
+
+
+
+
+
+
+
+
+  
   _changeOnlySyncNoAsync = (changeHash, changeHashGUIDs, buildTreeCallBack) ->
     options = 
       success: ->
@@ -89,13 +126,7 @@
       storageHash[attributes.guid] = attributes
     window.localStorage.setItem _cachedChanges, JSON.stringify(storageHash)
 
-  _startBackOff = (time) ->
-    if not _backOffTimeoutID?
-      _backOffTimeoutID = setTimeout (-> 
-        App.Notify.alert 'saving', 'info'
-        allCurrentNotes = _tree.getAllSubNotes()
-        _fullSyncNoAsync allCurrentNotes ,time
-        ), time
+
 
   _syncDeletes = () ->
     deleteHash = JSON.parse window.localStorage.getItem _cachedDeletes
@@ -126,19 +157,7 @@
       _deleteFromTreeNoAsync guidList, deleteHash
     
 
-  @addChangeAndStart = (note) ->
-    if _localStorageEnabled
-      _addToChangeCache note.getAllAtributes()
-      _startBackOff _backOffInterval
 
-  @addChange = (note) -> #this guy is for testing!
-    if _localStorageEnabled
-      _addToChangeCache note.getAllAtributes()
-
-  @addDeleteAndStart = (note) ->
-    if _localStorageEnabled
-      _addToDeleteCache note.get('guid')
-      _startBackOff _backOffInterval
 
   # these are all for intializing the application!
   @checkAndLoadLocal = (buildTreeCallBack) ->
