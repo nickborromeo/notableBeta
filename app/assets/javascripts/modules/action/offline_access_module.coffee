@@ -33,8 +33,8 @@
 
   _loadCached = ->
     if _localStorageEnabled
-      _inMemoryCachedChanges = window.localStorage.getItem _cachedChanges || {}
-      _inMemoryCachedDeletes = window.localStorage.getItem _cachedDeletes || {}
+      _inMemoryCachedChanges = JSON.parse( window.localStorage.getItem _cachedChanges ) ? {}
+      _inMemoryCachedDeletes = JSON.parse( window.localStorage.getItem _cachedDeletes ) ? {}
 
   @addChangeAndStart = (note) ->
     _addToChangeCache note.getAllAtributes()
@@ -58,6 +58,11 @@
         _startSync time
         ), time
 
+  _notifyFailureAndBackOff = (time) ->
+    App.Notify.alert 'connectionLost', 'danger', {selfDestruct: false}
+    if time < 60000 then _startBackOff time*2, true
+    else _startBackOff time, true
+
   _clearBackOff = () ->
     clearTimeout _backOffTimeoutID
     _backOffTimeoutID = null
@@ -67,47 +72,35 @@
       _clearBackOff()
       _startSync()
 
-  # ------------ sync on lost connection only ------------ 
+  # ------------ sync on lost connection: this is the order in which they are called ---------- 
 
-  # this fixes the server's IDs first
-  _startSync = (time) ->
+  # downloads all notes, this is not reflected in DOM
+  _startSync = (time = _backOffInterval, callback) ->
     console.log 'trying to sync...'
     App.Notify.alert 'saving', 'info' ########################################################
-    notesToDelete = Object.keys _inMemoryCachedDeletes
-    if notesToDelete.length > 0
-      _allNotes.fetch 
-        success: -> _deleteAndSave notesToDelete, time
-        error: -> 
-          App.Notify.alert 'connectionLost', 'danger', {selfDestruct: false}
-          if time < 60000 then _startBackOff time*2, true
-          else _startBackOff time, true
-    else
-      _startAllNoteSync(time)
+    _allNotes.fetch 
+      success: -> _deleteAndSave Object.keys(_inMemoryCachedDeletes), time, callback
+      error: -> _notifyFailureAndBackOff(time)
 
-  _deleteAndSave = (notesToDelete, time) ->
+  # deltes all notes that were deleted to fix server ID references
+  _deleteAndSave = (notesToDelete, time, callback) ->
     unless notesToDelete.length > 0
       _clearCachedDeletes()
-      return _startAllNoteSync(time)
-    guid = notesToDelete.shift()
-    noteReference = _allNotes.findWhere {guid: guid}
+      return _startAllNoteSync time, callback
+    noteReference = _allNotes.findWhere {guid: notesToDelete.shift()}
     noteReference.destroy
       success: ->
         _clearBackOff()
-        _deleteAndSave notesToDelete, time
-      error: ->
-        App.Notify.alert 'connectionLost', 'danger', {selfDestruct: false}
-        if time < 60000 then _startBackOff time*2, true
-        else _startBackOff time, true
+        _deleteAndSave notesToDelete, time, callback
+      error: -> _notifyFailureAndBackOff(time)
 
-  _startAllNoteSync = (time) ->
+  # starts to sync the actual note data, ranks, depth, parent IDs, etc
+  _startAllNoteSync = (time, callback) ->
     changeHashGUIDs = Object.keys _inMemoryCachedChanges
-    _fullSyncNoAsync changeHashGUIDs, time
+    _fullSyncNoAsync changeHashGUIDs, time, callback
 
-
-  # ------------ shared by both offline and connection interupt  ------------ 
-
-
-  _fullSyncNoAsync = (changeHashGUIDs, time = _backOffInterval, callBack) ->
+  # syncing the actual note data
+  _fullSyncNoAsync = (changeHashGUIDs, time, callback) ->
     unless changeHashGUIDs.length > 0
       App.Notify.alert 'saved', 'success'
       _clearCachedChanges()
@@ -116,12 +109,9 @@
     options = 
       success: ->
         _clearBackOff()
-        _fullSyncNoAsync changeHashGUIDs, time, callBack
-      error: ->
-        App.Notify.alert 'connectionLost', 'danger', {selfDestruct: false}
-        if time < 60000 then _startBackOff time*2, true
-        else _startBackOff time, true
-    
+        _fullSyncNoAsync changeHashGUIDs, time, callback
+      error: -> _notifyFailureAndBackOff(time)
+
     guid = changeHashGUIDs.pop()
     _loadAndSave guid, _inMemoryCachedChanges[guid], options
 
@@ -138,85 +128,10 @@
   @checkAndLoadLocal = (buildTreeCallBack) ->
     if not _localStorageEnabled then return buildTreeCallBack()
     _loadCached()
-    _fullSyncNoAsync Object.keys(_inMemoryCachedChanges), null, ->
-      buildTreeCallBack()
-      _deleteFromTreeNoAsync Object.keys(deleteHash)
-
-  # _syncDeletesOnFirstLoad = () ->
-  #   deleteHash = JSON.parse window.localStorage.getItem _cachedDeletes
-  #   if deleteHash? and Object.keys(deleteHash).length > 0
-  #     _deleteFromTreeNoAsync Object.keys(deleteHash), deleteHash
-  #   _clearCachedDeletes()
-
-  # _deleteFromTreeNoAsync = (guidList, deleteHash) ->
-  #   unless guidList.length > 0 then return
-  #   guid = guidList.shift()
-  #   try
-  #     noteReference = _tree.findNote(guid)
-  #     if deleteHash[guid]
-  #       noteReference.destroy
-  #         success: (self) ->
-  #           # _tree.decreaseRankOfFollowing(self)
-  #           _deleteFromTreeNoAsync guidList, deleteHash
-  #   catch e
-  #     _deleteFromTreeNoAsync guidList, deleteHash
-    
-
-
-
-    # if _inMemoryCachedChanges?
-    #   changeHashGUIDs = Object.keys changeHash 
-    #   if changeHashGUIDs.length > 0
-    #     _changeOnlySyncNoAsync changeHash, changeHashGUIDs, buildTreeCallBack
-    #   else 
-    #     buildTreeCallBack()
-    # else
-    #   buildTreeCallBack()
-    #   _syncDeletesOnFirstLoad()
-
-
-
-  # _changeOnlySyncNoAsync = (changeHash, changeHashGUIDs, buildTreeCallBack) ->
-  #   options = 
-  #     success: ->
-  #       if changeHashGUIDs.length > 0 
-  #         _changeOnlySyncNoAsync(changeHash, changeHashGUIDs, buildTreeCallBack)
-  #       else #this means all are done
-  #         App.Notify.alert 'saved', 'success'
-  #         buildTreeCallBack()
-  #         _syncDeletesOnFirstLoad()
-  #         _clearCachedChanges()
-  #     error: ->
-  #       console.log 'error! starting backoff!'
-  #       _startBackOff time
-  #   tempGuid = changeHashGUIDs.pop()
-  #   _loadAndSave tempGuid, changeHash[tempGuid], options
-
-
-
-
-
-
-  # _saveAllToLocal = (allCurrentNotes) ->
-  #   storageHash = JSON.parse(window.localStorage.getItem(_cachedChanges)) ? {}
-  #   _(allCurrentNotes).each (note) ->
-  #     storageHash[attributes.guid] = attributes
-  #   window.localStorage.setItem _cachedChanges, JSON.stringify(storageHash)
-
-
-
-
-
-
-
-
-  # these are all for intializing the application!
-
-
+    _startSync(null, buildTreeCallBack)
 
 
   #this must be called by ActionManager!
-
 
   @setTree = (tree) ->
     _tree = tree
