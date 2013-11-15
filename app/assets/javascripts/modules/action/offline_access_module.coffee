@@ -18,8 +18,8 @@
     if _localStorageEnabled
       window.localStorage.setItem _cachedChanges, JSON.stringify(_inMemoryCachedChanges)
   
-  _addToDeleteCache = (guid)->
-    _inMemoryCachedDeletes[guid] = true
+  _addToDeleteCache = (guid, toDelete = true)->
+    _inMemoryCachedDeletes[guid] = toDelete
     if _localStorageEnabled
       window.localStorage.setItem _cachedDeletes, JSON.stringify(_inMemoryCachedDeletes)
 
@@ -38,17 +38,19 @@
 
   @addChangeAndStart = (note) ->
     _addToChangeCache note.getAllAtributes()
-    _startBackOff _backOffInterval
+    _startBackOff()
 
   @addChange = (note) -> #this guy is for testing!
     _addToChangeCache note.getAllAtributes()
 
   @addDeleteAndStart = (note) ->
-    if _localStorageEnabled
-      _addToDeleteCache note.get('guid')
-      _startBackOff _backOffInterval
+    _addToDeleteCache note.get('guid')
+    _startBackOff()
 
-  _startBackOff = (time) ->
+  @removeFromDeleteCache = (guid) ->
+    _addToDeleteCache guid, false
+
+  _startBackOff = (time = _backOffInterval) ->
     unless _backOffTimeoutID?
       _backOffTimeoutID = setTimeout (-> 
         App.Notify.alert 'saving', 'info' ######################################################## notifications
@@ -68,7 +70,7 @@
 
 
 
-  
+
   _changeOnlySyncNoAsync = (changeHash, changeHashGUIDs, buildTreeCallBack) ->
     options = 
       success: ->
@@ -180,11 +182,7 @@
       _fullSyncNoAsync allCurrentNotes
 
   #this must be called by ActionManager!
-  @removeFromDeleteStorage = (guid) ->
-    if _localStorageEnabled    
-      storageHash = JSON.parse(window.localStorage.getItem(_cachedDeletes)) ? {}
-      storageHash[guid] = false
-      window.localStorage.setItem _cachedDeletes, JSON.stringify(storageHash)
+
 
   @setTree = (tree) ->
     _tree = tree
