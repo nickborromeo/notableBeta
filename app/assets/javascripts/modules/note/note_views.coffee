@@ -13,7 +13,7 @@
 			"click .destroy": @triggerEvent "deleteNote"
 			"mouseover .branch": @toggleDestroyFeat "block"
 			"mouseout .branch": @toggleDestroyFeat "none"
-			"keyup > .branch > .noteContent": @model.timeoutAndSave
+			"keydown > .branch > .noteContent": @model.timeoutAndSave
 			"click >.branch>.collapsable": "toggleCollapse"
 
 			"dragstart .move": @triggerDragEvent "startMove"

@@ -113,6 +113,8 @@
 			_.each descendants, modifierFunction
 
 		timeoutAndSave: (e) =>
+			invalidKeys = [9, 13, 16, 20, 27, 37, 38, 39, 40, 112, 113, 114, 115, 116, 117, 118, 119, 120, 121, 122, 123]
+			if e.metaKey or e.ctrlKey or e.altKey or _.contains(invalidKeys, e.keyCode) then return;
 			e.stopPropagation()
 			if @timeoutAndSaveID? then clearTimeout @timeoutAndSaveID
 			@timeoutAndSaveID = setTimeout (=>
@@ -137,6 +139,8 @@
 			App.Action.addHistory('deleteBranch', removedBranchs)
 			App.Notify.alert 'deleted', 'warning'
 		addUndoUpdate: (newTitle, newSubtitle) =>
+			#incase this update comes before timeout
+			if @timeoutAndSaveID? then clearTimeout @timeoutAndSaveID 
 			App.Action.addHistory 'updateContent', {
 				guid: @get('guid')
 				title: @get('title')
