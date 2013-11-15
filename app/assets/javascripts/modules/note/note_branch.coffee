@@ -9,6 +9,34 @@
 			rank: 1
 			depth: 0
 
+		save: (attributes = null, options = {}) =>
+			App.Notify.alert 'saving', 'info'
+			callBackOptions =
+				success: (model, response, opts)  => 
+					App.Notify.alert 'saved', 'info'
+					App.OfflineAccess.informConnectionSuccess()
+					if options.success? then options.success(model, response, opts)
+				error: (model, xhr, opts) => 
+					App.Notify.alert 'connectionLost', 'danger', {selfDestruct: false}
+					App.OfflineAccess.addChangeAndStart(@)
+					if options.error? then options.error(model, xhr, opts)
+			#this fills in other options that might be provided
+			_(callBackOptions).defaults(options)
+			Backbone.Model.prototype.save.call(@, attributes, callBackOptions)
+
+		destroy: (options = {}) =>
+			callBackOptions = 
+				success: (model, response, opts) =>
+					if App.OfflineAccess.isOffline() then App.OfflineAccess.addToDeleteCache model.get('guid'), true
+					if options.success? then options.success(model, response, opts)
+				error: (model, xhr, opts) =>
+					App.Notify.alert 'connectionLost', 'danger', {selfDestruct: false} 
+					App.OfflineAccess.addDeleteAndStart(@)
+					if options.error? then options.error(model, xhr, opts)
+			#fill in other options possibly provided:
+			_(callBackOptions).defaults(options)
+			Backbone.Model.prototype.destroy.call(@, callBackOptions)
+
 		initialize: ->
 			@bind "change:rank", @notifyMove
 			@bind "change:depth", @notifyMove
@@ -80,7 +108,7 @@
 			okayAttrs = ['depth', 'rank', 'parent_id', 'guid', 'title', 'subtitle', 'created_at']
 			attributesHash = {}
 			for attribute in okayAttrs
-				attributesHash[attribute] = @get(attribute) 
+				attributesHash[attribute] = @get attribute
 			attributesHash
 		# getMoveAttributes: =>
 		# 	moveAttributes = {}

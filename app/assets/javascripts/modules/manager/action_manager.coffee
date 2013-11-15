@@ -1,4 +1,3 @@
-#FIXME:  notes have updated information, but are not re-rendered in the view!
 
 @Notable.module("Action", (Action, App, Backbone, Marionette, $, _) ->
 
@@ -27,9 +26,9 @@
 			removedBranchs = {ancestorNote: reference.note.getAllAtributes(), childNoteSet: []}
 			completeDescendants = reference.note.getCompleteDescendantList()
 			_.each completeDescendants, (descendant) ->
+				App.OfflineAccess.addToDeleteCache descendant.get('guid'), true
 				removedBranchs.childNoteSet.push(descendant.getAllAtributes())
 
-			_allNotes.remove reference.note
 			_tree.deleteNote reference.note, true
 
 			if reference.parent isnt 'root'
@@ -42,10 +41,10 @@
 			newBranch = new App.Note.Branch()
 			newBranch.save attributes
 			_allNotes.add newBranch
-			reference = @_getReference newBranch.get('guid')
 			_tree.insertInTree newBranch
 			App.Note.eventManager.trigger "setCursor:#{attributes.guid}"
-
+			#remove from storage if offline
+			App.OfflineAccess.addToDeleteCache attributes.guid, false
 
 		deleteBranch: (change) ->
 			@reverseDeleteNote(change.ancestorNote)

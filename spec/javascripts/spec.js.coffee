@@ -9,3 +9,4 @@
 # =require_tree ./helpers
 # =require_tree ./
 # =require_tree ./action_module
+# =require_tree ./offline_access
