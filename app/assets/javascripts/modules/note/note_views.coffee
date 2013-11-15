@@ -367,4 +367,8 @@
 		clearZoom: ->
 			Backbone.history.navigate ""
 			Note.eventManager.trigger "clearZoom"
+
+	class Note.CrownView extends Marionette.ItemView
+		id: "crown"
+		template: "note/crownModel"
 )

@@ -22,10 +22,10 @@
 					route: "#/"
 					title: "My Notebook"
 					depth: -1
-					
+
 				get: (attr) ->
 					@attributes[attr]
-				
+
 			@add breadcrumb
 
 		buildBreadcrumbs: (branch) ->
