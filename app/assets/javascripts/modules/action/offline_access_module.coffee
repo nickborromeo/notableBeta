@@ -1,4 +1,5 @@
-@Notable.module("CrashPrevent", (CrashPrevent, App, Backbone, Marionette, $, _) ->
+@Notable.module("OfflineAccess", (OfflineAccess, App, Backbone, Marionette, $, _) ->
+
 
   _backOffTimeoutID = null
   _backOffInterval = 2000
@@ -7,6 +8,8 @@
   _tree = null
   _allNotes = null
   _localStorageEnabled = true
+  _inMemoryDeleteChanges = {}
+  _inMemoryChangeStorage = {}
 
   _addToChangeStorage = (attributes) ->
     storageHash = JSON.parse(window.localStorage.getItem(_cachedChanges)) ? {}

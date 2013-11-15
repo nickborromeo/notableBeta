@@ -13,11 +13,11 @@
 			@tree = new App.Note.Tree()
 			App.Action.setTree @tree
 			App.Action.setAllNotesByDepth @allNotesByDepth
-			App.CrashPrevent.setTree @tree
-			App.CrashPrevent.setAllNotesByDepth @allNotesByDepth
+			App.OfflineAccess.setTree @tree
+			App.OfflineAccess.setAllNotesByDepth @allNotesByDepth
 
 		start: ->
-			@allNotesByDepth.fetch success: => App.CrashPrevent.checkAndLoadLocal (_.bind @buildTree, @)
+			@allNotesByDepth.fetch success: => App.OfflineAccess.checkAndLoadLocal (_.bind @buildTree, @)
 
 		buildTree: ->
 			@allNotesByDepth.sort()

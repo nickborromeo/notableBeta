@@ -14,11 +14,11 @@
 			callBackOptions =
 				success: (model, response, opts)  => 
 					App.Notify.alert 'saved', 'success'
-					App.CrashPrevent.informConnectionSuccess()
+					App.OfflineAccess.informConnectionSuccess()
 					if options.success? then options.success(model, response, opts)
 				error: (model, xhr, opts) => 
 					App.Notify.alert 'connectionLost', 'danger' 
-					App.CrashPrevent.addChangeAndStart(@)
+					App.OfflineAccess.addChangeAndStart(@)
 					if options.error? then options.error(model, xhr, opts)
 			#this fills in other options that might be provided
 			_(callBackOptions).defaults(options)
@@ -30,7 +30,7 @@
 					if options.success? then options.success(model, response, opts)
 				error: (model, xhr, opts) =>
 					App.Notify.alert 'connectionLost', 'danger', {selfDestruct: false} 
-					App.CrashPrevent.addDeleteAndStart(@)
+					App.OfflineAccess.addDeleteAndStart(@)
 					if options.error? then options.error(model, xhr, opts)
 			#fill in other options possibly provided:
 			_(callBackOptions).defaults(options)
