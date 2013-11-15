@@ -123,10 +123,10 @@
 	# @loadHistoryFromLocalStorage = ->
 	# 	loadPreviousActionHistory JSON.parse(window.localStorage.getItem('history'))
 
-	@loadPreviousActionHistory = (previousHistory) ->
-		throw "-- this is not history! --" unless Array.isArray previousHistory
-		#warning = this will erase all previous history.
-		_undoStack = previousHistory
+	# @loadPreviousActionHistory = (previousHistory) ->
+	# 	throw "-- this is not history! --" unless Array.isArray previousHistory
+	# 	#warning = this will erase all previous history.
+	# 	_undoStack = previousHistory
 
 	@setHistoryLimit = (limit) ->
 		throw "-- cannot set #{limit} " if isNaN limit

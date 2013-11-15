@@ -16,13 +16,13 @@
 				Then -> expect(App.Action.addHistory).toEqual(jasmine.any(Function))
 				And -> expect(App.Action.undo).toEqual(jasmine.any(Function))
 				And -> expect(App.Action.redo).toEqual(jasmine.any(Function))
-				And -> expect(App.Action.exportToServer).toEqual(jasmine.any(Function))
-				And -> expect(App.Action.exportToLocalStorage).toEqual(jasmine.any(Function))
-				And -> expect(App.Action.loadPreviousActionHistory).toEqual(jasmine.any(Function))
-				And -> expect(App.Action.loadHistoryFromLocalStorage).toEqual(jasmine.any(Function))
+				# And -> expect(App.Action.exportToLocalStorage).toEqual(jasmine.any(Function))
+				# And -> expect(App.Action.loadPreviousActionHistory).toEqual(jasmine.any(Function))
+				# And -> expect(App.Action.loadHistoryFromLocalStorage).toEqual(jasmine.any(Function))
 				And -> expect(App.Action.setHistoryLimit).toEqual(jasmine.any(Function))
 				And -> expect(App.Action.getHistoryLimit).toEqual(jasmine.any(Function))
 				And -> expect(App.Action._getActionHistory).toEqual(jasmine.any(Function))
+				And -> expect(App.Action._getUndoneHistory).toEqual(jasmine.any(Function))
 
 			describe "have history limit", ->
 				Then -> expect(App.Action.getHistoryLimit()).toEqual(jasmine.any(Number))
