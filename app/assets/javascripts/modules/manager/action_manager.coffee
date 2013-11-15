@@ -24,13 +24,6 @@
 		createNote: (change) ->
 			reference = @_getReference(change.guid)
 
-			# followingNote = reference.note.collection.jumpFocusDown reference.note
-			# console.log followingNote
-			array = reference.parentCollection.models
-			console.log array
-			index = array.length-2
-			console.log array[index].get('guid')
-
 			removedBranchs = {ancestorNote: reference.note.getAllAtributes(), childNoteSet: []}
 			completeDescendants = reference.note.getCompleteDescendantList()
 			_.each completeDescendants, (descendant) ->
@@ -38,7 +31,7 @@
 
 			_allNotes.remove reference.note
 			_tree.deleteNote reference.note, true
-			#trigger update view:
+
 			if reference.parent isnt 'root'
 				App.Note.eventManager.trigger "setCursor:#{reference.parent_id}"
 			else
@@ -51,16 +44,13 @@
 			_allNotes.add newBranch
 			reference = @_getReference newBranch.get('guid')
 			_tree.insertInTree newBranch
-			# Note.eventManager.trigger "setTitle:#{createdFrom.get('guid')}", createdFromNewTitle
 			App.Note.eventManager.trigger "setCursor:#{attributes.guid}"
 
-			# reference.parentCollection.add newBranch
 
 		deleteBranch: (change) ->
 			@reverseDeleteNote(change.ancestorNote)
 			for attributes in change.childNoteSet
 				@reverseDeleteNote(attributes)
-			#trigger update view:
 			return {type: 'createNote', changes: { guid: change.ancestorNote.guid }}
 
 		moveNote: (change) ->
@@ -77,8 +67,6 @@
 			_tree.insertInTree reference.note
 			
 			App.Note.eventManager.trigger "setCursor:#{reference.note.get('guid')}"
-
-			#trigger update view!!!!!!!!!!
 			return {type:'moveNote', changes: changeTemp}
 
 		updateContent: (change) ->
@@ -101,6 +89,7 @@
 			parent_id = note.get('parent_id')
 			parentCollection = _tree.getCollection(parent_id)
 			{note: note, parent_id: parent_id, parentCollection: parentCollection}
+
 
 		_findANote: (guid) ->
 			_allNotes.findWhere({guid: guid}) ? _tree.findNote(guid)
