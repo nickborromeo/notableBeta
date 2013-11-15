@@ -138,5 +138,5 @@
 
 
 
-######  dev console test data:   this is not nessasarally safe as it will add an item with
+######  dev console test data:   this is not nessasarally safe as it will add an item with potentially conflicting rank
 # localStorage.setItem('unsyncedChanges', JSON.stringify({'theBestGUIDever':{'depth':0, 'rank':1, 'parent_id':'root', 'guid':'theBestGUIDever', 'title':"i'm a little teapot", 'subtitle': '', 'created_at': new Date()}}))

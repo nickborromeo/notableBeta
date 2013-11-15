@@ -16,7 +16,7 @@
 			App.OfflineAccess.setAllNotesByDepth @allNotesByDepth
 
 		start: ->
-			@allNotesByDepth.fetch success: => App.OfflineAccess.checkAndLoadLocal (_.bind @buildTree, @)
+			App.OfflineAccess.checkAndLoadLocal (_.bind @buildTree, @)
 
 		buildTree: ->
 			@allNotesByDepth.sort()
