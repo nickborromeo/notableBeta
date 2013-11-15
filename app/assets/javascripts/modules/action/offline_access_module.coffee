@@ -1,11 +1,9 @@
 @Notable.module("OfflineAccess", (OfflineAccess, App, Backbone, Marionette, $, _) ->
 
-
   _backOffTimeoutID = null
   _backOffInterval = 2000
   _cachedChanges = 'unsyncedChanges'
   _cachedDeletes = 'unsyncedDeletes'
-  _tree = null
   _allNotes = null
   _localStorageEnabled = true
   _inMemoryCachedDeletes = {}
@@ -123,18 +121,12 @@
     Backbone.Model.prototype.save.call(noteReference,attributes,options)
 
 
-  # ------------ sync on FIRST LOAD connection only   ------------ 
+  # ------------  on FIRST LOAD connection only   ------------ 
 
   @checkAndLoadLocal = (buildTreeCallBack) ->
     if not _localStorageEnabled then return buildTreeCallBack()
     _loadCached()
     _startSync(null, buildTreeCallBack)
-
-
-  #this must be called by ActionManager!
-
-  @setTree = (tree) ->
-    _tree = tree
 
   @setAllNotesByDepth = (allNotes) ->
     _allNotes = allNotes

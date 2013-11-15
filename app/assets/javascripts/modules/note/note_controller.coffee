@@ -13,7 +13,6 @@
 			@tree = new App.Note.Tree()
 			App.Action.setTree @tree
 			App.Action.setAllNotesByDepth @allNotesByDepth
-			App.OfflineAccess.setTree @tree
 			App.OfflineAccess.setAllNotesByDepth @allNotesByDepth
 
 		start: ->
