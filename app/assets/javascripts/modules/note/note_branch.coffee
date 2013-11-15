@@ -27,6 +27,8 @@
 
 		isARoot: ->
 			@get('parent_id') is 'root'
+		isFirstRoot: ->
+			@isARoot(true) and @get('rank') is 1
 		isInSameCollection: (note) ->
 			@get('parent_id') is note.get('parent_id')
 
@@ -68,12 +70,13 @@
 			duplicatedNote.cloneAttributesNoSaving @
 			duplicatedNote
 		clonableAttributes: ['depth', 'rank', 'parent_id']
-		cloneAttributes: (noteToClone) ->
-			attributesHash = @cloneAttributesNoSaving noteToClone
+		cloneAttributes: (noteToClone, options = {}) ->
+			attributesHash = @cloneAttributesNoSaving noteToClone, options
 			@save()
-		cloneAttributesNoSaving: (noteToClone) ->
+		cloneAttributesNoSaving: (noteToClone, options = {}) ->
 			attributesHash = {}
-			attributesHash[attribute] = noteToClone.get(attribute) for attribute in @clonableAttributes
+			#attributesHash[attribute] = noteToClone.get(attribute) for attribute in @clonableAttributes
+			attributesHash[attribute] = (if options[attribute]? then options[attribute] else noteToClone.get(attribute)) for attribute in @clonableAttributes
 			@set attributesHash
 			attributesHash
 		getAllAtributes: =>

@@ -136,12 +136,12 @@
 		findPrecedingInCollection: (note) ->
 			currentCollection = @getCollection note.get 'parent_id'
 			currentCollection.findFirstInCollection rank: note.get('rank') - 1
-		findPreviousNote: (note) ->
+		findPreviousNote: (note, searchDescendants = true) ->
 			return undefined if (note.isARoot() and note.get('rank') is 1)
 			if note.get('rank') is 1
 				return @getNote(note.get('parent_id'))
 			previousNote = @findPrecedingInCollection note
-			if previousNote.descendants.length is 0
+			if previousNote.descendants.length is 0 or not searchDescendants
 				return previousNote
 			previousNote.getLastDescendant()
 		findFollowingInCollection: (note) ->
@@ -170,16 +170,44 @@
 			followingNote.decreaseRank()
 			note.increaseRank()
 			@getCollection(note.get 'parent_id').sort()
+		getRoot: (branch) ->
+			return branch if branch.isARoot(true)
+			@getRoot @findNote branch.get('parent_id')
+		buildBranchLike: (attributes) ->
+			attributes: attributes
+			get: (attr) -> @attributes[attr]
+		findPrecedingBranch: (branch, precedingBranch) ->
+			return precedingBranch if precedingBranch? or branch.isFirstRoot()
+			ancestorBranch = @findNote branch.get('parent_id')
+			precedingBranch = @findPrecedingInCollection ancestorBranch
+			@findPrecedingBranch(ancestorBranch, precedingBranch)
+		findPrecedingWithSameDepth: (branch) ->
+			# rootAncestor = @getRoot branch
+			# precedingBranch = @findPrecedingInCollection rootAncestor
+			precedingBranch = @findPrecedingBranch branch
+			preceding = precedingBranch.descendants.last()
+			return @buildBranchLike(rank: 0, depth: 1, parent_id: precedingBranch.get('guid')) if not preceding?
+			jumpTarget = @getJumpPositionTarget branch.get('depth'), preceding.getCompleteDescendantList()
+			jumpTarget || @buildBranchLike rank:0, depth: 2, parent_id: preceding.get('guid')
+		getJumpPositionTarget: (depth, descendantList, preceding) ->
+			return preceding if preceding?
+			return false if depth is 0
+			@getJumpPositionTarget depth - 1, descendantList, _.last _.filter descendantList, (descendant) ->
+				descendant.get('depth') is depth
+		newJump: (branch) ->
+			target = @findPrecedingWithSameDepth branch
+			branch.cloneAttributes target, rank: target.get('rank') + 1
 		jumpPositionUp: (note) ->
-			previousNote = @findPreviousNote note
+			previousNote = @findPreviousNote note, false
+			return note if not previousNote?
 			if note.isInSameCollection previousNote
 				@jumpNoteUpInCollection note
-			else if (depthDifference = previousNote.get('depth') - note.get('depth')) > 0
-				@tabNote note, @getNote previousNote.get 'parent_id'
+			# else if (depthDifference = previousNote.get('depth') - note.get('depth')) > 0
+			# 	@tabNote note, @getNote previousNote.get 'parent_id'
 			else
 				previousCollection = @getCollection note.get 'parent_id'
 				@removeFromCollection previousCollection, note
-				note.cloneAttributes previousNote
+				@newJump note
 				@insertInTree note
 				note
 		jumpPositionDown: (note) ->
