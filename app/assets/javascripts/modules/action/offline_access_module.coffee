@@ -11,13 +11,26 @@
   _inMemoryCachedDeletes = {}
   _inMemoryCachedChanges = {}
 
-  _addToChangeStorage = (attributes) ->
+  # localStorageWorkers! ----- 
+
+  _addToChangeCache = (attributes) ->
     _inMemoryCachedChanges[attributes.guid] = attributes
     window.localStorage.setItem _cachedChanges, JSON.stringify(_inMemoryCachedChanges)
   
-  _addToDeleteStorage = (guid)->
+  _addToDeleteCache = (guid)->
     _inMemoryCachedDeletes[guid] = true
     window.localStorage.setItem _cachedDeletes, JSON.stringify(_inMemoryCachedDeletes)
+
+  _clearCachedChanges = ->
+    _inMemoryCachedChanges = {}
+    window.localStorage.setItem _cachedChanges, JSON.stringify(_inMemoryCachedChanges)
+
+  _clearCachedDeletes = ->
+    _inMemoryCachedDeletes = {}
+    window.localStorage.setItem _cachedDeletes, JSON.stringify(_inMemoryCachedDeletes)
+
+  # _load
+
 
   _changeOnlySyncNoAsync = (changeHash, changeHashGUIDs, buildTreeCallBack) ->
     options = 
@@ -36,13 +49,6 @@
     _loadAndSave tempGuid, changeHash[tempGuid], options
 
 
-  _clearCachedChanges = ->
-    _inMemoryCachedChanges = {}
-    window.localStorage.setItem _cachedChanges, JSON.stringify(_inMemoryCachedChanges)
-
-  _clearCachedDeletes = ->
-    _inMemoryCachedDeletes = {}
-    window.localStorage.setItem _cachedDeletes, JSON.stringify(_inMemoryCachedDeletes)
 
   _clearBackOff = () ->
     clearTimeout _backOffTimeoutID
@@ -122,16 +128,16 @@
 
   @addChangeAndStart = (note) ->
     if _localStorageEnabled
-      _addToChangeStorage note.getAllAtributes()
+      _addToChangeCache note.getAllAtributes()
       _startBackOff _backOffInterval
 
   @addChange = (note) -> #this guy is for testing!
     if _localStorageEnabled
-      _addToChangeStorage note.getAllAtributes()
+      _addToChangeCache note.getAllAtributes()
 
   @addDeleteAndStart = (note) ->
     if _localStorageEnabled
-      _addToDeleteStorage note.get('guid')
+      _addToDeleteCache note.get('guid')
       _startBackOff _backOffInterval
 
   # these are all for intializing the application!
