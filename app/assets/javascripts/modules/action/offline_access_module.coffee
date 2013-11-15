@@ -52,7 +52,6 @@
     if clearFirst then _clearBackOff()
     unless _backOffTimeoutID?
       _backOffTimeoutID = setTimeout (-> 
-        App.Notify.alert 'saving', 'info' ######################################################## notifications
         _startSync time
         ), time
 
