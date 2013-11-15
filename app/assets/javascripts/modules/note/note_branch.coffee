@@ -27,11 +27,9 @@
 		destroy: (options = {}) =>
 			callBackOptions = 
 				success: (model, response, opts) =>
-					console.log 'note deleted', @
-					# @collection.decreaseRankOfFollowing @
 					if options.success? then options.success(model, response, opts)
 				error: (model, xhr, opts) =>
-					App.Notify.alert 'connectionLost', 'danger' 
+					App.Notify.alert 'connectionLost', 'danger', {selfDestruct: false} 
 					App.CrashPrevent.addDeleteAndStart(@)
 					if options.error? then options.error(model, xhr, opts)
 			#fill in other options possibly provided:

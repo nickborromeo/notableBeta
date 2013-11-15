@@ -111,10 +111,10 @@
       if deleteHash[guid]
         noteReference.destroy
           success: (self) ->
-            _tree.decreaseRankOfFollowing(self)
-            _deleteFromTree guidList, deleteHash
+            # _tree.decreaseRankOfFollowing(self)
+            _deleteFromTreeNoAsync guidList, deleteHash
     catch e
-      _deleteFromTree guidList, deleteHash
+      _deleteFromTreeNoAsync guidList, deleteHash
     
 
   @addChangeAndStart = (note) ->
