@@ -44,6 +44,8 @@
     _addToDeleteCache note.get('guid')
     _startBackOff()
 
+  # this is used by action manager.....
+  # without it action mananger undo and redos won't workout 
   @addToDeleteCache = (guid, toDelete) ->
     _addToDeleteCache guid, toDelete
 
