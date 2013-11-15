@@ -12,7 +12,7 @@
 	_alertTypes =
 		saving: "<i>saving...</i>"
 		saved: "Saved."
-		deleted: "Note deleted. <a>Undo</a>"
+		deleted: "Note deleted."
 		undo: "Change undone."
 		redo: "Change redone."
 		updating: "<i>updating data...</i>"
