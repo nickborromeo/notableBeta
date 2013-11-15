@@ -11,8 +11,9 @@
 
   _alertTypes =
     saving: "<i>saving...</i>"
+    syncing: "trying to sync...."
     saved: "Saved."
-    deleted: "Note deleted. Click to undo!"
+    deleted: "Note deleted. <a> Click to undo! </a>"
     undo: "Change undone."
     redo: "Change redone."
     updating: "<i>updating data...</i>"
