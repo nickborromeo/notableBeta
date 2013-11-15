@@ -12,8 +12,7 @@
 			@allNotesByDepth = new App.Note.Collection()
 			@tree = new App.Note.Tree()
 			App.Note.tree = @tree
-			App.Action.setTree @tree
-			App.Action.setAllNotesByDepth @allNotesByDepth
+			App.Note.allNotesByDepth = @allNotesByDepth
 
 		start: ->
 			buildTree = (allNotes) =>
