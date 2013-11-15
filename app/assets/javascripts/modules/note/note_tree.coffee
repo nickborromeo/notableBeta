@@ -104,12 +104,12 @@
 
 		# will return a list of all branches starting at the current node
 
-		getAllSubNotes: () ->
-			allNotes = []
-			_.each @models, (branch)  ->
-				allNotes.push(branch)
-				allNotes = Array.prototype.concat.call(allNotes, branch.descendants.getAllSubNotes())
-			return allNotes
+		# getAllSubNotes: () ->
+		# 	allNotes = []
+		# 	_.each @models, (branch)  ->
+		# 		allNotes.push(branch)
+		# 		allNotes = Array.prototype.concat.call(allNotes, branch.descendants.getAllSubNotes())
+		# 	return allNotes
 
 
 		# findByGuidInCollection: (guid) ->
