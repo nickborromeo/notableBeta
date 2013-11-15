@@ -15,7 +15,6 @@
 		model: Note.Branch
 		url:'/notes'
 
-
 		# Manage note insertion in the nested structure
 		add: (note, options) ->
 			collectionToAddTo = @getCollection note.get 'parent_id'
@@ -67,11 +66,13 @@
 			oldNoteNewTitle: textAfter
 			setFocusIn: noteCreatedFrom
 		deleteNote: (note, isUndo) -> #ignore isUndo unless dealing with action manager!
-			if not isUndo then note.addUndoDelete()
+			unless isUndo then note.addUndoDelete()
 			descendants = note.getCompleteDescendantList()
 			_.each descendants, (descendant) ->
 				descendant.destroy()
-			note.destroy success: (self) => @decreaseRankOfFollowing self
+			note.destroy 
+				success: (self) => @decreaseRankOfFollowing self
+				error: (self) => @decreaseRankOfFollowing self
 
 		# Returns the descendants of matching parent_id
 		getCollection: (parent_id) ->
@@ -100,6 +101,16 @@
 			searchedNote
 
 		getNote: (guid) -> @findNote(guid) # alias
+
+		# will return a list of all branches starting at the current node
+
+		# getAllSubNotes: () ->
+		# 	allNotes = []
+		# 	_.each @models, (branch)  ->
+		# 		allNotes.push(branch)
+		# 		allNotes = Array.prototype.concat.call(allNotes, branch.descendants.getAllSubNotes())
+		# 	return allNotes
+
 
 		# findByGuidInCollection: (guid) ->
 		# 	noteSearched = false

@@ -15,13 +15,15 @@
 			App.Note.allNotesByDepth = @allNotesByDepth
 
 		start: ->
-			buildTree = (allNotes) =>
-				allNotes.each (note) =>
-					@tree.add(note)
-				@showContentView @tree
-			@allNotesByDepth.fetch success: buildTree
+			App.OfflineAccess.checkAndLoadLocal (_.bind @buildTree, @)
 
-		showContentView: (tree) ->
+		buildTree: ->
+			@allNotesByDepth.sort()
+			@allNotesByDepth.each (note) =>
+				@tree.add(note)
+			@showContentView(@tree)
+
+		showContentView: (tree) =>
 			treeView = new App.Note.TreeView(collection: tree)
 			App.contentRegion.currentView.treeRegion.show treeView
 
