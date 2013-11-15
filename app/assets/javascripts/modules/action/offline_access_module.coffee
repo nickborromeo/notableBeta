@@ -115,7 +115,7 @@
 
   _loadAndSave = (guid, attributes, options) ->
     noteReference = _allNotes.findWhere {guid: guid}
-    if not noteReference?
+    unless noteReference?
       noteReference = new App.Note.Branch()
       _allNotes.add noteReference
     Backbone.Model.prototype.save.call(noteReference,attributes,options)
@@ -124,7 +124,7 @@
   # ------------  on FIRST LOAD connection only   ------------ 
 
   @checkAndLoadLocal = (buildTreeCallBack) ->
-    if not _localStorageEnabled then return buildTreeCallBack()
+    unless _localStorageEnabled then return buildTreeCallBack()
     _loadCached()
     _startSync(null, buildTreeCallBack)
 
