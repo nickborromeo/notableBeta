@@ -34,7 +34,6 @@
 					if options.error? then options.error(model, xhr, opts)
 			#fill in other options possibly provided:
 			_(callBackOptions).defaults(options)
-
 			Backbone.Model.prototype.destroy.call(@, callBackOptions)
 
 		initialize: ->

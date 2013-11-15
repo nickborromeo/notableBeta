@@ -26,9 +26,11 @@
 			removedBranchs = {ancestorNote: reference.note.getAllAtributes(), childNoteSet: []}
 			completeDescendants = reference.note.getCompleteDescendantList()
 			_.each completeDescendants, (descendant) ->
+				App.OfflineAccess.addToDeleteCache descendant.get('guid'), true
 				removedBranchs.childNoteSet.push(descendant.getAllAtributes())
 
-			_allNotes.remove reference.note
+			# _allNotes.remove reference.note
+			App.OfflineAccess.addToDeleteCache change.guid, true
 			_tree.deleteNote reference.note, true
 			#trigger update view:
 			return {type: 'deleteBranch', changes: removedBranchs }
@@ -40,7 +42,7 @@
 			# reference = @_getReference newBranch.get('guid')
 			_tree.insertInTree newBranch
 			#remove from storage if offline
-			App.OfflineAccess.removeFromDeleteCache attributes.guid
+			App.OfflineAccess.addToDeleteCache attributes.guid, false
 			# reference.parentCollection.add newBranch
 
 		deleteBranch: (change) ->

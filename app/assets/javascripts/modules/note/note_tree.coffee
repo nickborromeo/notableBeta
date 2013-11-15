@@ -66,7 +66,7 @@
 			oldNoteNewTitle: textAfter
 			setFocusIn: noteCreatedFrom
 		deleteNote: (note, isUndo) -> #ignore isUndo unless dealing with action manager!
-			if not isUndo then note.addUndoDelete()
+			unless isUndo then note.addUndoDelete()
 			descendants = note.getCompleteDescendantList()
 			_.each descendants, (descendant) ->
 				descendant.destroy()

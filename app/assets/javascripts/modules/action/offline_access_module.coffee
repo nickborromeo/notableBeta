@@ -44,8 +44,8 @@
     _addToDeleteCache note.get('guid')
     _startBackOff()
 
-  @removeFromDeleteCache = (guid) ->
-    _addToDeleteCache guid, false
+  @addToDeleteCache = (guid, toDelete) ->
+    _addToDeleteCache guid, toDelete
 
   # ------------ back off methods ------------ 
 
