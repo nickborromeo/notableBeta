@@ -30,7 +30,7 @@
 				removedBranchs.childNoteSet.push(descendant.getAllAtributes())
 
 			# _allNotes.remove reference.note
-			App.OfflineAccess.addToDeleteCache change.guid, true
+			# App.OfflineAccess.addToDeleteCache change.guid, true
 			_tree.deleteNote reference.note, true
 			#trigger update view:
 			return {type: 'deleteBranch', changes: removedBranchs }

@@ -27,6 +27,7 @@
 		destroy: (options = {}) =>
 			callBackOptions = 
 				success: (model, response, opts) =>
+					if App.OfflineAccess.isOffline() then App.OfflineAccess.addToDeleteCache model.get('guid'), true
 					if options.success? then options.success(model, response, opts)
 				error: (model, xhr, opts) =>
 					App.Notify.alert 'connectionLost', 'danger', {selfDestruct: false} 

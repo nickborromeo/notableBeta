@@ -67,6 +67,9 @@
     clearTimeout _backOffTimeoutID
     _backOffTimeoutID = null
 
+  @isOffline = ->
+    _backOffTimeoutID?
+
   @informConnectionSuccess = ->
     if _backOffTimeoutID?
       _clearBackOff()
@@ -87,11 +90,13 @@
     unless notesToDelete.length > 0
       return _startAllNoteSync time, callback
     noteReference = _allNotes.findWhere {guid: notesToDelete.shift()}
-    noteReference.destroy
+    options = 
       success: (note)->
         _clearBackOff()
         _deleteAndSave notesToDelete, time, callback
       error: -> _notifyFailureAndBackOff(time)
+    if noteReference? then noteReference.destroy(options)
+    else options.success()
 
   # starts to sync the actual note data, ranks, depth, parent IDs, etc
   _startAllNoteSync = (time, callback) ->
