@@ -1,18 +1,17 @@
 @Notable.module("Notify", (Notify, App, Backbone, Marionette, $, _) ->
 
-  # this emty alert view could be the view where we render saves
-  # since they will only be visible when other more important info 
-  # is not avaliable
-  class Notify.InfoAlertView extends Marionette.ItemView
-    template: 'manager/info_notification'
+  # This empty alert view is used to render "save" notifications since
+  # they're visible only when other alerts are  not avaliable
+  class Notify.SaveView extends Marionette.ItemView
+    template: 'notification/save'
     onRender: =>
       @$el.fadeIn(Notify._fadeOutTime + 100)
 
   class Notify.AlertView extends Marionette.ItemView
-    template: 'manager/notification'
+    template: 'notification/alert'
     events:
       'click .alertText': 'specialClickCallback'
-      'click .closeAlert': 'closeAlertClick'
+      'click .closeAlert': 'closeAlert'
 
     initialize: ->
       if @model.get('selfDestruct')
@@ -24,7 +23,7 @@
       event.stopPropagation()
       @model.clickCallback()
 
-    closeAlertClick: (event) =>
+    closeAlert: (event) =>
       event.stopPropagation()
       # if @model.get('selfDestruct')
       @model.collection.remove @model
@@ -39,6 +38,6 @@
 
   class Notify.AlertsView extends Marionette.CollectionView
     itemView: Notify.AlertView
-    emptyView: Notify.InfoAlertView
+    emptyView: Notify.SaveView
 
 )

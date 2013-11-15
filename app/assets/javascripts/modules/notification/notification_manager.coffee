@@ -1,13 +1,13 @@
 @Notable.module("Notify", (Notify, App, Backbone, Marionette, $, _) ->
   # Private --------------------------
-  @_alertTimeOut = 97000
+  @_alertTimeOut = 7000
   @_fadeOutTime = 400
 
   _notificationType =
     success: 'success-notification' # green
     warning: 'warning-notification' #yellow
     danger: 'danger-notification' #red
-    info: 'info-notification'
+    save: 'save-notification'
 
   _alertTypes =
     saving: "<i>saving...</i>"
@@ -43,13 +43,12 @@
       alertDefaults.clickCallback = _alertClickCallbacks[alertType]
     _.defaults options, alertDefaults
 
-  #----------  info notification region
+  # Save notification region
   _timeoutID = null
-  _insertInfoNotification = (alertType) ->
+  _insertSaveNotification = (alertType) ->
     clearTimeout _timeoutID
-    $('#infoOnlyRegion').html("<div> #{ _alertTypes[alertType]} </div>").show()
-    _timeoutID = setTimeout (=>$('#infoOnlyRegion').first().fadeOut(Notify._fadeOutTime)), Notify._alertTimeOut
-  #----------  end info notification region
+    $('.save-notification').html("<div> #{ _alertTypes[alertType]} </div>").show()
+    _timeoutID = setTimeout (=>$('.save-notification').first().fadeOut(Notify._fadeOutTime)), Notify._alertTimeOut
 
   # Useful options:
   #   selfDistruct: [boolean]
@@ -58,7 +57,7 @@
   @alert = (alertType, alertClass, options) ->
     throw "invalid alert" unless _alertTypes[alertType]?
     throw "invalid alert class" unless _notificationType[alertClass]?
-    if alertClass is 'info' then return _insertInfoNotification(alertType)
+    if alertClass is 'save' then return _insertSaveNotification(alertType)
     if not Notify.alerts.findWhere({alertType: alertType})?
       _renderNotification _buildAlertAttributes(alertType, alertClass, options)
 

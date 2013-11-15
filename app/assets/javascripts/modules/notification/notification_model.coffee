@@ -5,8 +5,8 @@
 
   class Notify.Alert extends Backbone.Model
     defaults:
-      notificationType: 'info-notification'
-      notification: 'blank notification'
+      notificationType: 'save-notification'
+      notification: ''
       selfDestruct: true
       destructTime: Notify._alertTimeOut
 
@@ -16,7 +16,6 @@
 
     clickCallback: ->
       console.log 'nothing to do'
-      # this is the default callback
-      # possibly trigger help?
+      # This is a placeholder callback so that views don't break
 
 )
