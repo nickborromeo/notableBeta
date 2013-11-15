@@ -35,14 +35,7 @@
     And -> expect(App.OfflineAccess.setAllNotesByDepth).toEqual(jasmine.any(Function))
     And -> expect(App.OfflineAccess.setLocalStorageEnabled).toEqual(jasmine.any(Function))
 
-
-    # NOTE: this test requires to be written in jasmine and not Given.... 
-    # for some reason the behavior of this test is DIFFERENT from the behavior 
-    # of the application when running... ie: it doesn't reach past line 26 in the test
-    # if you add 'console.log' statments you will see during the corse of the application
-    # this will ALWAYS fire. However during the test it only gets part of the way through
-    # thus this test will FAIL SOMETIMES, if it fails, refresh enough and it will pass
-    # 
+  # this test should mostly work now...
   describe "crash_prevent should load new notes from localStorage on checkAndLoadLocal", ->
     flag = null
     it "should test after async", -> 
@@ -62,14 +55,16 @@
       App.OfflineAccess.addChange(newNote)
       storageObj = JSON.parse window.localStorage.getItem('unsyncedChanges')
       flag = undefined
+      # delay below for a slight moment to ensure localStorage got
+      # everything from storage 
       runs ->
         flag = false
-        setTimeout (-> flag = true), 500
+        setTimeout (-> flag = true), 300
       waitsFor (->
         flag 
-      ), 'should sync local storage', 600
+      ), 'should sync local storage', 400
       runs ->
         expect(storageObj['number-one-guid']).toEqual(jasmine.any(Object))
 
-
+  # TODO: add test for deleting ... how?
 )
