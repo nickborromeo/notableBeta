@@ -8,18 +8,16 @@
   _tree = null
   _allNotes = null
   _localStorageEnabled = true
-  _inMemoryDeleteChanges = {}
-  _inMemoryChangeStorage = {}
+  _inMemoryCachedDeletes = {}
+  _inMemoryCachedChanges = {}
 
   _addToChangeStorage = (attributes) ->
-    storageHash = JSON.parse(window.localStorage.getItem(_cachedChanges)) ? {}
-    storageHash[attributes.guid] = attributes
-    window.localStorage.setItem _cachedChanges, JSON.stringify(storageHash)
+    _inMemoryCachedChanges[attributes.guid] = attributes
+    window.localStorage.setItem _cachedChanges, JSON.stringify(_inMemoryCachedChanges)
   
   _addToDeleteStorage = (guid)->
-    storageHash = JSON.parse(window.localStorage.getItem(_cachedDeletes)) ? {}
-    storageHash[guid] = true
-    window.localStorage.setItem _cachedDeletes, JSON.stringify(storageHash)
+    _inMemoryCachedDeletes[guid] = true
+    window.localStorage.setItem _cachedDeletes, JSON.stringify(_inMemoryCachedDeletes)
 
   _changeOnlySyncNoAsync = (changeHash, changeHashGUIDs, buildTreeCallBack) ->
     options = 
@@ -39,10 +37,12 @@
 
 
   _clearCachedChanges = ->
-    window.localStorage.setItem _cachedChanges, '{}'
+    _inMemoryCachedChanges = {}
+    window.localStorage.setItem _cachedChanges, JSON.stringify(_inMemoryCachedChanges)
 
   _clearCachedDeletes = ->
-    window.localStorage.setItem _cachedDeletes, '{}'
+    _inMemoryCachedDeletes = {}
+    window.localStorage.setItem _cachedDeletes, JSON.stringify(_inMemoryCachedDeletes)
 
   _clearBackOff = () ->
     clearTimeout _backOffTimeoutID
