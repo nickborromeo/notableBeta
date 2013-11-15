@@ -268,7 +268,7 @@
 		onBeforeRender: -> 
 		onRender: -> @addDefaultNote false
 		addDefaultNote: (render = true) ->
-			if @collection.length is 0 then @collection.create()
+			# if @collection.length is 0 then @collection.create()
 			@render if render
 		dispatchFunction: (functionName) ->
 			return @[functionName].apply(@, Note.sliceArgs arguments) if @[functionName]?

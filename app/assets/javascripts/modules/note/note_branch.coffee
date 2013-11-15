@@ -116,9 +116,8 @@
 			e.stopPropagation()
 			if @timeoutAndSaveID? then clearTimeout @timeoutAndSaveID
 			@timeoutAndSaveID = setTimeout (=>
-				console.log 'erase all, then try to update..:', @get('guid')
 				Note.eventManager.trigger "timeoutUpdate:#{@get('guid')}"
-			 ), 750
+			 ), 1000
 
 
 		# these methods are for adding history to the action manager!
