@@ -114,13 +114,12 @@
 
 		timeoutAndSave: (e) =>
 			invalidKeys = [9, 13, 16, 20, 27, 37, 38, 39, 40, 112, 113, 114, 115, 116, 117, 118, 119, 120, 121, 122, 123]
-			if e.metaKey or e.ctrlKey or e.altKey or _.contains(invalidKeys, e.keyCode) then return;
+			return if e.metaKey or e.ctrlKey or e.altKey or _.contains(invalidKeys, e.keyCode)
 			e.stopPropagation()
 			if @timeoutAndSaveID? then clearTimeout @timeoutAndSaveID
 			@timeoutAndSaveID = setTimeout (=>
 				Note.eventManager.trigger "timeoutUpdate:#{@get('guid')}"
 			 ), 1000
-
 
 		# these methods are for adding history to the action manager!
 		addUndoMove: =>
