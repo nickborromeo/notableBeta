@@ -1,4 +1,3 @@
-#FIXME:  notes have updated information, but are not re-rendered in the view!
 
 @Notable.module("Action", (Action, App, Backbone, Marionette, $, _) ->
 
@@ -41,7 +40,7 @@
 			# reference = @_getReference newBranch.get('guid')
 			_tree.insertInTree newBranch
 			#remove from storage if offline
-			# App.OfflineAccess.removeFromDeleteCache attributes.guid
+			App.OfflineAccess.removeFromDeleteCache attributes.guid
 			# reference.parentCollection.add newBranch
 
 		deleteBranch: (change) ->

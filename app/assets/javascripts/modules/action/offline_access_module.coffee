@@ -17,7 +17,8 @@
       window.localStorage.setItem _cachedChanges, JSON.stringify(_inMemoryCachedChanges)
   
   _addToDeleteCache = (guid, toDelete = true)->
-    _inMemoryCachedDeletes[guid] = toDelete
+    if toDelete then _inMemoryCachedDeletes[guid] = toDelete 
+    else delete _inMemoryCachedDeletes[guid]
     if _localStorageEnabled
       window.localStorage.setItem _cachedDeletes, JSON.stringify(_inMemoryCachedDeletes)
 
@@ -43,6 +44,8 @@
     _addToDeleteCache note.get('guid')
     _startBackOff()
 
+  @removeFromDeleteCache = (guid) ->
+    _addToDeleteCache guid, false
 
   # ------------ back off methods ------------ 
 
