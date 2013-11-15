@@ -100,29 +100,46 @@
         else _startBackOff time, true
 
   _startAllNoteSync = (time) ->
-    allCurrentNotesList = _tree.getAllSubNotes()
-    _fullSyncNoAsync allCurrentNotesList, time
+    changeHash = _.clone(_inMemoryCachedChanges)
+    changeHashGUIDs = Object.keys _inMemoryCachedChanges
+    _fullSyncNoAsync changeHash, changeHashGUIDs, time
 
-  _fullSyncNoAsync = (allCurrentNotesList, time) ->
-    unless allCurrentNotesList.length > 0
+  # _startAllNoteSync = (time) ->
+  #   allCurrentNotesList = _tree.getAllSubNotes()
+  #   _fullSyncNoAsync allCurrentNotesList, time
+
+  # _fullSyncNoAsync = (allCurrentNotesList, time) ->
+  #   unless allCurrentNotesList.length > 0
+  #     App.Notify.alert 'saved', 'success'
+  #     return _clearCachedChanges()
+  #   note = allCurrentNotesList.pop()
+  #   options = 
+  #     success: ->
+  #       _clearBackOff()
+  #       _fullSyncNoAsync allCurrentNotesList, time
+  #     error: ->
+  #       App.Notify.alert 'connectionLost', 'danger', {selfDestruct: false}
+  #       if time < 60000 then _startBackOff time*2, true
+  #       else _startBackOff time, true
+  #   Backbone.Model.prototype.save.call(note,null,options)
+
+
+  _fullSyncNoAsync = (changeHash, changeHashGUIDs, time) ->
+    unless changeHashGUIDs.length > 0
       App.Notify.alert 'saved', 'success'
       return _clearCachedChanges()
-    note = allCurrentNotesList.pop()
+
     options = 
       success: ->
         _clearBackOff()
-        _fullSyncNoAsync allCurrentNotesList, time
+        _fullSyncNoAsync changeHash, changeHashGUIDs, time
       error: ->
         App.Notify.alert 'connectionLost', 'danger', {selfDestruct: false}
         if time < 60000 then _startBackOff time*2, true
         else _startBackOff time, true
-    Backbone.Model.prototype.save.call(note,null,options)
-
-
-
-
-
-
+    
+    guid = changeHashGUIDs.pop()
+    _loadAndSave guid, changeHash[guid], options
 
 
 
@@ -145,13 +162,6 @@
     _loadAndSave tempGuid, changeHash[tempGuid], options
 
 
-
-
-
-
-
-  
-    
   _loadAndSave = (guid, attributes, options) ->
     noteReference = _allNotes.findWhere {guid: guid}
     if not noteReference?
@@ -159,11 +169,14 @@
       _allNotes.add noteReference
     Backbone.Model.prototype.save.call(noteReference,attributes,options)
 
-  _saveAllToLocal = (allCurrentNotes) ->
-    storageHash = JSON.parse(window.localStorage.getItem(_cachedChanges)) ? {}
-    _(allCurrentNotes).each (note) ->
-      storageHash[attributes.guid] = attributes
-    window.localStorage.setItem _cachedChanges, JSON.stringify(storageHash)
+
+
+
+  # _saveAllToLocal = (allCurrentNotes) ->
+  #   storageHash = JSON.parse(window.localStorage.getItem(_cachedChanges)) ? {}
+  #   _(allCurrentNotes).each (note) ->
+  #     storageHash[attributes.guid] = attributes
+  #   window.localStorage.setItem _cachedChanges, JSON.stringify(storageHash)
 
 
 
