@@ -3,13 +3,13 @@
   @_alertTimeOut = 7000
   @_fadeOutTime = 400
 
-  _notificationType =
+  _notificationTypes =
     success: 'success-notification' # green
     info: 'info-notification' # gray
     warning: 'warning-notification' #orange (yellow)
     danger: 'danger-notification' #red
 
-  _alertTypes =
+  _notificationMsgs =
     saving: "<i>saving...</i>"
     syncing: "trying to sync...."
     saved: "Saved."
@@ -23,50 +23,50 @@
     newNote: "New note has been added."
     moved: "Note has been moved."
 
-  _alertClickCallbacks =
+  _clickCallbacks =
     deleted: ->
       App.Action.undo()
 
   _renderNotification = (alertAttributes) ->
     Notify.alerts.add new Notify.Alert alertAttributes
 
-  _renderNotificationOnly = (alertAttributes) ->
-    Notify.alerts.reset new Notify.Alert alertAttributes
+  # _renderNotificationOnly = (alertAttributes) ->
+  #   Notify.alerts.reset new Notify.Alert alertAttributes
 
-  _buildAlertAttributes = (alertType, alertClass, options = {}) ->
-    alertDefaults = 
-      alertType: alertType
-      notificationType: _notificationType[alertClass]
-      notification: _alertTypes[alertType]
+  _buildAlertAttributes = (notificationKey, notificationType, options = {}) ->
+    notificationDefaults = 
+      notificationKey: notificationKey
+      notificationType: _notificationTypes[notificationType]
+      notificationMsg: _notificationMsgs[notificationKey]
       selfDestruct: true
       destructTime: Notify._alertTimeOut
-    if _alertClickCallbacks[alertType]?
-      alertDefaults.clickCallback = _alertClickCallbacks[alertType]
-    _.defaults options, alertDefaults
+    if _clickCallbacks[notificationKey]?
+      notificationDefaults.clickCallback = _clickCallbacks[notificationKey]
+    _.defaults options, notificationDefaults
 
   #----------  info notification region
   _timeoutID = null
-  _insertInfoNotification = (alertType) ->
+  _insertInfoNotification = (notificationKey) ->
     clearTimeout _timeoutID
-    $('#infoOnlyRegion').html("<div> #{ _alertTypes[alertType]} </div>").show()
+    $('#infoOnlyRegion').html("<div> #{ _notificationMsgs[notificationKey]} </div>").show()
     _timeoutID = setTimeout (=>$('#infoOnlyRegion').first().fadeOut(Notify._fadeOutTime)), Notify._alertTimeOut
   #----------  end info notification region
 
   # Usefull options: 
-  #         selfDistruct: [boolean]
+  #         selfDestruct: [boolean]
   #         destructTime: [time in ms]  // time until it is destroyed
-  #         customClickCallBack: [function]  // until it is destroyed
-  @alert = (alertType, alertClass, options) ->
-    throw "invalid alert" unless _alertTypes[alertType]?
-    throw "invalid alert class" unless _notificationType[alertClass]?
-    if alertClass is 'info' then return _insertInfoNotification(alertType)
-    if not Notify.alerts.findWhere({alertType: alertType})?
-      _renderNotification _buildAlertAttributes(alertType, alertClass, options)
+  #         clickCallBack: [function]  // until it is destroyed
+  @alert = (notificationKey, notificationType, options) ->
+    throw "invalid alert" unless _notificationMsgs[notificationKey]?
+    throw "invalid alert class" unless _notificationTypes[notificationType]?
+    if notificationType is 'info' then return _insertInfoNotification(notificationKey)
+    if not Notify.alerts.findWhere({notificationKey: notificationKey})?
+      _renderNotification _buildAlertAttributes(notificationKey, notificationType, options)
 
-  @alertOnly = (alertType, alertClass, options) ->
-    throw "invalid alert" unless _alertTypes[alertType]?
-    throw "invalid alert class" unless _notificationType[alertClass]?
-    _renderNotificationOnly _buildAlertAttributes(alertType, alertClass, options)
+  # @alertOnly = (notificationKey, notificationType, options) ->
+  #   throw "invalid alert" unless _notificationMsgs[notificationKey]?
+  #   throw "invalid alert class" unless _notificationTypes[notificationType]?
+  #   _renderNotificationOnly _buildAlertAttributes(notificationKey, notificationType, options)
 
   @flushAlerts = ->
     Notify.alerts.reset()

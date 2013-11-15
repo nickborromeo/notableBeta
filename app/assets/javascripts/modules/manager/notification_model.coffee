@@ -5,8 +5,9 @@
 
   class Notify.Alert extends Backbone.Model
     defaults:
+      notificationKey: 'blank'
       notificationType: 'info-notification'
-      notification: 'blank notification'
+      notificationMsg: 'blank notification'
       selfDestruct: true
       destructTime: Notify._alertTimeOut
 

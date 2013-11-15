@@ -11,7 +11,7 @@
   class Notify.AlertView extends Marionette.ItemView
     template: 'manager/notification'
     events:
-      'click .alertText': 'specialClickCallback'
+      'click .notificationMsg': 'specialClickCallback'
       'click .closeAlert': 'closeAlertClick'
 
     initialize: ->

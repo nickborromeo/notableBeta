@@ -121,7 +121,7 @@
 				Note.eventManager.trigger "timeoutUpdate:#{@get('guid')}"
 			 ), 1000
 
-		# these methods are for adding history to the action manager!
+		# This set of functions add undo-related actions to the Action Manager queue.
 		addUndoMove: =>
 			App.Action.addHistory 'moveNote', {
 				guid: @get('guid')
