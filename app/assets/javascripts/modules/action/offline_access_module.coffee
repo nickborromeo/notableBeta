@@ -33,6 +33,7 @@
     if _localStorageEnabled
       _inMemoryCachedChanges = JSON.parse( window.localStorage.getItem _cachedChanges ) ? {}
       _inMemoryCachedDeletes = JSON.parse( window.localStorage.getItem _cachedDeletes ) ? {}
+      console.log _inMemoryCachedDeletes
 
   @addChangeAndStart = (note) ->
     _addToChangeCache note.getAllAtributes()
@@ -82,11 +83,11 @@
   # deltes all notes that were deleted to fix server ID references
   _deleteAndSave = (notesToDelete, time, callback) ->
     unless notesToDelete.length > 0
-      _clearCachedDeletes()
       return _startAllNoteSync time, callback
     noteReference = _allNotes.findWhere {guid: notesToDelete.shift()}
     noteReference.destroy
-      success: ->
+      success: (note)->
+        console.log 'destroyed ', note
         _clearBackOff()
         _deleteAndSave notesToDelete, time, callback
       error: -> _notifyFailureAndBackOff(time)
@@ -101,6 +102,8 @@
     unless changeHashGUIDs.length > 0
       App.Notify.alert 'saved', 'success'
       _clearCachedChanges()
+      _clearCachedDeletes()
+      console.log _allNotes
       if callback? then return callback() else return
 
     options = 
@@ -114,10 +117,13 @@
 
   _loadAndSave = (guid, attributes, options) ->
     noteReference = _allNotes.findWhere {guid: guid}
-    unless noteReference?
+    if not noteReference? and not _inMemoryCachedDeletes[guid]?
       noteReference = new App.Note.Branch()
       _allNotes.add noteReference
-    Backbone.Model.prototype.save.call(noteReference,attributes,options)
+    if noteReference?
+      Backbone.Model.prototype.save.call(noteReference,attributes,options)
+    else 
+      options.success()
 
 
   # ------------  on FIRST LOAD connection only   ------------ 
