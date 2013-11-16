@@ -80,7 +80,7 @@
 			@.$el.on 'keydown', null, 'meta+y', @triggerRedoEvent #@ needs to be the tree
 			# needs to make sure @ is proper context ie @ needs to be 
 		onBeforeClose: ->
-			console.log "view being closed", @
+			# console.log "view being closed", @
 			@.$el.off()
 		triggerRedoEvent: (e) =>
 			e.preventDefault()
