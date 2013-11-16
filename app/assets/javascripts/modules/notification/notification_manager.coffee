@@ -12,7 +12,7 @@
 	_alertTypes =
 		saving: "<i>saving...</i>"
 		saved: "Saved."
-		deleted: "Note deleted."
+		deleted: "Note deleted. <a class ='clickCallback'> undo </a>"
 		undo: "Change undone."
 		redo: "Change redone."
 		updating: "<i>updating data...</i>"
