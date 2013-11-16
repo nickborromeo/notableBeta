@@ -27,9 +27,11 @@
 		destroy: (options = {}) =>
 			callBackOptions = 
 				success: (model, response, opts) =>
+					model.clearTimeoutAndSave()
 					if App.OfflineAccess.isOffline() then App.OfflineAccess.addToDeleteCache model.get('guid'), true
 					if options.success? then options.success(model, response, opts)
 				error: (model, xhr, opts) =>
+					model.clearTimeoutAndSave()
 					App.Notify.alert 'connectionLost', 'danger', {selfDestruct: false} 
 					App.OfflineAccess.addDeleteAndStart(@)
 					if options.error? then options.error(model, xhr, opts)
@@ -135,14 +137,17 @@
 			_.each descendants, modifierFunction
 
 		timeoutAndSave: (e) =>
-			invalidKeys = [9, 13, 16, 20, 27, 37, 38, 39, 40, 112, 113, 114, 115, 116, 117, 118, 119, 120, 121, 122, 123]
+			invalidKeys = [9, 13, 16, 19, 20, 27, 33, 34, 35, 36, 37, 38, 39, 40, 45, 112, 113, 114, 115, 116, 117, 118, 119, 120, 121, 122, 123, 144, 145]
+			propagationExceptions = [8, 46]  #put exceptions here if you want a particular keypress to propagate
 			return if e.metaKey or e.ctrlKey or e.altKey or _.contains(invalidKeys, e.keyCode)
-			e.stopPropagation()
+			e.stopPropagation() unless _.contains(propagationExceptions,e.keyCode)
 			if @timeoutAndSaveID? then clearTimeout @timeoutAndSaveID
 			@timeoutAndSaveID = setTimeout (=>
 				Note.eventManager.trigger "timeoutUpdate:#{@get('guid')}"
 			 ), 1000
 
+		clearTimeoutAndSave: =>
+			if @timeoutAndSaveID? then clearTimeout @timeoutAndSaveID
 		# This set of functions add undo-related actions to the Action Manager queue.
 		addUndoMove: =>
 			App.Action.addHistory 'moveNote', {
