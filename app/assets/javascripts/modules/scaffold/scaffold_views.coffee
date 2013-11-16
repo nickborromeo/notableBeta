@@ -63,6 +63,14 @@
 			crownRegion: "#crown-region"
 			treeRegion: "#tree-region"
 
+		events:
+			"mouseover #breadcrumb": "toggleBreadcrumbs"
+			"mouseout #breadcrumb": "toggleBreadcrumbs"
+
+		toggleBreadcrumbs: ->
+			if $("#breadcrumb-region").html() isnt ""
+				@$(".chain-breadcrumb").toggleClass("show-chain")
+
 	class Scaffold.SidebarView extends Marionette.Layout
 		template: "scaffold/sidebar"
 		tagName:	"section"
