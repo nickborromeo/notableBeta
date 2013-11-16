@@ -365,6 +365,7 @@
 		getDropType: (e) ->
 			e.currentTarget.classList[1]
 		mergeWithPreceding: (note) ->
+			App.Action.addHistory 'compoundAction', 2
 			[preceding, title] = @collection.mergeWithPreceding note
 			return false unless preceding
 			previousTitle = preceding.get('title')

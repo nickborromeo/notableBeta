@@ -118,7 +118,7 @@
  	# each item in targets needs to be {numOfActions:, count:, isUndo:}
 
 	_addAction.compoundAction = (numOfActions, next = true, isUndo = false) ->
-		if next then _addAction.compoundTarget.push 
+		if next then _addAction.compoundTargets.push 
 			numOfActions: numOfActions
 			count: numOfActions
 			isUndo: isUndo
@@ -126,28 +126,24 @@
 
 	_addAction.compoundTrigger = ->
 		if _addAction.compoundTargets.length > 0
-			_(_addAction.compoundTarget).each (target, index, fullList) ->
-				target.count --
+			_(_addAction.compoundTargets).each (target, index, fullList) ->
+				target.count--
 				if target.count is 0
 					_addAction.compoundActionCreator target.numOfActions, target.isUndo
 					delete fullList[index]
-			_addAction.compoundTarget = _(_addAction.compoundTarget).reject (item) -> return item is undefined
+			_addAction.compoundTargets = _(_addAction.compoundTargets).reject (item) -> return item is undefined
 
 	_addAction.compoundActionCreator = (numOfActions, isUndo = false) ->
 		history = {type:'compoundAction', changes: {numOfActions: numOfActions}}
 		if isUndo then _redoStack.push(history) else _undoStack.push(history)
 
-	# possible freeze stack while this happens...
-	# adding new undos/redos would be queued until this process is done...
-	# make queue of changes while this is running in case something else happens
-	# during this process 
 	_revert.compoundAction = (change, isUndo = true) ->
 		if isUndo
 			Action.undo() for i in [change.numOfActions..1]
-			# add the sticker!
 		else
 			Action.redo() for i in [change.numOfActions..1]
-			# add the sticker!
+		_addAction.compoundActionCreator change.numOfActions, isUndo
+
 
 	# -----------------------------
 	#   HELPERS
@@ -171,11 +167,14 @@
 	# Public Methods & Functions
 	# ----------------------
 
+	# currently compoundAction is the only type that takes a NUMBER
 	@addHistory = (actionType, note) ->
 		throw "!!--cannot track this change--!!" unless _addAction[actionType]?
+		throw "compoundAction takes an integer!" if actionType is "compoundAction" and isNaN(note)
 		if _redoStack.length > 1 then clearRedoHistory()
 		if _undoStack.length >= _historyLimit then _undoStack.shift()
 		_addAction[actionType](note)
+		_addAction.compoundTrigger() unless actionType is "compoundAction"
 	
 	@undo = ->
 		throw "nothing to undo" unless _undoStack.length > 0
