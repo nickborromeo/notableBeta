@@ -38,6 +38,11 @@
 	Note.trimEmptyTags = (text) ->
 		text.replace(Note.matchEmptyTag, "")
 
+	Note.buildBranchLike = (attributes) ->
+		attributes: attributes
+		get: (attr) -> @attributes[attr]
+
+
 	Note.collectAllMatches = (title, regex = Note.matchTag, adjustment = 0) ->
 		matches = []
 		while match = regex.exec title

@@ -174,9 +174,34 @@
 		getRoot: (branch) ->
 			return branch if branch.isARoot(true)
 			@getRoot @findNote branch.get('parent_id')
-		buildBranchLike: (attributes) ->
-			attributes: attributes
-			get: (attr) -> @attributes[attr]
+
+		jumpTarget: (actionType) -> (depth, descendantList) ->
+			action =
+				jumpUp: "last"
+				jumpDown: "first"
+			_[action[actionType]] _.filter descendantList, (descendant) ->
+				descendant.get('depth') is depth
+		getFollowingTarget: ->
+			@jumpTarget("jumpDown").bind @
+		getPrecedingTarget: ->
+			@jumpTarget("jumpUp").bind @
+
+		getJumpPositionTarget: (getJumpTarget, depth, descendantList, target) ->
+			do rec = (depth, target) ->
+				return target if target?
+				return false if depth is 0
+				rec depth - 1, getJumpTarget depth, descendantList
+		makeDescendant: (preceding, depth, jumpTarget) ->
+			return jumpTarget if depth - 1 < jumpTarget.get('depth')
+			Note.buildBranchLike rank: 0, depth: jumpTarget.get('depth') + 1, parent_id: jumpTarget.get('guid') || preceding.get('guid')
+
+		jumpToTarget: (branch, target, modifier = 0) ->
+			branch.cloneAttributes target, rank: target.get('rank') + modifier
+		jumpToTargetUp: (branch, target) ->
+			@jumpToTarget branch, target, 1
+		jumpToTargetDown: (branch, target, modifier = 0) ->
+			if target.get('rank') is 0 then modifier = 1
+			@jumpToTarget branch, target, modifier
 
 		findPrecedingBranch: (branch, precedingBranch) ->
 			return precedingBranch if precedingBranch? or branch.isFirstRoot(true)
@@ -184,50 +209,23 @@
 			precedingBranch = @findPrecedingInCollection ancestorBranch
 			@findPrecedingBranch(ancestorBranch, precedingBranch)
 		getJumpPositionUpTarget: (branch) ->
-			# rootAncestor = @getRoot branch
-			# precedingBranch = @findPrecedingInCollection rootAncestor
 			return false if not precedingBranch = @findPrecedingBranch branch
 			preceding = precedingBranch.descendants.last()
-			return @buildBranchLike(rank: 0, depth: precedingBranch.get('depth') + 1, parent_id: precedingBranch.get('guid')) if not preceding?
-			jumpTarget = @getJumpPositionTarget @jumpUpTarget(), branch.get('depth'), preceding.getCompleteDescendantList()
+			return Note.buildBranchLike(rank: 0, depth: precedingBranch.get('depth') + 1, parent_id: precedingBranch.get('guid')) if not preceding?
+			jumpTarget = @getJumpPositionTarget @getPrecedingTarget(), branch.get('depth'), preceding.getCompleteDescendantList()
 			@makeDescendant(preceding, branch.get('depth'),
-					jumpTarget || @buildBranchLike rank: preceding.get('rank'), depth: preceding.get('depth'), parent_id: preceding.get('parent_id'))
-		makeDescendant: (preceding, depth, jumpTarget) ->
-			return jumpTarget if depth - 1 < jumpTarget.get('depth')
-			@buildBranchLike rank: 0, depth: jumpTarget.get('depth') + 1, parent_id: jumpTarget.get('guid') || preceding.get('guid')
-		# isAccessibleDepth: (jumpTarget) ->
-		jumpTarget: (actionType) -> (depth, descendantList) ->
-			action =
-				jumpUp: "last"
-				jumpDown: "first"
-			_[action[actionType]] _.filter descendantList, (descendant) ->
-				descendant.get('depth') is depth
-		jumpUpTarget: ->
-			@jumpTarget("jumpUp").bind @
-		jumpDownTarget: ->
-			@jumpTarget("jumpDown").bind @
-		getJumpPositionTarget: (getJumpTarget, depth, descendantList, target) ->
-			do rec = (depth, target) ->
-				return target if target?
-				return false if depth is 0
-				rec depth - 1, getJumpTarget depth, descendantList
-		newJumpUp: (branch) ->
+					jumpTarget || Note.buildBranchLike rank: preceding.get('rank'), depth: preceding.get('depth'), parent_id: preceding.get('parent_id'))
+		jumpUp: (branch) ->
 			return false if not target = @getJumpPositionUpTarget branch
 			target
-		jumpToTarget: (branch, target, modifier = 0) ->
-			branch.cloneAttributes target, rank: target.get('rank') + modifier
-		jumpToTargetUp: (branch, target) ->
-			@jumpToTarget branch, target, 1
 		jumpPositionUp: (note) ->
 			previousNote = @findPreviousNote note, false
 			return note if not previousNote?
 			if note.isInSameCollection previousNote
 				@jumpNoteUpInCollection note
-			# else if (depthDifference = previousNote.get('depth') - note.get('depth')) > 0
-			# 	@tabNote note, @getNote previousNote.get 'parent_id'
 			else
 				previousCollection = @getCollection note.get 'parent_id'
-				return note if not target = @newJumpUp note
+				return note if not target = @jumpUp note
 				@removeFromCollection previousCollection, note
 				@jumpToTargetUp(note, target)
 				@insertInTree note
@@ -235,27 +233,21 @@
 
 		getJumpPositionDownTarget: (branch, followingBranch) ->
 			following = followingBranch.descendants.first()
-			return @buildBranchLike(rank: 1, depth: followingBranch.get('depth') + 1, parent_id: followingBranch.get('guid')) if not following?
-			jumpTarget = @getJumpPositionTarget @jumpDownTarget(), branch.get('depth'), following.getCompleteDescendantList()
+			return Note.buildBranchLike(rank: 1, depth: followingBranch.get('depth') + 1, parent_id: followingBranch.get('guid')) if not following?
+			jumpTarget = @getJumpPositionTarget @getFollowingTarget(), branch.get('depth'), following.getCompleteDescendantList()
 			@makeDescendant(following, branch.get('depth'),
-					jumpTarget || @buildBranchLike rank: following.get('rank'), depth: following.get('depth'), parent_id: following.get('parent_id'))
-		newJumpDown: (branch, followingBranch) ->
+					jumpTarget || Note.buildBranchLike rank: following.get('rank'), depth: following.get('depth'), parent_id: following.get('parent_id'))
+		jumpDown: (branch, followingBranch) ->
 			return false if not target = @getJumpPositionDownTarget branch, followingBranch
 			target
-		jumpToTargetDown: (branch, target) ->
-			modifier = 0
-			if target.get('rank') is 0 then modifier = 1
-			@jumpToTarget branch, target, modifier
 		jumpPositionDown: (branch) ->
 			followingBranch = @findFollowingNote branch, false
 			return false if not followingBranch?
 			if branch.isInSameCollection followingBranch
 				@jumpNoteDownInCollection branch
 			else
-				# depthDifference = note.get('depth') - followingNote.get('depth')
-				# @unTabNote note, followingNote
 				previousBranch = @getCollection branch.get 'parent_id'
-				return branch if not target = @newJumpDown branch, followingBranch
+				return branch if not target = @jumpDown branch, followingBranch
 				@removeFromCollection previousBranch, branch
 				@jumpToTargetDown branch, target
 				@insertInTree branch
