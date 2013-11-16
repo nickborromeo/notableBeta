@@ -80,7 +80,7 @@
   # downloads all notes, this is not reflected in DOM
   _startSync = (time = _backOffInterval, callback) ->
     console.log 'trying to sync...'
-    App.Notify.alert 'saving', 'info' ########################################################
+    App.Notify.alert 'saving', 'save' ########################################################
     _allNotes.fetch 
       success: -> _deleteAndSave Object.keys(_inMemoryCachedDeletes), time, callback
       error: -> _notifyFailureAndBackOff(time)
