@@ -25,6 +25,7 @@
 	# Action: createNote
 	# -----------------------------
 	# EXPECTS change: {guid: guid}
+
 	_addAction.createNote = (note, isUndo = false) ->
 		history = { type: 'createNote', changes: {guid: note.get('guid') } }
 		if isUndo then _redoStack.push(history) else _undoStack.push(history)
@@ -33,15 +34,15 @@
 		reference = _getReference(change.guid)
 		_addAction.deleteBranch reference.note, isUndo
 		noteToFocusOn = App.Note.tree.jumpFocusUp(reference.note) ? App.Note.tree.jumpFocusDown(reference.note)
-		
 		App.Note.tree.deleteNote reference.note, true
-
 		App.Note.eventManager.trigger "setCursor:#{noteToFocusOn.get('guid')}"
+
 
 	# -----------------------------
 	# undo deleted branch
 	# -----------------------------
 	# EXPECTS change: {ancestorNote: {<ancestorNote attributes>}, childNoteSet: [list of child notes + attributes] }
+
 	_addAction.deleteBranch = (note, isUndo = false) ->
 		removedBranchs = {ancestorNote: note.getAllAtributes(), childNoteSet: []}
 		completeDescendants = note.getCompleteDescendantList()
@@ -108,6 +109,45 @@
 		App.Note.eventManager.trigger "setCursor:#{reference.note.get('guid')}"
 
 
+	# -----------------------------
+	# undo compoundAction
+	# -----------------------------
+	# EXPECTS change: {numOfActions: 'number'}
+
+	_addAction.compoundTargets = [] #this is a list of targets to listen
+ 	# each item in targets needs to be {numOfActions:, count:, isUndo:}
+
+	_addAction.compoundAction = (numOfActions, next = true, isUndo = false) ->
+		if next then _addAction.compoundTarget.push 
+			numOfActions: numOfActions
+			count: numOfActions
+			isUndo: isUndo
+		else _addAction.compoundActionCreator numOfActions, isUndo
+
+	_addAction.compoundTrigger = ->
+		if _addAction.compoundTargets.length > 0
+			_(_addAction.compoundTarget).each (target, index, fullList) ->
+				target.count --
+				if target.count is 0
+					_addAction.compoundActionCreator target.numOfActions, target.isUndo
+					delete fullList[index]
+			_addAction.compoundTarget = _(_addAction.compoundTarget).reject (item) -> return item is undefined
+
+	_addAction.compoundActionCreator = (numOfActions, isUndo = false) ->
+		history = {type:'compoundAction', changes: {numOfActions: numOfActions}}
+		if isUndo then _redoStack.push(history) else _undoStack.push(history)
+
+	# possible freeze stack while this happens...
+	# adding new undos/redos would be queued until this process is done...
+	# make queue of changes while this is running in case something else happens
+	# during this process 
+	_revert.compoundAction = (change, isUndo = true) ->
+		if isUndo
+			Action.undo() for i in [change.numOfActions..1]
+			# add the sticker!
+		else
+			Action.redo() for i in [change.numOfActions..1]
+			# add the sticker!
 
 	# -----------------------------
 	#   HELPERS
@@ -118,7 +158,6 @@
 		parent_id = note.get('parent_id')
 		parentCollection = App.Note.tree.getCollection(parent_id)
 		{note: note, parent_id: parent_id, parentCollection: parentCollection}
-
 
 	clearRedoHistory = ->
 		# _redoStack.reverse()
@@ -131,6 +170,7 @@
 	# ----------------------
 	# Public Methods & Functions
 	# ----------------------
+
 	@addHistory = (actionType, note) ->
 		throw "!!--cannot track this change--!!" unless _addAction[actionType]?
 		if _redoStack.length > 1 then clearRedoHistory()
@@ -147,7 +187,6 @@
 		change = _redoStack.pop()
 		_revert[change.type](change.changes, false)
 
-
 	@setHistoryLimit = (limit) ->
 		throw "-- cannot set #{limit} " if isNaN limit
 		_historyLimit = limit
@@ -160,6 +199,7 @@
 	# -----------------------------
 	#   TEST HELPERS -- don't erase or you break tests
 	# -----------------------------
+
 	@_getActionHistory = ->
 		_undoStack
 
@@ -183,7 +223,7 @@
 		console.log 'starting action manager'
 		_undoStack = JSON.parse(window.localStorage.getItem('actionHistory')) ? []
 
-	# as great as this idea is, it won't always work... 
+	# as great as this idea is, it won't (always) work... 
 	Action.addFinalizer ->
 		console.log 'ending action manager'
 		_redoStack = window.localStorage.setItem 'actionHistory', JSON.stringify _undoStack
