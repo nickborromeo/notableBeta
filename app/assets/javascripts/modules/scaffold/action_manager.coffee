@@ -5,6 +5,7 @@
 	_redoStack = []
 	_historyLimit = 100
 	_revert =  {}
+	_addAction = {}
 
 
 	## >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
@@ -27,12 +28,31 @@
 	#    end expect to delete.
 	## >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 
+	# NOTES AND EXPLANATION:
+	# -- all undo histories have a action TYPE, and CHANGE 
+	#   	history item example: {type: '<<undoActionType>>', change: {object containing only relevant change info} }
+	#	-- at the beginning of each undo action should be a list of EXPECTS 
+	# 		(attributes expected to be found in 'change')
+	# -- the usual pattern for updating changes is:
+	#			1 - get note reference
+	#			2 - remove note from tree
+	#			3 - save new attributes
+	#			4 - insert the note again
+	#  		5 - reset focus on the correct note
+	#			-- to improve the pattern for SOME actions only ie: content updates,
+	# 					1 - save new attributes
 
 
 
 	# -----------------------------
 	# undo create notes
 	# -----------------------------
+	# EXPECTS change: {guid: guid}
+	_addAction.createNote = (note) ->
+		Action.addHistory 'createNote', {guid: note.get('guid')}
+
+
+
 	_revert.createNote = (change) ->
 		reference = _getReference(change.guid)
 
@@ -50,9 +70,21 @@
 			App.Note.eventManager.trigger "setCursor:#{App.Note.tree.first().get('guid')}"
 		return {type: 'deleteBranch', changes: removedBranchs }
 
+
 	# -----------------------------
 	# undo deleted branch
 	# -----------------------------
+	_addAction.deleteBranch = (note) ->
+		addUndoDelete: =>
+			removedBranchs = {ancestorNote: @getAllAtributes(), childNoteSet: []}
+			completeDescendants = @getCompleteDescendantList()
+			_.each completeDescendants, (descendant) ->
+				removedBranchs.childNoteSet.push(descendant.getAllAtributes())
+			App.Action.addHistory('deleteBranch', removedBranchs)
+			App.Notify.alert 'deleted', 'warning'
+
+
+
 	_revert.reverseDeleteNote = (attributes) ->
 		newBranch = new App.Note.Branch()
 		newBranch.save(attributes)
@@ -71,6 +103,16 @@
 	# -----------------------------
 	# undo move note
 	# -----------------------------
+
+	_addAction.moveNote = (note) ->
+		addUndoMove: =>
+			App.Action.addHistory 'moveNote', {
+				guid: @get('guid')
+				parent_id: @get('parent_id')
+				depth: @get('depth')
+				rank: @get('rank')}
+
+
 	_revert.moveNote = (change) ->
 		reference = _getReference(change.guid)
 
@@ -91,6 +133,16 @@
 	# -----------------------------
 	# undo note content update
 	# -----------------------------
+	_addAction.updateContent = (note) ->
+		addUndoUpdate: (newTitle, newSubtitle) =>
+			#incase this update comes before timeout
+			if @timeoutAndSaveID? then clearTimeout @timeoutAndSaveID 
+			App.Action.addHistory 'updateContent', {
+				guid: @get('guid')
+				title: @get('title')
+				subtitle: @get('subtitle')}
+
+
 	_revert.updateContent = (change) ->
 		reference = _getReference(change.guid)
 
