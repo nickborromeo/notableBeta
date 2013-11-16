@@ -102,11 +102,11 @@
 		# the following four methods can be used by anyone, 
 		# but are relied on by Action Manager to get relevent history information
 		getAllAtributes: =>
-			generateAttributeHash ['depth', 'rank', 'parent_id', 'guid', 'title', 'subtitle', 'created_at']
+			@generateAttributeHash ['depth', 'rank', 'parent_id', 'guid', 'title', 'subtitle', 'created_at']
 		getPositionAttributes: => 
-			generateAttributeHash ['guid', 'depth', 'rank', 'parent_id']
+			@generateAttributeHash ['guid', 'depth', 'rank', 'parent_id']
 		getContentAttributes: => 
-			generateAttributeHash ['guid', 'title', 'subtitle']
+			@generateAttributeHash ['guid', 'title', 'subtitle']
 		generateAttributeHash: (okayAttrs) =>
 			attributesHash = {}
 			attributesHash[attribute] = @get(attribute) for attribute in okayAttrs
@@ -147,13 +147,13 @@
 			propagationExceptions = [8, 46]  #put exceptions here if you want a particular keypress to propagate
 			return if e.metaKey or e.ctrlKey or e.altKey or _.contains(invalidKeys, e.keyCode)
 			e.stopPropagation() unless _.contains(propagationExceptions,e.keyCode)
-			if @timeoutAndSaveID? then clearTimeout @timeoutAndSaveID
+			@clearTimeoutAndSave()
 			@timeoutAndSaveID = setTimeout (=>
 				Note.eventManager.trigger "timeoutUpdate:#{@get('guid')}"
 			 ), 1000
 
-		# clearTimeoutAndSave: =>
-		# 	if @timeoutAndSaveID? then clearTimeout @timeoutAndSaveID
+		clearTimeoutAndSave: =>
+			if @timeoutAndSaveID? then clearTimeout @timeoutAndSaveID
 		# This set of functions add undo-related actions to the Action Manager queue.
 		# addUndoMove: =>
 		# 	App.Action.addHistory 'moveNote', {

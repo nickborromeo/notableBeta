@@ -41,7 +41,7 @@
 			textAfter = Note.prependStyling(textAfter)
 			hashMap = @dispatchCreation.apply @, arguments
 			newNote = new Note.Branch
-			newNote.addUndoCreate()
+			App.Action.addHistory 'createNote', newNote
 			newNoteAttributes = Note.Branch.generateAttributes hashMap.createBeforeNote, hashMap.newNoteTitle
 			if hashMap.rankAdjustment then newNoteAttributes.rank += 1
 			newNote.save newNoteAttributes
@@ -69,7 +69,7 @@
 			oldNoteNewTitle: textAfter
 			setFocusIn: noteCreatedFrom
 		deleteNote: (note, isUndo) -> #ignore isUndo unless dealing with action manager!
-			unless isUndo then note.addUndoDelete()
+			unless isUndo then App.Action.addHistory 'deleteBranch', note
 			descendants = note.getCompleteDescendantList()
 			_.each descendants, (descendant) ->
 				descendant.destroy()
@@ -215,7 +215,7 @@
 
 		tabNote: (note, parent = @findPrecedingInCollection note) ->
 			return false unless note.get('rank') > 1
-			note.addUndoMove()
+			App.Action.addHistory 'moveNote', note
 			previousParentCollection = @getCollection note.get 'parent_id'
 			@removeFromCollection previousParentCollection, note
 			note.save
@@ -225,7 +225,7 @@
 			@insertInTree note
 		unTabNote: (note, followingNote = false) ->
 			return false if note.isARoot(true)
-			note.addUndoMove()
+			App.Action.addHistory 'moveNote', note
 			previousParent = @getNote note.get 'parent_id'
 			@removeFromCollection previousParent.descendants, note
 			@generateNewUnTabAttributes note, followingNote, previousParent

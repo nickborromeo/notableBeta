@@ -26,7 +26,7 @@
 	# -----------------------------
 	# EXPECTS change: {guid: guid}
 	_addAction.createNote = (note, isRedo = false) ->
-		history = { type: 'createNote', changes: {guid: note.get('guid') }
+		history = { type: 'createNote', changes: {guid: note.get('guid') } }
 		if isRedo then _redoStack.push(history) else _undoStack.push(history)
 
 	_revert.createNote = (change) ->
@@ -51,7 +51,7 @@
 		_.each completeDescendants, (descendant) ->
 			removedBranchs.childNoteSet.push(descendant.getAllAtributes())
 			# App.OfflineAccess.addToDeleteCache descendant.get('guid'), true  << this should be handled in .destroy()
-		history = {type: 'deletedBranch', changes: removedBranchs}
+		history = {type: 'deleteBranch', changes: removedBranchs}
 		if isRedo then _redoStack.push(history) else _undoStack.push(history)
 		# App.Action.addHistory('deleteBranch', removedBranchs)
 		# App.Notify.alert 'deleted', 'warning'
@@ -135,10 +135,10 @@
 	# Public Methods & Functions
 	# ----------------------
 	@addHistory = (actionType, note) ->
-		throw "!!--cannot track this change--!!" unless _addHistory[actionType]?
+		throw "!!--cannot track this change--!!" unless _addAction[actionType]?
 		if _redoStack.length > 1 then clearRedoHistory()
 		if _undoStack.length >= _historyLimit then _undoStack.shift()
-		_addHistory[actionType](note)
+		_addAction[actionType](note)
 	
 	@undo = ->
 		throw "nothing to undo" unless _undoStack.length > 0

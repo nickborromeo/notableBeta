@@ -169,7 +169,7 @@
 			noteTitle = @getNoteTitle()
 			noteSubtitle = "" #@getNoteSubtitle()
 			if @model.get('title') isnt noteTitle
-				@model.addUndoUpdate(noteTitle,noteSubtitle)
+				App.Action.addHistory 'updateContent', @model
 				@model.save
 					title: noteTitle
 					subtitle: noteSubtitle
@@ -319,7 +319,7 @@
 		startMove: (ui, e, model) ->
 			# e.preventDefault();
 			# ui.noteContent.style.opacity = '0.7'
-			model.addUndoMove()
+			App.Action.addHistory 'moveNote', model
 			@drag = model
 			e.dataTransfer.effectAllowed = "move"
 			e.dataTransfer.setData("text", model.get 'guid')
