@@ -74,11 +74,11 @@
 			@.$el.on 'keydown', null, 'ctrl+down', @triggerLocalShortcut @expand.bind @
 			@.$el.on 'keydown', null, 'ctrl+s', @saveNote.bind @
 			@.$el.on 'keydown', null, 'meta+s', @saveNote.bind @
-			@.$el.on 'keydown', null, 'ctrl+z', @triggerUndoEvent #@ needs to be the tree
-			@.$el.on 'keydown', null, 'meta+z', @triggerUndoEvent #@ needs to be the tree
-			@.$el.on 'keydown', null, 'ctrl+y', @triggerRedoEvent #@ needs to be the tree
-			@.$el.on 'keydown', null, 'meta+y', @triggerRedoEvent #@ needs to be the tree
-			# needs to make sure @ is proper context ie @ needs to be 
+			@.$el.on 'keydown', null, 'ctrl+z', @triggerUndoEvent
+			@.$el.on 'keydown', null, 'meta+z', @triggerUndoEvent
+			@.$el.on 'keydown', null, 'ctrl+y', @triggerRedoEvent
+			@.$el.on 'keydown', null, 'meta+y', @triggerRedoEvent
+			
 		onBeforeClose: ->
 			# console.log "view being closed", @
 			@.$el.off()
