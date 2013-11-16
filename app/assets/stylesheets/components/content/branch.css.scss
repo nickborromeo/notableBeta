@@ -23,6 +23,8 @@ $screen-lg: 1200px;
 	border: none;
 	background: none;
 	line-height: 0.8em;
+	outline: none;
+  &.is-collapsed { color: $notableBlue; }
 	&:after {content: "•";}
 }
 
