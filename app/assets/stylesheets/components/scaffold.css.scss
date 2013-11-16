@@ -79,22 +79,6 @@ nav {
 	border-color: #adadad;
 }
 
-/* --------------CONTENT REGION ------------------ */
-	#content-template {
-		margin: 0;
-		border-radius: 10px;
-		h3 {
-			font-size: 1.1em;
-			margin: 1em auto;
-		}
-	}
-
-/* --------------SIDEBAR REGION ------------------ */
-	/*** Notebooks ***/
-	/*** Recent Notes ***/
-	/*** Favorites ***/
-	/*** Tags ***/
-
 /* --------------FOOTER REGION ------------------ */
 	/*** Links ***/
 
@@ -243,23 +227,6 @@ nav {
 		}
 	}
 
-	#content-template {
-		display: block;
-		background-image: asset-url('cardboard_@2X.png', image);
-		position: relative;
-		margin-bottom: 2em;
-		border-radius: 7px;
-		border: 1px solid #C1C1C1;
-		h3 {
-			color: $grayDark;
-			font-family: 'Century Gothic', "Arial", sans-serif;
-			text-align:center;
-			font-size: 1em;
-			margin: 0.9em auto;
-			font-weight: bold;
-		}
-	}
-
 }
 
 // ----------------------------------------------------
@@ -319,15 +286,6 @@ nav {
 			.sprite.expand_icon {
 				margin-right: 4px;
 			}
-		}
-	}
-
-	#content-template {
-		margin-bottom: 5em;
-		border-radius: 10px;
-		h3 {
-			font-size: 1.1em;
-			margin: 1em auto;
 		}
 	}
 

@@ -32,3 +32,4 @@
 //= require_tree ./modules/user
 //= require_tree ./modules/notification
 //= require_tree ./modules/manager
+//= require_tree ./modules/breadcrumb
