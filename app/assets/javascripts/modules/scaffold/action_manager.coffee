@@ -4,90 +4,119 @@
 	_undoStack = []
 	_redoStack = []
 	_historyLimit = 100
+	_revert =  {}
 
+
+	## >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+	#    expect to delete this:
+	## >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 	_expects = 
 		createNote: ['guid'] #only needs GUID to erase
 		deleteBranch: ['ancestorNote','childNoteSet']
 		moveNote: ['guid','depth','rank','parent_id']
 		updateContent: ['guid','title','subtitle'] 
+		# combinedAction: [flag!!!!, number of steps]  <<<<<<<<<<<<<<<<<<<<<<<<<<
+
 		checker: (actionType, changes) ->
 			return false unless @[actionType]?
 			return false unless changes?
 			for property in @[actionType]
 				return false unless changes[property]?
 			return true 
+	## >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+	#    end expect to delete.
+	## >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 
-	_revert = 
-		createNote: (change) ->
-			reference = @_getReference(change.guid)
 
-			removedBranchs = {ancestorNote: reference.note.getAllAtributes(), childNoteSet: []}
-			completeDescendants = reference.note.getCompleteDescendantList()
-			_.each completeDescendants, (descendant) ->
-				App.OfflineAccess.addToDeleteCache descendant.get('guid'), true
-				removedBranchs.childNoteSet.push(descendant.getAllAtributes())
 
-			App.Note.tree.deleteNote reference.note, true
 
-			if reference.parent isnt 'root'
-				App.Note.eventManager.trigger "setCursor:#{reference.parent_id}"
-			else
-				App.Note.eventManager.trigger "setCursor:#{App.Note.tree.first().get('guid')}"
-			return {type: 'deleteBranch', changes: removedBranchs }
+	# -----------------------------
+	# undo create notes
+	# -----------------------------
+	_revert.createNote = (change) ->
+		reference = _getReference(change.guid)
 
-		reverseDeleteNote: (attributes) ->
-			newBranch = new App.Note.Branch()
-			newBranch.save(attributes)
-			App.Note.tree.insertInTree newBranch
-			#remove from storage if offline
-			App.OfflineAccess.addToDeleteCache attributes.guid, false
-			App.Note.eventManager.trigger "setCursor:#{newBranch.get('guid')}"			
+		removedBranchs = {ancestorNote: reference.note.getAllAtributes(), childNoteSet: []}
+		completeDescendants = reference.note.getCompleteDescendantList()
+		_.each completeDescendants, (descendant) ->
+			App.OfflineAccess.addToDeleteCache descendant.get('guid'), true
+			removedBranchs.childNoteSet.push(descendant.getAllAtributes())
 
-		deleteBranch: (change) ->
-			@reverseDeleteNote(change.ancestorNote)
-			for attributes in change.childNoteSet
-				@reverseDeleteNote(attributes)
-			return {type: 'createNote', changes: { guid: change.ancestorNote.guid }}
+		App.Note.tree.deleteNote reference.note, true
 
-		moveNote: (change) ->
-			reference = @_getReference(change.guid)
+		if reference.parent isnt 'root'
+			App.Note.eventManager.trigger "setCursor:#{reference.parent_id}"
+		else
+			App.Note.eventManager.trigger "setCursor:#{App.Note.tree.first().get('guid')}"
+		return {type: 'deleteBranch', changes: removedBranchs }
 
-			changeTemp =
-				guid: change.guid
-				depth: reference.note.get('depth')
-				rank: reference.note.get('rank')
-				parent_id: reference.parent_id
+	# -----------------------------
+	# undo deleted branch
+	# -----------------------------
+	_revert.reverseDeleteNote = (attributes) ->
+		newBranch = new App.Note.Branch()
+		newBranch.save(attributes)
+		App.Note.tree.insertInTree newBranch
+		#remove from storage if offline
+		App.OfflineAccess.addToDeleteCache attributes.guid, false
+		App.Note.eventManager.trigger "setCursor:#{newBranch.get('guid')}"			
 
-			App.Note.tree.removeFromCollection reference.parentCollection, reference.note
-			reference.note.save change
-			App.Note.tree.insertInTree reference.note
-			
-			App.Note.eventManager.trigger "setCursor:#{reference.note.get('guid')}"
-			return {type:'moveNote', changes: changeTemp}
+	_revert.deleteBranch = (change) ->
+		@reverseDeleteNote(change.ancestorNote)
+		for attributes in change.childNoteSet
+			@reverseDeleteNote(attributes)
+		return {type: 'createNote', changes: { guid: change.ancestorNote.guid }}
 
-		updateContent: (change) ->
-			reference = @_getReference(change.guid)
 
-			changeTemp =
-				guid: change.guid
-				title: reference.note.get('title')
-				subtitle: reference.note.get('subtitle')
+	# -----------------------------
+	# undo move note
+	# -----------------------------
+	_revert.moveNote = (change) ->
+		reference = _getReference(change.guid)
 
-			App.Note.tree.removeFromCollection reference.parentCollection, reference.note
-			reference.note.save change
-			App.Note.tree.insertInTree reference.note
+		changeTemp =
+			guid: change.guid
+			depth: reference.note.get('depth')
+			rank: reference.note.get('rank')
+			parent_id: reference.parent_id
 
-			App.Note.eventManager.trigger "setCursor:#{reference.note.get('guid')}"
-			return {type: 'updateContent', changes: changeTemp}
+		App.Note.tree.removeFromCollection reference.parentCollection, reference.note
+		reference.note.save change
+		App.Note.tree.insertInTree reference.note
+		
+		App.Note.eventManager.trigger "setCursor:#{reference.note.get('guid')}"
+		return {type:'moveNote', changes: changeTemp}
 
-		_getReference: (guid) ->
-			note = @_findANote(guid)
-			parent_id = note.get('parent_id')
-			parentCollection = App.Note.tree.getCollection(parent_id)
-			{note: note, parent_id: parent_id, parentCollection: parentCollection}
 
-		_findANote: (guid) ->
-			App.Note.tree.findNote(guid)
+	# -----------------------------
+	# undo note content update
+	# -----------------------------
+	_revert.updateContent = (change) ->
+		reference = _getReference(change.guid)
+
+		changeTemp =
+			guid: change.guid
+			title: reference.note.get('title')
+			subtitle: reference.note.get('subtitle')
+
+		App.Note.tree.removeFromCollection reference.parentCollection, reference.note
+		reference.note.save change
+		App.Note.tree.insertInTree reference.note
+
+		App.Note.eventManager.trigger "setCursor:#{reference.note.get('guid')}"
+		return {type: 'updateContent', changes: changeTemp}
+
+
+	# -----------------------------
+	#   HELPERS
+	# -----------------------------
+
+	_getReference = (guid) ->
+		note = App.Note.tree.findNote(guid)
+		parent_id = note.get('parent_id')
+		parentCollection = App.Note.tree.getCollection(parent_id)
+		{note: note, parent_id: parent_id, parentCollection: parentCollection}
+
 
 	clearRedoHistory = ->
 		# _redoStack.reverse()
@@ -115,17 +144,6 @@
 		_undoStack.push _revert[change.type](change.changes)
 		if change.type is 'createNote' then App.Notify.alert 'deleted', 'warning'
 
-	# @exportToLocalStorage = ->
-	# 	window.localStorage.setItem 'history', JSON.stringify(_undoStack)
-	# #moves items undone to the change completed change stack...
-
-	# @loadHistoryFromLocalStorage = ->
-	# 	loadPreviousActionHistory JSON.parse(window.localStorage.getItem('history'))
-
-	# @loadPreviousActionHistory = (previousHistory) ->
-	# 	throw "-- this is not history! --" unless Array.isArray previousHistory
-	# 	#warning = this will erase all previous history.
-	# 	_undoStack = previousHistory
 
 	@setHistoryLimit = (limit) ->
 		throw "-- cannot set #{limit} " if isNaN limit
@@ -145,5 +163,22 @@
 	@_resetActionHistory = ->
 		_undoStack = []
 		_redoStack = []
+
+
+	# --------------------------------------------------
+	#   LOCAL STORAGE / CACHED CHANGES HELPERS
+	# --------------------------------------------------
+
+	# @exportToLocalStorage = ->
+	# 	window.localStorage.setItem 'actionHistory', JSON.stringify _undoStack
+
+	Action.addInitializer ->
+		console.log 'starting action manager'
+		_undoStack = JSON.parse(window.localStorage.getItem('actionHistory')) ? []
+
+	# as great as this idea is, it won't always work... 
+	Action.addFinalizer ->
+		console.log 'ending action manager'
+		_redoStack = window.localStorage.setItem 'actionHistory', JSON.stringify _undoStack
 
 )
