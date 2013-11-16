@@ -112,14 +112,6 @@
 			attributesHash[attribute] = @get(attribute) for attribute in okayAttrs
 			attributesHash
 
-		# getMoveAttributes: =>
-		# 	moveAttributes = {}
-		# 	okayAttrs = ['depth', 'rank', 'parent_id']
-		# 	for attribute in okayAttrs
-		# 		moveAttributes[attribute] if @.changed[attribute] then @.changed[attribute] else @get(attribute)
-		# 	moveAttributes
-
-			
 
 		# Will generalize for more than one attribute
 		modifyAttributes: (attribute, effect) ->
@@ -154,30 +146,6 @@
 
 		clearTimeoutAndSave: =>
 			if @timeoutAndSaveID? then clearTimeout @timeoutAndSaveID
-		# This set of functions add undo-related actions to the Action Manager queue.
-		# addUndoMove: =>
-		# 	App.Action.addHistory 'moveNote', {
-		# 		guid: @get('guid')
-		# 		parent_id: @get('parent_id')
-		# 		depth: @get('depth')
-		# 		rank: @get('rank')}
-		# addUndoCreate: =>
-		# 	App.Action.addHistory 'createNote', {guid: @get('guid')}
-		# addUndoDelete: =>
-		# 	removedBranchs = {ancestorNote: @getAllAtributes(), childNoteSet: []}
-		# 	completeDescendants = @getCompleteDescendantList()
-		# 	_.each completeDescendants, (descendant) ->
-		# 		removedBranchs.childNoteSet.push(descendant.getAllAtributes())
-		# 	App.Action.addHistory('deleteBranch', removedBranchs)
-		# 	App.Notify.alert 'deleted', 'warning'
-		# addUndoUpdate: (newTitle, newSubtitle) =>
-		# 	#incase this update comes before timeout
-		# 	if @timeoutAndSaveID? then clearTimeout @timeoutAndSaveID 
-		# 	App.Action.addHistory 'updateContent', {
-		# 		guid: @get('guid')
-		# 		title: @get('title')
-		# 		subtitle: @get('subtitle')}
-
 
 	# Static Function
 	Note.Branch.generateAttributes = (followingNote, text) ->
