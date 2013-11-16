@@ -10,10 +10,10 @@
 			depth: 0
 
 		save: (attributes = null, options = {}) =>
-			App.Notify.alert 'saving', 'info'
+			App.Notify.alert 'saving', 'save'
 			callBackOptions =
 				success: (model, response, opts)  => 
-					App.Notify.alert 'saved', 'info'
+					App.Notify.alert 'saved', 'save'
 					App.OfflineAccess.informConnectionSuccess()
 					if options.success? then options.success(model, response, opts)
 				error: (model, xhr, opts) => 

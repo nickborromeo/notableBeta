@@ -80,7 +80,7 @@
   _startSync = (time = _backOffInterval, callback) ->
     console.log 'trying to sync...'
     App.Notify.alert 'saving', 'save' ########################################################
-    _allNotes.fetch 
+    App.Note.allNotesByDepth.fetch 
       success: -> _deleteAndSave Object.keys(_inMemoryCachedDeletes), time, callback
       error: -> _notifyFailureAndBackOff(time)
 
