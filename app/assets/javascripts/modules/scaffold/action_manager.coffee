@@ -112,37 +112,39 @@
 	# -----------------------------
 	# undo compoundAction
 	# -----------------------------
-	# EXPECTS change: {numOfActions: 'number'}
+	# EXPECTS change: {actions: 'number'}
 
 	_addAction.compoundTargets = [] #this is a list of targets to listen
- 	# each item in targets needs to be {numOfActions:, count:, isUndo:}
+ 	# each item in targets needs to be {actions:, count:, isUndo:}
 
-	_addAction.compoundAction = (numOfActions, next = true, isUndo = false) ->
-		if next then _addAction.compoundTargets.push 
-			numOfActions: numOfActions
-			count: numOfActions
+	_addAction.compoundAction = (options, isUndo = false) ->
+		if options.previousActions? then _addAction.compoundActionCreator options.actions, isUndo
+		else _addAction.compoundTargets.push 
+			actions: options.actions
+			count: options.actions
 			isUndo: isUndo
-		else _addAction.compoundActionCreator numOfActions, isUndo
 
 	_addAction.compoundTrigger = ->
 		if _addAction.compoundTargets.length > 0
 			_(_addAction.compoundTargets).each (target, index, fullList) ->
 				target.count--
 				if target.count is 0
-					_addAction.compoundActionCreator target.numOfActions, target.isUndo
+					_addAction.compoundActionCreator target.actions, target.isUndo
 					delete fullList[index]
 			_addAction.compoundTargets = _(_addAction.compoundTargets).reject (item) -> return item is undefined
 
-	_addAction.compoundActionCreator = (numOfActions, isUndo = false) ->
-		history = {type:'compoundAction', changes: {numOfActions: numOfActions}}
+	_addAction.compoundActionCreator = (actions, isUndo = false) ->
+		history = {type:'compoundAction', changes: {actions: actions}}
 		if isUndo then _redoStack.push(history) else _undoStack.push(history)
 
 	_revert.compoundAction = (change, isUndo = true) ->
 		if isUndo
-			Action.undo() for i in [change.numOfActions..1]
+			console.log 'compound undo called...'
+			Action.undo() for i in [change.actions..1]
 		else
-			Action.redo() for i in [change.numOfActions..1]
-		_addAction.compoundActionCreator change.numOfActions, isUndo
+			console.log 'compound redo called...'
+			Action.redo() for i in [change.actions..1]
+		_addAction.compoundActionCreator change.actions, isUndo
 
 
 	# -----------------------------
@@ -167,10 +169,10 @@
 	# Public Methods & Functions
 	# ----------------------
 
-	# currently compoundAction is the only type that takes a NUMBER
+	# currently compoundAction is the only type that takes an OBJECT with {actions: }  and optionally previousActions
 	@addHistory = (actionType, note) ->
 		throw "!!--cannot track this change--!!" unless _addAction[actionType]?
-		throw "compoundAction takes an integer!" if actionType is "compoundAction" and isNaN(note)
+		throw "compoundAction takes an object with an integer!" if actionType is "compoundAction" and isNaN(note.actions)
 		if _redoStack.length > 1 then clearRedoHistory()
 		if _undoStack.length >= _historyLimit then _undoStack.shift()
 		_addAction[actionType](note)

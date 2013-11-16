@@ -25,6 +25,7 @@
 			Backbone.Model.prototype.save.call(@, attributes, callBackOptions)
 
 		destroy: (options = {}) =>
+			App.Notify.alert 'deleted', 'warning'
 			@clearTimeoutAndSave()
 			callBackOptions = 
 				success: (model, response, opts) =>

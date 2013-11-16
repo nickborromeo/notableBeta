@@ -159,6 +159,7 @@
 				textBefore = @textBeforeCursor sel, title
 				textAfter = @textAfterCursor sel, title
 				Note.eventManager.trigger 'createNote', @model, textBefore, textAfter
+				# if textAfter.length > 0 then App.Action.addHistory 'compoundAction', {numOfActions: 2, previousActions: true}
 
 		saveNote: (e) ->
 			e.preventDefault()
@@ -365,7 +366,7 @@
 		getDropType: (e) ->
 			e.currentTarget.classList[1]
 		mergeWithPreceding: (note) ->
-			App.Action.addHistory 'compoundAction', 2
+			App.Action.addHistory 'compoundAction', {actions: 2}
 			[preceding, title] = @collection.mergeWithPreceding note
 			return false unless preceding
 			previousTitle = preceding.get('title')
