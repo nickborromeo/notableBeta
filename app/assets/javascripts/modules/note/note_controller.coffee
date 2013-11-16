@@ -70,7 +70,7 @@
 				App.Note.activeTree = App.Note.tree
 				@clearCrownView()
 				@showContentView App.Note.tree
-				@clearBreadcrumbView()
+				@showBreadcrumbView()
 				if Note.tree.first()?
 					Note.eventManager.trigger "setCursor:#{Note.tree.first().get('guid')}"
 

@@ -72,20 +72,34 @@ $screen-lg: 1200px;
 			margin: 0.9em auto;
 			font-weight: bold;
 		}
+		#breadcrumb-region {
+			margin: 0.9em;
+			padding: 0 15px;
+		}
+
 		.breadcrumb {
 			background-color: transparent;
 			font: 1em 'Century Gothic', "Arial", sans-serif;
 			font-weight: bold;
-			margin: 0.9em;
-			padding: 0 15px;
+			padding: 0;
+			text-align: center;
 			line-height: 1.1em;
+			&:hover {
+				text-align: left;
+			}
 			> li {
+				margin: 0 auto;
 				color: $grayDark;
+				display: inline-block;
 				+ li:before {	color: $grayDark;	}
 				a {	color: $grayDark; }
 			}
-		}
+			.chain-breadcrumb {
+				display: none;
+				&.show-chain { display: inline-block; }
+			}
 
+		}
 	}
 
 	#crown {
@@ -112,10 +126,12 @@ $screen-lg: 1200px;
 			font-size: 1.1em;
 			margin: 1em auto;
 		}
-		.breadcrumb {
+		#breadcrumb-region {
 			margin: 1em;
 		}
 	}
+
+
 
 	#crown {
 		font-size: 24px;
