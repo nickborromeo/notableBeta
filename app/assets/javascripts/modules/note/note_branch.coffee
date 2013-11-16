@@ -25,13 +25,12 @@
 			Backbone.Model.prototype.save.call(@, attributes, callBackOptions)
 
 		destroy: (options = {}) =>
+			@clearTimeoutAndSave()
 			callBackOptions = 
 				success: (model, response, opts) =>
-					model.clearTimeoutAndSave()
 					if App.OfflineAccess.isOffline() then App.OfflineAccess.addToDeleteCache model.get('guid'), true
 					if options.success? then options.success(model, response, opts)
 				error: (model, xhr, opts) =>
-					model.clearTimeoutAndSave()
 					App.Notify.alert 'connectionLost', 'danger', {selfDestruct: false} 
 					App.OfflineAccess.addDeleteAndStart(@)
 					if options.error? then options.error(model, xhr, opts)
