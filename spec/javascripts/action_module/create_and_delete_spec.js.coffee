@@ -7,14 +7,14 @@
 	Given -> @tree1 = new App.Note.Tree()
 	Given -> window.buildTestTree @noteCollection1s, @tree1
 	Given -> App.Action._resetActionHistory()
-	Given -> App.Action.setTree @tree1
-	Given -> App.Action.setAllNotesByDepth @noteCollection1s
+	Given -> App.Note.tree = @tree1
+	Given -> App.Note.allNotesByDepth = @noteCollection1
 
 	# describe "Action manager should have history length of 0", ->
 	# 	Then -> expect(App.Action._getActionHistory().length).toEqual(0)
 	describe "Fake tree & note collection should have populated test data", ->
 		Then -> expect(@noteCollection1s.length).toEqual(14)
-		And -> expect(App.Action._getNoteCollection().length).toEqual(14)
+		And -> expect(App.Note.allNotesByDepth.length).toEqual(14)
 		And -> expect(@tree1.length).toEqual(5)
 
 	describe "Action manager should", ->

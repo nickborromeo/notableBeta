@@ -7,10 +7,10 @@
 	Given -> App.Note.Tree.prototype.sync = ->
 	Given -> @noteCollection1 = new App.Note.Collection()
 	Given -> @tree1 = new App.Note.Tree()
+	Given -> App.Note.tree = @tree1
+	Given -> App.Note.allNotesByDepth = @noteCollection1
 	Given -> window.buildTestTree @noteCollection1, @tree1
 	Given -> App.Action._resetActionHistory()
-	Given -> App.Action.setTree @tree1
-	Given -> App.Action.setAllNotesByDepth @noteCollection1
 
 	describe "Fake tree & note collection should have populated test data", ->
 		Then -> expect(@noteCollection1.length).toEqual(14)

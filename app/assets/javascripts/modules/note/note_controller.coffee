@@ -20,10 +20,7 @@
 			Note.tree = @tree
 			Note.activeTree = @tree
 			Note.activeBranch = "root"
-
-			App.Action.setTree @tree
-			App.Action.setAllNotesByDepth @allNotesByDepth
-			App.OfflineAccess.setAllNotesByDepth @allNotesByDepth
+			Note.allNotesByDepth = @allNotesByDepth
 
 		start: ->
 			App.OfflineAccess.checkAndLoadLocal (_.bind @buildTree, @)

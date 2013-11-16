@@ -4,7 +4,6 @@
   _backOffInterval = 2000
   _cachedChanges = 'unsyncedChanges'
   _cachedDeletes = 'unsyncedDeletes'
-  _allNotes = null
   _localStorageEnabled = true
   _inMemoryCachedDeletes = {}
   _inMemoryCachedChanges = {}
@@ -81,7 +80,7 @@
   _startSync = (time = _backOffInterval, callback) ->
     console.log 'trying to sync...'
     App.Notify.alert 'saving', 'save' ########################################################
-    _allNotes.fetch 
+    App.Note.allNotesByDepth.fetch 
       success: -> _deleteAndSave Object.keys(_inMemoryCachedDeletes), time, callback
       error: -> _notifyFailureAndBackOff(time)
 
@@ -89,7 +88,7 @@
   _deleteAndSave = (notesToDelete, time, callback) ->
     unless notesToDelete.length > 0
       return _startAllNoteSync time, callback
-    noteReference = _allNotes.findWhere {guid: notesToDelete.shift()}
+    noteReference = App.Note.allNotesByDepth.findWhere {guid: notesToDelete.shift()}
     options = 
       success: (note)->
         _clearBackOff()
@@ -120,10 +119,10 @@
     _loadAndSave guid, _inMemoryCachedChanges[guid], options
 
   _loadAndSave = (guid, attributes, options) ->
-    noteReference = _allNotes.findWhere {guid: guid}
+    noteReference = App.Note.allNotesByDepth.findWhere {guid: guid}
     if not noteReference? and not _inMemoryCachedDeletes[guid]?
       noteReference = new App.Note.Branch()
-      _allNotes.add noteReference
+      App.Note.allNotesByDepth.add noteReference
     if noteReference?
       Backbone.Model.prototype.save.call(noteReference,attributes,options)
     else 
@@ -136,9 +135,6 @@
     unless _localStorageEnabled then return buildTreeCallBack()
     _loadCached()
     _startSync(null, buildTreeCallBack)
-
-  @setAllNotesByDepth = (allNotes) ->
-    _allNotes = allNotes
 
   @setLocalStorageEnabled = (localStorageEnabled) ->
     _localStorageEnabled = localStorageEnabled

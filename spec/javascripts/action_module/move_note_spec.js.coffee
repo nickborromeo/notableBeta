@@ -11,8 +11,8 @@
   Given -> @tree1 = new App.Note.Tree()
   Given -> window.buildTestTree @noteCollection1, @tree1
   Given -> App.Action._resetActionHistory()
-  Given -> App.Action.setTree @tree1
-  Given -> App.Action.setAllNotesByDepth @noteCollection1
+  Given -> App.Note.tree = @tree1
+  Given -> App.Note.allNotesByDepth = @noteCollection1
 
   describe "Fake data should have been populated", ->
     Then -> expect(@noteCollection1.length).toEqual(14)
