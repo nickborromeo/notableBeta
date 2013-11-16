@@ -38,7 +38,9 @@
     it "should test after async", -> 
       runs ->
         flag = false
-        App.OfflineAccess.checkAndLoadLocal (-> flag = true)
+        App.OfflineAccess.checkAndLoadLocal (-> 
+          console.log 'returned!'
+          flag = true)
       waitsFor (-> return flag ), 'should sync local storage', 3000
       runs ->
         console.log App.Note.setAllNotesByDepth

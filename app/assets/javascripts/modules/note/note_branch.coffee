@@ -38,8 +38,6 @@
 			Backbone.Model.prototype.destroy.call(@, callBackOptions)
 
 		initialize: ->
-			@bind "change:rank", @notifyMove
-			@bind "change:depth", @notifyMove
 			@descendants = new App.Note.Tree()
 			if @isNew()
 				@set 'created', Date.now()
@@ -58,14 +56,6 @@
 		isInSameCollection: (note) ->
 			@get('parent_id') is note.get('parent_id')
 
-		notifyMove: ->
-			App.Notify.alert 'moved', 'success'
-		# getCompleteDescendantList: ->
-		# 	buildList = (descendantsBranch, descendantList) ->
-		# 		descendantsBranch.inject (descendantsBranch, descendant) ->
-		# 			descendantList.concat descendant, buildList(descendant.descendants, [])
-		# 		, []
-		# 	buildList @descendants, []
 		getCompleteDescendantList: ->
 			descendantList = []
 			buildList = (currentNote, remainingNotes) =>
