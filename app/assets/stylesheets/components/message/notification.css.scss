@@ -1,29 +1,16 @@
-$notableBlue: #14A4FF;
-$notableOrange: #E97C12;
-$notableYellow: #FFDC33;
-$notableWhite: #FDFDFD;
-$notableBlack: #3D3D3D;
+@import "../variables";
 
-$grayLight: #EAEAEA;
-$gray: #C1C1C1;
-$grayDark: #989898;
-$grayUltraDark: #515151;
+$successNotifyBorder: #d6e9c6;
+$successNotifyBackground: #dff0d8;
+$successNotifyText: #468847;
 
-$successNotificationBorderColor: #d6e9c6;
-$successNotificationBackgroundColor: #dff0d8;
-$successNotificationColor: #468847;
+$warningNotifyBorder: #faebcc;
+$warningNotifyBackground: #fcf8e3;
+$warningNotifyText: #c09853;
 
-$warningNotificationBorderColor: #faebcc;
-$warningNotificationBackgroundColor: #fcf8e3;
-$warningNotificationColor: #c09853;
-
-$dangerNotificationBorderColor: #ebccd1;
-$dangerNotificationBackgroundColor: #f2dede;
-$dangerNotificationColor: #b94a48;
-
-$screen-sm: 768px;
-$screen-md: 992px;
-$screen-lg: 1200px;
+$dangerNotifyBorder: #ebccd1;
+$dangerNotifyBackground: #f2dede;
+$dangerNotifyText: #b94a48;
 
 // ----------------------------------------------------
 // ----------------MOBILE FIRST CSS -------------------
@@ -37,7 +24,6 @@ $screen-lg: 1200px;
 @media (min-width: $screen-sm) {
 	#notification-region {
 		display: inline-block;
-		// border: 3px solid red;
 		width: 65%;
 		padding: 0;
 	}
@@ -45,8 +31,8 @@ $screen-lg: 1200px;
 		padding: 5px 12px;
 		position: absolute;
 		z-index: 5;
-		// left: 1.5em;
-		width: 96%;
+		left: -2em;
+		width: 100%;
 		margin-bottom: 0;
 		border-radius: 4px;
 	}
@@ -55,25 +41,25 @@ $screen-lg: 1200px;
 	}
 	.closeAlert{
 		float: right;
-		font-weight: bold;
+		cursor: pointer;
 	}
 	.success-notification{
-		background-color: $successNotificationBackgroundColor;
-		color: $successNotificationColor;
-		border: 1px solid $successNotificationBorderColor;
+		background-color: $successNotifyBackground;
+		color: $successNotifyText;
+		border: 1px solid $successNotifyBorder;
 	}
 	.warning-notification{
-		background-color: $warningNotificationBackgroundColor;
-		color: $warningNotificationColor;
-		border: 1px solid $warningNotificationBorderColor;
+		background-color: $warningNotifyBackground;
+		color: $warningNotifyText;
+		border: 1px solid $warningNotifyBorder;
 	}
 	.danger-notification{
-		background-color: $dangerNotificationBackgroundColor;
-		color: $dangerNotificationColor;
-		border: 1px solid $dangerNotificationBorderColor;
+		background-color: $dangerNotifyBackground;
+		color: $dangerNotifyText;
+		border: 1px solid $dangerNotifyBorder;
 	}
 	.info-notification{
-		color: $grayDark;
+		color: $gray;
 	}
 }
 
@@ -83,40 +69,9 @@ $screen-lg: 1200px;
 // --------------LAPTOP MEDIA QUERIES -----------------
 // ----------------------------------------------------
 @media (min-width: $screen-md) {
-	#notification-region {
-		display: inline-block;
-		padding: 0;
-	}
 	.notify {
-		padding: 5px 12px;
-// <<<<<<< HEAD
-		// right: 4em;
-		// width: 48em
-// =======
-		position: relative;
-		left: 1.5em;
-		// width: 96%;
-		margin-bottom: 0;
-		border-radius: 4px;
-	}
-	.success-notification{
-		background-color: $successNotificationBackgroundColor;
-		color: $successNotificationColor;
-		border: 1px solid $successNotificationBorderColor;
-	}
-	.warning-notification{
-		background-color: $warningNotificationBackgroundColor;
-		color: $warningNotificationColor;
-		border: 1px solid $warningNotificationBorderColor;
-	}
-	.danger-notification{
-		background-color: $dangerNotificationBackgroundColor;
-		color: $dangerNotificationColor;
-		border: 1px solid $dangerNotificationBorderColor;
-	}
-	.info-notification{
-		color: $grayDark;
-// >>>>>>> Ticket0478
+		left: -3.5em;
+		width: 48em;
 	}
 }
 
