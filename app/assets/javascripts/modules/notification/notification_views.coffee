@@ -10,7 +10,7 @@
 	class Notify.AlertView extends Marionette.ItemView
 		template: 'notification/alert'
 		events:
-			'click .undoAlert': 'undoAction'
+			'click .clickCallback': 'clickCallback'
 			'click .closeAlert': 'closeAlert'
 
 		initialize: ->
@@ -21,7 +21,7 @@
 			# if @model.hasClickCallback()
 			# 	$('.undoAlert').show()
 
-		undoAction: (event) =>
+		clickCallback: (event) =>
 			event.stopPropagation()
 			event.preventDefault()
 			@model.clickCallback()
