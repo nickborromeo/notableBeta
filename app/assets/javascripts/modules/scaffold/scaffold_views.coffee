@@ -7,7 +7,7 @@
 		id: "message-center"
 		tagName: "section"
 		regions:
-			notificationRegion: "#notification-region" #THIS IS WHERE WE RENDER THE NOTIFICATION!
+			notificationRegion: "#notification-region"
 			modviewRegion: "#modview-region"
 
 		events: ->
@@ -18,11 +18,27 @@
 			"click .grid_icon": "applyModview"
 		createNote: ->
 			App.Notify.alert 'newNote','success'
-			lastNote = App.Note.tree.last()
-			App.Note.tree.create
-				rank: lastNote.get('rank') + 1
-				title: ""
-			App.Note.eventManager.trigger "setCursor:#{App.Note.tree.last().get('guid')}"
+			if App.Note.activeTree.models.length is 0
+				if App.Note.activeBranch is 'root'
+					lastNote =
+						rank: 1
+						title: ""
+				else
+					lastNote =
+						rank: 1
+						title: ""
+						depth: App.Note.activeBranch.get('depth') + 1
+						parent_id: App.Note.activeBranch.get('guid')
+				App.Note.tree.create lastNote
+			else
+				lastNote = App.Note.activeTree.last()
+				App.Note.activeTree.create
+					depth: lastNote.get('depth')
+					parent_id: lastNote.get('parent_id')
+					rank: lastNote.get('rank') + 1
+					title: ""
+			App.Note.eventManager.trigger "render:#{App.Note.activeBranch.get('guid')}" if App.Note.activeBranch isnt "root"
+			App.Note.eventManager.trigger "setCursor:#{App.Note.activeTree.last().get('guid')}"
 		applyModview: (e) ->
 			type = e.currentTarget.classList[1]
 			# $(".alert").text(type+" modview is displayed").show()
@@ -40,9 +56,18 @@
 		id: "content-center"
 		tagName: "section"
 		regions:
+			breadcrumbRegion: "#breadcrumb-region"
+			crownRegion: "#crown-region"
 			treeRegion: "#tree-region"
-			dirtRegion: "#dirt-region"
 
+		events:
+			"click #notebook-title": "toggleBreadcrumbs"
+			"click #breadcrumb-region li": "toggleBreadcrumbs"
+		toggleBreadcrumbs: ->
+			if @$("#breadcrumb-region").html() isnt ""
+				@$("#notebook-title").toggle()
+				@$("#notebook-title").toggleClass("hidden-xs")
+				@$("#breadcrumb-region").toggle()
 	class Scaffold.SidebarView extends Marionette.Layout
 		template: "scaffold/sidebar"
 		tagName:	"section"

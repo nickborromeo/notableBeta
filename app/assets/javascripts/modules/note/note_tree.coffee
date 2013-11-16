@@ -15,6 +15,9 @@
 		model: Note.Branch
 		url:'/notes'
 
+		initialize: (branch) ->
+			@add branch if branch
+
 		# Manage note insertion in the nested structure
 		add: (note, options) ->
 			collectionToAddTo = @getCollection note.get 'parent_id'
@@ -89,6 +92,7 @@
 		# Returns the element maching id and throws error if this fails
 		findNote: (guid) ->
 			searchedNote = false
+			return Note.activeBranch if Note.activeBranch isnt 'root' and guid is Note.activeBranch.get('guid')
 			searchRecursively = (currentNote, rest) ->
 				return searchedNote if searchedNote or !currentNote?
 				if currentNote.get('guid') is guid
@@ -148,7 +152,7 @@
 			currentCollection = @getCollection note.get 'parent_id'
 			currentCollection.findFirstInCollection rank: note.get('rank') - 1
 		findPreviousNote: (note) ->
-			return undefined if (note.isARoot() and note.get('rank') is 1)
+			return undefined if (note.isARoot(true) and note.get('rank') is 1)
 			if note.get('rank') is 1
 				return @getNote(note.get('parent_id'))
 			previousNote = @findPrecedingInCollection note
@@ -163,7 +167,7 @@
 			followingNote = undefined
 			findFollowingRecursively = (note) =>
 				if !(followingNote = @findFollowingInCollection note)? and
-					 note.get('parent_id') is 'root'
+					 note.isARoot(true)
 					return undefined
 				return followingNote unless !followingNote?
 				findFollowingRecursively @getNote note.get 'parent_id'
@@ -183,6 +187,7 @@
 			@getCollection(note.get 'parent_id').sort()
 		jumpPositionUp: (note) ->
 			previousNote = @findPreviousNote note
+			return false if not previousNote?
 			if note.isInSameCollection previousNote
 				@jumpNoteUpInCollection note
 			else if (depthDifference = previousNote.get('depth') - note.get('depth')) > 0
@@ -195,6 +200,7 @@
 				note
 		jumpPositionDown: (note) ->
 			followingNote = @findFollowingNote note, false
+			return false if not followingNote?
 			if note.isInSameCollection followingNote
 				@jumpNoteDownInCollection note
 			else
@@ -218,7 +224,7 @@
 				depth: 1 + parent.get 'depth'
 			@insertInTree note
 		unTabNote: (note, followingNote = false) ->
-			return false if note.isARoot()
+			return false if note.isARoot(true)
 			note.addUndoMove()
 			previousParent = @getNote note.get 'parent_id'
 			@removeFromCollection previousParent.descendants, note
@@ -257,8 +263,10 @@
 				return false if preceding.get('depth') > note.get('depth')
 			else
 				preceding = @findPreviousNote note
-			title = preceding.get('title') + note.get('title')
+			noteTitle = note.get('title')
 			@deleteNote note
+			return false unless preceding?
+			title = preceding.get('title') + noteTitle
 			[preceding, title]
 		comparator: (note) ->
 			note.get 'rank'

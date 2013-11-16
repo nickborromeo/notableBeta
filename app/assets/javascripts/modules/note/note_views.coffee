@@ -1,8 +1,7 @@
 @Notable.module("Note", (Note, App, Backbone, Marionette, $, _) ->
-	Note.eventManager = _.extend {}, Backbone.Events
 
-	class Note.ModelView extends Marionette.CompositeView
-		template: "note/noteModel"
+	class Note.BranchView extends Marionette.CompositeView
+		template: "note/branchModel"
 		className: "branch-template"
 		ui:
 			noteContent: ">.branch .noteContent"
@@ -15,6 +14,7 @@
 			"mouseout .branch": @toggleDestroyFeat "none"
 			"keydown > .branch > .noteContent": @model.timeoutAndSave
 			"click >.branch>.collapsable": "toggleCollapse"
+			"dblclick >.branch>.move": "zoomIn"
 
 			"dragstart .move": @triggerDragEvent "startMove"
 			"dragend .move": @triggerDragEvent "endMove"
@@ -23,6 +23,8 @@
 			"dragleave .dropTarget": @triggerDragEvent "leaveMove"
 			"dragover .dropTarget": @triggerDragEvent "overMove" 
 
+		zoomIn: ->
+			Backbone.history.navigate "#/zoom/#{@model.get('guid')}"
 		initialize: ->
 			@collection = @model.descendants
 			@bindKeyboardShortcuts()
@@ -40,7 +42,7 @@
 			if i is @collection.length - 1
 				@$('>.branch>.descendants>.branch-template>.branch>.dropAfter.dropTarget')[0...-1].remove()
 		trimExtraDropTarget: ->
-			if @model.isARoot() and @model.get('rank') isnt 1
+			if @model.isARoot(true) and @model.get('rank') isnt 1
 				@$(">.branch>.dropBefore").remove()
 		getNoteContent: ->
 			if @ui.noteContent.length is 0 or !@ui.noteContent.focus?
@@ -51,10 +53,20 @@
 			@.$el.on 'keydown', null, 'meta+shift+backspace', @triggerShortcut 'deleteNote'
 			@.$el.on 'keydown', null, 'tab', @triggerShortcut 'tabNote'
 			@.$el.on 'keydown', null, 'shift+tab', @triggerShortcut 'unTabNote'
-			@.$el.on 'keydown', null, 'ctrl+shift+up', @triggerShortcut 'jumpPositionUp'
-			@.$el.on 'keydown', null, 'ctrl+shift+down', @triggerShortcut 'jumpPositionDown'
+			@.$el.on 'keydown', null, 'alt+right', @triggerShortcut 'tabNote'
+			@.$el.on 'keydown', null, 'alt+left', @triggerShortcut 'unTabNote'
+			@.$el.on 'keydown', null, 'alt+up', @triggerShortcut 'jumpPositionUp'
+			@.$el.on 'keydown', null, 'alt+down', @triggerShortcut 'jumpPositionDown'
+			@.$el.on 'keydown', null, 'meta+right', @triggerShortcut 'tabNote'
+			@.$el.on 'keydown', null, 'meta+left', @triggerShortcut 'unTabNote'
+			@.$el.on 'keydown', null, 'meta+up', @triggerShortcut 'jumpPositionUp'
+			@.$el.on 'keydown', null, 'meta+down', @triggerShortcut 'jumpPositionDown'
 			@.$el.on 'keydown', null, 'up', @triggerShortcut 'jumpFocusUp'
 			@.$el.on 'keydown', null, 'down', @triggerShortcut 'jumpFocusDown'
+			@.$el.on 'keydown', null, 'alt+ctrl+left', @triggerShortcut 'zoomOut'
+			@.$el.on 'keydown', null, 'alt+ctrl+right', @triggerShortcut 'zoomIn'
+			@.$el.on 'keydown', null, 'meta+ctrl+left', @triggerShortcut 'zoomOut'
+			@.$el.on 'keydown', null, 'meta+ctrl+right', @triggerShortcut 'zoomIn'
 			@.$el.on 'keydown', null, 'right', @arrowRightJumpLine.bind @
 			@.$el.on 'keydown', null, 'left', @arrowLeftJumpLine.bind @
 			@.$el.on 'keydown', null, 'backspace', @mergeWithPreceding.bind @
@@ -67,7 +79,9 @@
 			@.$el.on 'keydown', null, 'ctrl+y', @triggerRedoEvent #@ needs to be the tree
 			@.$el.on 'keydown', null, 'meta+y', @triggerRedoEvent #@ needs to be the tree
 			# needs to make sure @ is proper context ie @ needs to be 
-
+		onBeforeClose: ->
+			console.log "view being closed", @
+			@.$el.off()
 		triggerRedoEvent: (e) =>
 			e.preventDefault()
 			e.stopPropagation()
@@ -181,6 +195,7 @@
 			Note.setRange @getNoteContent()[0], 0, node, offset
 		findTargetedNodeAndOffset: (desiredPosition) ->
 			parent = @getNoteContent()[0]
+			return [parent, 0] if desiredPosition is 0
 			it = document.createNodeIterator parent, NodeFilter.SHOW_TEXT
 			offset = 0;
 			while n = it.nextNode()
@@ -257,7 +272,7 @@
 
 	class Note.TreeView extends Marionette.CollectionView
 		id: "tree"
-		itemView: Note.ModelView
+		itemView: Note.BranchView
 
 		initialize: ->
 			@listenTo @collection, "sort", @render
@@ -265,11 +280,12 @@
 			Note.eventManager.on 'createNote', @createNote, this
 			Note.eventManager.on 'change', @dispatchFunction, this
 			@drag = undefined
-		onBeforeRender: -> 
+		onClose: ->
+		onBeforeRender: ->
 		onRender: -> @addDefaultNote false
 		addDefaultNote: (render = true) ->
 			# if @collection.length is 0 then @collection.create()
-			@render if render
+			# @render if render
 		dispatchFunction: (functionName) ->
 			return @[functionName].apply(@, Note.sliceArgs arguments) if @[functionName]?
 			@collection[functionName].apply(@collection, Note.sliceArgs arguments)
@@ -349,4 +365,18 @@
 			previousTitle = preceding.get('title')
 			Note.eventManager.trigger "setTitle:#{preceding.get('guid')}", title
 			Note.eventManager.trigger "setCursor:#{preceding.get('guid')}", previousTitle
+		zoomOut: ->
+			if App.Note.activeBranch  isnt "root" and App.Note.activeBranch.get('parent_id') isnt "root"
+				@zoomIn
+					get: () -> App.Note.activeBranch.get('parent_id')
+				Note.eventManager.trigger "setCursor:#{App.Note.activeTree.first().get('guid')}"
+				# Note.eventManager.trigger "setCursor:#{App.Note.tree.findNote(App.Note.activeBranch.get("guid").getCompleteDescendantList().first().get('guid'))}"
+			else
+				@clearZoom()
+		zoomIn: (model) ->
+			Backbone.history.navigate "#/zoom/#{model.get('guid')}"
+
+		clearZoom: ->
+			Backbone.history.navigate ""
+			Note.eventManager.trigger "clearZoom"
 )
