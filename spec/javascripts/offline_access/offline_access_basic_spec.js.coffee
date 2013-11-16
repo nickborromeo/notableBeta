@@ -13,10 +13,8 @@
   Given -> App.Note.Branch.prototype.sync = (method, model, options) -> options.success(method, model, options)
   Given -> App.Note.Tree.prototype.sync = (method, model, options) -> options.success(method, model, options)
   Given -> @noteCollection2 = new App.Note.Collection()
-  Given -> @tree2 = new App.Note.Tree()
-  Given -> @noteCollection2.fetch = (options) -> options.success()
+  Given -> App.Note.setAllNotesByDepth = @noteCollection2
   Given -> window.localStorage.clear()
-  Given -> App.OfflineAccess.setAllNotesByDepth @noteCollection2
   Given -> window.localStorage.setItem('unsyncedChanges', JSON.stringify({'theBestGUIDever':{'depth':0, 'rank':1, 'parent_id':'root', 'guid':'theBestGUIDever', 'title':"i'm a little teapot", 'subtitle': '', 'created_at': new Date()}, 'theWorstGUIDever':{'depth':0, 'rank':2, 'parent_id':'root', 'guid':'theWorstGUIDever', 'title':"i'm so hungry", 'subtitle': '', 'created_at': new Date()}}))
 
   describe "test should have been setup properly", ->
@@ -32,7 +30,6 @@
     And -> expect(App.OfflineAccess.addDeleteAndStart).toEqual(jasmine.any(Function))
     And -> expect(App.OfflineAccess.addToDeleteCache).toEqual(jasmine.any(Function))
     And -> expect(App.OfflineAccess.informConnectionSuccess).toEqual(jasmine.any(Function))
-    And -> expect(App.OfflineAccess.setAllNotesByDepth).toEqual(jasmine.any(Function))
     And -> expect(App.OfflineAccess.setLocalStorageEnabled).toEqual(jasmine.any(Function))
 
   # this test should mostly work now...
@@ -44,8 +41,9 @@
         App.OfflineAccess.checkAndLoadLocal (-> flag = true)
       waitsFor (-> return flag ), 'should sync local storage', 3000
       runs ->
-        expect(@noteCollection2.findWhere({guid:'theBestGUIDever'})).toEqual(jasmine.any(Object))
-        expect(@noteCollection2.findWhere({guid:'theWorstGUIDever'})).toEqual(jasmine.any(Object))
+        console.log App.Note.setAllNotesByDepth
+        expect(App.Note.setAllNotesByDepth.findWhere({guid:'theBestGUIDever'})).toEqual(jasmine.any(Object))
+        expect(App.Note.setAllNotesByDepth.findWhere({guid:'theWorstGUIDever'})).toEqual(jasmine.any(Object))
 
 
   describe "crash_prevent can add notes to localStorage using addChange", ->    
