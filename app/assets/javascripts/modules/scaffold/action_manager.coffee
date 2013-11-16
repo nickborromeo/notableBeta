@@ -25,13 +25,13 @@
 	# Action: createNote
 	# -----------------------------
 	# EXPECTS change: {guid: guid}
-	_addAction.createNote = (note, isRedo = false) ->
+	_addAction.createNote = (note, isUndo = false) ->
 		history = { type: 'createNote', changes: {guid: note.get('guid') } }
-		if isRedo then _redoStack.push(history) else _undoStack.push(history)
+		if isUndo then _redoStack.push(history) else _undoStack.push(history)
 
-	_revert.createNote = (change) ->
+	_revert.createNote = (change, isUndo = true) ->
 		reference = _getReference(change.guid)
-		_addAction.deleteBranch reference.note, true
+		_addAction.deleteBranch reference.note, isUndo
 
 		App.Note.tree.deleteNote reference.note, true
 		# set cursor 
@@ -45,14 +45,14 @@
 	# undo deleted branch
 	# -----------------------------
 	# EXPECTS change: {ancestorNote: {<ancestorNote attributes>}, childNoteSet: [list of child notes + attributes] }
-	_addAction.deleteBranch = (note, isRedo = false) ->
+	_addAction.deleteBranch = (note, isUndo = false) ->
 		removedBranchs = {ancestorNote: note.getAllAtributes(), childNoteSet: []}
 		completeDescendants = note.getCompleteDescendantList()
 		_.each completeDescendants, (descendant) ->
 			removedBranchs.childNoteSet.push(descendant.getAllAtributes())
 			# App.OfflineAccess.addToDeleteCache descendant.get('guid'), true  << this should be handled in .destroy()
 		history = {type: 'deleteBranch', changes: removedBranchs}
-		if isRedo then _redoStack.push(history) else _undoStack.push(history)
+		if isUndo then _redoStack.push(history) else _undoStack.push(history)
 		# App.Action.addHistory('deleteBranch', removedBranchs)
 		# App.Notify.alert 'deleted', 'warning'
 
@@ -64,9 +64,9 @@
 		App.OfflineAccess.addToDeleteCache attributes.guid, false
 		App.Note.eventManager.trigger "setCursor:#{newBranch.get('guid')}"			
 
-	_revert.deleteBranch = (change) ->
+	_revert.deleteBranch = (change, isUndo = true) ->
 		_revert.reverseDeleteNote(change.ancestorNote)
-		_addAction.createNote _getReference(change.ancestorNote.guid).note, true
+		_addAction.createNote _getReference(change.ancestorNote.guid).note, isUndo
 		for attributes in change.childNoteSet
 			@reverseDeleteNote(attributes)
 
@@ -76,13 +76,13 @@
 	# undo move note
 	# -----------------------------
 	# EXPECTS change: {guid:'', parent_id:'', rank:'', depth: ''}
-	_addAction.moveNote = (note, isRedo = false) ->
+	_addAction.moveNote = (note, isUndo = false) ->
 		history = {type: 'moveNote', changes: note.getPositionAttributes()}
-		if isRedo then _redoStack.push(history) else _undoStack.push(history)
+		if isUndo then _redoStack.push(history) else _undoStack.push(history)
 
-	_revert.moveNote = (change) ->
+	_revert.moveNote = (change, isUndo = true) ->
 		reference = _getReference(change.guid)
-		_addAction.moveNote reference.note, true
+		_addAction.moveNote reference.note, isUndo
 
 		App.Note.tree.removeFromCollection reference.parentCollection, reference.note
 		reference.note.save change
@@ -96,13 +96,13 @@
 	# undo note content update
 	# -----------------------------
 	# EXPECTS change: {guid: '', title:'', subtitle:''}
-	_addAction.updateContent = (note, isRedo = false) ->
+	_addAction.updateContent = (note, isUndo = false) ->
 		history = {type: 'updateContent', changes: note.getContentAttributes()}
-		if isRedo then _redoStack.push(history) else _undoStack.push(history)
+		if isUndo then _redoStack.push(history) else _undoStack.push(history)
 
-	_revert.updateContent = (change) ->
+	_revert.updateContent = (change, isUndo = true) ->
 		reference = _getReference(change.guid)
-		_addAction.updateContent reference.note, true
+		_addAction.updateContent reference.note, isUndo
 
 		App.Note.tree.removeFromCollection reference.parentCollection, reference.note
 		reference.note.save change
@@ -148,7 +148,7 @@
 	@redo = ->
 		throw "nothing to redo" unless _redoStack.length > 0
 		change = _redoStack.pop()
-		_revert[change.type](change.changes)
+		_revert[change.type](change.changes, false)
 
 
 	@setHistoryLimit = (limit) ->
