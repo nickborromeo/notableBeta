@@ -27,8 +27,8 @@
 
 		isARoot: ->
 			@get('parent_id') is 'root'
-		isFirstRoot: ->
-			@isARoot(true) and @get('rank') is 1
+		isFirstRoot: (activeRoot = false)->
+			@isARoot(activeRoot) and @get('rank') is 1
 		isInSameCollection: (note) ->
 			@get('parent_id') is note.get('parent_id')
 

@@ -179,33 +179,45 @@
 			get: (attr) -> @attributes[attr]
 
 		findPrecedingBranch: (branch, precedingBranch) ->
-			return precedingBranch if precedingBranch? or branch.isFirstRoot()
+			return precedingBranch if precedingBranch? or branch.isFirstRoot(true)
 			ancestorBranch = @findNote branch.get('parent_id')
 			precedingBranch = @findPrecedingInCollection ancestorBranch
 			@findPrecedingBranch(ancestorBranch, precedingBranch)
-		findPrecedingWithSameDepth: (branch) ->
+		getJumpPositionUpTarget: (branch) ->
 			# rootAncestor = @getRoot branch
 			# precedingBranch = @findPrecedingInCollection rootAncestor
 			return false if not precedingBranch = @findPrecedingBranch branch
 			preceding = precedingBranch.descendants.last()
 			return @buildBranchLike(rank: 0, depth: precedingBranch.get('depth') + 1, parent_id: precedingBranch.get('guid')) if not preceding?
-			jumpTarget = @getJumpPositionTarget branch.get('depth'), preceding.getCompleteDescendantList()
+			jumpTarget = @getJumpPositionTarget @jumpUpTarget(), branch.get('depth'), preceding.getCompleteDescendantList()
 			@makeDescendant(preceding, branch.get('depth'),
-				jumpTarget || @buildBranchLike rank: preceding.get('rank'), depth: preceding.get('depth'), parent_id: preceding.get('parent_id'))
+					jumpTarget || @buildBranchLike rank: preceding.get('rank'), depth: preceding.get('depth'), parent_id: preceding.get('parent_id'))
 		makeDescendant: (preceding, depth, jumpTarget) ->
 			return jumpTarget if depth - 1 < jumpTarget.get('depth')
-			@buildBranchLike rank: 0, depth: preceding.get('depth') + 1, parent_id: jumpTarget.get('guid') || preceding.get('guid')
+			@buildBranchLike rank: 0, depth: jumpTarget.get('depth') + 1, parent_id: jumpTarget.get('guid') || preceding.get('guid')
 		# isAccessibleDepth: (jumpTarget) ->
-		getJumpPositionTarget: (depth, descendantList, preceding) ->
-			return preceding if preceding?
-			return false if depth is 0
-			@getJumpPositionTarget depth - 1, descendantList, _.last _.filter descendantList, (descendant) ->
+		jumpTarget: (actionType) -> (depth, descendantList) ->
+			action =
+				jumpUp: "last"
+				jumpDown: "first"
+			_[action[actionType]] _.filter descendantList, (descendant) ->
 				descendant.get('depth') is depth
-		newJump: (branch) ->
-			return false if not target = @findPrecedingWithSameDepth branch
+		jumpUpTarget: ->
+			@jumpTarget("jumpUp").bind @
+		jumpDownTarget: ->
+			@jumpTarget("jumpDown").bind @
+		getJumpPositionTarget: (getJumpTarget, depth, descendantList, target) ->
+			do rec = (depth, target) ->
+				return target if target?
+				return false if depth is 0
+				rec depth - 1, getJumpTarget depth, descendantList
+		newJumpUp: (branch) ->
+			return false if not target = @getJumpPositionUpTarget branch
 			target
-		jumpToTarget: (branch, target) ->
-			branch.cloneAttributes target, rank: target.get('rank') + 1
+		jumpToTarget: (branch, target, modifier = 0) ->
+			branch.cloneAttributes target, rank: target.get('rank') + modifier
+		jumpToTargetUp: (branch, target) ->
+			@jumpToTarget branch, target, 1
 		jumpPositionUp: (note) ->
 			previousNote = @findPreviousNote note, false
 			return note if not previousNote?
@@ -215,19 +227,39 @@
 			# 	@tabNote note, @getNote previousNote.get 'parent_id'
 			else
 				previousCollection = @getCollection note.get 'parent_id'
-				return note if not target = @newJump note
+				return note if not target = @newJumpUp note
 				@removeFromCollection previousCollection, note
-				@jumpToTarget(note, target)
+				@jumpToTargetUp(note, target)
 				@insertInTree note
 				note
-		jumpPositionDown: (note) ->
-			followingNote = @findFollowingNote note, false
-			if note.isInSameCollection followingNote
-				@jumpNoteDownInCollection note
+
+		getJumpPositionDownTarget: (branch, followingBranch) ->
+			following = followingBranch.descendants.first()
+			return @buildBranchLike(rank: 1, depth: followingBranch.get('depth') + 1, parent_id: followingBranch.get('guid')) if not following?
+			jumpTarget = @getJumpPositionTarget @jumpDownTarget(), branch.get('depth'), following.getCompleteDescendantList()
+			@makeDescendant(following, branch.get('depth'),
+					jumpTarget || @buildBranchLike rank: following.get('rank'), depth: following.get('depth'), parent_id: following.get('parent_id'))
+		newJumpDown: (branch, followingBranch) ->
+			return false if not target = @getJumpPositionDownTarget branch, followingBranch
+			target
+		jumpToTargetDown: (branch, target) ->
+			modifier = 0
+			if target.get('rank') is 0 then modifier = 1
+			@jumpToTarget branch, target, modifier
+		jumpPositionDown: (branch) ->
+			followingBranch = @findFollowingNote branch, false
+			return false if not followingBranch?
+			if branch.isInSameCollection followingBranch
+				@jumpNoteDownInCollection branch
 			else
-				depthDifference = note.get('depth') - followingNote.get('depth')
-				@unTabNote note, followingNote
-			note
+				# depthDifference = note.get('depth') - followingNote.get('depth')
+				# @unTabNote note, followingNote
+				previousBranch = @getCollection branch.get 'parent_id'
+				return branch if not target = @newJumpDown branch, followingBranch
+				@removeFromCollection previousBranch, branch
+				@jumpToTargetDown branch, target
+				@insertInTree branch
+			branch
 
 		jumpFocusDown: (note) ->
 			return followingNote if (followingNote = @findFollowingNote note)?
