@@ -1,89 +1,60 @@
 
 @Notable.module("Action", (Action, App, Backbone, Marionette, $, _) ->
 
+	# NOTES AND EXPLANATION:
+	# -- all undo histories have a action TYPE, and CHANGE 
+	#   	history item example: {type: '<<undoActionType>>', change: {object containing only relevant change info} }
+	#	-- at the beginning of each undo action should be a list of EXPECTS 
+	# 		(attributes expected to be found in 'change')
+	# -- the general pattern for updating changes is:
+	#			1 - get note reference
+	#  		2 - add inverse action to redoStack
+	#			3 - remove note from tree
+	#			4 - update with attributes
+	#			5 - insert the note again
+	#  		6 - reset focus on the correct note
+	#		-***- to improve the pattern for SOME actions only ie: content updates, don't remove or add, just trigger update
+
 	_undoStack = []
 	_redoStack = []
 	_historyLimit = 100
 	_revert =  {}
 	_addAction = {}
 
-
-	## >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-	#    expect to delete this:
-	## >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-	_expects = 
-		createNote: ['guid'] #only needs GUID to erase
-		deleteBranch: ['ancestorNote','childNoteSet']
-		moveNote: ['guid','depth','rank','parent_id']
-		updateContent: ['guid','title','subtitle'] 
-		# combinedAction: [flag!!!!, number of steps]  <<<<<<<<<<<<<<<<<<<<<<<<<<
-
-		checker: (actionType, changes) ->
-			return false unless @[actionType]?
-			return false unless changes?
-			for property in @[actionType]
-				return false unless changes[property]?
-			return true 
-	## >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-	#    end expect to delete.
-	## >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-
-	# NOTES AND EXPLANATION:
-	# -- all undo histories have a action TYPE, and CHANGE 
-	#   	history item example: {type: '<<undoActionType>>', change: {object containing only relevant change info} }
-	#	-- at the beginning of each undo action should be a list of EXPECTS 
-	# 		(attributes expected to be found in 'change')
-	# -- the usual pattern for updating changes is:
-	#			1 - get note reference
-	#			2 - remove note from tree
-	#			3 - save new attributes
-	#			4 - insert the note again
-	#  		5 - reset focus on the correct note
-	#			-- to improve the pattern for SOME actions only ie: content updates,
-	# 					1 - save new attributes
-
-
-
 	# -----------------------------
-	# undo create notes
+	# Action: createNote
 	# -----------------------------
 	# EXPECTS change: {guid: guid}
-	_addAction.createNote = (note) ->
-		Action.addHistory 'createNote', {guid: note.get('guid')}
-
-
+	_addAction.createNote = (note, isRedo = false) ->
+		history = { type: 'createNote', changes: {guid: note.get('guid') }
+		if isRedo then _redoStack.push(history) else _undoStack.push(history)
 
 	_revert.createNote = (change) ->
 		reference = _getReference(change.guid)
-
-		removedBranchs = {ancestorNote: reference.note.getAllAtributes(), childNoteSet: []}
-		completeDescendants = reference.note.getCompleteDescendantList()
-		_.each completeDescendants, (descendant) ->
-			App.OfflineAccess.addToDeleteCache descendant.get('guid'), true
-			removedBranchs.childNoteSet.push(descendant.getAllAtributes())
+		_addAction.deleteBranch reference.note, true
 
 		App.Note.tree.deleteNote reference.note, true
-
+		# set cursor 
 		if reference.parent isnt 'root'
 			App.Note.eventManager.trigger "setCursor:#{reference.parent_id}"
 		else
 			App.Note.eventManager.trigger "setCursor:#{App.Note.tree.first().get('guid')}"
-		return {type: 'deleteBranch', changes: removedBranchs }
 
 
 	# -----------------------------
 	# undo deleted branch
 	# -----------------------------
-	_addAction.deleteBranch = (note) ->
-		addUndoDelete: =>
-			removedBranchs = {ancestorNote: @getAllAtributes(), childNoteSet: []}
-			completeDescendants = @getCompleteDescendantList()
-			_.each completeDescendants, (descendant) ->
-				removedBranchs.childNoteSet.push(descendant.getAllAtributes())
-			App.Action.addHistory('deleteBranch', removedBranchs)
-			App.Notify.alert 'deleted', 'warning'
-
-
+	# EXPECTS change: {ancestorNote: {<ancestorNote attributes>}, childNoteSet: [list of child notes + attributes] }
+	_addAction.deleteBranch = (note, isRedo = false) ->
+		removedBranchs = {ancestorNote: note.getAllAtributes(), childNoteSet: []}
+		completeDescendants = note.getCompleteDescendantList()
+		_.each completeDescendants, (descendant) ->
+			removedBranchs.childNoteSet.push(descendant.getAllAtributes())
+			# App.OfflineAccess.addToDeleteCache descendant.get('guid'), true  << this should be handled in .destroy()
+		history = {type: 'deletedBranch', changes: removedBranchs}
+		if isRedo then _redoStack.push(history) else _undoStack.push(history)
+		# App.Action.addHistory('deleteBranch', removedBranchs)
+		# App.Notify.alert 'deleted', 'warning'
 
 	_revert.reverseDeleteNote = (attributes) ->
 		newBranch = new App.Note.Branch()
@@ -94,69 +65,51 @@
 		App.Note.eventManager.trigger "setCursor:#{newBranch.get('guid')}"			
 
 	_revert.deleteBranch = (change) ->
-		@reverseDeleteNote(change.ancestorNote)
+		_revert.reverseDeleteNote(change.ancestorNote)
+		_addAction.createNote _getReference(change.ancestorNote.guid).note, true
 		for attributes in change.childNoteSet
 			@reverseDeleteNote(attributes)
-		return {type: 'createNote', changes: { guid: change.ancestorNote.guid }}
+
 
 
 	# -----------------------------
 	# undo move note
 	# -----------------------------
-
-	_addAction.moveNote = (note) ->
-		addUndoMove: =>
-			App.Action.addHistory 'moveNote', {
-				guid: @get('guid')
-				parent_id: @get('parent_id')
-				depth: @get('depth')
-				rank: @get('rank')}
-
+	# EXPECTS change: {guid:'', parent_id:'', rank:'', depth: ''}
+	_addAction.moveNote = (note, isRedo = false) ->
+		history = {type: 'moveNote', changes: note.getPositionAttributes()}
+		if isRedo then _redoStack.push(history) else _undoStack.push(history)
 
 	_revert.moveNote = (change) ->
 		reference = _getReference(change.guid)
-
-		changeTemp =
-			guid: change.guid
-			depth: reference.note.get('depth')
-			rank: reference.note.get('rank')
-			parent_id: reference.parent_id
+		_addAction.moveNote reference.note, true
 
 		App.Note.tree.removeFromCollection reference.parentCollection, reference.note
 		reference.note.save change
 		App.Note.tree.insertInTree reference.note
-		
+
 		App.Note.eventManager.trigger "setCursor:#{reference.note.get('guid')}"
-		return {type:'moveNote', changes: changeTemp}
+
 
 
 	# -----------------------------
 	# undo note content update
 	# -----------------------------
-	_addAction.updateContent = (note) ->
-		addUndoUpdate: (newTitle, newSubtitle) =>
-			#incase this update comes before timeout
-			if @timeoutAndSaveID? then clearTimeout @timeoutAndSaveID 
-			App.Action.addHistory 'updateContent', {
-				guid: @get('guid')
-				title: @get('title')
-				subtitle: @get('subtitle')}
-
+	# EXPECTS change: {guid: '', title:'', subtitle:''}
+	_addAction.updateContent = (note, isRedo = false) ->
+		history = {type: 'updateContent', changes: note.getContentAttributes()}
+		if isRedo then _redoStack.push(history) else _undoStack.push(history)
 
 	_revert.updateContent = (change) ->
 		reference = _getReference(change.guid)
-
-		changeTemp =
-			guid: change.guid
-			title: reference.note.get('title')
-			subtitle: reference.note.get('subtitle')
+		_addAction.updateContent reference.note, true
 
 		App.Note.tree.removeFromCollection reference.parentCollection, reference.note
 		reference.note.save change
 		App.Note.tree.insertInTree reference.note
 
 		App.Note.eventManager.trigger "setCursor:#{reference.note.get('guid')}"
-		return {type: 'updateContent', changes: changeTemp}
+
 
 
 	# -----------------------------
@@ -176,25 +129,26 @@
 		#   actionHistory.push _redoStack.pop()
 		_redoStack = []
 
+
+
 	# ----------------------
 	# Public Methods & Functions
 	# ----------------------
-	@addHistory = (actionType, changes) ->
-		throw "!!--cannot track this change--!!" unless _expects.checker(actionType, changes)
+	@addHistory = (actionType, note) ->
+		throw "!!--cannot track this change--!!" unless _addHistory[actionType]?
 		if _redoStack.length > 1 then clearRedoHistory()
 		if _undoStack.length >= _historyLimit then _undoStack.shift()
-		_undoStack.push {type: actionType, changes: changes}
-
+		_addHistory[actionType](note)
+	
 	@undo = ->
 		throw "nothing to undo" unless _undoStack.length > 0
 		change = _undoStack.pop()
-		_redoStack.push _revert[change.type](change.changes)
+		_revert[change.type](change.changes)
 
 	@redo = ->
 		throw "nothing to redo" unless _redoStack.length > 0
 		change = _redoStack.pop()
-		_undoStack.push _revert[change.type](change.changes)
-		if change.type is 'createNote' then App.Notify.alert 'deleted', 'warning'
+		_revert[change.type](change.changes)
 
 
 	@setHistoryLimit = (limit) ->
@@ -204,8 +158,11 @@
 	@getHistoryLimit = ->
 		_historyLimit
 
-	## !! this is for testing ONLY
-	## don't try to erase... its deadly.
+
+
+	# -----------------------------
+	#   TEST HELPERS -- don't erase or you break tests
+	# -----------------------------
 	@_getActionHistory = ->
 		_undoStack
 
@@ -215,6 +172,7 @@
 	@_resetActionHistory = ->
 		_undoStack = []
 		_redoStack = []
+
 
 
 	# --------------------------------------------------

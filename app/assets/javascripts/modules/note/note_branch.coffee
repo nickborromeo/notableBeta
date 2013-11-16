@@ -99,12 +99,19 @@
 			attributesHash[attribute] = noteToClone.get(attribute) for attribute in @clonableAttributes
 			@set attributesHash
 			attributesHash
+		# the following four methods can be used by anyone, 
+		# but are relied on by Action Manager to get relevent history information
 		getAllAtributes: =>
-			okayAttrs = ['depth', 'rank', 'parent_id', 'guid', 'title', 'subtitle', 'created_at']
+			generateAttributeHash ['depth', 'rank', 'parent_id', 'guid', 'title', 'subtitle', 'created_at']
+		getPositionAttributes: => 
+			generateAttributeHash ['guid', 'depth', 'rank', 'parent_id']
+		getContentAttributes: => 
+			generateAttributeHash ['guid', 'title', 'subtitle']
+		generateAttributeHash: (okayAttrs) =>
 			attributesHash = {}
-			for attribute in okayAttrs
-				attributesHash[attribute] = @get attribute
+			attributesHash[attribute] = @get(attribute) for attribute in okayAttrs
 			attributesHash
+
 		# getMoveAttributes: =>
 		# 	moveAttributes = {}
 		# 	okayAttrs = ['depth', 'rank', 'parent_id']
@@ -145,31 +152,31 @@
 				Note.eventManager.trigger "timeoutUpdate:#{@get('guid')}"
 			 ), 1000
 
-		clearTimeoutAndSave: =>
-			if @timeoutAndSaveID? then clearTimeout @timeoutAndSaveID
+		# clearTimeoutAndSave: =>
+		# 	if @timeoutAndSaveID? then clearTimeout @timeoutAndSaveID
 		# This set of functions add undo-related actions to the Action Manager queue.
-		addUndoMove: =>
-			App.Action.addHistory 'moveNote', {
-				guid: @get('guid')
-				parent_id: @get('parent_id')
-				depth: @get('depth')
-				rank: @get('rank')}
-		addUndoCreate: =>
-			App.Action.addHistory 'createNote', {guid: @get('guid')}
-		addUndoDelete: =>
-			removedBranchs = {ancestorNote: @getAllAtributes(), childNoteSet: []}
-			completeDescendants = @getCompleteDescendantList()
-			_.each completeDescendants, (descendant) ->
-				removedBranchs.childNoteSet.push(descendant.getAllAtributes())
-			App.Action.addHistory('deleteBranch', removedBranchs)
-			App.Notify.alert 'deleted', 'warning'
-		addUndoUpdate: (newTitle, newSubtitle) =>
-			#incase this update comes before timeout
-			if @timeoutAndSaveID? then clearTimeout @timeoutAndSaveID 
-			App.Action.addHistory 'updateContent', {
-				guid: @get('guid')
-				title: @get('title')
-				subtitle: @get('subtitle')}
+		# addUndoMove: =>
+		# 	App.Action.addHistory 'moveNote', {
+		# 		guid: @get('guid')
+		# 		parent_id: @get('parent_id')
+		# 		depth: @get('depth')
+		# 		rank: @get('rank')}
+		# addUndoCreate: =>
+		# 	App.Action.addHistory 'createNote', {guid: @get('guid')}
+		# addUndoDelete: =>
+		# 	removedBranchs = {ancestorNote: @getAllAtributes(), childNoteSet: []}
+		# 	completeDescendants = @getCompleteDescendantList()
+		# 	_.each completeDescendants, (descendant) ->
+		# 		removedBranchs.childNoteSet.push(descendant.getAllAtributes())
+		# 	App.Action.addHistory('deleteBranch', removedBranchs)
+		# 	App.Notify.alert 'deleted', 'warning'
+		# addUndoUpdate: (newTitle, newSubtitle) =>
+		# 	#incase this update comes before timeout
+		# 	if @timeoutAndSaveID? then clearTimeout @timeoutAndSaveID 
+		# 	App.Action.addHistory 'updateContent', {
+		# 		guid: @get('guid')
+		# 		title: @get('title')
+		# 		subtitle: @get('subtitle')}
 
 
 	# Static Function
