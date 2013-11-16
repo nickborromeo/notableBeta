@@ -1,4 +1,4 @@
-pp@Notable.module("Note", (Note, App, Backbone, Marionette, $, _) ->
+@Notable.module("Note", (Note, App, Backbone, Marionette, $, _) ->
 	# Private --------------------------
 	Note.startWithParent = false
 
