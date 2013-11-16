@@ -82,6 +82,11 @@
 		onBeforeClose: ->
 			# console.log "view being closed", @
 			@.$el.off()
+			Note.eventManager.off "setCursor:#{@model.get('guid')}"
+			Note.eventManager.off "render:#{@model.get('guid')}"
+			Note.eventManager.off "setTitle:#{@model.get('guid')}"
+			Note.eventManager.off "timeoutUpdate:#{@model.get('guid')}"
+
 		triggerRedoEvent: (e) =>
 			e.preventDefault()
 			e.stopPropagation()

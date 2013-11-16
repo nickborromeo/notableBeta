@@ -37,13 +37,11 @@
 
 		reverseDeleteNote: (attributes) ->
 			newBranch = new App.Note.Branch()
-			newBranch.save attributes
-			App.Note.allNotesByDepth.add newBranch
-			# reference = @_getReference newBranch.get('guid')
+			newBranch.save(attributes)
 			App.Note.tree.insertInTree newBranch
-			App.Note.eventManager.trigger "setCursor:#{attributes.guid}"
 			#remove from storage if offline
 			App.OfflineAccess.addToDeleteCache attributes.guid, false
+			App.Note.eventManager.trigger "setCursor:#{newBranch.get('guid')}"			
 
 		deleteBranch: (change) ->
 			@reverseDeleteNote(change.ancestorNote)
@@ -89,7 +87,7 @@
 			{note: note, parent_id: parent_id, parentCollection: parentCollection}
 
 		_findANote: (guid) ->
-			App.Note.allNotesByDepth.findWhere({guid: guid}) ? App.Note.tree.findNote(guid)
+			App.Note.tree.findNote(guid)
 
 	clearRedoHistory = ->
 		# _redoStack.reverse()
