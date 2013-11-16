@@ -32,14 +32,11 @@
 	_revert.createNote = (change, isUndo = true) ->
 		reference = _getReference(change.guid)
 		_addAction.deleteBranch reference.note, isUndo
-
+		noteToFocusOn = App.Note.tree.jumpFocusUp(reference.note) ? App.Note.tree.jumpFocusDown(reference.note)
+		
 		App.Note.tree.deleteNote reference.note, true
-		# set cursor 
-		if reference.parent isnt 'root'
-			App.Note.eventManager.trigger "setCursor:#{reference.parent_id}"
-		else
-			App.Note.eventManager.trigger "setCursor:#{App.Note.tree.first().get('guid')}"
 
+		App.Note.eventManager.trigger "setCursor:#{noteToFocusOn.get('guid')}"
 
 	# -----------------------------
 	# undo deleted branch
