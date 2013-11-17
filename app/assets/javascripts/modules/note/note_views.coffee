@@ -157,7 +157,7 @@
 				sel = window.getSelection()
 				title = @updateNote()
 				textBefore = @textBeforeCursor sel, title
-				textAfter = @textAfterCursor sel, title
+				textAfter = (@textAfterCursor sel, title).replace(/^\s/, "")
 				Note.eventManager.trigger 'createNote', @model, textBefore, textAfter
 				if textAfter.length > 0 then App.Action.addHistory "compoundAction", {actions:2, previousActions: true}
 
@@ -307,14 +307,14 @@
 			Note.eventManager.trigger "setTitle:#{createdFrom.get('guid')}", createdFromNewTitle
 			Note.eventManager.trigger "setCursor:#{setFocusIn.get('guid')}"
 		deleteNote: (note) ->
-			(@jumpFocusUp note) unless (@jumpFocusDown note)
+			(@jumpFocusUp note) unless (@jumpFocusDown note, false)
 			@collection.deleteNote note
 		jumpFocusUp: (note, endOfLine = false) ->
 			previousNote = @collection.jumpFocusUp note
 			return false unless previousNote?
 			Note.eventManager.trigger "setCursor:#{previousNote.get('guid')}", endOfLine
-		jumpFocusDown: (note) ->
-			followingNote = @collection.jumpFocusDown note
+		jumpFocusDown: (note, checkDescendants = true) ->
+			followingNote = @collection.jumpFocusDown note, checkDescendants
 			if followingNote
 				Note.eventManager.trigger "setCursor:#{followingNote.get('guid')}"
 				true
