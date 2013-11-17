@@ -171,9 +171,13 @@
 			noteSubtitle = "" #@getNoteSubtitle()
 			if @model.get('title') isnt noteTitle
 				App.Action.addHistory 'updateContent', @model
-				@model.save
+				err = @model.save
 					title: noteTitle
 					subtitle: noteSubtitle
+				, error: () =>
+						console.log @
+						console.log arguments
+						throw "put?"
 			noteTitle
 		getNoteTitle: ->
 			title = @getNoteContent().html().trim()
