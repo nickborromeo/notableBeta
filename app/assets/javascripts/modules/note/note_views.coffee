@@ -307,14 +307,14 @@
 			Note.eventManager.trigger "setTitle:#{createdFrom.get('guid')}", createdFromNewTitle
 			Note.eventManager.trigger "setCursor:#{setFocusIn.get('guid')}"
 		deleteNote: (note) ->
-			(@jumpFocusUp note) unless (@jumpFocusDown note)
+			(@jumpFocusUp note) unless (@jumpFocusDown note, false)
 			@collection.deleteNote note
 		jumpFocusUp: (note, endOfLine = false) ->
 			previousNote = @collection.jumpFocusUp note
 			return false unless previousNote?
 			Note.eventManager.trigger "setCursor:#{previousNote.get('guid')}", endOfLine
-		jumpFocusDown: (note) ->
-			followingNote = @collection.jumpFocusDown note
+		jumpFocusDown: (note, checkDescendants = true) ->
+			followingNote = @collection.jumpFocusDown note, checkDescendants
 			if followingNote
 				Note.eventManager.trigger "setCursor:#{followingNote.get('guid')}"
 				true
