@@ -48,7 +48,7 @@
 		completeDescendants = note.getCompleteDescendantList()
 		_.each completeDescendants, (descendant) ->
 			removedBranchs.childNoteSet.push(descendant.getAllAtributes())
-			# App.OfflineAccess.addToDeleteCache descendant.get('guid'), true  << this should be handled in .destroy()
+			App.OfflineAccess.addToDeleteCache descendant.get('guid'), true  #<< this should be handled in .destroy()
 		history = {type: 'deleteBranch', changes: removedBranchs}
 		if isUndo then _redoStack.push(history) else _undoStack.push(history)
 		# App.Action.addHistory('deleteBranch', removedBranchs)
@@ -56,7 +56,7 @@
 
 	_revert.reverseDeleteNote = (attributes) ->
 		newBranch = new App.Note.Branch()
-		newBranch.save(attributes)
+		newBranch.save attributes
 		App.Note.tree.insertInTree newBranch
 		#remove from storage if offline
 		App.OfflineAccess.addToDeleteCache attributes.guid, false
@@ -64,7 +64,7 @@
 
 	_revert.deleteBranch = (change, isUndo = true) ->
 		_revert.reverseDeleteNote(change.ancestorNote)
-		_addAction.createNote _getReference(change.ancestorNote.guid).note, isUndo
+		_addAction.createNote _getReference(change.ancestorNote.guid).note, isUndo		
 		for attributes in change.childNoteSet
 			@reverseDeleteNote(attributes)
 
@@ -109,6 +109,7 @@
 		App.Note.eventManager.trigger "setCursor:#{reference.note.get('guid')}"
 
 
+
 	# -----------------------------
 	# undo compoundAction
 	# -----------------------------
@@ -138,13 +139,22 @@
 		if isUndo then _redoStack.push(history) else _undoStack.push(history)
 
 	_revert.compoundAction = (change, isUndo = true) ->
+		## -->>> this SHOULD WORK
+		## however it goes too fast and the server goes nuts
+		# if isUndo
+		# 	Action.undo() for i in [change.actions..1]
+		# else
+		# 	Action.redo() for i in [change.actions..1]
+		# _addAction.compoundActionCreator change.actions, isUndo
+		_waitTime = 20
+		_revert.chainTimeoutAction(_waitTime*i, isUndo) for i in [1..change.actions]
+		setTimeout (-> _addAction.compoundActionCreator change.actions, isUndo ), _waitTime*(change.actions+1)
+
+	_revert.chainTimeoutAction = (time,isUndo) ->
 		if isUndo
-			console.log 'compound undo called...'
-			Action.undo() for i in [change.actions..1]
+			setTimeout Action.undo, time
 		else
-			console.log 'compound redo called...'
-			Action.redo() for i in [change.actions..1]
-		_addAction.compoundActionCreator change.actions, isUndo
+			setTimeout Action.redo, time
 
 
 	# -----------------------------
