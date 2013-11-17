@@ -105,7 +105,7 @@
   # syncing the actual note data
   _fullSyncNoAsync = (changeHashGUIDs, time, callback) ->
     unless changeHashGUIDs.length > 0
-      App.Notify.alert 'saved', 'success'
+      App.Notify.alertOnly 'saved', 'success'
       _clearCached()
       if callback? then return callback() else return
 
