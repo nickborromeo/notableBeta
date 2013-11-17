@@ -157,7 +157,7 @@
 				sel = window.getSelection()
 				title = @updateNote()
 				textBefore = @textBeforeCursor sel, title
-				textAfter = @textAfterCursor sel, title
+				textAfter = (@textAfterCursor sel, title).replace(/^\s/, "")
 				Note.eventManager.trigger 'createNote', @model, textBefore, textAfter
 				if textAfter.length > 0 then App.Action.addHistory "compoundAction", {actions:2, previousActions: true}
 

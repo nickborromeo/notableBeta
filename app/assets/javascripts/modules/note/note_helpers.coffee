@@ -37,6 +37,7 @@
 	Note.matchEmptyTag = /<[a-z]+><\/[a-z]+>/g
 	Note.trimEmptyTags = (text) ->
 		text.replace(Note.matchEmptyTag, "")
+		# text.replace(/^\s/, "")
 
 	Note.buildBranchLike = (attributes) ->
 		attributes: attributes
