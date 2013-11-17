@@ -21,4 +21,9 @@
 					itemView.render();
 			@$el.append(itemView.el)
 
+	class Note.NotebookTitleView extends Marionette.ItemView
+		id: "notebook-title"
+		className: "hidden-xs"
+		tagName: "h3"
+		template: "breadcrumb/notebookTitle"
 )

@@ -57,11 +57,20 @@
 				@breadcrumbView.render()
 			else
 				@breadcrumbView = new App.Note.BreadcrumbsView(collection: new Note.Breadcrumbs null, Note.activeBranch)
-				App.contentRegion.currentView.breadcrumbRegion.show @breadcrumbView
-		clearBreadcrumbView: ->
-			if @breadcrumbView?
-				@breadcrumbView.close()
-				delete @breadcrumbView
+			App.contentRegion.currentView.breadcrumbRegion.show @breadcrumbView
+		# showNoteBookTitle: ->
+		# 	if @showTitleView?
+		# 		@breadcrumbView.collection = new Note.Breadcrumbs null, Note.activeBranch
+		# 		@breadcrumbView.render()
+		# 	else
+		# 		@breadcrumbView = new App.Note.BreadcrumbsView(collection: new Note.Breadcrumbs null, Note.activeBranch)
+		# 		App.contentRegion.currentView.breadcrumbRegion.show @breadcrumbView
+		showNotebookTitleView: ->
+			if @notebookTitleView?
+				@notebookTitleView.render()
+			else
+				@notebookTitleView = new App.Note.NotebookTitleView()
+			App.contentRegion.currentView.breadcrumbRegion.show @notebookTitleView
 			App.Note.activeBranch = "root"
 
 
@@ -70,7 +79,7 @@
 				App.Note.activeTree = App.Note.tree
 				@clearCrownView()
 				@showContentView App.Note.tree
-				@showBreadcrumbView()
+				@showNotebookTitleView()
 				if Note.tree.first()?
 					Note.eventManager.trigger "setCursor:#{Note.tree.first().get('guid')}"
 
