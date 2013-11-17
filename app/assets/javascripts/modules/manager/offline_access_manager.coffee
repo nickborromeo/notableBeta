@@ -128,7 +128,6 @@
     else 
       options.success()
 
-
   # ------------  on FIRST LOAD connection only   ------------ 
 
   @checkAndLoadLocal = (buildTreeCallBack) ->

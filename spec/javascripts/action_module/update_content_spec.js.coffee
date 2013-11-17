@@ -36,17 +36,6 @@
 		Given -> App.Action.addHistory 'updateContent', @tester3NOTE
 		Given -> @tree1.findNote(@tester3GUID).set('title', @tester3NewTitle)
 
-
-		# Given -> App.Action.addHistory 'updateContent',{
-		# 	guid: @tester2GUID
-		# 	title: @tester2PreviousTitle
-		# 	subtitle:'' }
-
-		# Given -> App.Action.addHistory 'updateContent',{
-		# 	guid: @tester3GUID
-		# 	title: @tester3PreviousTitle
-		# 	subtitle:'' }
-			
 		Then -> expect( @tree1.findNote(@tester1GUID).get('title') ).toEqual(@tester1NewTitle)
 		And -> expect( @tree1.findNote(@tester2GUID).get('title') ).toEqual(@tester2NewTitle)
 		And -> expect( @tree1.findNote(@tester3GUID).get('title') ).toEqual(@tester3NewTitle)
