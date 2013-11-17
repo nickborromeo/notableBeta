@@ -23,6 +23,12 @@
 			"dragleave .dropTarget": @triggerDragEvent "leaveMove"
 			"dragover .dropTarget": @triggerDragEvent "overMove" 
 
+
+		modelEvents:
+	    'change:title': 'render'
+	    'change:subtitle': 'render'
+
+
 		zoomIn: ->
 			Backbone.history.navigate "#/zoom/#{@model.get('guid')}"
 		initialize: ->
@@ -36,6 +42,8 @@
 		onRender: ->
 			@getNoteContent().wysiwyg()
 			@trimExtraDropTarget()
+			App.Note.eventManager.trigger "setCursor:#{@model.get('guid')}"
+
 			@$(">.branch>.move").addClass("collapsable") if @collection.models.length isnt 0
 		appendHtml:(collectionView, itemView, i) ->
 			@$('.descendants:first').append(itemView.el)
