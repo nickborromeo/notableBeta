@@ -118,7 +118,7 @@
  	# each item in targets needs to be {actions:, count:, isUndo:}
 
 	_addAction.compoundAction = (options, isUndo = false) ->
-		if options.previousActions? then _addAction.compoundActionCreator options.actions, isUndo
+		if !!options.previousActions then _addAction.compoundActionCreator options.actions, isUndo
 		else _addAction.compoundTargets.push 
 			actions: options.actions
 			count: options.actions

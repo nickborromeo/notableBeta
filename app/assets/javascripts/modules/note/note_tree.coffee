@@ -188,6 +188,7 @@
 		jumpPositionUp: (note) ->
 			previousNote = @findPreviousNote note
 			return false if not previousNote?
+			App.Action.addHistory 'moveNote', note
 			if note.isInSameCollection previousNote
 				@jumpNoteUpInCollection note
 			else if (depthDifference = previousNote.get('depth') - note.get('depth')) > 0
@@ -201,6 +202,7 @@
 		jumpPositionDown: (note) ->
 			followingNote = @findFollowingNote note, false
 			return false if not followingNote?
+			App.Action.addHistory 'moveNote', note
 			if note.isInSameCollection followingNote
 				@jumpNoteDownInCollection note
 			else
