@@ -293,6 +293,10 @@
 			# if @collection.length is 0 then @collection.create()
 			# @render if render
 		dispatchFunction: (functionName) ->
+			# This line is for you Gavin.
+			# I pass in the model as well, and any other arguments we would like
+			Note.eventManager.trigger "change:" + functionName, Note.sliceArgs arguments
+
 			return @[functionName].apply(@, Note.sliceArgs arguments) if @[functionName]?
 			@collection[functionName].apply(@collection, Note.sliceArgs arguments)
 			@render() # Will probably need to do something about rerendering all the time
