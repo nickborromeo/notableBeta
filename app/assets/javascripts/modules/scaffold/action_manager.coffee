@@ -206,7 +206,6 @@
 		_historyLimit
 
 
-
 	# -----------------------------
 	#   TEST HELPERS -- don't erase or you break tests
 	# -----------------------------

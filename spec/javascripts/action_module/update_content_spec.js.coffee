@@ -20,29 +20,32 @@
 		Given -> @tester1GUID = "beb2dcaa-ddf2-4d0e-932e-9d5f102d550a" #this is a root node (the first)
 		Given -> @tester2GUID = "138b785a-4041-4064-867c-8239579ffd3e" #this is also a root node (the second)
 		Given -> @tester3GUID = "010c12bd-6745-4d3f-8ec4-8071033fff50" #this is a child node on a different branch
+		Given -> @tester1NOTE = @tree1.findNote(@tester1GUID)
+		Given -> @tester2NOTE = @tree1.findNote(@tester2GUID)
+		Given -> @tester3NOTE = @tree1.findNote(@tester3GUID)
 		Given -> @tester1PreviousTitle = @tree1.findNote(@tester1GUID).get('title')
 		Given -> @tester2PreviousTitle = @tree1.findNote(@tester2GUID).get('title')
 		Given -> @tester3PreviousTitle = @tree1.findNote(@tester3GUID).get('title')
 		Given -> @tester1NewTitle = 'myTestData1'
 		Given -> @tester2NewTitle = 'myTestData2'
 		Given -> @tester3NewTitle = 'myTestData3'
+		Given -> App.Action.addHistory 'updateContent', @tester1NOTE
 		Given -> @tree1.findNote(@tester1GUID).set('title', @tester1NewTitle)
+		Given -> App.Action.addHistory 'updateContent', @tester2NOTE
 		Given -> @tree1.findNote(@tester2GUID).set('title', @tester2NewTitle)
+		Given -> App.Action.addHistory 'updateContent', @tester3NOTE
 		Given -> @tree1.findNote(@tester3GUID).set('title', @tester3NewTitle)
 
-		Given -> App.Action.addHistory 'updateContent', {
-			guid: @tester1GUID
-			title: @tester1PreviousTitle
-			subtitle:'' }
-		Given -> App.Action.addHistory 'updateContent',{
-			guid: @tester2GUID
-			title: @tester2PreviousTitle
-			subtitle:'' }
 
-		Given -> App.Action.addHistory 'updateContent',{
-			guid: @tester3GUID
-			title: @tester3PreviousTitle
-			subtitle:'' }
+		# Given -> App.Action.addHistory 'updateContent',{
+		# 	guid: @tester2GUID
+		# 	title: @tester2PreviousTitle
+		# 	subtitle:'' }
+
+		# Given -> App.Action.addHistory 'updateContent',{
+		# 	guid: @tester3GUID
+		# 	title: @tester3PreviousTitle
+		# 	subtitle:'' }
 			
 		Then -> expect( @tree1.findNote(@tester1GUID).get('title') ).toEqual(@tester1NewTitle)
 		And -> expect( @tree1.findNote(@tester2GUID).get('title') ).toEqual(@tester2NewTitle)
