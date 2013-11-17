@@ -83,6 +83,9 @@
 			@where searchHash
 		findFirstInCollection: (searchHash) ->
 			@findWhere searchHash
+		getRoot: (branch) ->
+			return branch if branch.isARoot(true)
+			@getRoot @findNote branch.get('parent_id')
 
 		# Search the whole tree recursively but top level
 		# Returns the element maching id and throws error if this fails
@@ -171,26 +174,22 @@
 			note.increaseRank()
 			@getCollection(note.get 'parent_id').sort()
 
-		getRoot: (branch) ->
-			return branch if branch.isARoot(true)
-			@getRoot @findNote branch.get('parent_id')
-
 		jumpTarget: (actionType) -> (depth, descendantList) ->
 			action =
-				jumpUp: "last"
-				jumpDown: "first"
-			_[action[actionType]] _.filter descendantList, (descendant) ->
+				jumpUp: _.last.bind _
+				jumpDown: _.first.bind _
+			action[actionType] _.filter descendantList, (descendant) ->
 				descendant.get('depth') is depth
 		getFollowingTarget: ->
 			@jumpTarget("jumpDown").bind @
 		getPrecedingTarget: ->
 			@jumpTarget("jumpUp").bind @
 
-		getJumpPositionTarget: (getJumpTarget, depth, descendantList, target) ->
-			do rec = (depth, target) ->
-				return target if target?
+		getJumpPositionTarget: (getJumpTarget, initDepth, descendantList, target) ->
+			do rec = (depth = initDepth - 1, target) ->
+				return getJumpTarget(initDepth, target.descendants.models) || target if target?
 				return false if depth is 0
-				rec depth - 1, getJumpTarget depth, descendantList
+				rec depth - 1, getJumpTarget depth, descendantList	
 		makeDescendant: (preceding, depth, jumpTarget) ->
 			return jumpTarget if depth - 1 < jumpTarget.get('depth')
 			Note.buildBranchLike rank: 0, depth: jumpTarget.get('depth') + 1, parent_id: jumpTarget.get('guid') || preceding.get('guid')
