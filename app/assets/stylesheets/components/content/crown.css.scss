@@ -82,24 +82,72 @@ $screen-lg: 1200px;
 			font: 1em 'Century Gothic', "Arial", sans-serif;
 			font-weight: bold;
 			padding: 0;
-			text-align: center;
+			// text-align: center;
 			line-height: 1.1em;
 			&:hover {
 				text-align: left;
 			}
+			.chain-breadcrumb {
+				display: inline-block;
+			}
+
 			> li {
 				margin: 0 auto;
 				color: $grayDark;
 				display: inline-block;
-				+ li:before {	color: $grayDark;	}
-				a {	color: $grayDark; }
 			}
-			.chain-breadcrumb {
-				display: none;
-				&.show-chain { display: inline-block; }
+			> li.root-breadcrumb a {
+				color: $grayDark;
 			}
-
 		}
+
+		.breadcrumb {
+			position: relative;
+			left: 44.5%;
+			width: 57%;
+			overflow: hidden;
+			height: 1.1em;
+			transition-property: all;
+			transition-duration: 1.2s;
+			transition-timing-function: ease-in-out;
+		}
+		#breadcrumb-region:hover .breadcrumb {
+			left: 0;
+			width: 100%;
+			overflow: visible;
+		}
+		.breadcrumb > li + li:before {
+			color: transparent; //$grayDark;
+			transition-property: all;
+			transition-duration: 1.2s;
+			transition-timing-function: ease-out;
+		}
+		.breadcrumb > li.chain-breadcrumb {
+			color: transparent; //$grayDark;
+			transition-property: all;
+			transition-duration: 1.2s;
+			transition-timing-function: ease-out;
+		}
+		.breadcrumb > li.chain-breadcrumb a {
+			color: transparent;
+			transition-property: all;
+			transition-duration: 1.2s;
+			transition-timing-function: ease-out;
+		}
+
+
+		#breadcrumb-region:hover .breadcrumb > li + li:before {
+			color: $grayDark;
+		}
+		#breadcrumb-region:hover .breadcrumb > li.chain-breadcrumb {
+			color: $grayDark;
+		}
+		#breadcrumb-region:hover .breadcrumb > li.chain-breadcrumb a {
+			color: $grayDark;
+		}
+
+
+
 	}
 
 	#crown {
@@ -135,7 +183,7 @@ $screen-lg: 1200px;
 
 	#crown {
 		font-size: 24px;
-		margin: 0 2.7%;
+		margin: 0 2.5%;
 		padding: 3.5% 4% 0 4%;
 		&:hover .trash_icon {
 			display: block;

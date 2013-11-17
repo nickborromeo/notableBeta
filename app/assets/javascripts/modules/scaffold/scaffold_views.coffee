@@ -60,9 +60,9 @@
 			crownRegion: "#crown-region"
 			treeRegion: "#tree-region"
 
-		events:
-			"mouseover #breadcrumb": "toggleBreadcrumbs"
-			"mouseout #breadcrumb": "toggleBreadcrumbs"
+		# events:
+		# 	"mouseover #breadcrumb": "toggleBreadcrumbs"
+		# 	"mouseout #breadcrumb": "toggleBreadcrumbs"
 
 		toggleBreadcrumbs: ->
 			if $("#breadcrumb-region").html() isnt ""
