@@ -30,7 +30,8 @@
 		Notify.alerts.add new Notify.Alert alertAttributes
 
 	_renderNotificationOnly = (alertAttributes) ->
-		Notify.alerts.reset new Notify.Alert alertAttributes
+		Notify.alerts.reset()
+		Notify.alerts.add new Notify.Alert alertAttributes
 
 	_buildAlertAttributes = (alertType, alertClass, options = {}) ->
 		alertDefaults =
