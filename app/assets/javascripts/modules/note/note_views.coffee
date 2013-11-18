@@ -45,8 +45,9 @@
 			App.Note.eventManager.trigger "setCursor:#{@model.get('guid')}"
 			@renderCollapsed()
 		renderCollapsed: ->
-			@$(">.branch>.move").addClass("collapsable") if @collection.models.length isnt 0
-			if @model.get('collapsed') then @collapse() else @expand()
+			if descendants = @collection.models.length isnt 0
+				@$(">.branch>.move").addClass("collapsable")
+			if @model.get('collapsed') and descendants then @collapse() else @expand()
 		appendHtml:(collectionView, itemView, i) ->
 			@$('.descendants:first').append(itemView.el)
 			if i is @collection.length - 1
@@ -143,6 +144,7 @@
 		toggleCollapse: ->
 			if @model.get('collapsed') then @expand() else @collapse()
 		collapse: ->
+			return if @collection.length is 0
 			@model.save collapsed: true if not @model.get('collapsed')
 			if @collapsable() and not @isCollapsed()
 				@ui.descendants.slideToggle("fast")
