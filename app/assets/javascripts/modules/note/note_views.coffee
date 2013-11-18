@@ -31,9 +31,9 @@
 		renderWithCaretAtPreviousPosition: =>
 			sel = window.getSelection()
 			title = @getNoteTitle()
-			carotPlace = title.substring(0,sel.extentOffset)
+			caretPlace = @textBeforeCursor(sel,title)
 			@.render()
-			@setCursor(carotPlace)
+			@setCursor(caretPlace)
 
 		zoomIn: ->
 			Backbone.history.navigate "#/zoom/#{@model.get('guid')}"
