@@ -20,10 +20,6 @@ $screen-lg: 1200px;
 #content-template {
 	margin: 0;
 	border-radius: 10px;
-	h3 {
-		font-size: 1.1em;
-		margin: 1em auto;
-	}
 
 	.breadcrumb {
 		background-color: $notableWhite;
@@ -64,17 +60,18 @@ $screen-lg: 1200px;
 		margin-bottom: 2em;
 		border-radius: 7px;
 		border: 1px solid #C1C1C1;
+
 		h3 {
 			color: $grayDark;
 			font-family: 'Century Gothic', "Arial", sans-serif;
 			text-align:center;
 			font-size: 1em;
-			margin: 0.9em auto;
+			margin: 0 auto;
 			font-weight: bold;
 		}
 		#breadcrumb-region {
-			margin: 0.9em;
-			padding: 0 15px;
+			margin: 0 0.9em;
+			padding: 0.9em 15px;
 		}
 
 		.breadcrumb {
@@ -82,71 +79,50 @@ $screen-lg: 1200px;
 			font: 1em 'Century Gothic', "Arial", sans-serif;
 			font-weight: bold;
 			padding: 0;
-			// text-align: center;
 			line-height: 1.1em;
-			&:hover {
-				text-align: left;
-			}
-			.chain-breadcrumb {
-				display: inline-block;
-			}
-
-			> li {
-				margin: 0 auto;
-				color: $grayDark;
-				display: inline-block;
-			}
-			> li.root-breadcrumb a {
-				color: $grayDark;
-			}
-		}
-
-		.breadcrumb {
 			position: relative;
-			left: 44.5%;
+			left: 43.6%;
 			width: 57%;
 			overflow: hidden;
 			height: 1.1em;
+			-webkit-transition-property: all;
+			-webkit-transition-duration: 1.2s;
+			-webkit-transition-timing-function: ease-in-out;
+			-webkit-transition-delay: 0.5s;
 			transition-property: all;
 			transition-duration: 1.2s;
 			transition-timing-function: ease-in-out;
+			transition-delay: 0.5s;
+			&:hover { text-align: left;	}
+			.chain-breadcrumb {	display: inline-block; }
+			> li.root-breadcrumb a { color: $grayDark; }
+		}
+		.breadcrumb > li {
+			margin: 0 auto;
+			color: $grayDark;
+			display: inline-block;
+			+ li:before , &.chain-breadcrumb, &.chain-breadcrumb a {
+				color: transparent;
+				-webkit-transition-property: all;
+				-webkit-transition-duration: 1.2s;
+				-webkit-transition-timing-function: ease-out;
+				-webkit-transition-delay: 0.4s;
+				transition-property: all;
+				transition-duration: 1.2s;
+				transition-timing-function: ease-out;
+				transition-delay: 0.4s;
+			}
 		}
 		#breadcrumb-region:hover .breadcrumb {
 			left: 0;
 			width: 100%;
 			overflow: visible;
+			> li + li:before ,
+			> li.chain-breadcrumb,
+			> li.chain-breadcrumb a {
+				color: $grayDark;
+			}
 		}
-		.breadcrumb > li + li:before {
-			color: transparent; //$grayDark;
-			transition-property: all;
-			transition-duration: 1.2s;
-			transition-timing-function: ease-out;
-		}
-		.breadcrumb > li.chain-breadcrumb {
-			color: transparent; //$grayDark;
-			transition-property: all;
-			transition-duration: 1.2s;
-			transition-timing-function: ease-out;
-		}
-		.breadcrumb > li.chain-breadcrumb a {
-			color: transparent;
-			transition-property: all;
-			transition-duration: 1.2s;
-			transition-timing-function: ease-out;
-		}
-
-
-		#breadcrumb-region:hover .breadcrumb > li + li:before {
-			color: $grayDark;
-		}
-		#breadcrumb-region:hover .breadcrumb > li.chain-breadcrumb {
-			color: $grayDark;
-		}
-		#breadcrumb-region:hover .breadcrumb > li.chain-breadcrumb a {
-			color: $grayDark;
-		}
-
-
 
 	}
 
@@ -171,18 +147,20 @@ $screen-lg: 1200px;
 		margin-bottom: 5em;
 		border-radius: 10px;
 		h3 {
-			font-size: 1.1em;
-			margin: 1em auto;
+			font-size: 14px;
 		}
 		#breadcrumb-region {
-			margin: 1em;
+			font-size: 14px;
+			margin: 0 1em;
+			padding: 1em 16px;
+		}
+		.breadcrumb {
+			left: 44.7%;
 		}
 	}
 
-
-
 	#crown {
-		font-size: 24px;
+		font-size: 22px;
 		margin: 0 2.5%;
 		padding: 3.5% 4% 0 4%;
 		&:hover .trash_icon {
@@ -201,8 +179,8 @@ $screen-lg: 1200px;
 		  cursor: pointer;
 			display: none;
 			position: absolute;
-			top: 0.9em;
-			right: 0;
+			top: 3.2em;
+			right: 2em;
 		}
 	}
 
