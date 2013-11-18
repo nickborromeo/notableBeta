@@ -96,7 +96,7 @@
 			Note.eventManager.off "setCursor:#{@model.get('guid')}"
 			Note.eventManager.off "render:#{@model.get('guid')}"
 			Note.eventManager.off "setTitle:#{@model.get('guid')}"
-			Note.eventManager.off "timeoutUpdate:#{@model.get('guid')}"
+			Note.eventManager.off "timeoutUpdate:#{@model.get('guid')}", @updateNote, @
 
 		triggerRedoEvent: (e) =>
 			e.preventDefault()
@@ -415,4 +415,30 @@
 	class Note.CrownView extends Marionette.ItemView
 		id: "crown"
 		template: "note/crownModel"
+
+		ui:
+			noteContent: ".noteContent"
+		events: ->
+			"keydown .noteContent": "test"
+
+		initialize: ->
+			Note.eventManager.on "timeoutUpdate:#{@model.get('guid')}", @updateNote, @
+		onClose: ->
+			Note.eventManager.off "timeoutUpdate:#{@model.get('guid')}", @updateNote, @
+		test: (e) ->
+			console.log "timeoutAndSave", @model
+			@model.timeoutAndSave(e)
+		updateNote: =>
+			console.log "heh?!"
+			noteTitle = @getNoteTitle()
+			noteSubtitle = "" #@getNoteSubtitle()
+			if @model.get('title') isnt noteTitle
+				App.Action.addHistory 'updateContent', @model
+				@model.save
+					title: noteTitle
+					subtitle: noteSubtitle
+			noteTitle
+		getNoteTitle: ->
+			title = @ui.noteContent.html().trim()
+			Note.trimEmptyTags title
 )

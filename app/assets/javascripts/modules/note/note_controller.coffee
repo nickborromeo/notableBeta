@@ -37,10 +37,6 @@
 			@treeView = new App.Note.TreeView(collection: tree)
 			App.contentRegion.currentView.treeRegion.show @treeView
 		showCrownView: ->
-			if @crownView?
-				@crownView.model = App.Note.activeBranch
-				@crownView.render()
-			else
 				@crownView = new App.Note.CrownView(model: App.Note.activeBranch)
 				App.contentRegion.currentView.crownRegion.show @crownView
 		clearCrownView: ->
