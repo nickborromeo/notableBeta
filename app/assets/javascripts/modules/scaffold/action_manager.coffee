@@ -101,14 +101,7 @@
 	_revert.updateContent = (change, isUndo = true) ->
 		reference = _getReference(change.guid)
 		_addAction.updateContent reference.note, isUndo
-
-		# App.Note.tree.removeFromCollection reference.parentCollection, reference.note
 		reference.note.save change
-		# App.Note.tree.insertInTree reference.note
-
-		# App.Note.eventManager.trigger "setCursor:#{reference.note.get('guid')}"
-
-
 
 	# -----------------------------
 	# undo compoundAction
