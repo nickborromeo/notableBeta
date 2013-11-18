@@ -8,6 +8,7 @@
 			parent_id: "root"
 			rank: 1
 			depth: 0
+			collapsed: false
 
 		save: (attributes = null, options = {}) =>
 			App.Notify.alert 'saving', 'save'
