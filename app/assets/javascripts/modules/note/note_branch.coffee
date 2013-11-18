@@ -80,8 +80,12 @@
 			@descendants.length > 0
 		firstDescendant: ->
 			@descendants.models[0]
-		getLastDescendant: ->
-			@getCompleteDescendantList()[-1..][0]
+		getLastDescendant: (searchedWholeList = true) ->
+			last = @getCompleteDescendantList()[-1..][0] 
+			return last if searchedWholeList
+			do rec = (lastDescendant = this) ->
+				return lastDescendant if lastDescendant.get('collapsed') or lastDescendant is last
+				rec lastDescendant.descendants.last()
 		hasInAncestors: (note) ->
 			descendants = note.getCompleteDescendantList()
 			searchInDescendants = (first, rest) =>

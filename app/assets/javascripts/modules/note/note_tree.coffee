@@ -161,7 +161,7 @@
 			previousNote = @findPrecedingInCollection note
 			if previousNote.descendants.length is 0 or previousNote.get('collapsed') or not searchDescendants
 				return previousNote
-			previousNote.getLastDescendant()
+			previousNote.getLastDescendant false
 		findFollowingInCollection: (note) ->
 			currentCollection = @getCollection note.get 'parent_id'
 			currentCollection.findFirstInCollection rank: note.get('rank') + 1
