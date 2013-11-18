@@ -21,7 +21,7 @@
 			"drop .dropTarget": @triggerDragEvent "dropMove"
 			"dragenter .dropTarget": @triggerDragEvent "enterMove"
 			"dragleave .dropTarget": @triggerDragEvent "leaveMove"
-			"dragover .dropTarget": @triggerDragEvent "overMove" 
+			"dragover .dropTarget": @triggerDragEvent "overMove"
 
 		zoomIn: ->
 			Backbone.history.navigate "#/zoom/#{@model.get('guid')}"
@@ -78,7 +78,7 @@
 			@.$el.on 'keydown', null, 'meta+z', @triggerUndoEvent
 			@.$el.on 'keydown', null, 'ctrl+y', @triggerRedoEvent
 			@.$el.on 'keydown', null, 'meta+y', @triggerRedoEvent
-			
+
 		onBeforeClose: ->
 			# console.log "view being closed", @
 			@.$el.off()
