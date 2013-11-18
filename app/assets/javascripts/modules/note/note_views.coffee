@@ -40,7 +40,7 @@
 			Note.eventManager.on "setTitle:#{@model.get('guid')}", @setNoteTitle, @
 			Note.eventManager.on "timeoutUpdate:#{@model.get('guid')}", @updateNote, @
 		onRender: ->
-			@getNoteContent().wysiwyg()
+			@getNoteContent()
 			@trimExtraDropTarget()
 			App.Note.eventManager.trigger "setCursor:#{@model.get('guid')}"
 
