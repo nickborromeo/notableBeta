@@ -165,7 +165,7 @@
 		findFollowingInCollection: (note) ->
 			currentCollection = @getCollection note.get 'parent_id'
 			currentCollection.findFirstInCollection rank: note.get('rank') + 1
-		findFollowingNote: (note, checkDescendants = note.get('collapsed')) ->
+		findFollowingNote: (note, checkDescendants = not note.get('collapsed')) ->
 			return note.firstDescendant() if checkDescendants and not note.get('collapsed') and note.descendants.length isnt 0
 			followingNote = undefined
 			findFollowingRecursively = (note) =>
