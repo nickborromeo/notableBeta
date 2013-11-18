@@ -23,18 +23,6 @@
 			"dragleave .dropTarget": @triggerDragEvent "leaveMove"
 			"dragover .dropTarget": @triggerDragEvent "overMove" 
 
-
-		modelEvents:
-	    'change:title': 'renderWithCaretAtPreviousPosition'
-	    'change:subtitle': 'renderWithCaretAtPreviousPosition'
-
-		renderWithCaretAtPreviousPosition: =>
-			sel = window.getSelection()
-			title = @getNoteTitle()
-			caretPlace = @textBeforeCursor(sel,title)
-			@.render()
-			@setCursor(caretPlace)
-
 		zoomIn: ->
 			Backbone.history.navigate "#/zoom/#{@model.get('guid')}"
 		initialize: ->
@@ -184,6 +172,7 @@
 			noteTitle = @getNoteTitle()
 			noteSubtitle = "" #@getNoteSubtitle()
 			if @model.get('title') isnt noteTitle
+				# debugger;
 				App.Action.addHistory 'updateContent', @model
 				@model.save
 					title: noteTitle
