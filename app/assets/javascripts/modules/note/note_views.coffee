@@ -143,14 +143,14 @@
 		toggleCollapse: ->
 			if @model.get('collapsed') then @expand() else @collapse()
 		collapse: ->
-			@model.save collapsed: true
+			@model.save collapsed: true if not @model.get('collapsed')
 			if @collapsable() and not @isCollapsed()
 				@ui.descendants.slideToggle("fast")
 				@ui.descendants.addClass('collapsed')
 				@$(@ui.descendants).removeAttr('style')
 				@$(">.branch>.move").addClass("is-collapsed")
 		expand: ->
-			@model.save collapsed: false
+			@model.save collapsed: false if @model.get('collapsed')
 			if @collapsable() and @isCollapsed()
 				@ui.descendants.slideToggle("fast")
 				@ui.descendants.removeClass('collapsed')
