@@ -25,9 +25,15 @@
 
 
 		modelEvents:
-	    'change:title': 'render'
-	    'change:subtitle': 'render'
+	    'change:title': 'renderWithCaretAtPreviousPosition'
+	    'change:subtitle': 'renderWithCaretAtPreviousPosition'
 
+		renderWithCaretAtPreviousPosition: =>
+			sel = window.getSelection()
+			title = @getNoteTitle()
+			carotPlace = title.substring(0,sel.extentOffset)
+			@.render()
+			@setCursor(carotPlace)
 
 		zoomIn: ->
 			Backbone.history.navigate "#/zoom/#{@model.get('guid')}"

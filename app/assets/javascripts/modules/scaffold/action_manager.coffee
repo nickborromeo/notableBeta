@@ -106,7 +106,7 @@
 		reference.note.save change
 		# App.Note.tree.insertInTree reference.note
 
-		App.Note.eventManager.trigger "setCursor:#{reference.note.get('guid')}"
+		# App.Note.eventManager.trigger "setCursor:#{reference.note.get('guid')}"
 
 
 
@@ -139,22 +139,11 @@
 		if isUndo then _redoStack.push(history) else _undoStack.push(history)
 
 	_revert.compoundAction = (change, isUndo = true) ->
-		## -->>> this SHOULD WORK
-		## however it goes too fast and the server goes nuts
 		if isUndo
 			Action.undo() for i in [change.actions..1]
 		else
 			Action.redo() for i in [change.actions..1]
 		_addAction.compoundActionCreator change.actions, isUndo
-	# 	_waitTime = 20
-	# 	_revert.chainTimeoutAction(_waitTime*i, isUndo) for i in [1..change.actions]
-	# 	setTimeout (-> _addAction.compoundActionCreator change.actions, isUndo ), _waitTime*(change.actions+1)
-
-	# _revert.chainTimeoutAction = (time,isUndo) ->
-	# 	if isUndo
-	# 		setTimeout Action.undo, time
-	# 	else
-	# 		setTimeout Action.redo, time
 
 
 	# -----------------------------
