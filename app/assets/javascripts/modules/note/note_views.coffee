@@ -172,7 +172,6 @@
 			noteTitle = @getNoteTitle()
 			noteSubtitle = "" #@getNoteSubtitle()
 			if @model.get('title') isnt noteTitle
-				# debugger;
 				App.Action.addHistory 'updateContent', @model
 				@model.save
 					title: noteTitle

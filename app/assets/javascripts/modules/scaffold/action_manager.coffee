@@ -101,10 +101,9 @@
 	_revert.updateContent = (change, isUndo = true) ->
 		reference = _getReference(change.guid)
 		_addAction.updateContent reference.note, isUndo
-
 		reference.note.save change
-		
 		App.Note.eventManager.trigger "setTitle:#{change.guid}", change.title
+		# App.Note.eventManager.trigger "setSubtitle:#{change.guid}", change.subtitle
 
 	# -----------------------------
 	# undo compoundAction
