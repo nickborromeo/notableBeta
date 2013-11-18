@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20131001180922) do
+ActiveRecord::Schema.define(:version => 20131118024818) do
 
   create_table "notes", :force => true do |t|
     t.text     "title"
@@ -22,6 +22,7 @@ ActiveRecord::Schema.define(:version => 20131001180922) do
     t.string   "parent_id"
     t.integer  "rank"
     t.integer  "depth"
+    t.boolean  "collapsed"
   end
 
   create_table "users", :force => true do |t|

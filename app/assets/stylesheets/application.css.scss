@@ -13,3 +13,5 @@
  */
 
 @import "bootstrap";
+
+.branch-template >.branch>.descendants.collapsed { display: none; }
