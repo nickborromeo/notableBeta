@@ -93,7 +93,7 @@
 		onClose: ->
 			@.$el.off()
 			delete @collection
-			Note.eventManager.off "setCursor:#{@model.get('guid')}"
+			Note.eventManager.off "setCursor:#{@model.get('guid')}", @setCursor, @
 			Note.eventManager.off "render:#{@model.get('guid')}"
 			Note.eventManager.off "setTitle:#{@model.get('guid')}"
 			Note.eventManager.off "timeoutUpdate:#{@model.get('guid')}", @updateNote, @
@@ -332,7 +332,9 @@
 			@collection.deleteNote note
 		jumpFocusUp: (note, endOfLine = false) ->
 			previousNote = @collection.jumpFocusUp note
-			return false unless previousNote?
+			if not previousNote?
+				return false unless Note.activeBranch isnt "root"
+				previousNote = Note.activeBranch
 			Note.eventManager.trigger "setCursor:#{previousNote.get('guid')}", endOfLine
 		jumpFocusDown: (note, checkDescendants = true) ->
 			followingNote = @collection.jumpFocusDown note, checkDescendants
@@ -419,17 +421,17 @@
 		ui:
 			noteContent: ".noteContent"
 		events: ->
-			"keydown .noteContent": "test"
+			"keydown .noteContent": @model.timeoutAndSave
 
 		initialize: ->
 			Note.eventManager.on "timeoutUpdate:#{@model.get('guid')}", @updateNote, @
+			Note.eventManager.on "setCursor:#{@model.get('guid')}", @setCursor, @
+			@$el.on 'keydown', null, 'down', @jumpFocusDown
 		onClose: ->
+			@$el.off()
 			Note.eventManager.off "timeoutUpdate:#{@model.get('guid')}", @updateNote, @
-		test: (e) ->
-			console.log "timeoutAndSave", @model
-			@model.timeoutAndSave(e)
+			Note.eventManager.off "setCursor:#{@model.get('guid')}", @setCursor, @
 		updateNote: =>
-			console.log "heh?!"
 			noteTitle = @getNoteTitle()
 			noteSubtitle = "" #@getNoteSubtitle()
 			if @model.get('title') isnt noteTitle
@@ -441,4 +443,12 @@
 		getNoteTitle: ->
 			title = @ui.noteContent.html().trim()
 			Note.trimEmptyTags title
+
+		setCursor: (endPosition = false) ->
+			@ui.noteContent.focus()
+
+		jumpFocusDown: (e) ->
+			e.preventDefault()
+			e.stopPropagation()
+			Note.eventManager.trigger "setCursor:#{Note.activeTree.first().get('guid')}"
 )
