@@ -87,9 +87,9 @@
 			@.$el.on 'keydown', null, 'ctrl+y', @triggerRedoEvent
 			@.$el.on 'keydown', null, 'meta+y', @triggerRedoEvent
 			
-		onBeforeClose: ->
-			# console.log "view being closed", @
+		onClose: ->
 			@.$el.off()
+			delete @collection
 			Note.eventManager.off "setCursor:#{@model.get('guid')}"
 			Note.eventManager.off "render:#{@model.get('guid')}"
 			Note.eventManager.off "setTitle:#{@model.get('guid')}"
@@ -294,7 +294,11 @@
 			Note.eventManager.on 'createNote', @createNote, this
 			Note.eventManager.on 'change', @dispatchFunction, this
 			@drag = undefined
-		onClose: ->
+		onBeforeClose: ->
+			Note.eventManager.off 'createNote', @createNote, this
+			Note.eventManager.off 'change', @dispatchFunction, this
+			@drag = undefined
+
 		onBeforeRender: ->
 		onRender: -> @addDefaultNote false
 		addDefaultNote: (render = true) ->

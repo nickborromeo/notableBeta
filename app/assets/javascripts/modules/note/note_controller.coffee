@@ -33,12 +33,9 @@
 			App.Note.initializedTree.resolve()
 
 		showContentView: (tree) ->
-			if @treeView?
-				@treeView.collection = tree
-				@treeView.render()
-			else
-				@treeView = new App.Note.TreeView(collection: tree)
-				App.contentRegion.currentView.treeRegion.show @treeView
+			App.contentRegion.currentView.treeRegion.close()
+			@treeView = new App.Note.TreeView(collection: tree)
+			App.contentRegion.currentView.treeRegion.show @treeView
 		showCrownView: ->
 			if @crownView?
 				@crownView.model = App.Note.activeBranch
