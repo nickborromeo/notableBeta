@@ -233,7 +233,7 @@
 			return false if not target = @getJumpPositionUpTarget branch
 			target
 		jumpPositionUp: (note) ->
-			previousNote = @findPreviousNote note
+			previousNote = @findPreviousNote note, false
 			return false if not previousNote?
 			App.Action.addHistory 'moveNote', note
 			if note.isInSameCollection previousNote
