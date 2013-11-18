@@ -23,12 +23,6 @@
 			"dragleave .dropTarget": @triggerDragEvent "leaveMove"
 			"dragover .dropTarget": @triggerDragEvent "overMove"
 
-
-		modelEvents:
-	    'change:title': 'render'
-	    'change:subtitle': 'render'
-
-
 		zoomIn: ->
 			Backbone.history.navigate "#/zoom/#{@model.get('guid')}"
 		initialize: ->
