@@ -23,8 +23,6 @@
 			"dragleave .dropTarget": @triggerDragEvent "leaveMove"
 			"dragover .dropTarget": @triggerDragEvent "overMove"
 
-		zoomIn: ->
-			Backbone.history.navigate "#/zoom/#{@model.get('guid')}"
 		initialize: ->
 			@collection = @model.descendants
 			@bindKeyboardShortcuts()
@@ -134,6 +132,9 @@
 			e.stopPropagation()
 			if @testCursorPosition "isEmptyBeforeCursor"
 				@triggerShortcut('jumpFocusUp')(e, true)
+
+		zoomIn: ->
+			Backbone.history.navigate "#/zoom/#{@model.get('guid')}"
 
 		toggleCollapse: ->
 			if @model.get('collapsed') then @expand() else @collapse()
@@ -423,6 +424,8 @@
 			@$el.on 'keydown', null, 'up', @setCursor
 			@$el.on 'keydown', null, 'down', @jumpFocusDown
 			# @$el.on 'keydown', null, 'right', @jumpFocusDown
+			@$el.on 'keydown', null, 'alt+ctrl+left', @zoomOut.bind @
+
 		onClose: ->
 			@$el.off()
 			Note.eventManager.off "timeoutUpdate:#{@model.get('guid')}", @updateNote, @
@@ -449,9 +452,24 @@
 			range.selectNodeContents(el[0])
 			range.collapse false
 			Note.setSelection range
-
 		jumpFocusDown: (e) ->
 			e.preventDefault()
 			e.stopPropagation()
 			Note.eventManager.trigger "setCursor:#{Note.activeTree.first().get('guid')}"
+
+		zoomOut: (e) ->
+			e.preventDefault()
+			e.stopPropagation()
+			if App.Note.activeBranch isnt "root" and App.Note.activeBranch.get('parent_id') isnt "root"
+				@zoomIn App.Note.activeBranch.get('parent_id')
+				Note.eventManager.trigger "setCursor:#{App.Note.activeTree.first().get('guid')}"
+			else
+				@clearZoom()
+		zoomIn: (guid) ->
+			Backbone.history.navigate "#/zoom/#{guid}"
+
+		clearZoom: ->
+			Backbone.history.navigate ""
+			Note.eventManager.trigger "clearZoom"
+
 )
