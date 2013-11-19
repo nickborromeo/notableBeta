@@ -11,7 +11,7 @@
 
 	_alertTypes =
 		saving: "<i>saving...</i>"
-		saved: "Saved."
+		saved: "Changes saved."
 		deleted: "Note deleted. <a class ='clickCallback'> undo </a>"
 		undo: "Change undone."
 		redo: "Change redone."
@@ -49,10 +49,10 @@
 	_insertSaveNotification = (alertType) ->
 		clearTimeout _timeoutID
 		$('.save-notification').html("<div> #{ _alertTypes[alertType]} </div>").show()
-		_timeoutID = setTimeout (=>$('.save-notification').first().fadeOut(Notify._fadeOutTime)), Notify._alertTimeOut
+		_timeoutID = setTimeout (=>$('.save-notification').first().fadeOut(Notify._fadeOutTime)), 3000
 
 	# Useful options:
-	#   selfDistruct: [boolean]
+	#   selfDestruct: [boolean]
 	#   destructTime: [time in ms]  // time until it is destroyed
 	#   customClickCallBack: [function]  // until it is destroyed
 	@alert = (alertType, alertClass, options) ->
@@ -73,6 +73,5 @@
 	Notify.addInitializer ->
 		Notify.alerts = new Notify.Alerts()
 		App.messageRegion.currentView.notificationRegion.show new Notify.AlertsView({collection: Notify.alerts})
-
 
 )

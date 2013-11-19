@@ -8,15 +8,15 @@
   _inMemoryCachedDeletes = {}
   _inMemoryCachedChanges = {}
 
-  # ------------  cached changes & deletes ------------ 
+  # ------------  cached changes & deletes ------------
 
   _addToChangeCache = (attributes) ->
     _inMemoryCachedChanges[attributes.guid] = attributes
     if _localStorageEnabled
       window.localStorage.setItem _cachedChanges, JSON.stringify(_inMemoryCachedChanges)
-  
+
   _addToDeleteCache = (guid, toDelete = true)->
-    if toDelete then _inMemoryCachedDeletes[guid] = toDelete 
+    if toDelete then _inMemoryCachedDeletes[guid] = toDelete
     else delete _inMemoryCachedDeletes[guid]
     if _localStorageEnabled
       window.localStorage.setItem _cachedDeletes, JSON.stringify(_inMemoryCachedDeletes)
@@ -44,16 +44,16 @@
     _startBackOff()
 
   # this is used by action manager.....
-  # without it action mananger undo and redos won't workout 
+  # without it action mananger undo and redos won't workout
   @addToDeleteCache = (guid, toDelete) ->
     _addToDeleteCache guid, toDelete
 
-  # ------------ back off methods ------------ 
+  # ------------ back off methods ------------
 
   _startBackOff = (time = _backOffInterval, clearFirst = false) ->
     if clearFirst then _clearBackOff()
     unless _backOffTimeoutID?
-      _backOffTimeoutID = setTimeout (-> 
+      _backOffTimeoutID = setTimeout (->
         _startSync time
         ), time
 
@@ -74,13 +74,13 @@
       _clearBackOff()
       _startSync()
 
-  # ------------ sync on lost connection: this is the order in which they are called ---------- 
+  # ------------ sync on lost connection: this is the order in which they are called ----------
 
   # downloads all notes, this is not reflected in DOM
   _startSync = (time = _backOffInterval, callback) ->
     console.log 'trying to sync...'
-    App.Notify.alert 'saving', 'save' ########################################################
-    App.Note.allNotesByDepth.fetch 
+    App.Notify.alert 'saving', 'save'
+    App.Note.allNotesByDepth.fetch
       success: -> _deleteAndSave Object.keys(_inMemoryCachedDeletes), time, callback
       error: -> _notifyFailureAndBackOff(time)
 
@@ -89,7 +89,7 @@
     unless notesToDelete.length > 0
       return _startAllNoteSync time, callback
     noteReference = App.Note.allNotesByDepth.findWhere {guid: notesToDelete.shift()}
-    options = 
+    options =
       success: (note)->
         _clearBackOff()
         _deleteAndSave notesToDelete, time, callback
@@ -105,11 +105,12 @@
   # syncing the actual note data
   _fullSyncNoAsync = (changeHashGUIDs, time, callback) ->
     unless changeHashGUIDs.length > 0
-      App.Notify.alertOnly 'saved', 'success'
+      if OfflineAccess.hasChangesToSync()
+        App.Notify.alertOnly 'saving', 'success'
       _clearCached()
       if callback? then return callback() else return
 
-    options = 
+    options =
       success: ->
         _clearBackOff()
         _fullSyncNoAsync changeHashGUIDs, time, callback
@@ -125,10 +126,10 @@
       App.Note.allNotesByDepth.add noteReference
     if noteReference?
       Backbone.Model.prototype.save.call(noteReference,attributes,options)
-    else 
+    else
       options.success()
 
-  # ------------  on FIRST LOAD connection only   ------------ 
+  # ------------  on FIRST LOAD connection only   ------------
 
   @checkAndLoadLocal = (buildTreeCallBack) ->
     unless _localStorageEnabled then return buildTreeCallBack()
@@ -138,4 +139,6 @@
   @setLocalStorageEnabled = (localStorageEnabled) ->
     _localStorageEnabled = localStorageEnabled
 
+  @hasChangesToSync = ->
+    _.any(_inMemoryCachedDeletes) or _.any(_inMemoryCachedChanges)
 )

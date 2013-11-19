@@ -13,7 +13,8 @@
 		save: (attributes = null, options = {}) =>
 			App.Notify.alert 'saving', 'save'
 			callBackOptions =
-				success: (model, response, opts)  => 
+				success: (model, response, opts)  =>
+					# this is not working well, i don't like it, i will change it
 					App.Notify.alert 'saved', 'save'
 					App.OfflineAccess.informConnectionSuccess()
 					if options.success? then options.success(model, response, opts)
@@ -29,13 +30,13 @@
 		destroy: (options = {}) =>
 			App.Notify.alert 'deleted', 'warning'
 			@clearTimeoutAndSave()
-			callBackOptions = 
+			callBackOptions =
 				success: (model, response, opts) =>
 					if App.OfflineAccess.isOffline() then App.OfflineAccess.addToDeleteCache model.get('guid'), true
 					if options.success? then options.success(model, response, opts)
 				error: (model, xhr, opts) =>
 					if xhr.status isnt 404
-						App.Notify.alert 'connectionLost', 'danger', {selfDestruct: false} 
+						App.Notify.alert 'connectionLost', 'danger', {selfDestruct: false}
 						App.OfflineAccess.addDeleteAndStart(@)
 					if options.error? then options.error(model, xhr, opts)
 			#fill in other options possibly provided:
@@ -83,7 +84,7 @@
 		firstDescendant: ->
 			@descendants.models[0]
 		getLastDescendant: (searchedWholeList = true) ->
-			last = @getCompleteDescendantList()[-1..][0] 
+			last = @getCompleteDescendantList()[-1..][0]
 			return last if searchedWholeList
 			do rec = (lastDescendant = this) ->
 				return lastDescendant if lastDescendant.get('collapsed') or lastDescendant is last
@@ -110,13 +111,13 @@
 			attributesHash[attribute] = (if options[attribute]? then options[attribute] else noteToClone.get(attribute)) for attribute in @clonableAttributes
 			@set attributesHash
 			attributesHash
-		# the following four methods can be used by anyone, 
+		# the following four methods can be used by anyone,
 		# but are relied on by Action Manager to get relevent history information
 		getAllAtributes: =>
 			@generateAttributeHash ['depth', 'rank', 'parent_id', 'guid', 'title', 'subtitle', 'created_at']
-		getPositionAttributes: => 
+		getPositionAttributes: =>
 			@generateAttributeHash ['guid', 'depth', 'rank', 'parent_id']
-		getContentAttributes: => 
+		getContentAttributes: =>
 			@generateAttributeHash ['guid', 'title', 'subtitle']
 		generateAttributeHash: (okayAttrs) =>
 			attributesHash = {}
