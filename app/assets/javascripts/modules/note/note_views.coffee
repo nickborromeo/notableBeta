@@ -420,7 +420,9 @@
 		initialize: ->
 			Note.eventManager.on "timeoutUpdate:#{@model.get('guid')}", @updateNote, @
 			Note.eventManager.on "setCursor:#{@model.get('guid')}", @setCursor, @
+			@$el.on 'keydown', null, 'up', @setCursor
 			@$el.on 'keydown', null, 'down', @jumpFocusDown
+			# @$el.on 'keydown', null, 'right', @jumpFocusDown
 		onClose: ->
 			@$el.off()
 			Note.eventManager.off "timeoutUpdate:#{@model.get('guid')}", @updateNote, @
@@ -440,6 +442,13 @@
 
 		setCursor: (endPosition = false) ->
 			@ui.noteContent.focus()
+			if endPosition is true
+				@placeCursorAtEnd(@ui.noteContent)
+		placeCursorAtEnd: (el) ->
+			range = document.createRange();
+			range.selectNodeContents(el[0])
+			range.collapse false
+			Note.setSelection range
 
 		jumpFocusDown: (e) ->
 			e.preventDefault()
