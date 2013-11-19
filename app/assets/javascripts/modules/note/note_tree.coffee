@@ -6,6 +6,8 @@
 		url:'/notes'
 
 		validateTree: ->
+			firstBranch = @first()
+			throw "first root broken" unless firstBranch.get('rank') is 1 and firstBranch.get('depth') is 0 and firstBranch.get('parent_id') is 'root'
 			do rec = (preceding = @first(), rest = @rest()) =>
 				current = _.first rest
 				return unless current?
