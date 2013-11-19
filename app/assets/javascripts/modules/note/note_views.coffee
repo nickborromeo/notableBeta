@@ -4,15 +4,15 @@
 		template: "note/branchModel"
 		className: "branch-template"
 		ui:
-			noteContent: ">.branch .noteContent"
+			noteContent: ">.branch .note-content"
 			descendants: ">.branch .descendants"
 		events: ->
-			"keypress >.branch .noteContent": "createNote"
-			"blur >.branch .noteContent": "updateNote"
+			"keypress >.branch .note-content": "createNote"
+			"blur >.branch .note-content": "updateNote"
 			"click .destroy": @triggerEvent "deleteNote"
 			"mouseover .branch": @toggleDestroyFeat "block"
 			"mouseout .branch": @toggleDestroyFeat "none"
-			"keydown > .branch > .noteContent": @model.timeoutAndSave
+			"keydown > .branch > .note-content": @model.timeoutAndSave
 			"click >.branch>.collapsable": "toggleCollapse"
 			"dblclick >.branch>.move": "zoomIn"
 
@@ -51,7 +51,7 @@
 				@$(">.branch>.dropBefore").remove()
 		getNoteContent: ->
 			if @ui.noteContent.length is 0 or !@ui.noteContent.focus?
-				@ui.noteContent = @.$('.noteContent:first')
+				@ui.noteContent = @.$('.note-content:first')
 			@ui.noteContent
 		bindKeyboardShortcuts: ->
 			@.$el.on 'keydown', null, 'ctrl+shift+backspace', @triggerShortcut 'deleteNote'
@@ -413,9 +413,9 @@
 		template: "note/crownModel"
 
 		ui:
-			noteContent: ".noteContent"
+			noteContent: ".note-content"
 		events: ->
-			"keydown .noteContent": @model.timeoutAndSave
+			"keydown .note-content": @model.timeoutAndSave
 
 		initialize: ->
 			Note.eventManager.on "timeoutUpdate:#{@model.get('guid')}", @updateNote, @

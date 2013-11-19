@@ -136,6 +136,9 @@ $screen-lg: 1200px;
 		border-top-right-radius: 2px;
 		border-top-left-radius: 2px;
 		border-bottom: none;
+		.note-content {
+			outline: none;
+		}
 	}
 }
 
