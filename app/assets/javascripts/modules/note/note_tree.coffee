@@ -5,9 +5,26 @@
 		model: Note.Branch
 		url:'/notes'
 
+		validateTree: ->
+			do rec = (preceding = @first(), rest = @rest()) =>
+				current = _.first rest
+				return unless current?
+				if (preceding.get('parent_id') is current.get('parent_id'))
+					throw "rank is broken for #{current.get('guid')}" unless current.get('rank') - 1 is preceding.get('rank')
+					throw "depth is broken for #{current.get('guid')}" unless current.get('depth') is preceding.get('depth')
+				else
+					throw "first descendant has not rank 1 for #{current.get('guid')}" unless current.get('rank') is 1
+					ancestor = @find (branch) ->
+						branch.get('guid') is current.get('parent_id')
+					throw "ancestor does not exist for #{current.get('guid')}" unless ancestor?
+					throw "depth is not according to ancestor\"s depth for #{current.get('guid')}" unless current.get('depth') - 1 is ancestor.get('depth')
+				rec current, _.rest rest
 		comparator: (note1, note2) ->
 			if note1.get('depth') is note2.get('depth')
-				order = note1.get('rank') - note2.get('rank')
+				if note1.get('parent_id') is note2.get('parent_id')
+					order = note1.get('rank') - note2.get('rank')
+				else
+					order = if note1.get('parent_id') < note2.get('parent_id') then -1 else 1
 			else
 				order = note1.get('depth') - note2.get('depth')
 
