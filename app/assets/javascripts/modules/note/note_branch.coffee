@@ -13,24 +13,26 @@
 		validate: (attributes, options) ->
 			console.log "validate", @get('guid')
 			e = undefined
-			if attributes.rank isnt 1
+			if @get('rank') isnt 1
 				preceding = Note.tree.findPrecedingInCollection @
 				e = "missing preceding for #{@get('guid')}" unless preceding?
 				e = "rank is broken for #{@get('guid')}" unless @get('rank') - 1 is preceding.get('rank')
 				e = "depth is broken for #{@get('guid')}" unless @get('depth') is preceding.get('depth')
-			else if attributes.parent_id isnt 'root'
+			else if @get('parent_id') isnt 'root'
 				ancestor = Note.tree.findNote(@get('parent_id'))
 				e = "ancestor is missing for #{@get('guid')}" unless ancestor?
 				e = "depth is not according to ancestor for #{@get('guid')}" unless @get('depth') - 1 is ancestor.get('depth')
 			else
-				e = "first root is broken" unless attributes.rank is 1 and attributes.depth is 0 and attributes.parent_id is 'root'
+				e = "first root is broken" unless @get('rank') is 1 and @get('depth') is 0 and @get('parent_id') is 'root'
 			console.log e
 			return e
-		sync: ->
+		sync: (a,b, options) ->
 			console.log "sync method", arguments
-			App.Action.orchestrator.triggerAction.apply(App.Action.orchestrator, Note.sliceArgs arguments)
-			# Backbone.Model.prototype.sync.apply(@, arguments)
+			Backbone.Model.prototype.sync.apply(@, arguments)
 		save: (attributes = null, options = {}) =>
+			if not options.syncToServer
+				console.log arguments
+				return App.Action.orchestrator.triggerAction @, attributes
 			console.log "saving", arguments
 			App.Notify.alert 'saving', 'save'
 			callBackOptions =
