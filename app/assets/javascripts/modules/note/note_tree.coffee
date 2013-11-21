@@ -63,7 +63,7 @@
 			App.Action.addHistory 'createNote', newNote
 			newNoteAttributes = Note.Branch.generateAttributes hashMap.createBeforeNote, hashMap.newNoteTitle
 			if hashMap.rankAdjustment then newNoteAttributes.rank += 1
-			newNote.save newNoteAttributes
+			App.Action.orchestrator.triggerAction newNote, newNoteAttributes
 			@insertInTree newNote
 			hashMap.setFocusIn ||= newNote
 			[newNote, hashMap.oldNoteNewTitle, hashMap.setFocusIn]
@@ -298,7 +298,7 @@
 			App.Action.addHistory 'moveNote', note
 			previousParentCollection = @getCollection note.get 'parent_id'
 			@removeFromCollection previousParentCollection, note
-			note.save
+			App.Action.orchestrator.triggerAction note,
 				parent_id: parent.get 'guid'
 				rank: parent.descendants.length + 1
 				depth: 1 + parent.get 'depth'
@@ -314,13 +314,13 @@
 			if followingNote
 				note.cloneAttributes followingNote
 			else
-				note.save
+				App.Action.orchestrator.triggerAction note,
 					parent_id: previousParent.get('parent_id')
 					rank: previousParent.get('rank') + 1
 					depth: note.get('depth') - 1
 
 		setDropAfter: (dragged, dropAfter) ->
-			dragged.save
+			App.Action.orchestrator.triggerAction dragged,
 				parent_id: dropAfter.get('parent_id')
 				rank:  dropAfter.get('rank') + 1
 				depth: dropAfter.get('depth')
