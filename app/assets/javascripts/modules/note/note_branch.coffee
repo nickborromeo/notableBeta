@@ -33,9 +33,9 @@
 			console.log "sync method", arguments
 			Backbone.Model.prototype.sync.apply(@, arguments)
 		save: (attributes = null, options = {}) =>
-			if not options.syncToServer
-				console.log arguments
-				return App.Action.orchestrator.triggerAction @, attributes, type:'save'
+			# if not options.syncToServer
+			# 	console.log arguments
+			# 	return App.Action.orchestrator.triggerAction @, attributes, type:'save'
 			console.log "saving", arguments
 			App.Notify.alert 'saving', 'save'
 			callBackOptions =
@@ -54,9 +54,9 @@
 			Backbone.Model.prototype.save.call(@, attributes, callBackOptions)
 
 		destroy: (options = {}) =>
-			if not options.syncToServer
-				console.log arguments
-				return App.Action.orchestrator.triggerAction @, null, type: 'destroy'
+			# if not options.syncToServer
+			# 	console.log arguments
+			# 	return App.Action.orchestrator.triggerAction @, null, type: 'destroy'
 			App.Notify.alert 'deleted', 'warning'
 			@clearTimeoutAndSave()
 			callBackOptions =
@@ -133,7 +133,7 @@
 		clonableAttributes: ['depth', 'rank', 'parent_id']
 		cloneAttributes: (noteToClone, options = {}) ->
 			attributesHash = @cloneAttributesNoSaving noteToClone, options
-			@save()
+			App.Action.orchestrator.triggerAction @, attributesHash
 		cloneAttributesNoSaving: (noteToClone, options = {}) ->
 			attributesHash = {}
 			#attributesHash[attribute] = noteToClone.get(attribute) for attribute in @clonableAttributes
@@ -158,7 +158,7 @@
 		modifyAttributes: (attribute, effect) ->
 			attributeHash = {}
 			attributeHash[attribute] = @get(attribute) + effect
-			@save attributeHash
+			App.Action.orchestrator.triggerAction @, attributeHash
 
 		modifyRank: (effect) -> @modifyAttributes 'rank', effect
 		increaseRank: () -> @modifyRank 1
@@ -181,9 +181,9 @@
 			return if e.metaKey or e.ctrlKey or e.altKey or _.contains(invalidKeys, e.keyCode)
 			e.stopPropagation() unless _.contains(propagationExceptions,e.keyCode)
 			@clearTimeoutAndSave()
-			@timeoutAndSaveID = setTimeout (=>
+			@timeoutAndSaveID = setTimeout =>
 				Note.eventManager.trigger "timeoutUpdate:#{@get('guid')}"
-			 ), 3000
+			 , 3000
 
 		clearTimeoutAndSave: =>
 			if @timeoutAndSaveID? then clearTimeout @timeoutAndSaveID

@@ -22,12 +22,17 @@
 			@processingActions = true
 			do rec = (action = @actionQueue.shift()) =>
 				return if not action?
-				if action.options.type is 'save'
-					return if not @validate action.branch, action.attributes
-					action.branch.save action.attributes, syncToServer: true, validate: false
-				else if action.options.type is 'destroy'
-					action.branch.destroy syncToServer: true, validate: false
+				# if action.options.type is 'save'
+				return if not @validate action.branch, action.attributes
+				# action.branch.save action.attributes, syncToServer: true, validate: false
+				action.args = [action.attributes, syncToServer: true, validate: false]
+				console.log "set", action.branch.attributes, action.attributes
+				action.branch.set action.attributes
+			 	# else if action.options.type is 'destroy'
+				# 	action.branch.destroy syncToServer: true, validate: false
+				# 	action.args = [syncToServer: true, validate: false]
 				# Push action to history
+				@savingQueue.push action
 				rec @actionQueue.shift()
 			@processingActions = false
 
