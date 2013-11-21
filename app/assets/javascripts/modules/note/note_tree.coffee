@@ -204,8 +204,8 @@
 		jumpNoteDownInCollection: (note) ->
 			followingNote = @findFollowingInCollection note
 			return undefined unless followingNote?
-			followingNote.decreaseRank()
 			note.increaseRank()
+			followingNote.decreaseRank()
 			@getCollection(note.get 'parent_id').sort()
 
 		jumpTarget: (actionType) -> (depth, descendantList) ->
