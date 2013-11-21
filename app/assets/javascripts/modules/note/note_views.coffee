@@ -421,8 +421,8 @@
 		initialize: ->
 			Note.eventManager.on "timeoutUpdate:#{@model.get('guid')}", @updateNote, @
 			Note.eventManager.on "setCursor:#{@model.get('guid')}", @setCursor, @
-			@$el.on 'keydown', null, 'up', @setCursor
-			@$el.on 'keydown', null, 'down', @jumpFocusDown
+			@$el.on 'keydown', null, 'up', @setCursor.bind @
+			@$el.on 'keydown', null, 'down', @jumpFocusDown.bind @
 			# @$el.on 'keydown', null, 'right', @jumpFocusDown
 			@$el.on 'keydown', null, 'alt+ctrl+left', @zoomOut.bind @
 
