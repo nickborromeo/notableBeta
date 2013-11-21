@@ -17,17 +17,23 @@
 				Note.tree.find (branch) =>
 					@get('guid') is branch.get('guid') and @id isnt branch.id
 			return e = "Guid already existing" if sameGuidExist?
-			if @get('rank') isnt 1
+			if (attributes.rank || @get('rank')) isnt 1
 				preceding = Note.tree.findPrecedingInCollection @
+				if not preceding
+					collection = App.Note.tree.getCollection attributes.parent_id || @get('parent_id')
+					preceding = collection.findWhere
+						rank: (attributes.rank || @get('rank'))
+						depth: (attributes.depth || @get('depth'))
+						parent_id: (attributes.parent_id || @get('parent_id'))
 				return e = "missing preceding for #{@get('guid')}" unless preceding?
-				return e = "rank is broken for #{@get('guid')}" unless @get('rank') - 1 is preceding.get('rank')
-				return e = "depth is broken for #{@get('guid')}" unless @get('depth') is preceding.get('depth')
+				return e = "rank is broken for #{@get('guid')}" unless not attributes.rank? or attributes.rank - 1 is preceding.get('rank')
+				return e = "depth is broken for #{@get('guid')}" unless not attributes.depth? or attributes.depth is preceding.get('depth')
 			else if @get('parent_id') isnt 'root'
 				ancestor = Note.tree.findNote(@get('parent_id'))
 				return e = "ancestor is missing for #{@get('guid')}" unless ancestor?
-				return e = "depth is not according to ancestor for #{@get('guid')}" unless @get('depth') - 1 is ancestor.get('depth')
+				return e = "depth is not according to ancestor for #{@get('guid')}" unless not attributes.depth? or attributes.depth - 1 is ancestor.get('depth')
 			else
-				return e = "first root is broken" unless @get('rank') is 1 and @get('depth') is 0 and @get('parent_id') is 'root'
+					return e = "first root is broken" unless (attributes.rank || @get('rank')) is 1 and (attributes.depth || @get('depth')) is 0 and (attributes.parent_id || @get('parent_id')) is 'root'
 			return e
 		sync: (a,b, options) ->
 			console.log "sync method", arguments

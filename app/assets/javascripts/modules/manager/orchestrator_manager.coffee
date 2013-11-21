@@ -37,5 +37,8 @@
 			@processingActions = false
 
 		validate: (branch, attributes, options) ->
-			return false if (branch.validate attributes)?
-			true
+			if (val = branch.validate attributes)?
+				console.log val
+				false
+			else
+				true
