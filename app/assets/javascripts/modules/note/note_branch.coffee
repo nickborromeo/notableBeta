@@ -28,8 +28,10 @@
 			return e
 		sync: ->
 			console.log "sync method", arguments
-			Backbone.Model.prototype.sync.apply(@, arguments)
+			App.Action.orchestrator.triggerAction.apply(App.Action.orchestrator, Note.sliceArgs arguments)
+			# Backbone.Model.prototype.sync.apply(@, arguments)
 		save: (attributes = null, options = {}) =>
+			console.log "saving", arguments
 			App.Notify.alert 'saving', 'save'
 			callBackOptions =
 				success: (model, response, opts)  =>

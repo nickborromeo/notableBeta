@@ -21,10 +21,9 @@
 			Note.activeTree = @tree
 			Note.activeBranch = "root"
 			Note.allNotesByDepth = @allNotesByDepth
-
+			App.Action.orchestrator = new App.Action.Orchestrator()
 		start: ->
 			App.OfflineAccess.checkAndLoadLocal (_.bind @buildTree, @)
-
 		buildTree: ->
 			@allNotesByDepth.sort()
 			@allNotesByDepth.validateTree()
