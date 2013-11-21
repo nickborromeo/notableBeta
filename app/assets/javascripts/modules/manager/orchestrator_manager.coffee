@@ -6,14 +6,13 @@
 			@savingQueue = []
 			@actionQueue = []
 
-		queueAction: (branch, options) ->
+		queueAction: (branch, attributes, options) ->
 			# will probably have to play with the action manager
 			@actionQueue.push
 				branch: branch
-				attributes: branch.attributes
-				previous_attributes: branch._previousAttributes
-				options: branch
-		triggerAction: (branch, options) ->
+				attributes: attributes
+				options: options
+		triggerAction: (branch, attributes, options) ->
 			@queueAction.apply(@, arguments)
 			@processActionQueue()
 			# @queueSaving attributes, branch
@@ -23,12 +22,12 @@
 			@processingActions = true
 			do rec = (action = @actionQueue.shift()) =>
 				return if not action?
-				return if @validate action.branch, action.attributes
-				action.branch.save action.attributes syncToServer: true
+				return if not @validate action.branch, action.attributes
+				action.branch.save action.attributes, syncToServer: true
 				# Push action to history
 				rec @actionQueue.shift()
 			@processingActions = false
 
 		validate: (branch, attributes, options) ->
-			return false if branch.validate attributes?
+			return false if (branch.validate attributes)?
 			true
