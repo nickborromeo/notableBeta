@@ -22,8 +22,11 @@
 			@processingActions = true
 			do rec = (action = @actionQueue.shift()) =>
 				return if not action?
-				return if not @validate action.branch, action.attributes
-				action.branch.save action.attributes, syncToServer: true
+				if action.options.type is 'save'
+					return if not @validate action.branch, action.attributes
+					action.branch.save action.attributes, syncToServer: true, validate: false
+				else if action.options.type is 'destroy'
+					action.branch.destroy syncToServer: true, validate: false
 				# Push action to history
 				rec @actionQueue.shift()
 			@processingActions = false
