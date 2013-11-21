@@ -308,15 +308,17 @@
 		addDefaultNote: (render = true) ->
 			# if @collection.length is 0 then @collection.create()
 			# @render if render
-		dispatchFunction: (functionName) ->
+		dispatchFunction: (functionName, model) ->
 			# This line is for you Gavin.
 			# I pass in the model as well, and any other arguments we would like
 			Note.eventManager.trigger "change:" + functionName, Note.sliceArgs arguments
-
-			return @[functionName].apply(@, Note.sliceArgs arguments) if @[functionName]?
-			@collection[functionName].apply(@collection, Note.sliceArgs arguments)
-			@render() # Will probably need to do something about rerendering all the time
-			Note.eventManager.trigger "setCursor:#{arguments[1].get 'guid'}"
+			if @[functionName]?
+				@[functionName].apply(@, Note.sliceArgs arguments)
+			else
+				@collection[functionName].apply(@collection, Note.sliceArgs arguments)
+				@render() # Will probably need to do something about rerendering all the time
+				Note.eventManager.trigger "setCursor:#{arguments[1].get 'guid'}"
+			Note.eventManager.trigger "actionFinished", functionName, arguments[1]
 		createNote: (createdFrom) ->
 			[newNote, createdFromNewTitle, setFocusIn] =
 				@collection.createNote.apply(@collection, arguments)
