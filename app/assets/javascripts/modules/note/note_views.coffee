@@ -7,7 +7,6 @@
 			noteContent: ">.branch .note-content"
 			descendants: ">.branch .descendants"
 		events: ->
-			"keypress >.branch .note-content": "createNote"
 			"blur >.branch .note-content": "updateNote"
 			"click .destroy": @triggerEvent "deleteNote"
 			"mouseover .branch": @toggleDestroyFeat "block"
@@ -53,7 +52,7 @@
 				@ui.noteContent = @.$('.note-content:first')
 			@ui.noteContent
 		bindKeyboardShortcuts: ->
-			@.$el.on 'keydown', null, 'enter', 'createNote'
+			@.$el.on 'keydown', null, 'return', @createNote.bind @
 			@.$el.on 'keydown', null, 'ctrl+shift+backspace', @triggerShortcut 'deleteNote'
 			@.$el.on 'keydown', null, 'meta+shift+backspace', @triggerShortcut 'deleteNote'
 			@.$el.on 'keydown', null, 'tab', @triggerShortcut 'tabNote'
@@ -167,8 +166,7 @@
 		createNote: (e) ->
 			e.preventDefault()
 			e.stopPropagation()
-			create = ->
-				@createActionTimer = new Date().getTime()
+			create = =>
 				sel = window.getSelection()
 				title = @updateNote()
 				textBefore = @textBeforeCursor sel, title
@@ -178,7 +176,7 @@
 			@shortcutTimer create.bind @
 		createShortcutTimer: ->
 			timer = new Date().getTime()
-			_timeout = 320
+			_timeout = 160
 			timeOut = _timeout;
 			shortcutTimeout = (fun) =>
 				timeOut+= timeOut if ((newTimer = new Date().getTime()) - timer < timeOut)
