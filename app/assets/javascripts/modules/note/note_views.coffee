@@ -31,6 +31,7 @@
 			Note.eventManager.on "setTitle:#{@model.get('guid')}", @setNoteTitle, @
 			Note.eventManager.on "timeoutUpdate:#{@model.get('guid')}", @updateNote, @
 			@shortcutTimer = @createShortcutTimer()
+			@cursorApi = App.Helpers.CursorPositionAPI
 		onRender: ->
 			@getNoteContent()
 			@trimExtraDropTarget()
@@ -102,7 +103,8 @@
 		triggerShortcut: (event) -> (e) =>
 			e.preventDefault()
 			e.stopPropagation()
-			@shortcutTimer (args = arguments) => @triggerEvent(event).apply(@, Note.sliceArgs args)
+			args = Note.sliceArgs arguments
+			@shortcutTimer => @triggerEvent(event).apply(@, args)
 		triggerLocalShortcut: (behaviorFn) -> (e) =>
 			e.preventDefault()
 			e.stopPropagation()
@@ -205,76 +207,12 @@
 		setNoteTitle: (title) ->
 			@getNoteContent().html title
 			@updateNote()
-		setCursor: (endPosition = false) ->
-			@getNoteContent().focus()
-			if typeof endPosition is "string"
-				@setCursorPosition endPosition
-			else if endPosition is true
-				@placeCursorAtEnd(@ui.noteContent)
-		placeCursorAtEnd: (el) ->
-			range = document.createRange();
-			range.selectNodeContents(el[0])
-			range.collapse false
-			Note.setSelection range
-		setCursorPosition: (textBefore) ->
-			desiredPosition = @findDesiredPosition textBefore
-			[node, offset] = @findTargetedNodeAndOffset desiredPosition
-			range = @setRangeFromBeginTo node, offset
-			Note.setSelection range
-		setRangeFromBeginTo: (node, offset) ->
-			Note.setRange @getNoteContent()[0], 0, node, offset
-		findTargetedNodeAndOffset: (desiredPosition) ->
-			parent = @getNoteContent()[0]
-			return [parent, 0] if desiredPosition is 0
-			it = document.createNodeIterator parent, NodeFilter.SHOW_TEXT
-			offset = 0;
-			while n = it.nextNode()
-				offset += n.data.length
-				if offset >= desiredPosition
-					offset = n.data.length - (offset - desiredPosition)
-					break
-			[n, offset]
-		findDesiredPosition: (textBefore) ->
-			matches = @collectMatches textBefore
-			offset = textBefore.length
-			@decreaseOffsetAdjustment matches, offset
-
-		buildTextBefore: (parent, sel) ->
-			it = document.createNodeIterator parent, NodeFilter.SHOW_TEXT
-			text = ""
-			while n = it.nextNode()
-				if n.isSameNode(sel.anchorNode)
-					text += n.data.slice(0, sel.anchorOffset)
-					break;
-				text += n.data
-			text
-		getContentEditable: (sel) ->
-			do findContentEditable = (node = sel.anchorNode) ->
-				if node.contentEditable is "true"
-					node
-				else
-					findContentEditable node.parentNode
-		collectMatches: (text) ->
-			matches = Note.collectAllMatches text
-			matches = matches.concat Note.collectAllMatches text, Note.matchHtmlEntities, 1
-			matches = matches.sort (a,b) -> a.index - b.index
-		increaseOffsetAdjustment: ->
-			args = Note.concatWithArgs arguments, Note.addAdjustment
-			@adjustOffset.apply this, args
-		decreaseOffsetAdjustment: ->
-			args = Note.concatWithArgs arguments, Note.substractAdjustment
-			@adjustOffset.apply this, args
-		adjustOffset: (matches, previousOffset, adjustmentOperator = Note.addAdjustment) ->
-			adjustment = matches.reduce adjustmentOperator(previousOffset), 0
-			previousOffset + adjustment
-		adjustAnchorOffset: (sel, title) ->
-			parent = @getContentEditable sel
-			matches = @collectMatches parent.innerHTML
-			textBefore = @buildTextBefore parent, sel
-			@adjustOffset matches, textBefore.length
+		setCursor: (position = false) ->
+			(noteContent = @getNoteContent()).focus()
+			@cursorApi.setCursor noteContent, position
 
 		textBeforeCursor: (sel, title) ->
-			offset = @adjustAnchorOffset(sel, title)
+			offset = @cursorApi.adjustAnchorOffset(sel, title)
 			textBefore = title.slice(0,offset)
 		keepTextBeforeCursor: (sel, title) ->
 			textBefore = @textBeforeCursor sel, title
@@ -282,7 +220,7 @@
 				title: textBefore
 			textBefore
 		textAfterCursor: (sel, title) ->
-			offset = @adjustAnchorOffset(sel, title)
+			offset = @cursorApi.adjustAnchorOffset(sel, title)
 			textAfter = title.slice offset
 			textAfter = "" if Note.matchTagsEndOfString.test(textAfter)
 			textAfter
@@ -460,12 +398,8 @@
 		setCursor: (endPosition = false) ->
 			@ui.noteContent.focus()
 			if endPosition is true
-				@placeCursorAtEnd(@ui.noteContent)
-		placeCursorAtEnd: (el) ->
-			range = document.createRange();
-			range.selectNodeContents(el[0])
-			range.collapse false
-			Note.setSelection range
+				App.Helpers.CursorPositionAPI.placeCursorAtEnd(@ui.noteContent)
+
 		jumpFocusDown: (e) ->
 			e.preventDefault()
 			e.stopPropagation()
