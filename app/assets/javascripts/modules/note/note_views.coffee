@@ -369,6 +369,7 @@
 			noteContent: ".note-content"
 		events: ->
 			"keydown .note-content": @model.timeoutAndSave
+			"click .glyphicon": "export"
 
 		initialize: ->
 			Note.eventManager.on "timeoutUpdate:#{@model.get('guid')}", @updateNote, @
@@ -420,4 +421,46 @@
 			Backbone.history.navigate ""
 			Note.eventManager.trigger "clearZoom"
 
+		export: ->
+			Note.eventManager.trigger "render:export", @model
+
+	class Note.ExportView extends Marionette.ItemView
+		id: "tree"
+		template: "note/exportModel"
+
+		initialize: ->
+			@model = new Note.ExportModel tree: @collection
+			console.log "exportView", @model, @collection
+	
+	class Note.ExportModel extends Backbone.Model
+
+		initialize: ->
+			console.log "exportModel", arguments
+			@set 'text', @renderTree @get('tree')
+
+		make_spaces: (num, spaces = '') ->
+			if num is 0 then return spaces
+			@make_spaces(--num, spaces + '&nbsp;&nbsp;')
+		renderTree: (tree)->
+			text = ""
+			indent = 0
+			do rec = (current = tree.first(), rest = tree.rest()) =>
+				return (--indent; text) if not current?
+				text += @make_spaces(indent) + current.get('title') + '<br>'
+				if current.descendants.length isnt 0
+					++indent
+					rec current.descendants.first(), current.descendants.rest()
+				rec _.first(rest), _.rest(rest)
+
+		renderTreeParagraph: (tree) ->
+			text = ""
+			indent = 0
+			do rec = (current = tree.first(), rest = tree.rest()) =>
+				return (text) if not current?
+				text+=current.get('title')+' '
+				if current.descendants.length isnt 0
+					rec current.descendants.first(), current.descendants.rest()
+				if current.isARoot(true) then text+='<br>'
+				rec _.first(rest), _.rest(rest)
+			
 )
