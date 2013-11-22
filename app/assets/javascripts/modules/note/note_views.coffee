@@ -31,6 +31,7 @@
 			Note.eventManager.on "render:#{@model.get('guid')}", @render, @
 			Note.eventManager.on "setTitle:#{@model.get('guid')}", @setNoteTitle, @
 			Note.eventManager.on "timeoutUpdate:#{@model.get('guid')}", @updateNote, @
+			@shortcutTimer = @createShortcutTimer()
 		onRender: ->
 			@getNoteContent()
 			@trimExtraDropTarget()
@@ -52,6 +53,7 @@
 				@ui.noteContent = @.$('.note-content:first')
 			@ui.noteContent
 		bindKeyboardShortcuts: ->
+			@.$el.on 'keydown', null, 'enter', 'createNote'
 			@.$el.on 'keydown', null, 'ctrl+shift+backspace', @triggerShortcut 'deleteNote'
 			@.$el.on 'keydown', null, 'meta+shift+backspace', @triggerShortcut 'deleteNote'
 			@.$el.on 'keydown', null, 'tab', @triggerShortcut 'tabNote'
@@ -101,7 +103,7 @@
 		triggerShortcut: (event) -> (e) =>
 			e.preventDefault()
 			e.stopPropagation()
-			@triggerEvent(event).apply(@, Note.sliceArgs arguments)
+			@shortcutTimer (args = arguments) => @triggerEvent(event).apply(@, Note.sliceArgs args)
 		triggerLocalShortcut: (behaviorFn) -> (e) =>
 			e.preventDefault()
 			e.stopPropagation()
@@ -163,16 +165,28 @@
 				$("div[data-guid=#{@model.get 'guid'}] .trash_icon:first").css("display", toggleType)
 
 		createNote: (e) ->
-			ENTER_KEY = 13
-			if e.which is ENTER_KEY
-				e.preventDefault()
+			e.preventDefault()
+			e.stopPropagation()
+			create = ->
+				@createActionTimer = new Date().getTime()
 				sel = window.getSelection()
 				title = @updateNote()
 				textBefore = @textBeforeCursor sel, title
 				textAfter = (@textAfterCursor sel, title).replace(/^\s/, "")
 				Note.eventManager.trigger 'createNote', @model, textBefore, textAfter
 				if textAfter.length > 0 then App.Action.addHistory "compoundAction", {actions:2, previousActions: true}
-
+			@shortcutTimer create.bind @
+		createShortcutTimer: ->
+			timer = new Date().getTime()
+			_timeout = 320
+			timeOut = _timeout;
+			shortcutTimeout = (fun) =>
+				timeOut+= timeOut if ((newTimer = new Date().getTime()) - timer < timeOut)
+				setTimeout ->
+					timer = newTimer
+					if timeOut > _timeout then timeOut -= _timeout else timeOut = _timeout
+					fun()
+				, timer - new Date().getTime() + timeOut
 		saveNote: (e) ->
 			e.preventDefault()
 			e.stopPropagation()
