@@ -48,28 +48,30 @@
 				true
 
 		startSavingQueueTimeout: ->
-			@savingQueueTimeout = setTimeout @processSavingQueue.bind(@), 600
+			@savingQueueTimeout = setTimeout @processSavingQueue.bind(@), 1000
 		processSavingQueue: () ->
 			valid = true
 			validQueue = []
 			do rec = (action = @savingQueue.shift()) =>
 				return if not action? or not valid
 				console.log "processing savingQueue", action
-				if not @validate action.branch, action.attributes
+				if not @validate action.branch, action.branch.attributes
 					return valid = false
 				validQueue.push action
 				console.log "validated"
 				# action.branch.save action.attributes, syncToServer: true, validate: false
 				rec @savingQueue.shift()
-			if valid then @acceptChanges(validQueue) else @rejectChanges(validQueue.concat @savingQueue)
+			if valid then @acceptChanges(validQueue) else @rejectChanges(validQueue)
 
-		rejectChanges: (validQueue, action = validQueue.shift()) ->
-			do rec = (action = validQueue.shift()) =>
+		rejectChanges: (validQueue) ->
+			undoCount = validQueue.length
+			queue = validQueue.concat @savingQueue
+			do rec = (action = queue.shift()) =>
 				return if not action?
-				console.log "reject action", action, validQueue
+				console.log "reject action", action, queue
 				# action.branch.set action.previousAttributes
-				Action.undo()
-				rec validQueue, validQueue.shift()
+				Action.undo() if (undoCount-- >= 0)
+				setTimeout (-> rec queue.shift()), 100
 			@savingQueue = []
 			App.contentRegion.currentView.treeRegion.currentView.render()
 		acceptChanges: (validQueue, action = validQueue.shift()) ->
