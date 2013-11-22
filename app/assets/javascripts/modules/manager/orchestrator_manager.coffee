@@ -64,16 +64,17 @@
 			if valid then @acceptChanges(validQueue) else @rejectChanges(validQueue)
 
 		rejectChanges: (validQueue) ->
-			undoCount = validQueue.length
-			queue = validQueue.concat @savingQueue
-			do rec = (action = queue.shift()) =>
-				return if not action?
-				console.log "reject action", action, queue
-				# action.branch.set action.previousAttributes
-				Action.undo() if (undoCount-- >= 0)
-				setTimeout (-> rec queue.shift()), 100
-			@savingQueue = []
-			App.contentRegion.currentView.treeRegion.currentView.render()
+			throw "The set of changes break the tree"
+			# undoCount = validQueue.length
+			# queue = validQueue.concat @savingQueue
+			# do rec = (action = queue.shift()) =>
+			# 	return if not action?
+			# 	console.log "reject action", action, queue
+			# 	# action.branch.set action.previousAttributes
+			# 	Action.undo() if (undoCount-- >= 0)
+			# 	setTimeout (-> rec queue.shift()), 100
+			# @savingQueue = []
+			# App.contentRegion.currentView.treeRegion.currentView.render()
 		acceptChanges: (validQueue, action = validQueue.shift()) ->
 			console.log "accept changes", validQueue
 			do rec = (action = validQueue.shift()) ->
