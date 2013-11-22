@@ -21,9 +21,10 @@
 			Note.activeTree = @tree
 			Note.activeBranch = "root"
 			Note.allNotesByDepth = @allNotesByDepth
-			App.Action.orchestrator = new App.Action.Orchestrator()
 		start: ->
 			App.OfflineAccess.checkAndLoadLocal (_.bind @buildTree, @)
+			App.Action.orchestrator = new App.Action.Orchestrator()
+			Note.eventManager.on "render:export", @showExportView, @
 		buildTree: ->
 			@allNotesByDepth.sort()
 			@allNotesByDepth.validateTree()
@@ -32,6 +33,10 @@
 			@showContentView(@tree)
 			App.Note.initializedTree.resolve()
 
+		showExportView: (model) ->
+			App.contentRegion.currentView.treeRegion.close()
+			@exportView = new App.Note.ExportView model: model, collection: Note.activeTree
+			App.contentRegion.currentView.treeRegion.show @exportView
 		showContentView: (tree) ->
 			App.contentRegion.currentView.treeRegion.close()
 			@treeView = new App.Note.TreeView(collection: tree)
