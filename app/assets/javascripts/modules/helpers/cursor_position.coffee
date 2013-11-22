@@ -19,9 +19,12 @@
 				@setCursorPosition position
 			else if position is true
 				@placeCursorAtEnd($elem)
-		placeCursorAtEnd: ($elem) ->
+		selectContent: ($elem) ->
 			range = document.createRange();
 			range.selectNodeContents($elem[0])
+			range
+		placeCursorAtEnd: ($elem) ->
+			range = @selectContent $elem
 			range.collapse false
 			@setSelection range
 		setCursorPosition: (textBefore) ->
