@@ -76,6 +76,10 @@
 			App.contentRegion.currentView.treeRegion.currentView.render()
 		acceptChanges: (validQueue, action = validQueue.shift()) ->
 			console.log "accept changes", validQueue
+			do rec = (action = validQueue.shift()) ->
+				return if not action?
+				action.branch.save()
+				rec validQueue.shift()
 			# return if not action?
 			# action.branch.save()
 			# @acceptChanges validQueue, validQueue.shift()
