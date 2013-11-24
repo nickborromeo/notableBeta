@@ -1,0 +1,17 @@
+<div class="container">
+	<h2>Evernote API Results</h2>
+	<p style="color:green">
+	  Congratulations, you have successfully authorized this application to access your Evernote account!
+	</p>
+
+	<p><%= @user.username %> contains the following notebooks:</p>
+ 	<ul>
+	  <% @notebooks.each do |notebook| %>
+	    <li><%= notebook.name %></li>
+	  <% end %>
+	</ul>
+	<p>You have a total of <%= @note_count %> notes.</p>
+
+	<%= link_to("Go back home", root_path) %>
+</div>
+

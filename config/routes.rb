@@ -5,7 +5,7 @@ Notable::Application.routes.draw do
   root :to => 'scaffold#index'
 
   get "start" => "evernote#start"
-  get "end" => "evernote#end"
+  get "finish" => "evernote#finish"
 
   # The priority is based upon order of creation:
   # first created -> highest priority.
@@ -17,7 +17,5 @@ Notable::Application.routes.draw do
   # Sample of named route:
   #   match 'products/:id/purchase' => 'catalog#purchase', :as => :purchase
   # This route can be invoked with purchase_url(:id => product.id)
-
-  # Sample resource route (maps HTTP verbs to controller actions automatically):
 
 end
