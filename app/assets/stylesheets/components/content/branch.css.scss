@@ -1,17 +1,4 @@
-$notableBlue: #14A4FF;
-$notableOrange: #E97C12;
-$notableYellow: #FFDC33;
-$notableWhite: #FDFDFD;
-$notableBlack: #3D3D3D;
-
-$grayLight: #EAEAEA;
-$gray: #C1C1C1;
-$grayDark: #989898;
-$grayUltraDark: #515151;
-
-$screen-sm: 768px;
-$screen-md: 992px;
-$screen-lg: 1200px;
+@import "../variables";
 
 // ----------------------------------------------------
 // ----------------MOBILE FIRST CSS -------------------
@@ -39,11 +26,18 @@ $screen-lg: 1200px;
 		display: inline-block;
 		outline: none;
 	}
-	> .descendants.collapsed { display: none; }
+}
+
+.descendants.collapsed {
+	display: none;
 }
 
 .descendants {
 	margin-left: 1.8em;
+	-webkit-transition-property: all;
+	-webkit-transition-duration: 4s;
+	transition-property: all;
+	transition-duration: 4s;
 }
 
 /*** Drag N Drop ***/
