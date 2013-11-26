@@ -33,9 +33,9 @@
 			@showContentView(@tree)
 			App.Note.initializedTree.resolve()
 
-		showExportView: (model) ->
+		showExportView: (model, paragraph) ->
 			App.contentRegion.currentView.treeRegion.close()
-			@exportView = new App.Note.ExportView model: model, collection: Note.activeTree
+			@exportView = new App.Note.ExportView model: model, collection: Note.activeTree, inParagraph: paragraph
 			App.contentRegion.currentView.treeRegion.show @exportView
 		showContentView: (tree) ->
 			App.contentRegion.currentView.treeRegion.close()
