@@ -369,7 +369,8 @@
 			noteContent: ".note-content"
 		events: ->
 			"keydown .note-content": @model.timeoutAndSave
-			"click .glyphicon": "export"
+			"click .glyphicon-share": @export false
+			"click .glyphicon-export": @export true
 
 		initialize: ->
 			Note.eventManager.on "timeoutUpdate:#{@model.get('guid')}", @updateNote, @
@@ -421,22 +422,23 @@
 			Backbone.history.navigate ""
 			Note.eventManager.trigger "clearZoom"
 
-		export: ->
-			Note.eventManager.trigger "render:export", @model
+		export: (paragraph = false) -> (e) ->
+			Note.eventManager.trigger "render:export", @model, paragraph
 
 	class Note.ExportView extends Marionette.ItemView
 		id: "tree"
 		template: "note/exportModel"
 
-		initialize: ->
-			@model = new Note.ExportModel tree: @collection
-			console.log "exportView", @model, @collection
+		initialize: (options) ->
+			@model = new Note.ExportModel tree: @collection, inParagraph: options.inParagraph
+			console.log "exportView", arguments
 	
 	class Note.ExportModel extends Backbone.Model
 
 		initialize: ->
 			console.log "exportModel", arguments
-			@set 'text', @renderTree @get('tree')
+			if @get('inParagraph') then @render = @renderTreeParagraph else @render = @renderTree
+			@set 'text', @render @get('tree')
 
 		make_spaces: (num, spaces = '') ->
 			if num is 0 then return spaces
