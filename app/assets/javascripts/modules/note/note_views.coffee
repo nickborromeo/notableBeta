@@ -359,6 +359,7 @@
 			"keydown .note-content": @model.timeoutAndSave
 			"click .glyphicon-share": @export false
 			"click .glyphicon-export": @export true
+			"click .trash_icon": "deleteBranch"
 
 		initialize: ->
 			@cursorApi = App.Helpers.CursorPositionAPI
@@ -369,6 +370,7 @@
 			@$el.on 'keydown', null, 'right', @arrowRightJumpLine.bind @
 			# @$el.on 'keydown', null, 'right', @jumpFocusDown
 			@$el.on 'keydown', null, 'alt+ctrl+left', @zoomOut.bind @
+			@$el.on 'keydown', null, 'ctrl+shift+backspace', @deleteBranch.bind @
 
 		onClose: ->
 			@$el.off()
@@ -400,6 +402,10 @@
 			if @cursorApi.isEmptyAfterCursor window.getSelection(), @getNoteTitle()
 				@jumpFocusDown e
 
+		deleteBranch: (e) ->
+			@zoomOut(e)
+			App.Note.tree.deleteNote @model
+			
 		zoomOut: (e) ->
 			e.preventDefault()
 			e.stopPropagation()
