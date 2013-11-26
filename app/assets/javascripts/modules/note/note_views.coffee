@@ -361,6 +361,7 @@
 			"click .glyphicon-export": @export true
 
 		initialize: ->
+			@cursorApi = App.Helpers.CursorPositionAPI
 			Note.eventManager.on "timeoutUpdate:#{@model.get('guid')}", @updateNote, @
 			Note.eventManager.on "setCursor:#{@model.get('guid')}", @setCursor, @
 			@$el.on 'keydown', null, 'up', @setCursor.bind @
@@ -394,6 +395,10 @@
 			e.preventDefault()
 			e.stopPropagation()
 			Note.eventManager.trigger "setCursor:#{Note.activeTree.first().get('guid')}"
+		arrowRightJumpLine: (e) ->
+			e.stopPropagation()
+			if @cursorApi.isEmptyAfterCursor window.getSelection(), @getNoteTitle()
+				@jumpFocusDown e
 
 		zoomOut: (e) ->
 			e.preventDefault()
