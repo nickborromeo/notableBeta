@@ -87,6 +87,19 @@
 		substractAdjustment: (previousOffset) -> (acc, match) ->
 			acc - match.adjustment
 
+		textBeforeCursor: (sel, title) ->
+			offset = @adjustAnchorOffset(sel, title)
+			textBefore = title.slice(0,offset)
+		textAfterCursor: (sel, title) ->
+			offset = @adjustAnchorOffset(sel, title)
+			textAfter = title.slice offset
+			textAfter = "" if App.Note.matchTagsEndOfString.test(textAfter)
+			textAfter
+		isEmptyAfterCursor: ->
+			@textAfterCursor.apply(this, arguments).length is 0
+		isEmptyBeforeCursor: ->
+			@textBeforeCursor.apply(this, arguments).length is 0
+
 	Helpers.collectAllMatches = (title, regex = App.Note.matchTag, adjustment = 0) ->
 		matches = []
 		while match = regex.exec title

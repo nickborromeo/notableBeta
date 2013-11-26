@@ -171,8 +171,8 @@
 			create = =>
 				sel = window.getSelection()
 				title = @updateNote()
-				textBefore = @textBeforeCursor sel, title
-				textAfter = (@textAfterCursor sel, title).replace(/^\s/, "")
+				textBefore = @cursorApi.textBeforeCursor sel, title
+				textAfter = (@cursorApi.textAfterCursor sel, title).replace(/^\s/, "")
 				Note.eventManager.trigger 'createNote', @model, textBefore, textAfter
 				if textAfter.length > 0 then App.Action.addHistory "compoundAction", {actions:2, previousActions: true}
 			@shortcutTimer create.bind @
@@ -211,32 +211,20 @@
 			(noteContent = @getNoteContent()).focus()
 			@cursorApi.setCursor noteContent, position
 
-		textBeforeCursor: (sel, title) ->
-			offset = @cursorApi.adjustAnchorOffset(sel, title)
-			textBefore = title.slice(0,offset)
 		keepTextBeforeCursor: (sel, title) ->
-			textBefore = @textBeforeCursor sel, title
+			textBefore = @cursorApi.textBeforeCursor sel, title
 			@model.save
 				title: textBefore
 			textBefore
-		textAfterCursor: (sel, title) ->
-			offset = @cursorApi.adjustAnchorOffset(sel, title)
-			textAfter = title.slice offset
-			textAfter = "" if Note.matchTagsEndOfString.test(textAfter)
-			textAfter
 		keepTextAfterCursor: (sel, title) ->
-			textAfter = @textAfterCursor sel, title
+			textAfter = @cursorApi.textAfterCursor sel, title
 			@model.save
 				title: textAfter
 			textAfter
 		testCursorPosition: (testPositionFunction) ->
 			sel = window.getSelection()
 			title = @getNoteTitle()
-			@[testPositionFunction](sel, title)
-		isEmptyAfterCursor: ->
-			@textAfterCursor.apply(this, arguments).length is 0
-		isEmptyBeforeCursor: ->
-			@textBeforeCursor.apply(this, arguments).length is 0
+			@cursorApi[testPositionFunction](sel, title)
 
 	class Note.TreeView extends Marionette.CollectionView
 		id: "tree"
@@ -377,6 +365,7 @@
 			Note.eventManager.on "setCursor:#{@model.get('guid')}", @setCursor, @
 			@$el.on 'keydown', null, 'up', @setCursor.bind @
 			@$el.on 'keydown', null, 'down', @jumpFocusDown.bind @
+			@$el.on 'keydown', null, 'right', @arrowRightJumpLine.bind @
 			# @$el.on 'keydown', null, 'right', @jumpFocusDown
 			@$el.on 'keydown', null, 'alt+ctrl+left', @zoomOut.bind @
 
@@ -401,7 +390,6 @@
 			@ui.noteContent.focus()
 			if endPosition is true
 				App.Helpers.CursorPositionAPI.placeCursorAtEnd(@ui.noteContent)
-
 		jumpFocusDown: (e) ->
 			e.preventDefault()
 			e.stopPropagation()
@@ -417,7 +405,6 @@
 				@clearZoom()
 		zoomIn: (guid) ->
 			Backbone.history.navigate "#/zoom/#{guid}"
-
 		clearZoom: ->
 			Backbone.history.navigate ""
 			Note.eventManager.trigger "clearZoom"
