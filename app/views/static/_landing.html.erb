@@ -1,1 +1,20 @@
-landing page
+<div class="landing">
+	<%= image_tag("logo/logo_lg.png", alt: "Notable", class: "logo visible-lg") %>
+	<%= image_tag("logo/logo_md.png", alt: "Notable", class: "logo visible-md") %>
+	<%= image_tag("logo/logo_sm.png", alt: "Notable", class: "logo visible-sm") %>
+	<%= image_tag("logo/logo_xs.png", alt: "Notable", class: "logo visible-xs") %>
+
+	<h1 class="tagline">Learn Faster. Understand More.</h1>
+
+	<p class="pitch">Notable is a note-taking app for learning more efficiently and effectively. It allows users to easily organize and play with their ideas, leading to more connections, deeper understanding, and that moment when everything just clicks together.</p>
+
+	<div class="message">
+		Notable is currently invite only. Would you like one?
+	</div>
+	<%= form_tag({controller: "users", action: "create"}, method: "get",
+	class: "form") do %>
+		<%= text_field_tag :email, params[:email],
+		class: "email", placeholder:"Enter your email address" %>
+	  <%= submit_tag("Submit", class: "submit btn") %>
+	<% end %>
+</div>
