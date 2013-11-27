@@ -212,6 +212,7 @@
 			text = @getNoteContent().text()
 			@getNoteContent().append(textAfter)
 			@setCursor text
+
 		getSelectionAndTitle: ->
 			[window.getSelection(), @getNoteTitle()]
 		getNoteTitle: ->
@@ -459,7 +460,7 @@
 
 		make_spaces: (num, spaces = '') ->
 			if num is 0 then return spaces
-			@make_spaces(--num, spaces + '&nbsp;&nbsp;')
+			@make_spaces(--num, spaces + ' - ')
 		renderTree: (tree)->
 			text = ""
 			indent = 0
