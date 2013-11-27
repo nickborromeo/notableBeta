@@ -7,8 +7,8 @@
 			noteContent: ">.branch .note-content"
 			descendants: ">.branch .descendants"
 		events: ->
-			"blur >.branch>.noteContent": "updateNote"
-			"paste >.branch>.noteContent": "pasteContent"
+			"blur >.branch>.note-content": "updateNote"
+			"paste >.branch>.note-content": "pasteContent"
 
 			"click .destroy": @triggerEvent "deleteNote"
 			"mouseover .branch": @toggleDestroyFeat "block"
@@ -211,8 +211,9 @@
 			@getNoteContent().html(@textBeforeCursor() + pasteText)
 			text = @getNoteContent().text()
 			@getNoteContent().append(textAfter)
-			@setCursorPosition(text)
-
+			@setCursor text
+		getSelectionAndTitle: ->
+			[window.getSelection(), @getNoteTitle()]
 		getNoteTitle: ->
 			title = @getNoteContent().html().trim()
 			Note.trimEmptyTags title
@@ -223,6 +224,12 @@
 		setCursor: (position = false) ->
 			(noteContent = @getNoteContent()).focus()
 			@cursorApi.setCursor noteContent, position
+		textBeforeCursor: ->
+			[sel, title] = @getSelectionAndTitle()
+			@cursorApi.textBeforeCursor sel, title
+		textAfterCursor: ->
+			[sel, title] = @getSelectionAndTitle()
+			@cursorApi.textBeforeCursor sel, title
 		keepTextBeforeCursor: (sel, title) ->
 			textBefore = @cursorApi.textBeforeCursor sel, title
 			@model.save
