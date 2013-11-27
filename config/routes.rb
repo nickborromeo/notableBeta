@@ -6,6 +6,7 @@ Notable::Application.routes.draw do
 
   get "start" => "evernote#start"
   get "finish" => "evernote#finish"
+  get "landing" => "users#index"
 
   # The priority is based upon order of creation:
   # first created -> highest priority.

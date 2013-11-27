@@ -3,10 +3,11 @@ class UsersController < ApplicationController
   before_filter :admin_user,     only: [:destroy, :index]
 
   def index
-    @users = User.all
+    # @users = User.all
   end
 
   def create
+    @email = params[:email]
 =begin
     @user = User.new(params[:user])
     if @user.save
