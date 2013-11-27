@@ -204,14 +204,32 @@
 					subtitle: noteSubtitle
 			noteTitle
 
-		pasteContent: (e)->
+		pasteContent: (e) ->
 			e.preventDefault()
-			pasteText = e.originalEvent.clipboardData.getData("Text")
 			textAfter = @textAfterCursor()
-			@getNoteContent().html(@textBeforeCursor() + pasteText)
-			text = @getNoteContent().text()
-			@getNoteContent().append(textAfter)
-			@setCursor text
+			pasteText = e.originalEvent.clipboardData.getData("Text")
+			splitText = @splitPaste pasteText
+			@getNoteContent().html((text = @textBeforeCursor() + _.first splitText))
+			@updateNote()
+			@pasteNewNote _.rest(splitText), textAfter
+		splitPaste: (text) ->
+			reg = /\n/
+			splitText = text.split(reg)
+			_.filter splitText, (text) -> text isnt '\n' and text isnt '\r'
+		pasteNewNote: (splitPaste, textAfter) ->
+			return if not splitPaste?
+			focusHash = null
+			currentBranch = @model
+			do rec = (text = _.first(splitPaste), splitPaste = _.rest(splitPaste)) =>
+				return if not text?
+				[currentBranch, _1, focusHash] = Note.tree.createNote(currentBranch, currentBranch.get('title'), text)
+				Note.eventManager.trigger "setTitle:#{currentBranch.get('guid')}", text
+				rec _.first(splitPaste), _.rest(splitPaste)
+			@pasteLast currentBranch, textAfter
+		pasteLast: (branch, textAfter) -> 
+			text = branch.get('title')
+			Note.eventManager.trigger "setTitle:#{branch.get('guid')}", text + textAfter
+			Note.eventManager.trigger "setCursor:#{branch.get('guid')}", text
 
 		getSelectionAndTitle: ->
 			[window.getSelection(), @getNoteTitle()]
