@@ -5,7 +5,7 @@
 // ----------------------------------------------------
 .landing {
 	padding-top: 2%;
-  background-image: asset-url('brilliant.png', image);
+	background-image: asset-url('brilliant.png', image);
 	text-align: center;
 	height: 100%;
 
@@ -42,21 +42,22 @@
 		color: $notableBlack;
 		margin: 5px 0;
 	}
-	.form {
+	form {
 		width: 70%;
 		margin: 1% auto 30% auto;
 	}
 	.email {
 		display: block;
-		color: $gray;
 		font: 12px Tahoma, Helvetica, Arial, sans-serif;
-		font-style: italic;
 		padding: 7px;
 		width: 100%;
 		text-align: left;
 		margin: 5px 0;
-
 		margin-right: 6px;
+		&::-webkit-input-placeholder { font-style: italic; } /* Safari, Chrome */
+		&:-moz-placeholder { font-style: italic; } /* Mozilla Firefox 4 to 18 */
+		&::-moz-placeholder { font-style: italic; } /* Mozilla Firefox 19+ */
+		&:-ms-input-placeholder { font-style: italic; }/* Internet Explorer 10+ */
 	}
 	.submit {
 		display: block;
@@ -100,19 +101,21 @@
 			max-width: 55%;
 		}
 		.message {
-  		margin: 0;
-  	}
-		.form {
-			width: inherit;
-			margin: 0.78% auto 9.33% auto;
+			margin: 0;
 		}
-		.email {
+		form {
+			width: inherit;
+			margin: 0.78% auto 14% auto;
+		}
+		.mc-field-group {
 			display: inline-block;
 			width: 22%;
-			margin: 0 6px 0 0;
+			margin: 0;
+		}
+		.clear {
+			display: inline-block;
 		}
 		.submit {
-			display: inline-block;
 			border-radius: 5px;
 			margin: 0 0 4px 0;
 			width: inherit;
@@ -139,12 +142,27 @@
 			margin: 0 auto 3.7% auto;
 			max-width: 55%;
 		}
-		.submit {
-			border-radius: 5px;
-			margin-bottom: 4px;
+		.email {
+			font-size: 14px;
+			padding-top: 5px;
+			&::-webkit-input-placeholder {
+				font-size: 12px;
+				padding-top: 2px;
+			}
+			&:-moz-placeholder {
+				font-size: 12px;
+				padding-top: 2px;
+			}
+			&::-moz-placeholder {
+				font-size: 12px;
+				padding-top: 2px;
+			}
+			&:-ms-input-placeholder {
+				font-size: 12px;
+				padding-top: 2px;
+			}
 		}
 	}
-
 }
 
 // ----------------------------------------------------

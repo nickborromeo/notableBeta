@@ -17,10 +17,21 @@
 	<div class="message">
 		Notable is currently invite only. Would you like one?
 	</div>
-	<%= form_tag({controller: "users", action: "create"}, method: "get",
-	class: "form") do %>
-		<%= text_field_tag :email, params[:email],
-		class: "email", placeholder:"Enter your email address" %>
-	  <%= submit_tag("Submit", class: "submit btn") %>
-	<% end %>
+
+<!-- Mailchimp Signup Form -->
+<div id="mc_embed_signup">
+	<form action="http://notable.us3.list-manage.com/subscribe/post?u=794b28891835b425ac5058300&amp;id=0d6d587bb5" method="post" id="mc-embedded-subscribe-form" name="mc-embedded-subscribe-form" class="validate" target="_blank" novalidate>
+	<div class="mc-field-group">
+		<input type="email" value="" placeholder="Enter your email address" name="EMAIL" class="required email" id="mce-EMAIL">
+	</div>
+	<div id="mce-responses" class="clear">
+		<div class="response" id="mce-error-response" style="display:none"></div>
+		<div class="response" id="mce-success-response" style="display:none"></div>
+	</div>
+	<div class="clear">
+		<input type="submit" value="Submit" name="subscribe" id="mc-embedded-subscribe" class="submit btn">
+	</div>
+	</form>
+</div>
+
 </div>
