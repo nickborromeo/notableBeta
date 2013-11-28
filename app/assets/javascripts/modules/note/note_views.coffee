@@ -7,7 +7,9 @@
 			noteContent: ">.branch .note-content"
 			descendants: ">.branch .descendants"
 		events: ->
-			"blur >.branch .note-content": "updateNote"
+			"blur >.branch>.note-content": "updateNote"
+			"paste >.branch>.note-content": "pasteContent"
+
 			"click .destroy": @triggerEvent "deleteNote"
 			"mouseover .branch": @toggleDestroyFeat "block"
 			"mouseout .branch": @toggleDestroyFeat "none"
@@ -187,11 +189,11 @@
 					if timeOut > _timeout then timeOut -= _timeout else timeOut = _timeout
 					fun()
 				, timer - new Date().getTime() + timeOut
+
 		saveNote: (e) ->
 			e.preventDefault()
 			e.stopPropagation()
 			@updateNote()
-
 		updateNote: =>
 			noteTitle = @getNoteTitle()
 			noteSubtitle = "" #@getNoteSubtitle()
@@ -201,16 +203,52 @@
 					title: noteTitle
 					subtitle: noteSubtitle
 			noteTitle
+
+		pasteContent: (e) ->
+			e.preventDefault()
+			textAfter = @textAfterCursor()
+			pasteText = e.originalEvent.clipboardData.getData("Text")
+			splitText = @splitPaste pasteText
+			@getNoteContent().html((text = @textBeforeCursor() + _.first splitText))
+			@updateNote()
+			@pasteNewNote _.rest(splitText), textAfter
+		splitPaste: (text) ->
+			reg = /\n/
+			splitText = text.split(reg)
+			_.filter splitText, (text) -> text isnt '\n' and text isnt '\r'
+		pasteNewNote: (splitPaste, textAfter) ->
+			return if not splitPaste?
+			focusHash = null
+			currentBranch = @model
+			do rec = (text = _.first(splitPaste), splitPaste = _.rest(splitPaste)) =>
+				return if not text?
+				[currentBranch, _1, focusHash] = Note.tree.createNote(currentBranch, currentBranch.get('title'), text)
+				Note.eventManager.trigger "setTitle:#{currentBranch.get('guid')}", text
+				rec _.first(splitPaste), _.rest(splitPaste)
+			@pasteLast currentBranch, textAfter
+		pasteLast: (branch, textAfter) -> 
+			text = branch.get('title')
+			Note.eventManager.trigger "setTitle:#{branch.get('guid')}", text + textAfter
+			Note.eventManager.trigger "setCursor:#{branch.get('guid')}", text
+
+		getSelectionAndTitle: ->
+			[window.getSelection(), @getNoteTitle()]
 		getNoteTitle: ->
 			title = @getNoteContent().html().trim()
 			Note.trimEmptyTags title
 		setNoteTitle: (title) ->
 			@getNoteContent().html title
 			@updateNote()
+
 		setCursor: (position = false) ->
 			(noteContent = @getNoteContent()).focus()
 			@cursorApi.setCursor noteContent, position
-
+		textBeforeCursor: ->
+			[sel, title] = @getSelectionAndTitle()
+			@cursorApi.textBeforeCursor sel, title
+		textAfterCursor: ->
+			[sel, title] = @getSelectionAndTitle()
+			@cursorApi.textAfterCursor sel, title
 		keepTextBeforeCursor: (sel, title) ->
 			textBefore = @cursorApi.textBeforeCursor sel, title
 			@model.save
@@ -440,7 +478,7 @@
 
 		make_spaces: (num, spaces = '') ->
 			if num is 0 then return spaces
-			@make_spaces(--num, spaces + '&nbsp;&nbsp;')
+			@make_spaces(--num, spaces + ' - ')
 		renderTree: (tree)->
 			text = ""
 			indent = 0
