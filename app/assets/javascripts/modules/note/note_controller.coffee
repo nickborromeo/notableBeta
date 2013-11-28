@@ -25,6 +25,8 @@
 			App.OfflineAccess.checkAndLoadLocal (_.bind @buildTree, @)
 			App.Action.orchestrator = new App.Action.Orchestrator()
 			Note.eventManager.on "render:export", @showExportView, @
+			Note.eventManager.on "clear:export", @clearExportView, @
+			
 		buildTree: ->
 			@allNotesByDepth.sort()
 			@allNotesByDepth.validateTree()
@@ -38,6 +40,9 @@
 			App.contentRegion.currentView.crownRegion.close()
 			@exportView = new App.Note.ExportView model: model, collection: Note.activeTree, inParagraph: paragraph
 			App.contentRegion.currentView.treeRegion.show @exportView
+		clearExportView: ->
+			@showContentView(App.Note.activeTree)
+			@showCrownView()
 		showContentView: (tree) ->
 			App.contentRegion.currentView.treeRegion.close()
 			@treeView = new App.Note.TreeView(collection: tree)
