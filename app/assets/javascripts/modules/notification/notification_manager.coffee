@@ -22,6 +22,9 @@
 		newNote: "New note has been added."
 		moved: "Note has been moved."
 		exceedPasting: "Pasting limit exceeded. Let us know if you would really like to paste more"
+		exportPlain: "Your notes are ready for export in plain text format"
+		exportParagraph: "Your notes are ready for export in paragraph format"
+
 
 	_alertClickCallbacks =
 		deleted: ->

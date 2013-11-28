@@ -488,6 +488,7 @@
 			if num is 0 then return spaces
 			@make_spaces(--num, spaces + '&nbsp;&nbsp;')
 		renderTree: (tree)->
+			App.Notify.alert 'exportPlain', 'success' 
 			text = ""
 			indent = 0
 			do rec = (current = tree.first(), rest = tree.rest()) =>
@@ -499,6 +500,7 @@
 				rec _.first(rest), _.rest(rest)
 
 		renderTreeParagraph: (tree) ->
+			App.Notify.alert 'exportParagraph', 'success' 
 			text = ""
 			indent = 0
 			do rec = (current = tree.first(), rest = tree.rest()) =>
