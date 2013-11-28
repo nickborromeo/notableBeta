@@ -1,14 +1,14 @@
 @Notable.module "Helpers", (Helpers, App, Backbone, Marionette, $, _) ->
 
-	@CursorPositionAPI = 
+	@CursorPositionAPI =
 		setRange: (beginNode, beginOffset, endNode, endOffset) ->
 			range = document.createRange()
 			range.setStart(beginNode, beginOffset)
 			range.setEnd(endNode, endOffset)
 			range.collapse false
 			range
-		setRangeFromBeginTo: (node, offset) ->
-			@setRange @getNoteContent()[0], 0, node, offset
+		setRangeFromBeginTo: (beginingNode, node, offset) ->
+			@setRange beginingNode, 0, node, offset
 		setSelection: (range) ->
 			sel = window.getSelection()
 			sel.removeAllRanges()
@@ -16,9 +16,9 @@
 
 		setCursor: ($elem, position = false) ->
 			if typeof position is "string"
-				@setCursorPosition position
+				@setCursorPosition position, $elem[0]
 			else if position is true
-				@placeCursorAtEnd(@getNoteContent())
+				@placeCursorAtEnd($elem)
 		selectContent: ($elem) ->
 			range = document.createRange();
 			range.selectNodeContents($elem[0])
@@ -27,16 +27,16 @@
 			range = @selectContent $elem
 			range.collapse false
 			@setSelection range
-		setCursorPosition: (textBefore) ->
+		setCursorPosition: (textBefore, parent) ->
 			desiredPosition = @findDesiredPosition textBefore
-			[node, offset] = @findTargetedNodeAndOffset desiredPosition
-			range = @setRangeFromBeginTo node, offset
+			[node, offset] = @findTargetedNodeAndOffset desiredPosition, parent
+			range = @setRangeFromBeginTo parent, node, offset
 			@setSelection range
 		findDesiredPosition: (textBefore) ->
 			matches = @collectMatches textBefore
 			offset = textBefore.length
 			@decreaseOffsetAdjustment matches, offset
-		findTargetedNodeAndOffset: (desiredPosition, parent = @getNoteContent()[0]) ->
+		findTargetedNodeAndOffset: (desiredPosition, parent) ->
 			return [parent, 0] if desiredPosition is 0
 			it = document.createNodeIterator parent, NodeFilter.SHOW_TEXT
 			offset = 0;

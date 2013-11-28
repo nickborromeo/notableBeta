@@ -34,7 +34,6 @@
 			Note.eventManager.on "timeoutUpdate:#{@model.get('guid')}", @updateNote, @
 			@shortcutTimer = @createShortcutTimer()
 			@cursorApi = App.Helpers.CursorPositionAPI
-			@cursorApi.getNoteContent = @getNoteContent.bind @
 		onRender: ->
 			@getNoteContent()
 			@trimExtraDropTarget()
