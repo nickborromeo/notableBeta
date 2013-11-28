@@ -398,7 +398,7 @@
 			"keydown .note-content": @model.timeoutAndSave
 			"click .glyphicon-share": @export false
 			"click .glyphicon-export": @export true
-			"click .trash_icon": "deleteBranch"
+			"click .destroy": "deleteBranch"
 
 		initialize: ->
 			@cursorApi = App.Helpers.CursorPositionAPI

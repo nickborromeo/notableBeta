@@ -167,10 +167,12 @@
 				transform: scale(1.1);
 		  }
 		  cursor: pointer;
-			display: none;
-			position: absolute;
-			top: 3.2em;
-			right: 2em;
+		  display: none;
+		  position: absolute;
+		  top: 3.2em;
+		  right: 2em;
+  		  &.glyphicon-share {right: 3em;}
+  		  &.glyphicon-export {right: 4em;}
 		}
 	}
 
