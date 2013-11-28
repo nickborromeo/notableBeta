@@ -24,3 +24,6 @@ doc/
 logfile
 start_server.sh
 typescript
+
+# Ignore application configuration
+/config/application.yml
