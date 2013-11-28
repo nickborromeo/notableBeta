@@ -5,13 +5,18 @@
 // ----------------------------------------------------
 .landing {
 	padding-top: 2%;
-	margin-top: 3%;
   background-image: asset-url('brilliant.png', image);
 	text-align: center;
 	height: 100%;
 
 	.logo {
-		margin: 3% auto 6% auto;
+		margin: 5% auto 9% auto;
+		max-width: 80%
+	}
+	.couplet {
+		max-width: 80%;
+		margin: 0 auto;
+		text-align: center;
 	}
 	.tagline {
 		background-color: $notableBlue;
@@ -21,23 +26,25 @@
 		padding: 10px;
 		font-size: 32px;
 		font-weight: bold;
-		max-width: 17em;
-		margin: 0 auto;
+		margin: 1% auto;
+		display: inline-block;
 	}
 	.pitch {
 		font-family: Tahoma, Helvetica, Arial, sans-serif;
 		padding: 5px;
-		font-size: 16px;
-		margin: 0 auto 3.7% auto;
-		max-width: 55%;
+		font-size: 14px;
+		margin: 0 auto 4.5% auto;
+		max-width: 80%;
 		color: $notableBlack;
 	}
 	.message {
 		font: 12px Tahoma, Helvetica, Arial, sans-serif;
 		color: $notableBlack;
+		margin: 5px 0;
 	}
 	.form {
-		margin: 0.78% auto 9.33% auto;
+		width: 70%;
+		margin: 1% auto 30% auto;
 	}
 	.email {
 		display: block;
@@ -45,52 +52,70 @@
 		font: 12px Tahoma, Helvetica, Arial, sans-serif;
 		font-style: italic;
 		padding: 7px;
-		width: 22%;
+		width: 100%;
 		text-align: left;
+		margin: 5px 0;
+
 		margin-right: 6px;
 	}
 	.submit {
 		display: block;
 		color: $notableWhite;
 		background-color: $notableOrange;
+		width: 100%;
 		border-radius: 5px;
-		margin-bottom: 4px;
+		margin: 5px 0;
 	}
 }
 
+@media (max-width: $screen-xs) {
+	.landing {
+		.couplet {
+			max-width: 90%;
+		}
+		.tagline {
+			font-size: 30px;
+		}
+	}
+}
 
 // ----------------------------------------------------
 // ---------------TABLET MEDIA QUERIES ----------------
 // ----------------------------------------------------
 @media (min-width: $screen-sm) {
 	.landing {
+		margin-top: 3%;
+
 		.logo {
-			margin: 3.5% auto 7% auto;
+			margin: 5% auto 7% auto;
 		}
 		.tagline {
-			font-size: 42px;
+			font-size: 36px;
+			max-width: 17em;
 		}
 		.pitch {
-  		font-family: Tahoma, Helvetica, Arial, sans-serif;
 			padding: 5px;
-			font-size: 16px;
-			margin: 0 auto 3.7% auto;
+			font-size: 15px;
+			margin: 0 auto 5% auto;
 			max-width: 55%;
-			color: $notableBlack;
 		}
 		.message {
-  		font: 12px Tahoma, Helvetica, Arial, sans-serif;
-  		color: $notableBlack;
+  		margin: 0;
   	}
 		.form {
+			width: inherit;
 			margin: 0.78% auto 9.33% auto;
 		}
 		.email {
 			display: inline-block;
+			width: 22%;
+			margin: 0 6px 0 0;
 		}
 		.submit {
+			display: inline-block;
 			border-radius: 5px;
-			margin-bottom: 4px;
+			margin: 0 0 4px 0;
+			width: inherit;
 		}
 	}
 
@@ -101,29 +126,18 @@
 // ----------------------------------------------------
 @media (min-width: $screen-md) {
 	.landing {
-		.logo {
-			margin: 3.5% auto 7% auto;
-		}
 		.tagline {
 			font-size: 42px;
+			display: block;
+			margin: 0 auto;
+		}
+		.logo {
+			border: none;
 		}
 		.pitch {
-  		font-family: Tahoma, Helvetica, Arial, sans-serif;
-			padding: 5px;
 			font-size: 16px;
 			margin: 0 auto 3.7% auto;
 			max-width: 55%;
-			color: $notableBlack;
-		}
-		.message {
-  		font: 12px Tahoma, Helvetica, Arial, sans-serif;
-  		color: $notableBlack;
-  	}
-		.form {
-			margin: 0.78% auto 9.33% auto;
-		}
-		.email {
-			display: inline-block;
 		}
 		.submit {
 			border-radius: 5px;
