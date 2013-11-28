@@ -248,7 +248,7 @@
 			@cursorApi.textBeforeCursor sel, title
 		textAfterCursor: ->
 			[sel, title] = @getSelectionAndTitle()
-			@cursorApi.textBeforeCursor sel, title
+			@cursorApi.textAfterCursor sel, title
 		keepTextBeforeCursor: (sel, title) ->
 			textBefore = @cursorApi.textBeforeCursor sel, title
 			@model.save
