@@ -466,9 +466,15 @@
 		id: "tree"
 		template: "note/exportModel"
 
+		events: ->
+			"click .glyphicon-remove": "clearExport"
+
 		initialize: (options) ->
 			@model = new Note.ExportModel tree: @collection, inParagraph: options.inParagraph
 			console.log "exportView", arguments
+
+		clearExport: ->
+			Note.eventManager.trigger "clear:export"
 	
 	class Note.ExportModel extends Backbone.Model
 
@@ -502,5 +508,5 @@
 					rec current.descendants.first(), current.descendants.rest()
 				if current.isARoot(true) then text+='<br>'
 				rec _.first(rest), _.rest(rest)
-			
+
 )
