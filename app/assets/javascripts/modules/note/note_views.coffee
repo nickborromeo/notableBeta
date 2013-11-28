@@ -209,6 +209,7 @@
 			textAfter = @textAfterCursor()
 			pasteText = e.originalEvent.clipboardData.getData("Text")
 			splitText = @splitPaste pasteText
+			return App.Notify.alert 'exceedPasting', 'warning' if splitText.length > 100
 			@getNoteContent().html((text = @textBeforeCursor() + _.first splitText))
 			@updateNote()
 			@pasteNewNote _.rest(splitText), textAfter
