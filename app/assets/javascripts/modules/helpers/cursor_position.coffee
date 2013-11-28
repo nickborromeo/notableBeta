@@ -15,10 +15,10 @@
 			sel.addRange(range)
 
 		setCursor: ($elem, position = false) ->
-			if typeof endPosition is "string"
+			if typeof position is "string"
 				@setCursorPosition position
 			else if position is true
-				@placeCursorAtEnd($elem)
+				@placeCursorAtEnd(@getNoteContent())
 		selectContent: ($elem) ->
 			range = document.createRange();
 			range.selectNodeContents($elem[0])
@@ -36,8 +36,7 @@
 			matches = @collectMatches textBefore
 			offset = textBefore.length
 			@decreaseOffsetAdjustment matches, offset
-		findTargetedNodeAndOffset: (desiredPosition) ->
-			parent = @getNoteContent()[0]
+		findTargetedNodeAndOffset: (desiredPosition, parent = @getNoteContent()[0]) ->
 			return [parent, 0] if desiredPosition is 0
 			it = document.createNodeIterator parent, NodeFilter.SHOW_TEXT
 			offset = 0;
