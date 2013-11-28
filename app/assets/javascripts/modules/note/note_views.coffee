@@ -479,13 +479,13 @@
 
 		make_spaces: (num, spaces = '') ->
 			if num is 0 then return spaces
-			@make_spaces(--num, spaces + ' - ')
+			@make_spaces(--num, spaces + '&nbsp;&nbsp;')
 		renderTree: (tree)->
 			text = ""
 			indent = 0
 			do rec = (current = tree.first(), rest = tree.rest()) =>
 				return (--indent; text) if not current?
-				text += @make_spaces(indent) + current.get('title') + '<br>'
+				text += @make_spaces(indent) + ' - ' + current.get('title') + '<br>'
 				if current.descendants.length isnt 0
 					++indent
 					rec current.descendants.first(), current.descendants.rest()
