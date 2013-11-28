@@ -475,6 +475,7 @@
 		initialize: ->
 			console.log "exportModel", arguments
 			if @get('inParagraph') then @render = @renderTreeParagraph else @render = @renderTree
+			@set 'title', Note.activeBranch.get('title')
 			@set 'text', @render @get('tree')
 
 		make_spaces: (num, spaces = '') ->
