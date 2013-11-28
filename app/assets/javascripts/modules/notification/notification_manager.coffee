@@ -21,6 +21,7 @@
 		connected: "We're back online!"
 		newNote: "New note has been added."
 		moved: "Note has been moved."
+		exceedPasting: "Pasting limit exceeded. Let us know if you would really like to paste more"
 
 	_alertClickCallbacks =
 		deleted: ->
