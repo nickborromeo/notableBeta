@@ -26,8 +26,18 @@
 			App.Action.orchestrator = new App.Action.Orchestrator()
 			Note.eventManager.on "render:export", @showExportView, @
 			Note.eventManager.on "clear:export", @clearExportView, @
-			
-		buildTree: ->
+			App.Note.initializedTree.then =>
+				@startEvernoteSync()
+		startEvernoteSync: ->
+			setInterval @evernoteSync, 15000 # will change to 600000 later
+			@evernoteSync()
+		evernoteSync: ->
+			console.log Note.tree
+			if Note.tree.first()?
+				exportTree = new Note.ExportModel tree: Note.tree.first().descendants, inParagraph: false
+				console.log "export Text", exportTree
+				# exportTree.save() # This is causing the route error which is missing template
+		buil4dTree: ->
 			@allNotesByDepth.sort()
 			@allNotesByDepth.validateTree()
 			@allNotesByDepth.each (note) =>
