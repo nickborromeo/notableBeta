@@ -34,4 +34,10 @@ Notable::Application.configure do
 
   # Expands the lines which load the assets
   config.assets.debug = true
+
+  # config.evernote_settings = {
+  #   evernote_key: ENV['EVERNOTE_KEY'],
+  #   evernote_secret: ENV['EVERNOTE_SECRET']
+  # }
+
 end

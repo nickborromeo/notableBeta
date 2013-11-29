@@ -1,13 +1,9 @@
 class EvernoteController < ApplicationController
-	EVERNOTE_SERVER = "https://sandbox.evernote.com"
-	OAUTH_CONSUMER_KEY = "derekchen14-8308"
-	OAUTH_CONSUMER_SECRET = "b815a9b612437d65"
-	SANDBOX = true
 
 	def start
 		begin #sending client credentials in order to obtain temporary credentials
-			consumer = OAuth::Consumer.new(OAUTH_CONSUMER_KEY, OAUTH_CONSUMER_SECRET,{
-				:site => EVERNOTE_SERVER,
+			consumer = OAuth::Consumer.new(ENV['EVERNOTE_KEY'], ENV['EVERNOTE_SECRET'],{
+				:site => ENV['EVERNOTE_SERVER'],
 	      :request_token_path => "/oauth",
 	      :access_token_path => "/oauth",
 				:authorize_path => "/OAuth.action"})
@@ -24,7 +20,7 @@ class EvernoteController < ApplicationController
 			oauth_verifier = params['oauth_verifier']
 
 			begin
-				 #sending temporary credentials to gain token credentials
+				#sending temporary credentials to gain token credentials
 				access_token = session[:request_token].get_access_token(:oauth_verifier => oauth_verifier)
 				token_credentials = access_token.token
 
