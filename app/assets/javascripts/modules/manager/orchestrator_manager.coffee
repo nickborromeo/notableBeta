@@ -77,10 +77,26 @@
 			# App.contentRegion.currentView.treeRegion.currentView.render()
 		acceptChanges: (validQueue, action = validQueue.shift()) ->
 			console.log "accept changes", validQueue
-			do rec = (action = validQueue.shift()) ->
-				return if not action?
-				action.branch.save()
+			validQueue = @trimValidQueue validQueue
+			console.log "trimed changes", validQueue
+			do rec = (branch = validQueue.shift()) ->
+				return if not branch?
+				branch.save()
 				rec validQueue.shift()
 			# return if not action?
 			# action.branch.save()
 			# @acceptChanges validQueue, validQueue.shift()
+		# trimValidQueue: (validQueue) ->
+		# 	_.filter validQueue, (obj) ->
+		# 		keep = true;
+		# 		_.each obj.attributes, (val, key) ->
+		# 			keep = false if obj.branch.get(key) isnt val
+		# 		keep
+		trimValidQueue: (validQueue) ->
+			guids = []
+			queue = []
+			_.each validQueue.reverse(), (obj) ->
+				if obj.branch.get('guid') not in guids
+					guids.push obj.branch.get('guid')
+					queue.push obj.branch
+			queue.reverse()
