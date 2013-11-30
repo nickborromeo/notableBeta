@@ -4,7 +4,10 @@
 
 		constructor: ->
 			@savingQueue = []
+			@validationQueue = []
 			@actionQueue = []
+			@destroyQueue = []
+			@destroyGuidQueue = []
 
 		queueAction: (branch, attributes, options) ->
 			# will probably have to play with the action manager
@@ -13,10 +16,16 @@
 				attributes: attributes
 				previous_attributes: branch.attributes
 				options: options
-		triggerAction: (branch, attributes, options) ->
+		queueDestroy: (branch) ->
+			@destroyQueue.push branch
+		triggerAction: (branch, attributes, options = {}) ->
 			clearTimeout @savingQueueTimeout
-			@queueAction.apply(@, arguments)
-			@processActionQueue()
+			if options.destroy
+				@queueDestroy.apply @, arguments
+				@startSavingQueueTimeout()
+			else
+				@queueAction.apply(@, arguments)
+				@processActionQueue()
 			# @queueSaving attributes, branch
 
 		processActionQueue: ->
@@ -34,8 +43,8 @@
 				# 	action.branch.destroy syncToServer: true, validate: false
 				# 	action.args = [syncToServer: true, validate: false]
 				# Push action to history
-				@savingQueue.push action
-				console.log "savingQueue", @savingQueue
+				@validationQueue.push action
+				console.log "validationQueue", @validationQueue
 				rec @actionQueue.shift()
 			@processingActions = false
 			@startSavingQueueTimeout()
@@ -51,17 +60,19 @@
 			@savingQueueTimeout = setTimeout @processSavingQueue.bind(@), 1000
 		processSavingQueue: () ->
 			valid = true
-			validQueue = []
-			do rec = (action = @savingQueue.shift()) =>
-				return if not action? or not valid
-				console.log "processing savingQueue", action
-				if not @validate action.branch, action.branch.attributes
+			savingQueue = []
+			@validationQueue = @trimValidQueue @validationQueue
+			console.log "validation queue", @validationQueue
+			do rec = (branch = @validationQueue.shift()) =>
+				return if not branch? or not valid
+				console.log "processing savingQueue", branch
+				if not @validate branch, branch.attributes
 					return valid = false
-				validQueue.push action
-				console.log "validated"
+				savingQueue.push branch
+				console.log branch.get('guid'), "validated"
 				# action.branch.save action.attributes, syncToServer: true, validate: false
-				rec @savingQueue.shift()
-			if valid then @acceptChanges(validQueue) else @rejectChanges(validQueue)
+				rec @validationQueue.shift()
+			if valid then @acceptChanges(savingQueue) else @rejectChanges(savingQueue)
 
 		rejectChanges: (validQueue) ->
 			throw "The set of changes break the tree"
@@ -70,14 +81,21 @@
 			# do rec = (action = queue.shift()) =>
 			# 	return if not action?
 			# 	console.log "reject action", action, queue
-			# 	# action.branch.set action.previousAttributes
+				# 	# action.branch.set action.previousAttributes
 			# 	Action.undo() if (undoCount-- >= 0)
 			# 	setTimeout (-> rec queue.shift()), 100
 			# @savingQueue = []
 			# App.contentRegion.currentView.treeRegion.currentView.render()
-		acceptChanges: (validQueue, action = validQueue.shift()) ->
+		processDestroy: ->
+			console.log "destroyQueue", @destroyQueue
+			do rec = (branch = @destroyQueue.shift()) =>
+				return if not branch?
+				if branch.id?
+					branch.destroy()				
+				rec @destroyQueue.shift()
+		acceptChanges: (validQueue) ->
 			console.log "accept changes", validQueue
-			validQueue = @trimValidQueue validQueue
+			@processDestroy()
 			console.log "trimed changes", validQueue
 			do rec = (branch = validQueue.shift()) ->
 				return if not branch?
@@ -92,11 +110,15 @@
 		# 		_.each obj.attributes, (val, key) ->
 		# 			keep = false if obj.branch.get(key) isnt val
 		# 		keep
+		getDestroyGuids: ->
+			guids = []
+			_.each @destroyQueue, (toDestroy) ->
+				guids.push toDestroy.guid
 		trimValidQueue: (validQueue) ->
 			guids = []
 			queue = []
-			_.each validQueue.reverse(), (obj) ->
-				if obj.branch.get('guid') not in guids
+			_.each validQueue, (obj) =>
+				if obj.branch.get('guid') not in guids and obj.branch not in @destroyQueue
 					guids.push obj.branch.get('guid')
 					queue.push obj.branch
-			queue.reverse()
+			queue
