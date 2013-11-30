@@ -56,18 +56,18 @@
 			@ui.noteContent
 		bindKeyboardShortcuts: ->
 			@.$el.on 'keydown', null, 'return', @createNote.bind @
-			@.$el.on 'keydown', null, 'ctrl+shift+backspace', @triggerShortcut 'deleteNote'
-			@.$el.on 'keydown', null, 'meta+shift+backspace', @triggerShortcut 'deleteNote'
-			@.$el.on 'keydown', null, 'tab', @triggerShortcut 'tabNote'
-			@.$el.on 'keydown', null, 'shift+tab', @triggerShortcut 'unTabNote'
-			@.$el.on 'keydown', null, 'alt+right', @triggerShortcut 'tabNote'
-			@.$el.on 'keydown', null, 'alt+left', @triggerShortcut 'unTabNote'
-			@.$el.on 'keydown', null, 'alt+up', @triggerShortcut 'jumpPositionUp'
-			@.$el.on 'keydown', null, 'alt+down', @triggerShortcut 'jumpPositionDown'
-			@.$el.on 'keydown', null, 'meta+right', @triggerShortcut 'tabNote'
-			@.$el.on 'keydown', null, 'meta+left', @triggerShortcut 'unTabNote'
-			@.$el.on 'keydown', null, 'meta+up', @triggerShortcut 'jumpPositionUp'
-			@.$el.on 'keydown', null, 'meta+down', @triggerShortcut 'jumpPositionDown'
+			@.$el.on 'keydown', null, 'ctrl+shift+backspace', @triggerQueuedShortcut 'deleteNote'
+			@.$el.on 'keydown', null, 'meta+shift+backspace', @triggerQueuedShortcut 'deleteNote'
+			@.$el.on 'keydown', null, 'tab', @triggerQueuedShortcut 'tabNote'
+			@.$el.on 'keydown', null, 'shift+tab', @triggerQueuedShortcut 'unTabNote'
+			@.$el.on 'keydown', null, 'alt+right', @triggerQueuedShortcut 'tabNote'
+			@.$el.on 'keydown', null, 'alt+left', @triggerQueuedShortcut 'unTabNote'
+			@.$el.on 'keydown', null, 'alt+up', @triggerQueuedShortcut 'jumpPositionUp'
+			@.$el.on 'keydown', null, 'alt+down', @triggerQueuedShortcut 'jumpPositionDown'
+			@.$el.on 'keydown', null, 'meta+right', @triggerQueuedShortcut 'tabNote'
+			@.$el.on 'keydown', null, 'meta+left', @triggerQueuedShortcut 'unTabNote'
+			@.$el.on 'keydown', null, 'meta+up', @triggerQueuedShortcut 'jumpPositionUp'
+			@.$el.on 'keydown', null, 'meta+down', @triggerQueuedShortcut 'jumpPositionDown'
 			@.$el.on 'keydown', null, 'up', @triggerShortcut 'jumpFocusUp'
 			@.$el.on 'keydown', null, 'down', @triggerShortcut 'jumpFocusDown'
 			@.$el.on 'keydown', null, 'alt+ctrl+left', @triggerShortcut 'zoomOut'
@@ -102,11 +102,16 @@
 			e.preventDefault()
 			e.stopPropagation()
 			App.Action.undo()
-		triggerShortcut: (event) -> (e) =>
+		triggerQueuedShortcut: (event) -> (e) =>
 			e.preventDefault()
 			e.stopPropagation()
 			args = Note.sliceArgs arguments
 			@shortcutTimer => @triggerEvent(event).apply(@, args)
+		triggerShortcut: (event) -> (e) =>
+			e.preventDefault()
+			e.stopPropagation()
+			args = Note.sliceArgs arguments
+			@triggerEvent(event).apply(@, args)
 		triggerLocalShortcut: (behaviorFn) -> (e) =>
 			e.preventDefault()
 			e.stopPropagation()
@@ -123,12 +128,13 @@
 				@updateNote()
 				args = ['change', event, @model].concat(Note.sliceArgs arguments, 0)
 				Note.eventManager.trigger.apply(Note.eventManager, args)
-
+		triggerQueueEvent: (event) ->
+			@shortcutTimer @triggerEvent(event)
 		mergeWithPreceding: (e) ->
 			return true if document.getSelection().isCollapsed is false
 			e.stopPropagation()
 			if @testCursorPosition "isEmptyBeforeCursor"
-				@triggerShortcut('mergeWithPreceding')(e)
+				@triggerQueuedShortcut('mergeWithPreceding')(e)
 		arrowRightJumpLine: (e) ->
 			e.stopPropagation()
 			if @testCursorPosition "isEmptyAfterCursor"
@@ -180,10 +186,10 @@
 			@shortcutTimer create.bind @
 		createShortcutTimer: ->
 			timer = new Date().getTime()
-			_timeout = 160
+			_timeout = 300
 			timeOut = _timeout;
 			shortcutTimeout = (fun) =>
-				timeOut+= timeOut if ((newTimer = new Date().getTime()) - timer < timeOut)
+				timeOut+= _timeout if ((newTimer = new Date().getTime()) - timer < timeOut)
 				setTimeout ->
 					timer = newTimer
 					if timeOut > _timeout then timeOut -= _timeout else timeOut = _timeout
@@ -199,7 +205,7 @@
 			noteSubtitle = "" #@getNoteSubtitle()
 			if @model.get('title') isnt noteTitle
 				App.Action.addHistory 'updateContent', @model
-				@model.save
+				App.Action.orchestrator.triggerAction @model,
 					title: noteTitle
 					subtitle: noteSubtitle
 			noteTitle
