@@ -308,7 +308,7 @@
 			Note.eventManager.trigger "setTitle:#{createdFrom.get('guid')}", createdFromNewTitle
 			Note.eventManager.trigger "setCursor:#{setFocusIn.get('guid')}"
 		deleteNote: (note) ->
-			(@jumpFocusUp note) unless (@jumpFocusDown note, false)
+			(@jumpFocusDown note, false) unless (@jumpFocusUp note, true)
 			@collection.deleteNote note
 		jumpFocusUp: (note, endOfLine = false) ->
 			previousNote = @collection.jumpFocusUp note
