@@ -186,15 +186,15 @@
 			@shortcutTimer create.bind @
 		createShortcutTimer: ->
 			timer = new Date().getTime()
-			_timeout = 300
-			timeOut = _timeout;
+			baseTimeout = 300
+			accumulatedTimeout = baseTimeout;
 			shortcutTimeout = (fun) =>
-				timeOut+= _timeout if ((newTimer = new Date().getTime()) - timer < timeOut)
+				accumulatedTimeout+= baseTimeout if ((newTimer = new Date().getTime()) - timer < accumulatedTimeout)
 				setTimeout ->
 					timer = newTimer
-					if timeOut > _timeout then timeOut -= _timeout else timeOut = _timeout
+					if accumulatedTimeout > baseTimeout then accumulatedTimeout -= baseTimeout else accumulatedTimeout = baseTimeout
 					fun()
-				, timer - new Date().getTime() + timeOut
+				, timer - new Date().getTime() + accumulatedTimeout
 
 		saveNote: (e) ->
 			e.preventDefault()
