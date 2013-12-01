@@ -19,6 +19,11 @@
 		start: ->
 			App.OfflineAccess.checkAndLoadLocal (_.bind @buildTree, @)
 			App.Action.orchestrator = new App.Action.Orchestrator()
+		reset: ->
+			@tree._reset()
+			@allNotesByDepth._reset()
+			@allNotesByDepth.fetch success: => @buildTree()
+			Note.eventManager.trigger "clearZoom"
 		setGlobals: ->
 			Note.initializedTree = $.Deferred();
 			Note.allNotesByDepth = @allNotesByDepth
@@ -92,6 +97,7 @@
 					Note.eventManager.trigger "setCursor:#{Note.tree.first().get('guid')}"
 
 		zoomIn: (guid) ->
+			Backbone.history.navigate '#'
 			App.Note.initializedTree.then =>
 				App.Note.activeTree = App.Note.tree.getCollection guid
 				App.Note.activeBranch = App.Note.tree.findNote(guid)

@@ -75,7 +75,10 @@
 			if valid then @acceptChanges(savingQueue) else @rejectChanges(savingQueue)
 
 		rejectChanges: (validQueue) ->
-			throw "The set of changes break the tree"
+			@validationQueue = []
+			App.Note.noteController.reset()
+			App.Notify.alert 'brokenTree', 'danger'
+			# throw "The set of changes break the tree"
 			# undoCount = validQueue.length
 			# queue = validQueue.concat @savingQueue
 			# do rec = (action = queue.shift()) =>
