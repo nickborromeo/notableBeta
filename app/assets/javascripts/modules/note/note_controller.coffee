@@ -12,22 +12,26 @@
 
 	Note.Controller = Marionette.Controller.extend
 		initialize: (options) ->
-			Note.eventManager.on "clearZoom", @clearZoom, @
 			@allNotesByDepth = new App.Note.Collection()
 			@tree = new App.Note.Tree()
-
-			Note.initializedTree = $.Deferred();
-			Note.tree = @tree
-			Note.activeTree = @tree
-			Note.activeBranch = "root"
-			Note.allNotesByDepth = @allNotesByDepth
+			@setGlobals()
+			@setEvents()
 		start: ->
 			App.OfflineAccess.checkAndLoadLocal (_.bind @buildTree, @)
 			App.Action.orchestrator = new App.Action.Orchestrator()
+		setGlobals: ->
+			Note.initializedTree = $.Deferred();
+			Note.allNotesByDepth = @allNotesByDepth
+			Note.tree = @tree
+			Note.activeTree = @tree
+			Note.activeBranch = "root"
+		setEvents: ->
+			Note.eventManager.on "clearZoom", @clearZoom, @
 			Note.eventManager.on "render:export", @showExportView, @
 			Note.eventManager.on "clear:export", @clearExportView, @
-			
+
 		buildTree: ->
+			Note.initializedTree = $.Deferred();
 			@allNotesByDepth.sort()
 			@allNotesByDepth.validateTree()
 			@allNotesByDepth.each (note) =>
@@ -99,7 +103,7 @@
 
 	# Initializers -------------------------
 	Note.addInitializer ->
-		noteController = new Note.Controller()
-		noteController.start()
-		new Note.Router controller: noteController
+		Note.noteController = new Note.Controller()
+		Note.noteController.start()
+		new Note.Router controller: Note.noteController
 )
