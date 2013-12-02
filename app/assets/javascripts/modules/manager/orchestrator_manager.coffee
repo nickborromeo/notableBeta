@@ -57,7 +57,7 @@
 				true
 
 		startSavingQueueTimeout: ->
-			@savingQueueTimeout = setTimeout @processSavingQueue.bind(@), 1000
+			@savingQueueTimeout = setTimeout @processSavingQueue.bind(@), 5000
 		processSavingQueue: () ->
 			valid = true
 			savingQueue = []
