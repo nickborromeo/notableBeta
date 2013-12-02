@@ -112,7 +112,8 @@
 			e.preventDefault()
 			e.stopPropagation()
 			args = Note.sliceArgs arguments
-			@shortcutTimer => @triggerEvent(event).apply(@, args)
+			# @shortcutTimer => @triggerEvent(event).apply(@, args)
+			@triggerEvent(event).apply(@, args)
 		triggerShortcut: (event) -> (e) =>
 			e.preventDefault()
 			e.stopPropagation()
@@ -189,7 +190,8 @@
 				textAfter = (@cursorApi.textAfterCursor sel, title).replace(/^\s/, "")
 				Note.eventManager.trigger 'createNote', @model, textBefore, textAfter
 				if textAfter.length > 0 then App.Action.addHistory "compoundAction", {actions:2, previousActions: true}
-			@shortcutTimer create.bind @
+			# @shortcutTimer create.bind @
+			create.call @
 		createShortcutTimer: ->
 			timer = new Date().getTime()
 			baseTimeout = 300
