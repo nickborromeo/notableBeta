@@ -29,7 +29,7 @@
 			App.Note.initializedTree.then =>
 				@startEvernoteSync()
 		startEvernoteSync: ->
-			setInterval @evernoteSync, 15000 # will change to 600000 later
+			setInterval @evernoteSync, 15000 #later, should change to 10 minutes
 			@evernoteSync()
 		evernoteSync: ->
 			console.log Note.tree
@@ -37,7 +37,7 @@
 				exportTree = new Note.ExportModel tree: Note.tree.first().descendants, inParagraph: false
 				console.log "export Text", exportTree
 				# exportTree.save() # This is causing the route error which is missing template
-		buil4dTree: ->
+		buildTree: ->
 			@allNotesByDepth.sort()
 			@allNotesByDepth.validateTree()
 			@allNotesByDepth.each (note) =>

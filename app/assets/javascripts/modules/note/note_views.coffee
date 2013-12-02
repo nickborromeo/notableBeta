@@ -444,7 +444,7 @@
 		deleteBranch: (e) ->
 			@zoomOut(e)
 			App.Note.tree.deleteNote @model
-			
+
 		zoomOut: (e) ->
 			e.preventDefault()
 			e.stopPropagation()
@@ -472,12 +472,12 @@
 		initialize: (options) ->
 			@model = new Note.ExportModel tree: @collection, inParagraph: options.inParagraph
 			if options.inParagraph then App.Notify.alert 'exportParagraph', 'success'
-			else App.Notify.alert 'exportPlain', 'success' 
+			else App.Notify.alert 'exportPlain', 'success'
 			console.log "exportView", arguments
 
 		clearExport: ->
 			Note.eventManager.trigger "clear:export"
-	
+
 	class Note.ExportModel extends Backbone.Model
 		urlRoot : '/sync'
 
