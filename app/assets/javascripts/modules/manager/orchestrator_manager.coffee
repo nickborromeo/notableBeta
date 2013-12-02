@@ -37,21 +37,21 @@
 				# return if not @validate action.branch, action.attributes
 				# action.branch.save action.attributes, syncToServer: true, validate: false
 				action.args = [action.attributes, syncToServer: true, validate: false]
-				console.log "set", action.branch.attributes, action.attributes
+				# console.log "set", action.branch.attributes, action.attributes
 				action.branch.set action.attributes
 			 	# else if action.options.type is 'destroy'
 				# 	action.branch.destroy syncToServer: true, validate: false
 				# 	action.args = [syncToServer: true, validate: false]
 				# Push action to history
 				@validationQueue.push action
-				console.log "validationQueue", @validationQueue
+				# console.log "validationQueue", @validationQueue
 				rec @actionQueue.shift()
 			@processingActions = false
 			@startSavingQueueTimeout()
 
 		validate: (branch, attributes, options) ->
 			if (val = branch.validate attributes)?
-				console.log val
+				# console.log val
 				false
 			else
 				true
@@ -61,15 +61,19 @@
 		processSavingQueue: () ->
 			valid = true
 			savingQueue = []
+			console.log "Complete validation Queue"
+			_.each @validationQueue, (v) ->
+				console.log v.branch.get('guid'), v.branch.id, "Sent attributes", v.attributes, "branch attributes", v.branch.attributes
 			@validationQueue = @trimValidQueue @validationQueue
-			console.log "validation queue", @validationQueue
+			console.log "Trimed validation queue", @validationQueue
+			# console.log "validation queue", @validationQueue
 			do rec = (branch = @validationQueue.shift()) =>
 				return if not branch? or not valid
-				console.log "processing savingQueue", branch
+				console.log "Validation", branch.get('guid'), branch.id, branch.attributes
 				if not @validate branch, branch.attributes
 					return valid = false
 				savingQueue.push branch
-				console.log branch.get('guid'), "validated"
+				# console.log branch.get('guid'), "validated"
 				# action.branch.save action.attributes, syncToServer: true, validate: false
 				rec @validationQueue.shift()
 			if valid then @acceptChanges(savingQueue) else @rejectChanges(savingQueue)
@@ -90,16 +94,16 @@
 			# @savingQueue = []
 			# App.contentRegion.currentView.treeRegion.currentView.render()
 		processDestroy: ->
-			console.log "destroyQueue", @destroyQueue
+			# console.log "destroyQueue", @destroyQueue
 			do rec = (branch = @destroyQueue.shift()) =>
 				return if not branch?
 				if branch.id?
 					branch.destroy()				
 				rec @destroyQueue.shift()
 		acceptChanges: (validQueue) ->
-			console.log "accept changes", validQueue
+			# console.log "accept changes", validQueue
 			@processDestroy()
-			console.log "trimed changes", validQueue
+			# console.log "trimed changes", validQueue
 			do rec = (branch = validQueue.shift()) ->
 				return if not branch?
 				branch.save()

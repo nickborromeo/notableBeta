@@ -11,7 +11,7 @@
 			collapsed: false
 
 		validate: (attributes, options) ->
-			console.log "validate", @get('guid')
+			# console.log "validate", @get('guid')
 			e = undefined
 			sameGuidExist = do =>
 				Note.tree.find (branch) =>
@@ -46,13 +46,13 @@
 			return e
 
 		sync: (a,b, options) ->
-			console.log "sync method", arguments
+			# console.log "sync method", arguments
 			Backbone.Model.prototype.sync.apply(@, arguments)
 		save: (attributes = null, options = {}) =>
+			# options.wait = true
 			# if not options.syncToServer
 			# 	console.log arguments
 			# 	return App.Action.orchestrator.triggerAction @, attributes, type:'save'
-			console.log "saving", arguments
 			App.Notify.alert 'saving', 'save'
 			callBackOptions =
 				success: (model, response, opts)  =>
@@ -67,8 +67,9 @@
 					if options.error? then options.error(model, xhr, opts)
 			#this fills in other options that might be provided
 			_(callBackOptions).defaults(options)
+			console.log callBackOptions
 			Backbone.Model.prototype.save.call(@, attributes, callBackOptions)
-
+			console.log "saving", @get('guid'), @id, @, arguments
 		destroy: (options = {}) =>
 			# if not options.syncToServer
 			# 	console.log arguments
