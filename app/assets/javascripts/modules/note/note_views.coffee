@@ -7,8 +7,9 @@
 			noteContent: ">.branch .note-content"
 			descendants: ">.branch .descendants"
 		events: ->
-			"keypress >.branch .note-content": "createNote"
-			"blur >.branch .note-content": "updateNote"
+			"blur >.branch>.note-content": "updateNote"
+			"paste >.branch>.note-content": "pasteContent"
+
 			"click .destroy": @triggerEvent "deleteNote"
 			"mouseover .branch": @toggleDestroyFeat "block"
 			"mouseout .branch": @toggleDestroyFeat "none"
@@ -31,6 +32,8 @@
 			Note.eventManager.on "render:#{@model.get('guid')}", @render, @
 			Note.eventManager.on "setTitle:#{@model.get('guid')}", @setNoteTitle, @
 			Note.eventManager.on "timeoutUpdate:#{@model.get('guid')}", @updateNote, @
+			@shortcutTimer = @createShortcutTimer()
+			@cursorApi = App.Helpers.CursorPositionAPI
 		onRender: ->
 			@getNoteContent()
 			@trimExtraDropTarget()
@@ -47,23 +50,30 @@
 		trimExtraDropTarget: ->
 			if @model.isARoot(true) and @model.get('rank') isnt 1
 				@$(">.branch>.dropBefore").remove()
+
+		# Very weird bug to investigate here.
+		# Condition is commented because otherwise
+		# @ui.noteContent is bound to first node to have
+		# received multiple keyboard shortcut
 		getNoteContent: ->
-			if @ui.noteContent.length is 0 or !@ui.noteContent.focus?
-				@ui.noteContent = @.$('.note-content:first')
-			@ui.noteContent
+			# if @ui.noteContent.length is 0 or !@ui.noteContent.focus?
+			@ui.noteContent = @.$('.note-content:first')
+			# @ui.noteContent
+
 		bindKeyboardShortcuts: ->
-			@.$el.on 'keydown', null, 'ctrl+shift+backspace', @triggerShortcut 'deleteNote'
-			@.$el.on 'keydown', null, 'meta+shift+backspace', @triggerShortcut 'deleteNote'
-			@.$el.on 'keydown', null, 'tab', @triggerShortcut 'tabNote'
-			@.$el.on 'keydown', null, 'shift+tab', @triggerShortcut 'unTabNote'
-			@.$el.on 'keydown', null, 'alt+right', @triggerShortcut 'tabNote'
-			@.$el.on 'keydown', null, 'alt+left', @triggerShortcut 'unTabNote'
-			@.$el.on 'keydown', null, 'alt+up', @triggerShortcut 'jumpPositionUp'
-			@.$el.on 'keydown', null, 'alt+down', @triggerShortcut 'jumpPositionDown'
-			@.$el.on 'keydown', null, 'meta+right', @triggerShortcut 'tabNote'
-			@.$el.on 'keydown', null, 'meta+left', @triggerShortcut 'unTabNote'
-			@.$el.on 'keydown', null, 'meta+up', @triggerShortcut 'jumpPositionUp'
-			@.$el.on 'keydown', null, 'meta+down', @triggerShortcut 'jumpPositionDown'
+			@.$el.on 'keydown', null, 'return', @createNote.bind @
+			@.$el.on 'keydown', null, 'ctrl+shift+backspace', @triggerQueuedShortcut 'deleteNote'
+			@.$el.on 'keydown', null, 'meta+shift+backspace', @triggerQueuedShortcut 'deleteNote'
+			@.$el.on 'keydown', null, 'tab', @triggerQueuedShortcut 'tabNote'
+			@.$el.on 'keydown', null, 'shift+tab', @triggerQueuedShortcut 'unTabNote'
+			@.$el.on 'keydown', null, 'alt+right', @triggerQueuedShortcut 'tabNote'
+			@.$el.on 'keydown', null, 'alt+left', @triggerQueuedShortcut 'unTabNote'
+			@.$el.on 'keydown', null, 'alt+up', @triggerQueuedShortcut 'jumpPositionUp'
+			@.$el.on 'keydown', null, 'alt+down', @triggerQueuedShortcut 'jumpPositionDown'
+			@.$el.on 'keydown', null, 'meta+right', @triggerQueuedShortcut 'tabNote'
+			@.$el.on 'keydown', null, 'meta+left', @triggerQueuedShortcut 'unTabNote'
+			@.$el.on 'keydown', null, 'meta+up', @triggerQueuedShortcut 'jumpPositionUp'
+			@.$el.on 'keydown', null, 'meta+down', @triggerQueuedShortcut 'jumpPositionDown'
 			@.$el.on 'keydown', null, 'up', @triggerShortcut 'jumpFocusUp'
 			@.$el.on 'keydown', null, 'down', @triggerShortcut 'jumpFocusDown'
 			@.$el.on 'keydown', null, 'alt+ctrl+left', @triggerShortcut 'zoomOut'
@@ -98,10 +108,17 @@
 			e.preventDefault()
 			e.stopPropagation()
 			App.Action.undo()
+		triggerQueuedShortcut: (event) -> (e) =>
+			e.preventDefault()
+			e.stopPropagation()
+			args = Note.sliceArgs arguments
+			# @shortcutTimer => @triggerEvent(event).apply(@, args)
+			@triggerEvent(event).apply(@, args)
 		triggerShortcut: (event) -> (e) =>
 			e.preventDefault()
 			e.stopPropagation()
-			@triggerEvent(event).apply(@, Note.sliceArgs arguments)
+			args = Note.sliceArgs arguments
+			@triggerEvent(event).apply(@, args)
 		triggerLocalShortcut: (behaviorFn) -> (e) =>
 			e.preventDefault()
 			e.stopPropagation()
@@ -118,12 +135,13 @@
 				@updateNote()
 				args = ['change', event, @model].concat(Note.sliceArgs arguments, 0)
 				Note.eventManager.trigger.apply(Note.eventManager, args)
-
+		triggerQueueEvent: (event) ->
+			@shortcutTimer @triggerEvent(event)
 		mergeWithPreceding: (e) ->
 			return true if document.getSelection().isCollapsed is false
 			e.stopPropagation()
 			if @testCursorPosition "isEmptyBeforeCursor"
-				@triggerShortcut('mergeWithPreceding')(e)
+				@triggerQueuedShortcut('mergeWithPreceding')(e)
 		arrowRightJumpLine: (e) ->
 			e.stopPropagation()
 			if @testCursorPosition "isEmptyAfterCursor"
@@ -163,130 +181,103 @@
 				$("div[data-guid=#{@model.get 'guid'}] .trash_icon:first").css("display", toggleType)
 
 		createNote: (e) ->
-			ENTER_KEY = 13
-			if e.which is ENTER_KEY
-				e.preventDefault()
+			e.preventDefault()
+			e.stopPropagation()
+			create = =>
 				sel = window.getSelection()
 				title = @updateNote()
-				textBefore = @textBeforeCursor sel, title
-				textAfter = (@textAfterCursor sel, title).replace(/^\s/, "")
+				textBefore = @cursorApi.textBeforeCursor sel, title
+				textAfter = (@cursorApi.textAfterCursor sel, title).replace(/^\s/, "")
 				Note.eventManager.trigger 'createNote', @model, textBefore, textAfter
 				if textAfter.length > 0 then App.Action.addHistory "compoundAction", {actions:2, previousActions: true}
+			# @shortcutTimer create.bind @
+			create.call @
+		createShortcutTimer: ->
+			timer = new Date().getTime()
+			baseTimeout = 300
+			accumulatedTimeout = baseTimeout;
+			shortcutTimeout = (fun) =>
+				accumulatedTimeout+= baseTimeout if ((newTimer = new Date().getTime()) - timer < accumulatedTimeout)
+				setTimeout ->
+					timer = newTimer
+					if accumulatedTimeout > baseTimeout then accumulatedTimeout -= baseTimeout else accumulatedTimeout = baseTimeout
+					fun()
+				, timer - new Date().getTime() + accumulatedTimeout
 
 		saveNote: (e) ->
 			e.preventDefault()
 			e.stopPropagation()
 			@updateNote()
-
 		updateNote: =>
 			noteTitle = @getNoteTitle()
 			noteSubtitle = "" #@getNoteSubtitle()
 			if @model.get('title') isnt noteTitle
 				App.Action.addHistory 'updateContent', @model
-				@model.save
+				App.Action.orchestrator.triggerAction @model,
 					title: noteTitle
 					subtitle: noteSubtitle
 			noteTitle
+
+		pasteContent: (e) ->
+			e.preventDefault()
+			textAfter = @textAfterCursor()
+			pasteText = e.originalEvent.clipboardData.getData("Text")
+			splitText = @splitPaste pasteText
+			return App.Notify.alert 'exceedPasting', 'warning' if splitText.length > 100
+			@getNoteContent().html((text = @textBeforeCursor() + _.first splitText))
+			@updateNote()
+			@pasteNewNote _.rest(splitText), textAfter
+		splitPaste: (text) ->
+			reg = /\n/
+			splitText = text.split(reg)
+			_.filter splitText, (text) -> text isnt '\n' and text isnt '\r'
+		pasteNewNote: (splitPaste, textAfter) ->
+			return if not splitPaste?
+			focusHash = null
+			currentBranch = @model
+			do rec = (text = _.first(splitPaste), splitPaste = _.rest(splitPaste)) =>
+				return if not text?
+				[currentBranch, _1, focusHash] = Note.tree.createNote(currentBranch, currentBranch.get('title'), text)
+				Note.eventManager.trigger "setTitle:#{currentBranch.get('guid')}", text
+				rec _.first(splitPaste), _.rest(splitPaste)
+			@pasteLast currentBranch, textAfter
+		pasteLast: (branch, textAfter) -> 
+			text = branch.get('title')
+			Note.eventManager.trigger "setTitle:#{branch.get('guid')}", text + textAfter
+			Note.eventManager.trigger "setCursor:#{branch.get('guid')}", text
+
+		getSelectionAndTitle: ->
+			[window.getSelection(), @getNoteTitle()]
 		getNoteTitle: ->
 			title = @getNoteContent().html().trim()
 			Note.trimEmptyTags title
 		setNoteTitle: (title) ->
 			@getNoteContent().html title
 			@updateNote()
-		setCursor: (endPosition = false) ->
-			@getNoteContent().focus()
-			if typeof endPosition is "string"
-				@setCursorPosition endPosition
-			else if endPosition is true
-				@placeCursorAtEnd(@ui.noteContent)
-		placeCursorAtEnd: (el) ->
-			range = document.createRange();
-			range.selectNodeContents(el[0])
-			range.collapse false
-			Note.setSelection range
-		setCursorPosition: (textBefore) ->
-			desiredPosition = @findDesiredPosition textBefore
-			[node, offset] = @findTargetedNodeAndOffset desiredPosition
-			range = @setRangeFromBeginTo node, offset
-			Note.setSelection range
-		setRangeFromBeginTo: (node, offset) ->
-			Note.setRange @getNoteContent()[0], 0, node, offset
-		findTargetedNodeAndOffset: (desiredPosition) ->
-			parent = @getNoteContent()[0]
-			return [parent, 0] if desiredPosition is 0
-			it = document.createNodeIterator parent, NodeFilter.SHOW_TEXT
-			offset = 0;
-			while n = it.nextNode()
-				offset += n.data.length
-				if offset >= desiredPosition
-					offset = n.data.length - (offset - desiredPosition)
-					break
-			[n, offset]
-		findDesiredPosition: (textBefore) ->
-			matches = @collectMatches textBefore
-			offset = textBefore.length
-			@decreaseOffsetAdjustment matches, offset
 
-		buildTextBefore: (parent, sel) ->
-			it = document.createNodeIterator parent, NodeFilter.SHOW_TEXT
-			text = ""
-			while n = it.nextNode()
-				if n.isSameNode(sel.anchorNode)
-					text += n.data.slice(0, sel.anchorOffset)
-					break;
-				text += n.data
-			text
-		getContentEditable: (sel) ->
-			do findContentEditable = (node = sel.anchorNode) ->
-				if node.contentEditable is "true"
-					node
-				else
-					findContentEditable node.parentNode
-		collectMatches: (text) ->
-			matches = Note.collectAllMatches text
-			matches = matches.concat Note.collectAllMatches text, Note.matchHtmlEntities, 1
-			matches = matches.sort (a,b) -> a.index - b.index
-		increaseOffsetAdjustment: ->
-			args = Note.concatWithArgs arguments, Note.addAdjustment
-			@adjustOffset.apply this, args
-		decreaseOffsetAdjustment: ->
-			args = Note.concatWithArgs arguments, Note.substractAdjustment
-			@adjustOffset.apply this, args
-		adjustOffset: (matches, previousOffset, adjustmentOperator = Note.addAdjustment) ->
-			adjustment = matches.reduce adjustmentOperator(previousOffset), 0
-			previousOffset + adjustment
-		adjustAnchorOffset: (sel, title) ->
-			parent = @getContentEditable sel
-			matches = @collectMatches parent.innerHTML
-			textBefore = @buildTextBefore parent, sel
-			@adjustOffset matches, textBefore.length
-
-		textBeforeCursor: (sel, title) ->
-			offset = @adjustAnchorOffset(sel, title)
-			textBefore = title.slice(0,offset)
+		setCursor: (position = false) ->
+			(noteContent = @getNoteContent()).focus()
+			@cursorApi.setCursor noteContent, position
+		textBeforeCursor: ->
+			[sel, title] = @getSelectionAndTitle()
+			@cursorApi.textBeforeCursor sel, title
+		textAfterCursor: ->
+			[sel, title] = @getSelectionAndTitle()
+			@cursorApi.textAfterCursor sel, title
 		keepTextBeforeCursor: (sel, title) ->
-			textBefore = @textBeforeCursor sel, title
+			textBefore = @cursorApi.textBeforeCursor sel, title
 			@model.save
 				title: textBefore
 			textBefore
-		textAfterCursor: (sel, title) ->
-			offset = @adjustAnchorOffset(sel, title)
-			textAfter = title.slice offset
-			textAfter = "" if Note.matchTagsEndOfString.test(textAfter)
-			textAfter
 		keepTextAfterCursor: (sel, title) ->
-			textAfter = @textAfterCursor sel, title
+			textAfter = @cursorApi.textAfterCursor sel, title
 			@model.save
 				title: textAfter
 			textAfter
 		testCursorPosition: (testPositionFunction) ->
 			sel = window.getSelection()
 			title = @getNoteTitle()
-			@[testPositionFunction](sel, title)
-		isEmptyAfterCursor: ->
-			@textAfterCursor.apply(this, arguments).length is 0
-		isEmptyBeforeCursor: ->
-			@textBeforeCursor.apply(this, arguments).length is 0
+			@cursorApi[testPositionFunction](sel, title)
 
 	class Note.TreeView extends Marionette.CollectionView
 		id: "tree"
@@ -308,22 +299,24 @@
 		addDefaultNote: (render = true) ->
 			# if @collection.length is 0 then @collection.create()
 			# @render if render
-		dispatchFunction: (functionName) ->
+		dispatchFunction: (functionName, model) ->
 			# This line is for you Gavin.
 			# I pass in the model as well, and any other arguments we would like
 			Note.eventManager.trigger "change:" + functionName, Note.sliceArgs arguments
-
-			return @[functionName].apply(@, Note.sliceArgs arguments) if @[functionName]?
-			@collection[functionName].apply(@collection, Note.sliceArgs arguments)
-			@render() # Will probably need to do something about rerendering all the time
-			Note.eventManager.trigger "setCursor:#{arguments[1].get 'guid'}"
+			if @[functionName]?
+				@[functionName].apply(@, Note.sliceArgs arguments)
+			else
+				@collection[functionName].apply(@collection, Note.sliceArgs arguments)
+				@render() # Will probably need to do something about rerendering all the time
+				Note.eventManager.trigger "setCursor:#{arguments[1].get 'guid'}"
+			Note.eventManager.trigger "actionFinished", functionName, arguments[1]
 		createNote: (createdFrom) ->
 			[newNote, createdFromNewTitle, setFocusIn] =
 				@collection.createNote.apply(@collection, arguments)
 			Note.eventManager.trigger "setTitle:#{createdFrom.get('guid')}", createdFromNewTitle
 			Note.eventManager.trigger "setCursor:#{setFocusIn.get('guid')}"
 		deleteNote: (note) ->
-			(@jumpFocusUp note) unless (@jumpFocusDown note, false)
+			(@jumpFocusDown note, false) unless (@jumpFocusUp note, true)
 			@collection.deleteNote note
 		jumpFocusUp: (note, endOfLine = false) ->
 			previousNote = @collection.jumpFocusUp note
@@ -417,14 +410,20 @@
 			noteContent: ".note-content"
 		events: ->
 			"keydown .note-content": @model.timeoutAndSave
+			"click .glyphicon-share": @export false
+			"click .glyphicon-export": @export true
+			"click .destroy": "deleteBranch"
 
 		initialize: ->
+			@cursorApi = App.Helpers.CursorPositionAPI
 			Note.eventManager.on "timeoutUpdate:#{@model.get('guid')}", @updateNote, @
 			Note.eventManager.on "setCursor:#{@model.get('guid')}", @setCursor, @
-			@$el.on 'keydown', null, 'up', @setCursor
-			@$el.on 'keydown', null, 'down', @jumpFocusDown
+			@$el.on 'keydown', null, 'up', @setCursor.bind @
+			@$el.on 'keydown', null, 'down', @jumpFocusDown.bind @
+			@$el.on 'keydown', null, 'right', @arrowRightJumpLine.bind @
 			# @$el.on 'keydown', null, 'right', @jumpFocusDown
 			@$el.on 'keydown', null, 'alt+ctrl+left', @zoomOut.bind @
+			@$el.on 'keydown', null, 'ctrl+shift+backspace', @deleteBranch.bind @
 
 		onClose: ->
 			@$el.off()
@@ -446,17 +445,20 @@
 		setCursor: (endPosition = false) ->
 			@ui.noteContent.focus()
 			if endPosition is true
-				@placeCursorAtEnd(@ui.noteContent)
-		placeCursorAtEnd: (el) ->
-			range = document.createRange();
-			range.selectNodeContents(el[0])
-			range.collapse false
-			Note.setSelection range
+				App.Helpers.CursorPositionAPI.placeCursorAtEnd(@ui.noteContent)
 		jumpFocusDown: (e) ->
 			e.preventDefault()
 			e.stopPropagation()
 			Note.eventManager.trigger "setCursor:#{Note.activeTree.first().get('guid')}"
+		arrowRightJumpLine: (e) ->
+			e.stopPropagation()
+			if @cursorApi.isEmptyAfterCursor window.getSelection(), @getNoteTitle()
+				@jumpFocusDown e
 
+		deleteBranch: (e) ->
+			@zoomOut(e)
+			App.Note.tree.deleteNote @model
+			
 		zoomOut: (e) ->
 			e.preventDefault()
 			e.stopPropagation()
@@ -467,9 +469,60 @@
 				@clearZoom()
 		zoomIn: (guid) ->
 			Backbone.history.navigate "#/zoom/#{guid}"
-
 		clearZoom: ->
 			Backbone.history.navigate ""
 			Note.eventManager.trigger "clearZoom"
+
+		export: (paragraph = false) -> (e) ->
+			Note.eventManager.trigger "render:export", @model, paragraph
+
+	class Note.ExportView extends Marionette.ItemView
+		id: "tree"
+		template: "note/exportModel"
+
+		events: ->
+			"click .glyphicon-remove": "clearExport"
+
+		initialize: (options) ->
+			@model = new Note.ExportModel tree: @collection, inParagraph: options.inParagraph
+			console.log "exportView", arguments
+
+		clearExport: ->
+			Note.eventManager.trigger "clear:export"
+	
+	class Note.ExportModel extends Backbone.Model
+
+		initialize: ->
+			console.log "exportModel", arguments
+			if @get('inParagraph') then @render = @renderTreeParagraph else @render = @renderTree
+			@set 'title', Note.activeBranch.get('title')
+			@set 'text', @render @get('tree')
+
+		make_spaces: (num, spaces = '') ->
+			if num is 0 then return spaces
+			@make_spaces(--num, spaces + '&nbsp;&nbsp;')
+		renderTree: (tree)->
+			App.Notify.alert 'exportPlain', 'success' 
+			text = ""
+			indent = 0
+			do rec = (current = tree.first(), rest = tree.rest()) =>
+				return (--indent; text) if not current?
+				text += @make_spaces(indent) + ' - ' + current.get('title') + '<br>'
+				if current.descendants.length isnt 0
+					++indent
+					rec current.descendants.first(), current.descendants.rest()
+				rec _.first(rest), _.rest(rest)
+
+		renderTreeParagraph: (tree) ->
+			App.Notify.alert 'exportParagraph', 'success' 
+			text = ""
+			indent = 0
+			do rec = (current = tree.first(), rest = tree.rest()) =>
+				return (text) if not current?
+				text+=current.get('title')+' '
+				if current.descendants.length isnt 0
+					rec current.descendants.first(), current.descendants.rest()
+				if current.isARoot(true) then text+='<br>'
+				rec _.first(rest), _.rest(rest)
 
 )

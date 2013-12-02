@@ -5,9 +5,28 @@
 		model: Note.Branch
 		url:'/notes'
 
+		validateTree: ->
+			return unless (firstBranch = @first())?
+			throw "first root broken" unless firstBranch.get('rank') is 1 and firstBranch.get('depth') is 0 and firstBranch.get('parent_id') is 'root'
+			do rec = (preceding = @first(), rest = @rest()) =>
+				current = _.first rest
+				return unless current?
+				if (preceding.get('parent_id') is current.get('parent_id'))
+					throw "rank is broken for #{current.get('guid')}" unless current.get('rank') - 1 is preceding.get('rank')
+					throw "depth is broken for #{current.get('guid')}" unless current.get('depth') is preceding.get('depth')
+				else
+					throw "first descendant has not rank 1 for #{current.get('guid')}" unless current.get('rank') is 1
+					ancestor = @find (branch) ->
+						branch.get('guid') is current.get('parent_id')
+					throw "ancestor does not exist for #{current.get('guid')}" unless ancestor?
+					throw "depth is not according to ancestor\"s depth for #{current.get('guid')}" unless current.get('depth') - 1 is ancestor.get('depth')
+				rec current, _.rest rest
 		comparator: (note1, note2) ->
 			if note1.get('depth') is note2.get('depth')
-				order = note1.get('rank') - note2.get('rank')
+				if note1.get('parent_id') is note2.get('parent_id')
+					order = note1.get('rank') - note2.get('rank')
+				else
+					order = if note1.get('parent_id') < note2.get('parent_id') then -1 else 1
 			else
 				order = note1.get('depth') - note2.get('depth')
 
@@ -44,7 +63,7 @@
 			App.Action.addHistory 'createNote', newNote
 			newNoteAttributes = Note.Branch.generateAttributes hashMap.createBeforeNote, hashMap.newNoteTitle
 			if hashMap.rankAdjustment then newNoteAttributes.rank += 1
-			newNote.save newNoteAttributes
+			App.Action.orchestrator.triggerAction newNote, newNoteAttributes
 			@insertInTree newNote
 			hashMap.setFocusIn ||= newNote
 			[newNote, hashMap.oldNoteNewTitle, hashMap.setFocusIn]
@@ -70,12 +89,11 @@
 			setFocusIn: noteCreatedFrom
 		deleteNote: (note, isUndo) -> #ignore isUndo unless dealing with action manager!
 			unless isUndo then App.Action.addHistory 'deleteBranch', note
+			@removeFromCollection @getCollection(note.get 'parent_id'), note
 			descendants = note.getCompleteDescendantList()
 			_.each descendants, (descendant) ->
-				descendant.destroy()
-			note.destroy 
-				success: (self) => @decreaseRankOfFollowing self
-				error: (self) => @decreaseRankOfFollowing self
+				App.Action.orchestrator.triggerAction descendant, null, destroy: true
+			App.Action.orchestrator.triggerAction note, null, destroy: true
 
 		# Returns the descendants of matching parent_id
 		getCollection: (parent_id) ->
@@ -185,8 +203,8 @@
 		jumpNoteDownInCollection: (note) ->
 			followingNote = @findFollowingInCollection note
 			return undefined unless followingNote?
-			followingNote.decreaseRank()
 			note.increaseRank()
+			followingNote.decreaseRank()
 			@getCollection(note.get 'parent_id').sort()
 
 		jumpTarget: (actionType) -> (depth, descendantList) ->
@@ -279,7 +297,7 @@
 			App.Action.addHistory 'moveNote', note
 			previousParentCollection = @getCollection note.get 'parent_id'
 			@removeFromCollection previousParentCollection, note
-			note.save
+			App.Action.orchestrator.triggerAction note,
 				parent_id: parent.get 'guid'
 				rank: parent.descendants.length + 1
 				depth: 1 + parent.get 'depth'
@@ -295,13 +313,13 @@
 			if followingNote
 				note.cloneAttributes followingNote
 			else
-				note.save
+				App.Action.orchestrator.triggerAction note,
 					parent_id: previousParent.get('parent_id')
 					rank: previousParent.get('rank') + 1
 					depth: note.get('depth') - 1
 
 		setDropAfter: (dragged, dropAfter) ->
-			dragged.save
+			App.Action.orchestrator.triggerAction dragged,
 				parent_id: dropAfter.get('parent_id')
 				rank:  dropAfter.get('rank') + 1
 				depth: dropAfter.get('depth')

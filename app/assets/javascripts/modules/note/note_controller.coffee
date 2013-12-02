@@ -12,26 +12,46 @@
 
 	Note.Controller = Marionette.Controller.extend
 		initialize: (options) ->
-			Note.eventManager.on "clearZoom", @clearZoom, @
 			@allNotesByDepth = new App.Note.Collection()
 			@tree = new App.Note.Tree()
-
+			@setGlobals()
+			@setEvents()
+		start: ->
+			App.OfflineAccess.checkAndLoadLocal (_.bind @buildTree, @)
+			App.Action.orchestrator = new App.Action.Orchestrator()
+		reset: ->
+			@tree._reset()
+			@allNotesByDepth._reset()
+			@allNotesByDepth.fetch success: => @buildTree()
+			Note.eventManager.trigger "clearZoom"
+		setGlobals: ->
 			Note.initializedTree = $.Deferred();
+			Note.allNotesByDepth = @allNotesByDepth
 			Note.tree = @tree
 			Note.activeTree = @tree
 			Note.activeBranch = "root"
-			Note.allNotesByDepth = @allNotesByDepth
-
-		start: ->
-			App.OfflineAccess.checkAndLoadLocal (_.bind @buildTree, @)
+		setEvents: ->
+			Note.eventManager.on "clearZoom", @clearZoom, @
+			Note.eventManager.on "render:export", @showExportView, @
+			Note.eventManager.on "clear:export", @clearExportView, @
 
 		buildTree: ->
+			Note.initializedTree = $.Deferred();
 			@allNotesByDepth.sort()
+			@allNotesByDepth.validateTree()
 			@allNotesByDepth.each (note) =>
 				@tree.add(note)
 			@showContentView(@tree)
 			App.Note.initializedTree.resolve()
 
+		showExportView: (model, paragraph) ->
+			App.contentRegion.currentView.treeRegion.close()
+			App.contentRegion.currentView.crownRegion.close()
+			@exportView = new App.Note.ExportView model: model, collection: Note.activeTree, inParagraph: paragraph
+			App.contentRegion.currentView.treeRegion.show @exportView
+		clearExportView: ->
+			@showContentView(App.Note.activeTree)
+			@showCrownView()
 		showContentView: (tree) ->
 			App.contentRegion.currentView.treeRegion.close()
 			@treeView = new App.Note.TreeView(collection: tree)
@@ -77,6 +97,7 @@
 					Note.eventManager.trigger "setCursor:#{Note.tree.first().get('guid')}"
 
 		zoomIn: (guid) ->
+			Backbone.history.navigate '#'
 			App.Note.initializedTree.then =>
 				App.Note.activeTree = App.Note.tree.getCollection guid
 				App.Note.activeBranch = App.Note.tree.findNote(guid)
@@ -88,7 +109,7 @@
 
 	# Initializers -------------------------
 	Note.addInitializer ->
-		noteController = new Note.Controller()
-		noteController.start()
-		new Note.Router controller: noteController
+		Note.noteController = new Note.Controller()
+		Note.noteController.start()
+		new Note.Router controller: Note.noteController
 )

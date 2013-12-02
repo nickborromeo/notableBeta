@@ -43,22 +43,11 @@
 		attributes: attributes
 		get: (attr) -> @attributes[attr]
 
-
-	Note.collectAllMatches = (title, regex = Note.matchTag, adjustment = 0) ->
-		matches = []
-		while match = regex.exec title
-			matches.push
-				match: match[0]
-				index: match.index
-				input: match.input
-				adjustment: match[0].length - adjustment
-		matches
-
 	Note.replaceAll = (find, replace, str) ->
 	  str.replace(new RegExp(find, 'g'), replace);
 
 	Note.prependStyling = (text) ->
-		matches = Note.collectAllMatches text
+		matches = App.Helpers.collectAllMatches text
 		prepend = ""
 		ignoredTags = ["<br>"]
 		openTags = []
@@ -81,16 +70,5 @@
 		else acc
 	Note.substractAdjustment = (previousOffset) -> (acc, match) ->
 		acc - match.adjustment
-
-	Note.setRange = (beginNode, beginOffset, endNode, endOffset) ->
-		range = document.createRange()
-		range.setStart(beginNode, beginOffset)
-		range.setEnd(endNode, endOffset)
-		range.collapse false
-		range
-	Note.setSelection = (range) ->
-		sel = window.getSelection()
-		sel.removeAllRanges()
-		sel.addRange(range)
 
 )
