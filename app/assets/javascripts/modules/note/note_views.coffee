@@ -147,14 +147,14 @@
 			if @model.get('collapsed') then @expand() else @collapse()
 		collapse: ->
 			return if @collection.length is 0
-			@model.save collapsed: true if not @model.get('collapsed')
+			App.Action.orchestrator.triggerAction(@model, collapsed: true) if not @model.get('collapsed')
 			if @collapsable() and not @isCollapsed()
 				@ui.descendants.slideToggle("fast")
 				@ui.descendants.addClass('collapsed')
 				@$(@ui.descendants).removeAttr('style')
 				@$(">.branch>.move").addClass("is-collapsed")
 		expand: ->
-			@model.save collapsed: false if @model.get('collapsed')
+			App.Action.orchestrator.triggerAction(@model, collapsed: false) if @model.get('collapsed')
 			if @collapsable() and @isCollapsed()
 				@ui.descendants.slideToggle("fast")
 				@ui.descendants.removeClass('collapsed')
