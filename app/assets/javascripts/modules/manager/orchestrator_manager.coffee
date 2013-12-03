@@ -10,7 +10,7 @@
 			@destroyGuidQueue = []
 
 		queueAction: (branch, attributes, options) ->
-			# will probably have to play with the action manager
+			# will have to play with the action manager
 			@actionQueue.push
 				branch: branch
 				attributes: attributes
@@ -33,16 +33,7 @@
 			@processingActions = true
 			do rec = (action = @actionQueue.shift()) =>
 				return if not action?
-				# if action.options.type is 'save'
-				# return if not @validate action.branch, action.attributes
-				# action.branch.save action.attributes, syncToServer: true, validate: false
-				action.args = [action.attributes, syncToServer: true, validate: false]
-				# console.log "set", action.branch.attributes, action.attributes
 				action.branch.set action.attributes
-			 	# else if action.options.type is 'destroy'
-				# 	action.branch.destroy syncToServer: true, validate: false
-				# 	action.args = [syncToServer: true, validate: false]
-				# Push action to history
 				@validationQueue.push action
 				# console.log "validationQueue", @validationQueue
 				rec @actionQueue.shift()
@@ -61,20 +52,19 @@
 		processSavingQueue: () ->
 			valid = true
 			savingQueue = []
-			console.log "Complete validation Queue"
-			_.each @validationQueue, (v) ->
-				console.log v.branch.get('guid'), v.branch.id, "Sent attributes", v.attributes, "branch attributes", v.branch.attributes
+			# console.log "Complete validation Queue"
+			# _.each @validationQueue, (v) ->
+			# 	console.log v.branch.get('guid'), v.branch.id, "Sent attributes", v.attributes, "branch attributes", v.branch.attributes
 			@validationQueue = @trimValidQueue @validationQueue
-			console.log "Trimed validation queue", @validationQueue
+			# console.log "Trimed validation queue", @validationQueue
 			# console.log "validation queue", @validationQueue
 			do rec = (branch = @validationQueue.shift()) =>
 				return if not branch? or not valid
-				console.log "Validation", branch.get('guid'), branch.id, branch.attributes
+				# console.log "Validation", branch.get('guid'), branch.id, branch.attributes
 				if not @validate branch, branch.attributes
 					return valid = false
 				savingQueue.push branch
 				# console.log branch.get('guid'), "validated"
-				# action.branch.save action.attributes, syncToServer: true, validate: false
 				rec @validationQueue.shift()
 			if valid then @acceptChanges(savingQueue) else @rejectChanges(savingQueue)
 
@@ -82,17 +72,6 @@
 			@validationQueue = []
 			App.Note.noteController.reset()
 			App.Notify.alert 'brokenTree', 'danger'
-			# throw "The set of changes break the tree"
-			# undoCount = validQueue.length
-			# queue = validQueue.concat @savingQueue
-			# do rec = (action = queue.shift()) =>
-			# 	return if not action?
-			# 	console.log "reject action", action, queue
-				# 	# action.branch.set action.previousAttributes
-			# 	Action.undo() if (undoCount-- >= 0)
-			# 	setTimeout (-> rec queue.shift()), 100
-			# @savingQueue = []
-			# App.contentRegion.currentView.treeRegion.currentView.render()
 		processDestroy: ->
 			# console.log "destroyQueue", @destroyQueue
 			do rec = (branch = @destroyQueue.shift()) =>
@@ -108,15 +87,6 @@
 				return if not branch?
 				branch.save()
 				rec validQueue.shift()
-			# return if not action?
-			# action.branch.save()
-			# @acceptChanges validQueue, validQueue.shift()
-		# trimValidQueue: (validQueue) ->
-		# 	_.filter validQueue, (obj) ->
-		# 		keep = true;
-		# 		_.each obj.attributes, (val, key) ->
-		# 			keep = false if obj.branch.get(key) isnt val
-		# 		keep
 		getDestroyGuids: ->
 			guids = []
 			_.each @destroyQueue, (toDestroy) ->

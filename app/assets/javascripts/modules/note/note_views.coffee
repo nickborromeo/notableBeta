@@ -50,10 +50,6 @@
 			if @model.isARoot(true) and @model.get('rank') isnt 1
 				@$(">.branch>.dropBefore").remove()
 
-		# Very weird bug to investigate here.
-		# Condition is commented because otherwise
-		# @ui.noteContent is bound to first node to have
-		# received multiple keyboard shortcut
 		getNoteContent: ->
 			if @ui.noteContent.length is 0 or !@ui.noteContent.focus?
 				@ui.noteContent = @.$('.note-content:first')

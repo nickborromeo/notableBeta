@@ -36,7 +36,6 @@
 			Note.eventManager.on "clear:export", @clearExportView, @
 	
 		buildTree: ->
-			# Note.initializedTree = $.Deferred();
 			@allNotesByDepth.sort()
 			@allNotesByDepth.validateTree()
 			@allNotesByDepth.each (note) =>
@@ -71,13 +70,6 @@
 			else
 				@breadcrumbView = new App.Note.BreadcrumbsView(collection: new Note.Breadcrumbs null, Note.activeBranch)
 			App.contentRegion.currentView.breadcrumbRegion.show @breadcrumbView
-		# showNoteBookTitle: ->
-		# 	if @showTitleView?
-		# 		@breadcrumbView.collection = new Note.Breadcrumbs null, Note.activeBranch
-		# 		@breadcrumbView.render()
-		# 	else
-		# 		@breadcrumbView = new App.Note.BreadcrumbsView(collection: new Note.Breadcrumbs null, Note.activeBranch)
-		# 		App.contentRegion.currentView.breadcrumbRegion.show @breadcrumbView
 		showNotebookTitleView: ->
 			if @notebookTitleView?
 				@notebookTitleView.render()
@@ -90,7 +82,6 @@
 		clearZoom: ->
 			App.Note.initializedTree.then =>
 				Backbone.history.navigate '#'
-				console.log 'test'
 				App.Note.activeTree = App.Note.tree
 				@clearCrownView()
 				@showContentView App.Note.tree

@@ -18,9 +18,7 @@
 					@get('guid') is branch.get('guid') and @id isnt branch.id
 			return e = "Guid already existing" if sameGuidExist?
 			if (attributes.rank || @get('rank')) isnt 1
-				# preceding = Note.tree.findPrecedingInCollection @
 				collection = App.Note.tree.getCollection attributes.parent_id || @get('parent_id')
-
 				preceding = collection.where
 					rank: (attributes.rank || @get('rank')) - 1
 					depth: (attributes.depth || @get('depth'))
@@ -35,8 +33,7 @@
 					parent_id: (attributes.parent_id || @get('parent_id'))
 				return e = "missing current for #{@get('guid')}" if current.length is 0
 				return e = "multiple current for #{@get('guid')}" if current.length > 1
-				# return e = "rank is broken for #{@get('guid')}" unless not attributes.rank? or attributes.rank - 1 is preceding.get('rank')
-				# return e = "depth is broken for #{@get('guid')}" unless not attributes.depth? or attributes.depth is preceding.get('depth')
+				current = _.first preceding
 			else if @get('parent_id') isnt 'root'
 				ancestor = Note.tree.findNote(@get('parent_id'))
 				return e = "ancestor is missing for #{@get('guid')}" unless ancestor?
@@ -45,14 +42,7 @@
 				return e = "first root is broken" unless (attributes.rank || @get('rank')) is 1 and (attributes.depth || @get('depth')) is 0 and (attributes.parent_id || @get('parent_id')) is 'root'
 			return e
 
-		sync: (a,b, options) ->
-			# console.log "sync method", arguments
-			Backbone.Model.prototype.sync.apply(@, arguments)
 		save: (attributes = null, options = {}) =>
-			# options.wait = true
-			# if not options.syncToServer
-			# 	console.log arguments
-			# 	return App.Action.orchestrator.triggerAction @, attributes, type:'save'
 			App.Notify.alert 'saving', 'save'
 			callBackOptions =
 				success: (model, response, opts)  =>
@@ -65,15 +55,11 @@
 						App.Notify.alert 'connectionLost', 'danger', {selfDestruct: false}
 						App.OfflineAccess.addChangeAndStart(@)
 					if options.error? then options.error(model, xhr, opts)
-			#this fills in other options that might be provided
+
 			_(callBackOptions).defaults(options)
-			console.log callBackOptions
 			Backbone.Model.prototype.save.call(@, attributes, callBackOptions)
-			console.log "saving", @get('guid'), @id, @, arguments
+			# console.log "saving", @get('guid'), @id, @, arguments
 		destroy: (options = {}) =>
-			# if not options.syncToServer
-			# 	console.log arguments
-			# 	return App.Action.orchestrator.triggerAction @, null, type: 'destroy'
 			App.Notify.alert 'deleted', 'warning'
 			@clearTimeoutAndSave()
 			callBackOptions =
@@ -85,7 +71,6 @@
 						App.Notify.alert 'connectionLost', 'danger', {selfDestruct: false}
 						App.OfflineAccess.addDeleteAndStart(@)
 					if options.error? then options.error(model, xhr, opts)
-			#fill in other options possibly provided:
 			_(callBackOptions).defaults(options)
 			Backbone.Model.prototype.destroy.call(@, callBackOptions)
 
@@ -153,10 +138,10 @@
 			App.Action.orchestrator.triggerAction @, attributesHash
 		cloneAttributesNoSaving: (noteToClone, options = {}) ->
 			attributesHash = {}
-			#attributesHash[attribute] = noteToClone.get(attribute) for attribute in @clonableAttributes
 			attributesHash[attribute] = (if options[attribute]? then options[attribute] else noteToClone.get(attribute)) for attribute in @clonableAttributes
 			@set attributesHash
 			attributesHash
+
 		# the following four methods can be used by anyone,
 		# but are relied on by Action Manager to get relevent history information
 		getAllAtributes: =>
@@ -194,7 +179,7 @@
 
 		timeoutAndSave: (e) =>
 			invalidKeys = [9, 13, 16, 19, 20, 27, 33, 34, 35, 36, 37, 38, 39, 40, 45, 112, 113, 114, 115, 116, 117, 118, 119, 120, 121, 122, 123, 144, 145]
-			propagationExceptions = [8, 46]  #put exceptions here if you want a particular keypress to propagate
+			propagationExceptions = [8, 46]  # put exceptions here if you want a particular keypress to propagate
 			return if e.metaKey or e.ctrlKey or e.altKey or _.contains(invalidKeys, e.keyCode)
 			e.stopPropagation() unless _.contains(propagationExceptions,e.keyCode)
 			@clearTimeoutAndSave()
