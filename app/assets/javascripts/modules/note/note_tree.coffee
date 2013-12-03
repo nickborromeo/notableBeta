@@ -89,12 +89,11 @@
 			setFocusIn: noteCreatedFrom
 		deleteNote: (note, isUndo) -> #ignore isUndo unless dealing with action manager!
 			unless isUndo then App.Action.addHistory 'deleteBranch', note
+			@removeFromCollection @getCollection(note.get 'parent_id'), note
 			descendants = note.getCompleteDescendantList()
 			_.each descendants, (descendant) ->
-				descendant.destroy()
-			note.destroy 
-				success: (self) => @decreaseRankOfFollowing self
-				error: (self) => @decreaseRankOfFollowing self
+				App.Action.orchestrator.triggerAction descendant, null, destroy: true
+			App.Action.orchestrator.triggerAction note, null, destroy: true
 
 		# Returns the descendants of matching parent_id
 		getCollection: (parent_id) ->

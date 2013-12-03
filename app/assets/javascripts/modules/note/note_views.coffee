@@ -50,24 +50,30 @@
 		trimExtraDropTarget: ->
 			if @model.isARoot(true) and @model.get('rank') isnt 1
 				@$(">.branch>.dropBefore").remove()
+
+		# Very weird bug to investigate here.
+		# Condition is commented because otherwise
+		# @ui.noteContent is bound to first node to have
+		# received multiple keyboard shortcut
 		getNoteContent: ->
-			if @ui.noteContent.length is 0 or !@ui.noteContent.focus?
-				@ui.noteContent = @.$('.note-content:first')
-			@ui.noteContent
+			# if @ui.noteContent.length is 0 or !@ui.noteContent.focus?
+			@ui.noteContent = @.$('.note-content:first')
+			# @ui.noteContent
+
 		bindKeyboardShortcuts: ->
 			@.$el.on 'keydown', null, 'return', @createNote.bind @
-			@.$el.on 'keydown', null, 'ctrl+shift+backspace', @triggerShortcut 'deleteNote'
-			@.$el.on 'keydown', null, 'meta+shift+backspace', @triggerShortcut 'deleteNote'
-			@.$el.on 'keydown', null, 'tab', @triggerShortcut 'tabNote'
-			@.$el.on 'keydown', null, 'shift+tab', @triggerShortcut 'unTabNote'
-			@.$el.on 'keydown', null, 'alt+right', @triggerShortcut 'tabNote'
-			@.$el.on 'keydown', null, 'alt+left', @triggerShortcut 'unTabNote'
-			@.$el.on 'keydown', null, 'alt+up', @triggerShortcut 'jumpPositionUp'
-			@.$el.on 'keydown', null, 'alt+down', @triggerShortcut 'jumpPositionDown'
-			@.$el.on 'keydown', null, 'meta+right', @triggerShortcut 'tabNote'
-			@.$el.on 'keydown', null, 'meta+left', @triggerShortcut 'unTabNote'
-			@.$el.on 'keydown', null, 'meta+up', @triggerShortcut 'jumpPositionUp'
-			@.$el.on 'keydown', null, 'meta+down', @triggerShortcut 'jumpPositionDown'
+			@.$el.on 'keydown', null, 'ctrl+shift+backspace', @triggerQueuedShortcut 'deleteNote'
+			@.$el.on 'keydown', null, 'meta+shift+backspace', @triggerQueuedShortcut 'deleteNote'
+			@.$el.on 'keydown', null, 'tab', @triggerQueuedShortcut 'tabNote'
+			@.$el.on 'keydown', null, 'shift+tab', @triggerQueuedShortcut 'unTabNote'
+			@.$el.on 'keydown', null, 'alt+right', @triggerQueuedShortcut 'tabNote'
+			@.$el.on 'keydown', null, 'alt+left', @triggerQueuedShortcut 'unTabNote'
+			@.$el.on 'keydown', null, 'alt+up', @triggerQueuedShortcut 'jumpPositionUp'
+			@.$el.on 'keydown', null, 'alt+down', @triggerQueuedShortcut 'jumpPositionDown'
+			@.$el.on 'keydown', null, 'meta+right', @triggerQueuedShortcut 'tabNote'
+			@.$el.on 'keydown', null, 'meta+left', @triggerQueuedShortcut 'unTabNote'
+			@.$el.on 'keydown', null, 'meta+up', @triggerQueuedShortcut 'jumpPositionUp'
+			@.$el.on 'keydown', null, 'meta+down', @triggerQueuedShortcut 'jumpPositionDown'
 			@.$el.on 'keydown', null, 'up', @triggerShortcut 'jumpFocusUp'
 			@.$el.on 'keydown', null, 'down', @triggerShortcut 'jumpFocusDown'
 			@.$el.on 'keydown', null, 'alt+ctrl+left', @triggerShortcut 'zoomOut'
@@ -102,11 +108,17 @@
 			e.preventDefault()
 			e.stopPropagation()
 			App.Action.undo()
+		triggerQueuedShortcut: (event) -> (e) =>
+			e.preventDefault()
+			e.stopPropagation()
+			args = Note.sliceArgs arguments
+			# @shortcutTimer => @triggerEvent(event).apply(@, args)
+			@triggerEvent(event).apply(@, args)
 		triggerShortcut: (event) -> (e) =>
 			e.preventDefault()
 			e.stopPropagation()
 			args = Note.sliceArgs arguments
-			@shortcutTimer => @triggerEvent(event).apply(@, args)
+			@triggerEvent(event).apply(@, args)
 		triggerLocalShortcut: (behaviorFn) -> (e) =>
 			e.preventDefault()
 			e.stopPropagation()
@@ -123,12 +135,13 @@
 				@updateNote()
 				args = ['change', event, @model].concat(Note.sliceArgs arguments, 0)
 				Note.eventManager.trigger.apply(Note.eventManager, args)
-
+		triggerQueueEvent: (event) ->
+			@shortcutTimer @triggerEvent(event)
 		mergeWithPreceding: (e) ->
 			return true if document.getSelection().isCollapsed is false
 			e.stopPropagation()
 			if @testCursorPosition "isEmptyBeforeCursor"
-				@triggerShortcut('mergeWithPreceding')(e)
+				@triggerQueuedShortcut('mergeWithPreceding')(e)
 		arrowRightJumpLine: (e) ->
 			e.stopPropagation()
 			if @testCursorPosition "isEmptyAfterCursor"
@@ -177,18 +190,19 @@
 				textAfter = (@cursorApi.textAfterCursor sel, title).replace(/^\s/, "")
 				Note.eventManager.trigger 'createNote', @model, textBefore, textAfter
 				if textAfter.length > 0 then App.Action.addHistory "compoundAction", {actions:2, previousActions: true}
-			@shortcutTimer create.bind @
+			# @shortcutTimer create.bind @
+			create.call @
 		createShortcutTimer: ->
 			timer = new Date().getTime()
-			_timeout = 160
-			timeOut = _timeout;
+			baseTimeout = 300
+			accumulatedTimeout = baseTimeout;
 			shortcutTimeout = (fun) =>
-				timeOut+= timeOut if ((newTimer = new Date().getTime()) - timer < timeOut)
+				accumulatedTimeout+= baseTimeout if ((newTimer = new Date().getTime()) - timer < accumulatedTimeout)
 				setTimeout ->
 					timer = newTimer
-					if timeOut > _timeout then timeOut -= _timeout else timeOut = _timeout
+					if accumulatedTimeout > baseTimeout then accumulatedTimeout -= baseTimeout else accumulatedTimeout = baseTimeout
 					fun()
-				, timer - new Date().getTime() + timeOut
+				, timer - new Date().getTime() + accumulatedTimeout
 
 		saveNote: (e) ->
 			e.preventDefault()
@@ -199,7 +213,7 @@
 			noteSubtitle = "" #@getNoteSubtitle()
 			if @model.get('title') isnt noteTitle
 				App.Action.addHistory 'updateContent', @model
-				@model.save
+				App.Action.orchestrator.triggerAction @model,
 					title: noteTitle
 					subtitle: noteSubtitle
 			noteTitle
@@ -302,7 +316,7 @@
 			Note.eventManager.trigger "setTitle:#{createdFrom.get('guid')}", createdFromNewTitle
 			Note.eventManager.trigger "setCursor:#{setFocusIn.get('guid')}"
 		deleteNote: (note) ->
-			(@jumpFocusUp note) unless (@jumpFocusDown note, false)
+			(@jumpFocusDown note, false) unless (@jumpFocusUp note, true)
 			@collection.deleteNote note
 		jumpFocusUp: (note, endOfLine = false) ->
 			previousNote = @collection.jumpFocusUp note
