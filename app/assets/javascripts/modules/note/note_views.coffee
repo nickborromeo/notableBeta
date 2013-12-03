@@ -56,9 +56,9 @@
 		# @ui.noteContent is bound to first node to have
 		# received multiple keyboard shortcut
 		getNoteContent: ->
-			# if @ui.noteContent.length is 0 or !@ui.noteContent.focus?
-			@ui.noteContent = @.$('.note-content:first')
-			# @ui.noteContent
+			if @ui.noteContent.length is 0 or !@ui.noteContent.focus?
+				@ui.noteContent = @.$('.note-content:first')
+			@ui.noteContent
 
 		bindKeyboardShortcuts: ->
 			@.$el.on 'keydown', null, 'return', @createNote.bind @
