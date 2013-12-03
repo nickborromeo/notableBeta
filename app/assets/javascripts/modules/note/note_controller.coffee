@@ -8,7 +8,7 @@
 	Note.Router = Marionette.AppRouter.extend
 		appRoutes:
 			"zoom/:guid": "zoomIn"
-			"*index": "clearZoom"
+			"": "clearZoom"
 
 	Note.Controller = Marionette.Controller.extend
 		initialize: (options) ->
@@ -31,12 +31,12 @@
 			Note.activeTree = @tree
 			Note.activeBranch = "root"
 		setEvents: ->
-			Note.eventManager.on "clearZoom", @clearZoom, @
+			Note.eventManager.on "clearZoom", (-> Backbone.history.navigate '#'), @
 			Note.eventManager.on "render:export", @showExportView, @
 			Note.eventManager.on "clear:export", @clearExportView, @
-
+	
 		buildTree: ->
-			Note.initializedTree = $.Deferred();
+			# Note.initializedTree = $.Deferred();
 			@allNotesByDepth.sort()
 			@allNotesByDepth.validateTree()
 			@allNotesByDepth.each (note) =>
@@ -97,7 +97,6 @@
 					Note.eventManager.trigger "setCursor:#{Note.tree.first().get('guid')}"
 
 		zoomIn: (guid) ->
-			Backbone.history.navigate '#'
 			App.Note.initializedTree.then =>
 				App.Note.activeTree = App.Note.tree.getCollection guid
 				App.Note.activeBranch = App.Note.tree.findNote(guid)
@@ -106,6 +105,8 @@
 				@showBreadcrumbView()
 				if Note.activeTree.first()?
 					Note.eventManager.trigger "setCursor:#{Note.activeTree.first().get('guid')}"
+				else
+					Note.eventManager.trigger "setCursor:#{Note.activeBranch.get('guid')}"
 
 	# Initializers -------------------------
 	Note.addInitializer ->
