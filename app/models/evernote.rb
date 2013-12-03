@@ -55,6 +55,24 @@ class Evernote
 		end
 	end
 
+	# ------------------ START RECIEVING UPDATES FROM EVERNOTE ------------------
+
+	def update
+		@userID = params[:userID]
+		@noteGuid = params[:noteGuid]
+		@notebookGuid = params[:notebookGuid]
+		@reason = params[:reason]
+		if @reason = "changeNote"
+			incrementalSync
+		else
+			#something else
+			roots = Evernote.EDAM.getNote(@noteGuid)
+			roots.each do |root|
+				compileBranches(root)
+			end
+		end
+	end
+
 	# ------------------ SYNC TO RECEIVE CHANGES FROM EVERNOTE ------------------
 
 	def getSyncChunk (afterUSN, maxEntries)
