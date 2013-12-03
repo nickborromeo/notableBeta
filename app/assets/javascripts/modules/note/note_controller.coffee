@@ -89,6 +89,7 @@
 
 		clearZoom: ->
 			App.Note.initializedTree.then =>
+				Backbone.history.navigate '#'
 				App.Note.activeTree = App.Note.tree
 				@clearCrownView()
 				@showContentView App.Note.tree
@@ -97,7 +98,6 @@
 					Note.eventManager.trigger "setCursor:#{Note.tree.first().get('guid')}"
 
 		zoomIn: (guid) ->
-			Backbone.history.navigate '#'
 			App.Note.initializedTree.then =>
 				App.Note.activeTree = App.Note.tree.getCollection guid
 				App.Note.activeBranch = App.Note.tree.findNote(guid)
