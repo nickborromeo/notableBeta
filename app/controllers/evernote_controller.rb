@@ -40,6 +40,10 @@ class EvernoteController < ApplicationController
 		end
 	end
 
+    def sync
+      puts params
+    end
+
 	private
 		def note_store
 			@note_store ||= @client.note_store

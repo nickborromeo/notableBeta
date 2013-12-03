@@ -34,7 +34,7 @@
 			Note.eventManager.on "clearZoom", @clearZoom, @
 			Note.eventManager.on "render:export", @showExportView, @
 			Note.eventManager.on "clear:export", @clearExportView, @
-	
+
 		buildTree: ->
 			@allNotesByDepth.sort()
 			@allNotesByDepth.validateTree()

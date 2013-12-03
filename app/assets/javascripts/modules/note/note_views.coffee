@@ -433,7 +433,7 @@
 		deleteBranch: (e) ->
 			@zoomOut(e)
 			App.Note.tree.deleteNote @model
-			
+
 		zoomOut: (e) ->
 			e.preventDefault()
 			e.stopPropagation()
@@ -459,24 +459,26 @@
 
 		initialize: (options) ->
 			@model = new Note.ExportModel tree: @collection, inParagraph: options.inParagraph
+			if options.inParagraph then App.Notify.alert 'exportParagraph', 'success'
+			else App.Notify.alert 'exportPlain', 'success'
 			console.log "exportView", arguments
 
 		clearExport: ->
 			Note.eventManager.trigger "clear:export"
-	
+
 	class Note.ExportModel extends Backbone.Model
+		urlRoot : '/sync'
 
 		initialize: ->
 			console.log "exportModel", arguments
 			if @get('inParagraph') then @render = @renderTreeParagraph else @render = @renderTree
-			@set 'title', Note.activeBranch.get('title')
+			@set 'title', "Fake Title" #Note.activeBranch.get('title')
 			@set 'text', @render @get('tree')
 
 		make_spaces: (num, spaces = '') ->
 			if num is 0 then return spaces
 			@make_spaces(--num, spaces + '&nbsp;&nbsp;')
 		renderTree: (tree)->
-			App.Notify.alert 'exportPlain', 'success' 
 			text = ""
 			indent = 0
 			do rec = (current = tree.first(), rest = tree.rest()) =>
@@ -488,7 +490,6 @@
 				rec _.first(rest), _.rest(rest)
 
 		renderTreeParagraph: (tree) ->
-			App.Notify.alert 'exportParagraph', 'success' 
 			text = ""
 			indent = 0
 			do rec = (current = tree.first(), rest = tree.rest()) =>
