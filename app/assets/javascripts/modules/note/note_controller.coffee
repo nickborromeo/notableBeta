@@ -78,7 +78,6 @@
 			App.contentRegion.currentView.breadcrumbRegion.show @notebookTitleView
 			App.Note.activeBranch = "root"
 
-
 		clearZoom: ->
 			App.Note.initializedTree.then =>
 				Backbone.history.navigate '#'
@@ -88,7 +87,6 @@
 				@showNotebookTitleView()
 				if Note.tree.first()?
 					Note.eventManager.trigger "setCursor:#{Note.tree.first().get('guid')}"
-
 		zoomIn: (guid) ->
 			App.Note.initializedTree.then =>
 				App.Note.activeTree = App.Note.tree.getCollection guid

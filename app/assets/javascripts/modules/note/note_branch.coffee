@@ -10,7 +10,7 @@
 			depth: 0
 			collapsed: false
 
-		validate: (attributes, options) ->
+		validation: (attributes, options) ->
 			# console.log "validate", @get('guid')
 			e = undefined
 			sameGuidExist = do =>

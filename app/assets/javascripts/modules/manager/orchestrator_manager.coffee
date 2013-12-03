@@ -17,6 +17,7 @@
 				previous_attributes: branch.attributes
 				options: options
 		queueDestroy: (branch) ->
+			App.OfflineAccess.addDelete branch
 			@destroyQueue.push branch
 		triggerAction: (branch, attributes, options = {}) ->
 			clearTimeout @savingQueueTimeout
@@ -34,6 +35,7 @@
 			do rec = (action = @actionQueue.shift()) =>
 				return if not action?
 				action.branch.set action.attributes
+				App.OfflineAccess.addChange action.branch
 				@validationQueue.push action
 				# console.log "validationQueue", @validationQueue
 				rec @actionQueue.shift()
@@ -41,7 +43,7 @@
 			@startSavingQueueTimeout()
 
 		validate: (branch, attributes, options) ->
-			if (val = branch.validate attributes)?
+			if (val = branch.validation attributes)?
 				# console.log val
 				false
 			else
@@ -71,6 +73,7 @@
 		rejectChanges: (validQueue) ->
 			@validationQueue = []
 			App.Note.noteController.reset()
+			App.OfflineAccess.clearCached()
 			App.Notify.alert 'brokenTree', 'danger'
 		processDestroy: ->
 			# console.log "destroyQueue", @destroyQueue
@@ -87,6 +90,7 @@
 				return if not branch?
 				branch.save()
 				rec validQueue.shift()
+			App.OfflineAccess.clearCached()
 		getDestroyGuids: ->
 			guids = []
 			_.each @destroyQueue, (toDestroy) ->
