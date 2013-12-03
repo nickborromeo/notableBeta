@@ -34,7 +34,7 @@
 			Note.eventManager.on "clearZoom", (-> Backbone.history.navigate '#'), @
 			Note.eventManager.on "render:export", @showExportView, @
 			Note.eventManager.on "clear:export", @clearExportView, @
-	
+
 		buildTree: ->
 			# Note.initializedTree = $.Deferred();
 			@allNotesByDepth.sort()
