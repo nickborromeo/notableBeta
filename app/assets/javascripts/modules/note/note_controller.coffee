@@ -8,7 +8,7 @@
 	Note.Router = Marionette.AppRouter.extend
 		appRoutes:
 			"zoom/:guid": "zoomIn"
-			"*index": "clearZoom"
+			"": "clearZoom"
 
 	Note.Controller = Marionette.Controller.extend
 		initialize: (options) ->
@@ -31,12 +31,12 @@
 			Note.activeTree = @tree
 			Note.activeBranch = "root"
 		setEvents: ->
-			Note.eventManager.on "clearZoom", @clearZoom, @
+			Note.eventManager.on "clearZoom", (-> Backbone.history.navigate '#'), @
 			Note.eventManager.on "render:export", @showExportView, @
 			Note.eventManager.on "clear:export", @clearExportView, @
-
+	
 		buildTree: ->
-			Note.initializedTree = $.Deferred();
+			# Note.initializedTree = $.Deferred();
 			@allNotesByDepth.sort()
 			@allNotesByDepth.validateTree()
 			@allNotesByDepth.each (note) =>
@@ -89,7 +89,6 @@
 
 		clearZoom: ->
 			App.Note.initializedTree.then =>
-				Backbone.history.navigate '#'
 				App.Note.activeTree = App.Note.tree
 				@clearCrownView()
 				@showContentView App.Note.tree
