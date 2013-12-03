@@ -105,6 +105,8 @@
 				@showBreadcrumbView()
 				if Note.activeTree.first()?
 					Note.eventManager.trigger "setCursor:#{Note.activeTree.first().get('guid')}"
+				else
+					Note.eventManager.trigger "setCursor:#{Note.activeBranch.get('guid')}"
 
 	# Initializers -------------------------
 	Note.addInitializer ->
