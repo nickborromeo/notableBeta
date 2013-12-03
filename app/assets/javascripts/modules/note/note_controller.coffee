@@ -31,7 +31,7 @@
 			Note.activeTree = @tree
 			Note.activeBranch = "root"
 		setEvents: ->
-			Note.eventManager.on "clearZoom", (-> Backbone.history.navigate '#'), @
+			Note.eventManager.on "clearZoom", @clearZoom, @
 			Note.eventManager.on "render:export", @showExportView, @
 			Note.eventManager.on "clear:export", @clearExportView, @
 	
@@ -89,6 +89,8 @@
 
 		clearZoom: ->
 			App.Note.initializedTree.then =>
+				Backbone.history.navigate '#'
+				console.log 'test'
 				App.Note.activeTree = App.Note.tree
 				@clearCrownView()
 				@showContentView App.Note.tree

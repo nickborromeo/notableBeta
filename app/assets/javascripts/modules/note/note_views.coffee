@@ -391,7 +391,7 @@
 			if App.Note.activeBranch  isnt "root" and App.Note.activeBranch.get('parent_id') isnt "root"
 				@zoomIn
 					get: () -> App.Note.activeBranch.get('parent_id')
-				Note.eventManager.trigger "setCursor:#{App.Note.activeTree.first().get('guid')}"
+				# Note.eventManager.trigger "setCursor:#{App.Note.activeTree.first().get('guid')}"
 				# Note.eventManager.trigger "setCursor:#{App.Note.tree.findNote(App.Note.activeBranch.get("guid").getCompleteDescendantList().first().get('guid'))}"
 			else
 				@clearZoom()
@@ -464,13 +464,12 @@
 			e.stopPropagation()
 			if App.Note.activeBranch isnt "root" and App.Note.activeBranch.get('parent_id') isnt "root"
 				@zoomIn App.Note.activeBranch.get('parent_id')
-				Note.eventManager.trigger "setCursor:#{App.Note.activeTree.first().get('guid')}"
+				# Note.eventManager.trigger "setCursor:#{App.Note.activeTree.first().get('guid')}"
 			else
 				@clearZoom()
 		zoomIn: (guid) ->
 			Backbone.history.navigate "#/zoom/#{guid}"
 		clearZoom: ->
-			Backbone.history.navigate ""
 			Note.eventManager.trigger "clearZoom"
 
 		export: (paragraph = false) -> (e) ->
