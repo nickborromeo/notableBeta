@@ -32,7 +32,6 @@
 			Note.eventManager.on "render:#{@model.get('guid')}", @render, @
 			Note.eventManager.on "setTitle:#{@model.get('guid')}", @setNoteTitle, @
 			Note.eventManager.on "timeoutUpdate:#{@model.get('guid')}", @updateNote, @
-			@shortcutTimer = @createShortcutTimer()
 			@cursorApi = App.Helpers.CursorPositionAPI
 		onRender: ->
 			@getNoteContent()
@@ -62,18 +61,18 @@
 
 		bindKeyboardShortcuts: ->
 			@.$el.on 'keydown', null, 'return', @createNote.bind @
-			@.$el.on 'keydown', null, 'ctrl+shift+backspace', @triggerQueuedShortcut 'deleteNote'
-			@.$el.on 'keydown', null, 'meta+shift+backspace', @triggerQueuedShortcut 'deleteNote'
-			@.$el.on 'keydown', null, 'tab', @triggerQueuedShortcut 'tabNote'
-			@.$el.on 'keydown', null, 'shift+tab', @triggerQueuedShortcut 'unTabNote'
-			@.$el.on 'keydown', null, 'alt+right', @triggerQueuedShortcut 'tabNote'
-			@.$el.on 'keydown', null, 'alt+left', @triggerQueuedShortcut 'unTabNote'
-			@.$el.on 'keydown', null, 'alt+up', @triggerQueuedShortcut 'jumpPositionUp'
-			@.$el.on 'keydown', null, 'alt+down', @triggerQueuedShortcut 'jumpPositionDown'
-			@.$el.on 'keydown', null, 'meta+right', @triggerQueuedShortcut 'tabNote'
-			@.$el.on 'keydown', null, 'meta+left', @triggerQueuedShortcut 'unTabNote'
-			@.$el.on 'keydown', null, 'meta+up', @triggerQueuedShortcut 'jumpPositionUp'
-			@.$el.on 'keydown', null, 'meta+down', @triggerQueuedShortcut 'jumpPositionDown'
+			@.$el.on 'keydown', null, 'ctrl+shift+backspace', @triggerShortcut 'deleteNote'
+			@.$el.on 'keydown', null, 'meta+shift+backspace', @triggerShortcut 'deleteNote'
+			@.$el.on 'keydown', null, 'tab', @triggerShortcut 'tabNote'
+			@.$el.on 'keydown', null, 'shift+tab', @triggerShortcut 'unTabNote'
+			@.$el.on 'keydown', null, 'alt+right', @triggerShortcut 'tabNote'
+			@.$el.on 'keydown', null, 'alt+left', @triggerShortcut 'unTabNote'
+			@.$el.on 'keydown', null, 'alt+up', @triggerShortcut 'jumpPositionUp'
+			@.$el.on 'keydown', null, 'alt+down', @triggerShortcut 'jumpPositionDown'
+			@.$el.on 'keydown', null, 'meta+right', @triggerShortcut 'tabNote'
+			@.$el.on 'keydown', null, 'meta+left', @triggerShortcut 'unTabNote'
+			@.$el.on 'keydown', null, 'meta+up', @triggerShortcut 'jumpPositionUp'
+			@.$el.on 'keydown', null, 'meta+down', @triggerShortcut 'jumpPositionDown'
 			@.$el.on 'keydown', null, 'up', @triggerShortcut 'jumpFocusUp'
 			@.$el.on 'keydown', null, 'down', @triggerShortcut 'jumpFocusDown'
 			@.$el.on 'keydown', null, 'alt+ctrl+left', @triggerShortcut 'zoomOut'
@@ -108,12 +107,6 @@
 			e.preventDefault()
 			e.stopPropagation()
 			App.Action.undo()
-		triggerQueuedShortcut: (event) -> (e) =>
-			e.preventDefault()
-			e.stopPropagation()
-			args = Note.sliceArgs arguments
-			# @shortcutTimer => @triggerEvent(event).apply(@, args)
-			@triggerEvent(event).apply(@, args)
 		triggerShortcut: (event) -> (e) =>
 			e.preventDefault()
 			e.stopPropagation()
@@ -141,7 +134,7 @@
 			return true if document.getSelection().isCollapsed is false
 			e.stopPropagation()
 			if @testCursorPosition "isEmptyBeforeCursor"
-				@triggerQueuedShortcut('mergeWithPreceding')(e)
+				@triggerShortcut('mergeWithPreceding')(e)
 		arrowRightJumpLine: (e) ->
 			e.stopPropagation()
 			if @testCursorPosition "isEmptyAfterCursor"
@@ -183,27 +176,13 @@
 		createNote: (e) ->
 			e.preventDefault()
 			e.stopPropagation()
-			create = =>
+			do create = =>
 				sel = window.getSelection()
 				title = @updateNote()
 				textBefore = @cursorApi.textBeforeCursor sel, title
 				textAfter = (@cursorApi.textAfterCursor sel, title).replace(/^\s/, "")
 				Note.eventManager.trigger 'createNote', @model, textBefore, textAfter
 				if textAfter.length > 0 then App.Action.addHistory "compoundAction", {actions:2, previousActions: true}
-			# @shortcutTimer create.bind @
-			create.call @
-		createShortcutTimer: ->
-			timer = new Date().getTime()
-			baseTimeout = 300
-			accumulatedTimeout = baseTimeout;
-			shortcutTimeout = (fun) =>
-				accumulatedTimeout+= baseTimeout if ((newTimer = new Date().getTime()) - timer < accumulatedTimeout)
-				setTimeout ->
-					timer = newTimer
-					if accumulatedTimeout > baseTimeout then accumulatedTimeout -= baseTimeout else accumulatedTimeout = baseTimeout
-					fun()
-				, timer - new Date().getTime() + accumulatedTimeout
-
 		saveNote: (e) ->
 			e.preventDefault()
 			e.stopPropagation()
