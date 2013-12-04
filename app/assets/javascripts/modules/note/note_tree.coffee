@@ -90,7 +90,7 @@
 			@removeFromCollection @getCollection(note.get 'parent_id'), note
 			descendants = note.getCompleteDescendantList()
 			_.each descendants, (descendant) ->
-				App.Action.orchestrator.triggerAction actionType, descendant, null
+				App.Action.orchestrator.triggerAction actionType, descendant, null, isUndo: true
 			App.Action.orchestrator.triggerAction actionType, note, null, isUndo: isUndo
 
 		# Returns the descendants of matching parent_id
