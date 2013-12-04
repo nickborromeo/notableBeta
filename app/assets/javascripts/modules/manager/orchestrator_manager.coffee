@@ -18,21 +18,21 @@
 
 	Action.mergeWithPreceding = (branch, attributes, options = {}) ->
 		_(
-			compound: -> App.Action.addHistory 'compoundAction', {actions: 2}
+			compound: -> unless options.isUndo then App.Action.addHistory 'compoundAction', {actions: 2}
 			triggerNotification: ->
 		).defaults(Action.buildAction('deleteBranch', branch, attributes, options))
 
 	Action.deleteBranch = (branch, attributes, options = {}) ->
 		addToHistory:	-> unless options.isUndo then App.Action.addHistory 'deleteBranch', branch
-		triggerNotification: -> App.Notify.alert 'deleted', 'warning'
+		triggerNotification: -> unless options.isUndo then App.Notify.alert 'deleted', 'warning'
 		destroy: true
 
 	Action.createBranch = (branch, attributes, options = {}) ->
-		compound: -> Action.addHistory "compoundAction", {actions:2}
-		addToHistory: -> Action.addHistory 'createNote', branch
+		# compound: -> unless options.isUndo then Action.addHistory "compoundAction", {actions:2}
+		addToHistory: -> unless options.isUndo then Action.addHistory 'createNote', branch
 
 	Action.updateContent = (branch, attributes, options = {}) ->
-		addToHistory: -> Action.addHistory 'updateContent', branch
+		addToHistory: -> unless options.isUndo then Action.addHistory 'updateContent', branch
 
 	Action.processAction = (action) ->
 		action.addToHistory()
@@ -77,10 +77,10 @@
 			@processingActions = false
 			@startSavingQueueTimeout()
 		processAction: (action) ->
-			action.branch.set action.attributes unless not action.attributes?
 			action.compound()
 			action.addToHistory()
 			action.triggerNotification()
+			action.branch.set action.attributes unless not action.attributes?
 			App.OfflineAccess.addChange action.branch unless action.options.noLocalStorage
 
 		validate: (branch, attributes, options) ->

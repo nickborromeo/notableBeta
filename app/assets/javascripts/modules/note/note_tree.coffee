@@ -295,7 +295,7 @@
 			App.Action.addHistory 'moveNote', note
 			previousParentCollection = @getCollection note.get 'parent_id'
 			@removeFromCollection previousParentCollection, note
-			App.Action.orchestrator.triggerAction note,
+			App.Action.orchestrator.triggerAction 'basicAction', note,
 				parent_id: parent.get 'guid'
 				rank: parent.descendants.length + 1
 				depth: 1 + parent.get 'depth'
@@ -311,13 +311,13 @@
 			if followingNote
 				note.cloneAttributes followingNote
 			else
-				App.Action.orchestrator.triggerAction note,
+				App.Action.orchestrator.triggerAction 'basicAction', note,
 					parent_id: previousParent.get('parent_id')
 					rank: previousParent.get('rank') + 1
 					depth: note.get('depth') - 1
 
 		setDropAfter: (dragged, dropAfter) ->
-			App.Action.orchestrator.triggerAction dragged,
+			App.Action.orchestrator.triggerAction 'basicAction', dragged,
 				parent_id: dropAfter.get('parent_id')
 				rank:  dropAfter.get('rank') + 1
 				depth: dropAfter.get('depth')

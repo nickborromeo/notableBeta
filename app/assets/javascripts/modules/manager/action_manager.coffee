@@ -56,7 +56,8 @@
 
 	_revert.reverseDeleteNote = (attributes) ->
 		newBranch = new App.Note.Branch()
-		newBranch.save attributes
+		# newBranch.save attributes
+		App.Action.orchestrator.triggerAction 'createBranch', newBranch, attributes, isUndo: true
 		App.Note.tree.insertInTree newBranch
 		#remove from storage if offline
 		App.OfflineAccess.addToDeleteCache attributes.guid, false
@@ -83,7 +84,8 @@
 		_addAction.moveNote reference.note, isUndo
 
 		App.Note.tree.removeFromCollection reference.parentCollection, reference.note
-		reference.note.save change
+		# reference.note.save change
+		App.Action.orchestrator.triggerAction 'basicAction', reference.note, change, isUndo: isUndo
 		App.Note.tree.insertInTree reference.note
 
 		App.Note.eventManager.trigger "setCursor:#{reference.note.get('guid')}"
@@ -101,7 +103,7 @@
 	_revert.updateContent = (change, isUndo = true) ->
 		reference = _getReference(change.guid)
 		_addAction.updateContent reference.note, isUndo
-		reference.note.save change
+		App.Action.orchestrator.triggerAction 'updateContent', reference.note, change, isUndo: isUndo
 		App.Note.eventManager.trigger "setTitle:#{change.guid}", change.title
 		# App.Note.eventManager.trigger "setSubtitle:#{change.guid}", change.subtitle
 
@@ -165,6 +167,7 @@
 
 	# currently compoundAction is the only type that takes an OBJECT with {actions: }  and optionally previousActions
 	@addHistory = (actionType, note) ->
+		console.log "Adding to history", actionType, note
 		throw "!!--cannot track this change--!!" unless _addAction[actionType]?
 		throw "compoundAction takes an object with an integer!" if actionType is "compoundAction" and isNaN(note.actions)
 		if _redoStack.length > 1 then clearRedoHistory()
@@ -175,6 +178,7 @@
 	@undo = ->
 		throw "nothing to undo" unless _undoStack.length > 0
 		change = _undoStack.pop()
+		console.log "Stack", _undoStack, change.type, change.change
 		_revert[change.type](change.changes)
 
 	@redo = ->
