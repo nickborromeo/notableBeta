@@ -1,4 +1,4 @@
-class UsersController < ApplicationController
+class UsersController < Devise::RegistrationsController
   respond_to :json
   before_filter :admin_user,     only: [:destroy, :index]
 
@@ -6,9 +6,17 @@ class UsersController < ApplicationController
     # @users = User.all
   end
 
+  def show
+    super
+    # @user = User.find(params[:id])
+    # @notes = @user.notes
+  end
+
   def create
-    @email = params[:email]
+    super
 =begin
+    @email = params[:email]
+
     @user = User.new(params[:user])
     if @user.save
       flash[:success] = "Welcome to Notable!"
@@ -21,26 +29,28 @@ class UsersController < ApplicationController
   end
 
   def new
-    @user = User.new
-  end
-
-  def show
-    # @user = User.find(params[:id])
-    # @notes = @user.notes
+    super
   end
 
   def edit
+    super
   end
 
   def update
+    super
   end
 
   def destroy
+    super
 =begin
     User.find(params[:id]).destroy
     flash[:success] = "User successfully removed."
     redirect_to users_url
 =end
+  end
+
+  def cancel
+    super
   end
 
   private
