@@ -9,15 +9,15 @@
 			@destroyQueue = []
 			@destroyGuidQueue = []
 
-		queueAction: (branch, attributes, options) ->
+		queueAction: (branch, attributes, options = {}) ->
 			# will have to play with the action manager
 			@actionQueue.push
 				branch: branch
 				attributes: attributes
 				previous_attributes: branch.attributes
 				options: options
-		queueDestroy: (branch) ->
-			App.OfflineAccess.addDelete branch
+		queueDestroy: (branch, options = {}) ->
+			App.OfflineAccess.addDelete branch unless options.noLocalStorage
 			@destroyQueue.push branch
 		triggerAction: (branch, attributes, options = {}) ->
 			clearTimeout @savingQueueTimeout
@@ -35,7 +35,7 @@
 			do rec = (action = @actionQueue.shift()) =>
 				return if not action?
 				action.branch.set action.attributes
-				App.OfflineAccess.addChange action.branch
+				App.OfflineAccess.addChange action.branch unless action.options.noLocalStorage
 				@validationQueue.push action
 				# console.log "validationQueue", @validationQueue
 				rec @actionQueue.shift()

@@ -145,7 +145,7 @@
 		# the following four methods can be used by anyone,
 		# but are relied on by Action Manager to get relevent history information
 		getAllAtributes: =>
-			@generateAttributeHash ['depth', 'rank', 'parent_id', 'guid', 'title', 'subtitle', 'created_at']
+			@generateAttributeHash ['depth', 'rank', 'parent_id', 'guid', 'title', 'subtitle', 'created_at', 'collapsed']
 		getPositionAttributes: =>
 			@generateAttributeHash ['guid', 'depth', 'rank', 'parent_id']
 		getContentAttributes: =>

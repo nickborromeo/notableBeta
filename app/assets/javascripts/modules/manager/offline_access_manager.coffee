@@ -98,7 +98,9 @@
 				_clearBackOff()
 				_deleteAndSave notesToDelete, time, callback
 			error: -> _notifyFailureAndBackOff(time)
-		if noteReference? then noteReference.destroy(options)
+		options.destroy = true
+		options.noLocalStorage = true
+		if noteReference? then noteReference.destroy options # App.Action.orchestrator.trigger noteReference, null, options
 		else options.success()
 
 	# starts to sync the actual note data, ranks, depth, parent IDs, etc
@@ -130,6 +132,8 @@
 			App.Note.allNotesByDepth.add noteReference
 		if noteReference?
 			Backbone.Model.prototype.save.call(noteReference,attributes,options)
+			options.noLocalStorage = true
+			# App.Action.orchestrator.triggerAction noteReference, attributes, options
 		else
 			options.success()
 
