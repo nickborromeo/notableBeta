@@ -16,6 +16,6 @@
 			side: 'right'
 
 		$('#reveal-login').click ->
-			
+			$('#login').show()
 
 )
