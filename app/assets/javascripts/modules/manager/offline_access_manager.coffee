@@ -83,7 +83,7 @@
 	# downloads all notes, this is not reflected in DOM
 	_startSync = (time = _backOffInterval, callback) ->
 		console.log 'trying to sync...'
-		App.Notify.alert 'saving', 'save'
+		App.Notify.alert 'synced', 'save'
 		App.Note.allNotesByDepth.fetch
 			success: -> _deleteAndSave Object.keys(_inMemoryCachedDeletes), time, callback
 			error: -> _notifyFailureAndBackOff(time)
@@ -110,7 +110,7 @@
 	_fullSyncNoAsync = (changeHashGUIDs, time, callback) ->
 		unless changeHashGUIDs.length > 0
 			if OfflineAccess.hasChangesToSync()
-				App.Notify.alertOnly 'saving', 'success'
+				App.Notify.alertOnly 'syncing', 'save'
 			_clearCached()
 			if callback? then return callback() else return
 
@@ -138,8 +138,10 @@
 	@checkAndLoadLocal = (buildTreeCallBack) ->
 		unless _localStorageEnabled then return buildTreeCallBack()
 		_loadCached()
+		showSyncedMsg = true if App.OfflineAccess.hasChangesToSync()
 		_startSync(null, buildTreeCallBack)
-
+		if showSyncedMsg
+			App.Note.initializedTree.then -> App.Notify.alert 'synced', 'success'
 	@setLocalStorageEnabled = (localStorageEnabled) ->
 		_localStorageEnabled = localStorageEnabled
 

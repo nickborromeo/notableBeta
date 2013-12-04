@@ -12,6 +12,8 @@
 	_alertTypes =
 		saving: "<i>saving...</i>"
 		saved: "Changes saved."
+		syncing: "<i>Syncing with server...</i>"
+		synced: "Changes synced."
 		deleted: "Note deleted. <a class ='clickCallback'> undo </a>"
 		undo: "Change undone."
 		redo: "Change redone."
