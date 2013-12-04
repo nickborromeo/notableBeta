@@ -1,5 +1,42 @@
 @Notable.module "Action", (Action, App, Backbone, Marionette, $, _) ->
-	
+
+	Action.defaultAction = (branch, attributes, options = {}) ->
+		branch: branch
+		attributes: attributes
+		previous_attributes: branch.attributes
+		options: options
+		compound: ->
+		addToHistory: ->
+		triggerNotification: ->
+		destroy: false
+
+	Action.buildAction = (actionType, branch, attributes, options = {}) ->
+		args = App.Note.sliceArgs arguments
+		_(Action[actionType].apply @, args).defaults(Action.defaultAction.apply @, args)
+
+	Action.basicAction = -> {}
+
+	Action.mergeWithPreceding = (branch, attributes, options = {}) ->
+		_(
+			compound: -> App.Action.addHistory 'compoundAction', {actions: 2}
+			triggerNotification: ->
+		).defaults(Action.buildAction('deleteBranch', branch, attributes, options))
+
+	Action.deleteBranch = (branch, attributes, options = {}) ->
+		addToHistory:	-> unless options.isUndo then App.Action.addHistory 'deleteBranch', branch
+		triggerNotification: -> App.Notify.alert 'deleted', 'warning'
+		destroy: true
+
+	Action.createBranch = (branch, attributes, options = {}) ->
+		compound: -> Action.addHistory "compoundAction", {actions:2}
+		addToHistory: -> Action.addHistory 'createNote', branch
+
+	Action.updateContent = (branch, attributes, options = {}) ->
+		addToHistory: -> Action.addHistory 'updateContent', branch
+
+	Action.processAction = (action) ->
+		action.addToHistory()
+
 	class Action.Orchestrator
 
 		constructor: ->
@@ -9,23 +46,21 @@
 			@destroyQueue = []
 			@destroyGuidQueue = []
 
-		queueAction: (branch, attributes, options = {}) ->
+		queueAction: (action) ->
 			# will have to play with the action manager
-			@actionQueue.push
-				branch: branch
-				attributes: attributes
-				previous_attributes: branch.attributes
-				options: options
-		queueDestroy: (branch, options = {}) ->
-			App.OfflineAccess.addDelete branch unless options.noLocalStorage
-			@destroyQueue.push branch
-		triggerAction: (branch, attributes, options = {}) ->
+			@actionQueue.push action
+		queueDestroy: (action) ->
+			App.OfflineAccess.addDelete action.branch unless action.options.noLocalStorage
+			@destroyQueue.push action.branch
+			@processAction action
+		triggerAction: (actionType, branch, attributes, options = {}) ->
 			clearTimeout @savingQueueTimeout
-			if options.destroy
-				@queueDestroy.apply @, arguments
+			action = Action.buildAction.apply(@, arguments)
+			if action.destroy
+				@queueDestroy action
 				@startSavingQueueTimeout()
 			else
-				@queueAction.apply(@, arguments)
+				@queueAction action
 				@processActionQueue()
 			# @queueSaving attributes, branch
 
@@ -34,13 +69,19 @@
 			@processingActions = true
 			do rec = (action = @actionQueue.shift()) =>
 				return if not action?
-				action.branch.set action.attributes
-				App.OfflineAccess.addChange action.branch unless action.options.noLocalStorage
+				# action.branch.set action.attributes
+				@processAction action				
 				@validationQueue.push action
 				# console.log "validationQueue", @validationQueue
 				rec @actionQueue.shift()
 			@processingActions = false
 			@startSavingQueueTimeout()
+		processAction: (action) ->
+			action.branch.set action.attributes unless not action.attributes?
+			action.compound()
+			action.addToHistory()
+			action.triggerNotification()
+			App.OfflineAccess.addChange action.branch unless action.options.noLocalStorage
 
 		validate: (branch, attributes, options) ->
 			if (val = branch.validation attributes)?
@@ -85,12 +126,14 @@
 		acceptChanges: (validQueue) ->
 			# console.log "accept changes", validQueue
 			@processDestroy()
+			App.Notify.alert 'saving', 'save'
 			# console.log "trimed changes", validQueue
 			do rec = (branch = validQueue.shift()) ->
 				return if not branch?
 				branch.save()
 				rec validQueue.shift()
 			App.OfflineAccess.clearCached()
+			App.Notify.alert 'saved', 'save'
 		getDestroyGuids: ->
 			guids = []
 			_.each @destroyQueue, (toDestroy) ->

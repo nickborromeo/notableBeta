@@ -43,11 +43,8 @@
 			return e
 
 		save: (attributes = null, options = {}) =>
-			App.Notify.alert 'saving', 'save'
 			callBackOptions =
 				success: (model, response, opts)  =>
-					# this is not working well, i don't like it, i will change it
-					App.Notify.alert 'saved', 'save'
 					App.OfflineAccess.informConnectionSuccess()
 					if options.success? then options.success(model, response, opts)
 				error: (model, xhr, opts) =>
@@ -60,7 +57,6 @@
 			Backbone.Model.prototype.save.call(@, attributes, callBackOptions)
 			# console.log "saving", @get('guid'), @id, @, arguments
 		destroy: (options = {}) =>
-			App.Notify.alert 'deleted', 'warning'
 			@clearTimeoutAndSave()
 			callBackOptions =
 				success: (model, response, opts) =>
@@ -135,7 +131,7 @@
 		clonableAttributes: ['depth', 'rank', 'parent_id']
 		cloneAttributes: (noteToClone, options = {}) ->
 			attributesHash = @cloneAttributesNoSaving noteToClone, options
-			App.Action.orchestrator.triggerAction @, attributesHash
+			App.Action.orchestrator.triggerAction 'basicAction', @, attributesHash
 		cloneAttributesNoSaving: (noteToClone, options = {}) ->
 			attributesHash = {}
 			attributesHash[attribute] = (if options[attribute]? then options[attribute] else noteToClone.get(attribute)) for attribute in @clonableAttributes
@@ -160,7 +156,7 @@
 		modifyAttributes: (attribute, effect) ->
 			attributeHash = {}
 			attributeHash[attribute] = @get(attribute) + effect
-			App.Action.orchestrator.triggerAction @, attributeHash
+			App.Action.orchestrator.triggerAction 'basicAction', @, attributeHash
 
 		modifyRank: (effect) -> @modifyAttributes 'rank', effect
 		increaseRank: () -> @modifyRank 1

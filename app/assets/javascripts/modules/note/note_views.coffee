@@ -147,14 +147,14 @@
 			if @model.get('collapsed') then @expand() else @collapse()
 		collapse: ->
 			return if @collection.length is 0
-			App.Action.orchestrator.triggerAction(@model, collapsed: true) if not @model.get('collapsed')
+			App.Action.orchestrator.triggerAction('basicAction', @model, collapsed: true) if not @model.get('collapsed')
 			if @collapsable() and not @isCollapsed()
 				@ui.descendants.slideToggle("fast")
 				@ui.descendants.addClass('collapsed')
 				@$(@ui.descendants).removeAttr('style')
 				@$(">.branch>.move").addClass("is-collapsed")
 		expand: ->
-			App.Action.orchestrator.triggerAction(@model, collapsed: false) if @model.get('collapsed')
+			App.Action.orchestrator.triggerAction('basicAction', @model, collapsed: false) if @model.get('collapsed')
 			if @collapsable() and @isCollapsed()
 				@ui.descendants.slideToggle("fast")
 				@ui.descendants.removeClass('collapsed')
@@ -187,8 +187,7 @@
 			noteTitle = @getNoteTitle()
 			noteSubtitle = "" #@getNoteSubtitle()
 			if @model.get('title') isnt noteTitle
-				App.Action.addHistory 'updateContent', @model
-				App.Action.orchestrator.triggerAction @model,
+				App.Action.orchestrator.triggerAction 'updateContent', @model,
 					title: noteTitle
 					subtitle: noteSubtitle
 			noteTitle
@@ -356,7 +355,6 @@
 		getDropType: (e) ->
 			e.currentTarget.classList[1]
 		mergeWithPreceding: (note) ->
-			App.Action.addHistory 'compoundAction', {actions: 2}
 			[preceding, title] = @collection.mergeWithPreceding note
 			return false unless preceding
 			previousTitle = preceding.get('title')

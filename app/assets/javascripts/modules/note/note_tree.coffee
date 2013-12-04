@@ -60,10 +60,9 @@
 			textAfter = Note.prependStyling(textAfter)
 			hashMap = @dispatchCreation.apply @, arguments
 			newNote = new Note.Branch
-			App.Action.addHistory 'createNote', newNote
 			newNoteAttributes = Note.Branch.generateAttributes hashMap.createBeforeNote, hashMap.newNoteTitle
 			if hashMap.rankAdjustment then newNoteAttributes.rank += 1
-			App.Action.orchestrator.triggerAction newNote, newNoteAttributes
+			App.Action.orchestrator.triggerAction 'createBranch', newNote, newNoteAttributes
 			@insertInTree newNote
 			hashMap.setFocusIn ||= newNote
 			[newNote, hashMap.oldNoteNewTitle, hashMap.setFocusIn]
@@ -87,13 +86,12 @@
 			newNoteTitle: textBefore
 			oldNoteNewTitle: textAfter
 			setFocusIn: noteCreatedFrom
-		deleteNote: (note, isUndo) -> #ignore isUndo unless dealing with action manager!
-			unless isUndo then App.Action.addHistory 'deleteBranch', note
+		deleteNote: (note, isUndo, actionType = 'deleteBranch') -> #ignore isUndo unless dealing with action manager!
 			@removeFromCollection @getCollection(note.get 'parent_id'), note
 			descendants = note.getCompleteDescendantList()
 			_.each descendants, (descendant) ->
-				App.Action.orchestrator.triggerAction descendant, null, destroy: true
-			App.Action.orchestrator.triggerAction note, null, destroy: true
+				App.Action.orchestrator.triggerAction actionType, descendant, null
+			App.Action.orchestrator.triggerAction actionType, note, null, isUndo: isUndo
 
 		# Returns the descendants of matching parent_id
 		getCollection: (parent_id) ->
@@ -343,7 +341,7 @@
 			else
 				preceding = @findPreviousNote note
 			noteTitle = note.get('title')
-			@deleteNote note
+			@deleteNote note, false, 'mergeWithPreceding'
 			return false unless preceding?
 			title = preceding.get('title') + noteTitle
 			[preceding, title]
