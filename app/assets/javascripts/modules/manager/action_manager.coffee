@@ -166,24 +166,26 @@
 	# ----------------------
 
 	# currently compoundAction is the only type that takes an OBJECT with {actions: }  and optionally previousActions
-	@addHistory = (actionType, note) ->
-		console.log "Adding to history", actionType, note
+	@addHistory = (actionType, note, isUndo = false) ->
+		# console.log "Adding to history", actionType, note
 		throw "!!--cannot track this change--!!" unless _addAction[actionType]?
 		throw "compoundAction takes an object with an integer!" if actionType is "compoundAction" and isNaN(note.actions)
-		if _redoStack.length > 1 then clearRedoHistory()
+		clearRedoHistory() if _redoStack.length > 1 and isUndo is false
 		if _undoStack.length >= _historyLimit then _undoStack.shift()
-		_addAction[actionType](note)
+		_addAction[actionType] note, isUndo
 		_addAction.compoundTrigger() unless actionType is "compoundAction"
 	
 	@undo = ->
 		throw "nothing to undo" unless _undoStack.length > 0
 		change = _undoStack.pop()
-		console.log "Stack", _undoStack, change.type, change.change
+		# console.log "Stack", _undoStack, change.type, change.change
 		_revert[change.type](change.changes)
+		
 
 	@redo = ->
 		throw "nothing to redo" unless _redoStack.length > 0
 		change = _redoStack.pop()
+		console.log "Stack", _redoStack, change.type, change.changes
 		_revert[change.type](change.changes, false)
 
 	@setHistoryLimit = (limit) ->
