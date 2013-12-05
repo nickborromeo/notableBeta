@@ -54,7 +54,7 @@
 			@destroyQueue.push action.branch
 			@processAction action
 		triggerAction: (actionType, branch, attributes, options = {}) ->
-			clearTimeout @savingQueueTimeout
+			@clearSavingQueueTimeout()
 			action = Action.buildAction.apply(@, arguments)
 			if action.destroy
 				@queueDestroy action
@@ -63,6 +63,12 @@
 				@queueAction action
 				@processActionQueue()
 			# @queueSaving attributes, branch
+		triggerSaving: ->
+			interval = setInterval =>
+				@clearSavingQueueTimeout()
+				if not @processingActions and @actionQueue.length is 0
+					clearInterval interval
+					@processSavingQueue()
 
 		processActionQueue: ->
 			return if @processingActions
@@ -90,6 +96,8 @@
 			else
 				true
 
+		clearSavingQueueTimeout: ->
+			clearTimeout @savingQueueTimeout			
 		startSavingQueueTimeout: ->
 			@savingQueueTimeout = setTimeout @processSavingQueue.bind(@), 5000
 		processSavingQueue: () ->

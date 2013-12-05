@@ -81,8 +81,8 @@
 			@.$el.on 'keydown', null, 'backspace', @mergeWithPreceding.bind @
 			@.$el.on 'keydown', null, 'ctrl+up', @triggerLocalShortcut @collapse.bind @
 			@.$el.on 'keydown', null, 'ctrl+down', @triggerLocalShortcut @expand.bind @
-			@.$el.on 'keydown', null, 'ctrl+s', @saveNote.bind @
-			@.$el.on 'keydown', null, 'meta+s', @saveNote.bind @
+			@.$el.on 'keydown', null, 'ctrl+s', @triggerSaving.bind @
+			@.$el.on 'keydown', null, 'meta+s', @triggerSaving.bind @
 			@.$el.on 'keydown', null, 'ctrl+z', @triggerUndoEvent
 			@.$el.on 'keydown', null, 'meta+z', @triggerUndoEvent
 			# @.$el.on 'keydown', null, 'ctrl+y', @triggerRedoEvent
@@ -181,10 +181,11 @@
 				textAfter = (@cursorApi.textAfterCursor sel, title).replace(/^\s/, "")
 				Note.eventManager.trigger 'createNote', @model, textBefore, textAfter
 				if textAfter.length > 0 then App.Action.addHistory "compoundAction", {actions:2, previousActions: true}
-		saveNote: (e) ->
+		triggerSaving: (e) ->
 			e.preventDefault()
 			e.stopPropagation()
 			@updateNote()
+			App.Action.orchestrator.triggerSaving()
 		updateNote: (forceUpdate = false) ->
 			noteTitle = @getNoteTitle()
 			noteSubtitle = "" #@getNoteSubtitle()
