@@ -392,18 +392,30 @@
 			@cursorApi = App.Helpers.CursorPositionAPI
 			Note.eventManager.on "timeoutUpdate:#{@model.get('guid')}", @updateNote, @
 			Note.eventManager.on "setCursor:#{@model.get('guid')}", @setCursor, @
+			@$el.on 'keydown', null, 'return', @createBranch.bind @
 			@$el.on 'keydown', null, 'up', @setCursor.bind @
 			@$el.on 'keydown', null, 'down', @jumpFocusDown.bind @
 			@$el.on 'keydown', null, 'right', @arrowRightJumpLine.bind @
 			# @$el.on 'keydown', null, 'right', @jumpFocusDown
 			@$el.on 'keydown', null, 'alt+ctrl+left', @zoomOut.bind @
 			@$el.on 'keydown', null, 'ctrl+shift+backspace', @deleteBranch.bind @
-
 		onClose: ->
 			@$el.off()
 			Note.eventManager.off "timeoutUpdate:#{@model.get('guid')}", @updateNote, @
 			Note.eventManager.off "setCursor:#{@model.get('guid')}", @setCursor, @
-		updateNote: =>
+
+		createBranch: (e) ->
+			e.preventDefault()
+			e.stopPropagation()
+			createdFrom = App.Note.activeTree.first()
+			return App.messageRegion.currentView.createNote() if not createdFrom?
+			[newNote, createdFromNewTitle, setFocusIn] =
+				App.Note.tree.createNote App.Note.activeTree.first(), "", createdFrom.get('title')
+			Note.eventManager.trigger "setTitle:#{createdFrom.get('guid')}", createdFromNewTitle
+			Note.eventManager.trigger "setCursor:#{newNote.get('guid')}"
+
+			
+		updateNote: ->
 			noteTitle = @getNoteTitle()
 			noteSubtitle = "" #@getNoteSubtitle()
 			if @model.get('title') isnt noteTitle
