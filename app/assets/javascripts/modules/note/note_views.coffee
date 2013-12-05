@@ -86,7 +86,7 @@
 			@.$el.on 'keydown', null, 'meta+z', @triggerUndoEvent
 			# @.$el.on 'keydown', null, 'ctrl+y', @triggerRedoEvent
 			# @.$el.on 'keydown', null, 'meta+y', @triggerRedoEvent
-
+	 
 		onClose: ->
 			@.$el.off()
 			delete @collection
@@ -160,6 +160,7 @@
 				@ui.descendants.removeClass('collapsed')
 				@$(@ui.descendants).removeAttr('style')
 				@$(">.branch>.move").removeClass("is-collapsed")
+				@render()
 		isCollapsed: ->
 			"is-collapsed" in @$(">.branch>.move")[0].classList
 		collapsable: ->
