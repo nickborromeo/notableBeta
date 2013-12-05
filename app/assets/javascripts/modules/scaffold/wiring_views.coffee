@@ -15,7 +15,4 @@
 			source: '#right-sidr-center'
 			side: 'right'
 
-		$('#reveal-login').click ->
-			$('#login').show()
-
 )
