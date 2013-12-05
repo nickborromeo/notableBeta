@@ -32,7 +32,7 @@
 		addToHistory: -> unless options.isUndo then Action.addHistory 'createNote', branch
 
 	Action.updateContent = (branch, attributes, options = {}) ->
-		addToHistory: -> unless options.isUndo then Action.addHistory 'updateContent', branch
+		addToHistory: -> Action.addHistory 'updateContent', branch, options.isUndo
 
 	Action.processAction = (action) ->
 		action.addToHistory()
