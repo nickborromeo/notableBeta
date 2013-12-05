@@ -1,24 +1,16 @@
-<footer id="login">
+<footer>
 
-<p>Power</p>
+<%= form_for(resource, :as => resource, :url => session_path(resource)) do |f| %>
+  <%= devise_error_messages! %>
 
-</footer>
+  <div><%= f.label :email %>
+  <%= f.email_field :email %></div>
+  <div><%= f.label :password %>
+  <%= f.password_field :password %></div>
 
-<!--
-< %= form_for(@user, :as => user, :url => session_path(user)) do |f| %>
-  < %= devise_error_messages! %>
+  <div><%= f.submit "Ever" %></div>
+<% end %>
 
-  <div>< %= f.label :email %>
-  < %= f.email_field :email %></div>
-  <div>< %= f.label :password %>
-  < %= f.password_field :password %></div>
-
-  <div>< %= f.submit "Ever" %></div>
-< % end %>
-
-
-
-  <div>Not yet a user? link_to "Sign up", signup_path </div>
   <nav>
     <ul>
       <li>link_to "About",   about_path</li>
@@ -26,4 +18,5 @@
       <li><a href="http://productivityanywhere.com">Blog</a></li>
     </ul>
   </nav>
- -->
+
+</footer>

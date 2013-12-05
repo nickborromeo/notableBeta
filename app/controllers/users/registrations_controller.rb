@@ -1,15 +1,9 @@
-class UsersController < Devise::RegistrationsController
+class Users::RegistrationsController < Devise::RegistrationsController
   respond_to :json
   before_filter :admin_user,     only: [:destroy, :index]
 
   def index
     # @users = User.all
-  end
-
-  def show
-    super
-    # @user = User.find(params[:id])
-    # @notes = @user.notes
   end
 
   def create
@@ -29,27 +23,6 @@ class UsersController < Devise::RegistrationsController
   end
 
   def new
-    super
-  end
-
-  def edit
-    super
-  end
-
-  def update
-    super
-  end
-
-  def destroy
-    super
-=begin
-    User.find(params[:id]).destroy
-    flash[:success] = "User successfully removed."
-    redirect_to users_url
-=end
-  end
-
-  def cancel
     super
   end
 
