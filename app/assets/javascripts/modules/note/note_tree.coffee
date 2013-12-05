@@ -335,8 +335,8 @@
 			(@dropMoveGeneral @setDropAfter.bind @).call(this, dragged, dropAfter)
 
 		mergeWithPreceding: (note) ->
+			return false if note.hasDescendants()
 			if note.get('title').length isnt 0
-				return false if note.hasDescendants()
 				preceding = @findPreviousNote note
 				return false if preceding.get('depth') > note.get('depth')
 			else

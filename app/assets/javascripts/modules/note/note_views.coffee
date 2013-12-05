@@ -356,6 +356,7 @@
 			@drag isnt note and not note.hasInAncestors @drag
 		getDropType: (e) ->
 			e.currentTarget.classList[1]
+
 		mergeWithPreceding: (note) ->
 			[preceding, title] = @collection.mergeWithPreceding note
 			return false unless preceding
