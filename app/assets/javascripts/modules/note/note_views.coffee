@@ -84,8 +84,8 @@
 			@.$el.on 'keydown', null, 'meta+s', @saveNote.bind @
 			@.$el.on 'keydown', null, 'ctrl+z', @triggerUndoEvent
 			@.$el.on 'keydown', null, 'meta+z', @triggerUndoEvent
-			@.$el.on 'keydown', null, 'ctrl+y', @triggerRedoEvent
-			@.$el.on 'keydown', null, 'meta+y', @triggerRedoEvent
+			# @.$el.on 'keydown', null, 'ctrl+y', @triggerRedoEvent
+			# @.$el.on 'keydown', null, 'meta+y', @triggerRedoEvent
 
 		onClose: ->
 			@.$el.off()
