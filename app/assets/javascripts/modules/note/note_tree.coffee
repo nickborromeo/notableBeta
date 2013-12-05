@@ -295,6 +295,7 @@
 			App.Action.addHistory 'moveNote', note
 			previousParentCollection = @getCollection note.get 'parent_id'
 			@removeFromCollection previousParentCollection, note
+			Note.eventManager.trigger "expand:#{parent.get('guid')}"
 			App.Action.orchestrator.triggerAction 'basicAction', note,
 				parent_id: parent.get 'guid'
 				rank: parent.descendants.length + 1

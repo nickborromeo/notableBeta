@@ -32,6 +32,7 @@
 			Note.eventManager.on "render:#{@model.get('guid')}", @render, @
 			Note.eventManager.on "setTitle:#{@model.get('guid')}", @setNoteTitle, @
 			Note.eventManager.on "timeoutUpdate:#{@model.get('guid')}", @updateNote, @
+			Note.eventManager.on "expand:#{@model.get('guid')}", @expand, @
 			@cursorApi = App.Helpers.CursorPositionAPI
 		onRender: ->
 			@getNoteContent()
@@ -89,12 +90,12 @@
 	 
 		onClose: ->
 			@.$el.off()
-			delete @collection
+			# delete @collection
 			Note.eventManager.off "setCursor:#{@model.get('guid')}", @setCursor, @
 			Note.eventManager.off "render:#{@model.get('guid')}",  @render, @
 			Note.eventManager.off "setTitle:#{@model.get('guid')}", @setNoteTitle, @
 			Note.eventManager.off "timeoutUpdate:#{@model.get('guid')}", @updateNote, @
-
+			Note.eventManager.off "expand:#{@model.get('guid')}", @expand, @
 		triggerRedoEvent: (e) =>
 			e.preventDefault()
 			e.stopPropagation()
