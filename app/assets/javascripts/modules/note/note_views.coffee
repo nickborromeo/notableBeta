@@ -183,10 +183,10 @@
 			e.preventDefault()
 			e.stopPropagation()
 			@updateNote()
-		updateNote: =>
+		updateNote: (forceUpdate = false) ->
 			noteTitle = @getNoteTitle()
 			noteSubtitle = "" #@getNoteSubtitle()
-			if @model.get('title') isnt noteTitle
+			if @model.get('title') isnt noteTitle or forceUpdate is true
 				App.Action.orchestrator.triggerAction 'updateContent', @model,
 					title: noteTitle
 					subtitle: noteSubtitle
@@ -225,9 +225,9 @@
 		getNoteTitle: ->
 			title = @getNoteContent().html().trim()
 			Note.trimEmptyTags title
-		setNoteTitle: (title) ->
+		setNoteTitle: (title, forceUpdate = false) ->
 			@getNoteContent().html title
-			@updateNote()
+			@updateNote forceUpdate
 
 		setCursor: (position = false) ->
 			(noteContent = @getNoteContent()).focus()
@@ -358,7 +358,7 @@
 			[preceding, title] = @collection.mergeWithPreceding note
 			return false unless preceding
 			previousTitle = preceding.get('title')
-			Note.eventManager.trigger "setTitle:#{preceding.get('guid')}", title
+			Note.eventManager.trigger "setTitle:#{preceding.get('guid')}", title, true
 			Note.eventManager.trigger "setCursor:#{preceding.get('guid')}", previousTitle
 		zoomOut: ->
 			if App.Note.activeBranch  isnt "root" and App.Note.activeBranch.get('parent_id') isnt "root"
