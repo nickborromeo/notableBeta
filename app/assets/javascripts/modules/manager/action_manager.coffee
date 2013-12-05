@@ -185,7 +185,7 @@
 	@redo = ->
 		throw "nothing to redo" unless _redoStack.length > 0
 		change = _redoStack.pop()
-		console.log "Stack", _redoStack, change.type, change.changes
+		# console.log "Stack", _redoStack, change.type, change.changes
 		_revert[change.type](change.changes, false)
 
 	@setHistoryLimit = (limit) ->
@@ -220,12 +220,12 @@
 	# 	window.localStorage.setItem 'actionHistory', JSON.stringify _undoStack
 
 	Action.addInitializer ->
-		console.log 'starting action manager'
+		# console.log 'starting action manager'
 		_undoStack = JSON.parse(window.localStorage.getItem('actionHistory')) ? []
 
 	# as great as this idea is, it won't (always) work... 
 	Action.addFinalizer ->
-		console.log 'ending action manager'
+		# console.log 'ending action manager'
 		_redoStack = window.localStorage.setItem 'actionHistory', JSON.stringify _undoStack
 
 )
