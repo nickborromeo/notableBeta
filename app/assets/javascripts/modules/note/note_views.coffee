@@ -91,8 +91,8 @@
 			@.$el.off()
 			delete @collection
 			Note.eventManager.off "setCursor:#{@model.get('guid')}", @setCursor, @
-			Note.eventManager.off "render:#{@model.get('guid')}"
-			Note.eventManager.off "setTitle:#{@model.get('guid')}"
+			Note.eventManager.off "render:#{@model.get('guid')}",  @render, @
+			Note.eventManager.off "setTitle:#{@model.get('guid')}", @setNoteTitle, @
 			Note.eventManager.off "timeoutUpdate:#{@model.get('guid')}", @updateNote, @
 
 		triggerRedoEvent: (e) =>
@@ -392,6 +392,7 @@
 			@cursorApi = App.Helpers.CursorPositionAPI
 			Note.eventManager.on "timeoutUpdate:#{@model.get('guid')}", @updateNote, @
 			Note.eventManager.on "setCursor:#{@model.get('guid')}", @setCursor, @
+			Note.eventManager.on "setTitle:#{@model.get('guid')}", @setNoteTitle, @
 			@$el.on 'keydown', null, 'return', @createBranch.bind @
 			@$el.on 'keydown', null, 'up', @setCursor.bind @
 			@$el.on 'keydown', null, 'down', @jumpFocusDown.bind @
@@ -403,6 +404,7 @@
 			@$el.off()
 			Note.eventManager.off "timeoutUpdate:#{@model.get('guid')}", @updateNote, @
 			Note.eventManager.off "setCursor:#{@model.get('guid')}", @setCursor, @
+			Note.eventManager.off "setTitle:#{@model.get('guid')}", @setNoteTitle, @
 
 		createBranch: (e) ->
 			e.preventDefault()
@@ -415,18 +417,20 @@
 			Note.eventManager.trigger "setCursor:#{newNote.get('guid')}"
 
 			
-		updateNote: ->
+		updateNote: (forceUpdate = false) ->
 			noteTitle = @getNoteTitle()
 			noteSubtitle = "" #@getNoteSubtitle()
-			if @model.get('title') isnt noteTitle
-				App.Action.addHistory 'updateContent', @model
-				@model.save
+			if @model.get('title') isnt noteTitle or forceUpdate is true
+				App.Action.orchestrator.triggerAction 'updateContent', @model,
 					title: noteTitle
 					subtitle: noteSubtitle
 			noteTitle
 		getNoteTitle: ->
 			title = @ui.noteContent.html().trim()
 			Note.trimEmptyTags title
+		setNoteTitle: (title, forceUpdate = false) ->
+			@ui.noteContent.html title
+			@updateNote forceUpdate
 
 		setCursor: (endPosition = false) ->
 			@ui.noteContent.focus()
