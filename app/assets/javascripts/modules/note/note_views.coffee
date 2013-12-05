@@ -383,6 +383,7 @@
 		ui:
 			noteContent: ".note-content"
 		events: ->
+			"blur .note-content": "updateNote"
 			"keydown .note-content": @model.timeoutAndSave
 			"click .glyphicon-share": @export false
 			"click .glyphicon-export": @export true
