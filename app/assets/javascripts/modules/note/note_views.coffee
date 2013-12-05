@@ -432,10 +432,9 @@
 			@ui.noteContent.html title
 			@updateNote forceUpdate
 
-		setCursor: (endPosition = false) ->
-			@ui.noteContent.focus()
-			if endPosition is true
-				App.Helpers.CursorPositionAPI.placeCursorAtEnd(@ui.noteContent)
+		setCursor: (position = false) ->
+			(noteContent = @ui.noteContent).focus()
+			App.Helpers.CursorPositionAPI.setCursor noteContent, position
 		jumpFocusDown: (e) ->
 			e.preventDefault()
 			e.stopPropagation()
