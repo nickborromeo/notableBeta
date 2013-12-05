@@ -171,7 +171,7 @@
 			currentCollection = @getCollection note.get 'parent_id'
 			currentCollection.findFirstInCollection rank: note.get('rank') - 1
 		findPreviousNote: (note, searchDescendants = true) ->
-			return undefined if note.isFirstRoot(true)
+			return undefined if note.isFirstRoot()
 			if note.get('rank') is 1
 				return @getNote(note.get('parent_id'))
 			previousNote = @findPrecedingInCollection note
