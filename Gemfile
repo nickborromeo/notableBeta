@@ -13,6 +13,7 @@ gem 'compass-rails'
 gem 'evernote_oauth'
 gem "figaro"
 gem 'bcrypt-ruby', '~> 3.1.0'
+gem 'devise'
 
 group :development, :test do
   gem 'quiet_assets', :group => :development

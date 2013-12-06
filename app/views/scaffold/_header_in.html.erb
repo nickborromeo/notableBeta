@@ -30,7 +30,7 @@
 				<li><a href="#">Settings</a></li>
 				<li><a href="#">Give Feedback</a></li>
 				<li role="presentation" class="divider"></li>
-				<li><%= link_to("Sign Out", landing_path) %></li>
+				<li><%= link_to("Sign Out", destroy_user_session_path, {method: :delete}) %></li>
 			</ul>
 		</li>
 	</ul>

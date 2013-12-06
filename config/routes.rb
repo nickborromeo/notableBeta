@@ -1,12 +1,11 @@
 Notable::Application.routes.draw do
-  resources :notes
-  resources :users
+  devise_for :users, :module => "users", :path => ''
 
+  resources :notes
   root :to => 'scaffold#index'
 
   get "start" => "evernote#start"
   get "finish" => "evernote#finish"
-  get "landing" => "users#index"
   match "sync" => "evernote#sync"
   # The priority is based upon order of creation:
   # first created -> highest priority.
