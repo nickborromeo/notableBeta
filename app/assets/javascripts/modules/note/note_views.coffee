@@ -476,7 +476,7 @@
 			"click .glyphicon-remove": "clearExport"
 
 		initialize: (options) ->
-			@model = new Note.ExportModel tree: @collection, inParagraph: options.inParagraph
+			@model = new Note.ExportModel tree: @collection, inParagraph: options.inParagraph, title: options.title
 			if options.inParagraph then App.Notify.alert 'exportParagraph', 'success'
 			else App.Notify.alert 'exportPlain', 'success'
 			# console.log "exportView", arguments
@@ -490,7 +490,7 @@
 		initialize: ->
 			# console.log "exportModel", arguments
 			if @get('inParagraph') then @render = @renderTreeParagraph else @render = @renderTree
-			@set 'title', "Fake Title" #Note.activeBranch.get('title')
+			# @set 'title', "Fake Title" #Note.activeBranch.get('title')
 			@set 'text', @render @get('tree')
 
 		make_spaces: (num, spaces = '') ->
@@ -512,10 +512,11 @@
 			indent = 0
 			do rec = (current = tree.first(), rest = tree.rest()) =>
 				return (text) if not current?
-				text+=current.get('title')+' '
+				text += '<p>' if current.isARoot true
+				text += current.get('title') + ' '
 				if current.descendants.length isnt 0
 					rec current.descendants.first(), current.descendants.rest()
-				if current.isARoot(true) then text+='<br>'
+				if current.isARoot(true) then text += '</p>'
 				rec _.first(rest), _.rest(rest)
 
 )

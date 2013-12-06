@@ -46,7 +46,11 @@
 		showExportView: (model, paragraph) ->
 			App.contentRegion.currentView.treeRegion.close()
 			App.contentRegion.currentView.crownRegion.close()
-			@exportView = new App.Note.ExportView model: model, collection: Note.activeTree, inParagraph: paragraph
+			@exportView = new App.Note.ExportView
+				model: model
+				collection: Note.activeTree
+				inParagraph: paragraph
+				title: App.Note.activeBranch.get('title')
 			App.contentRegion.currentView.treeRegion.show @exportView
 		clearExportView: ->
 			@showContentView(App.Note.activeTree)
