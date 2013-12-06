@@ -148,8 +148,10 @@
 			if @model.get('collapsed') then @expand() else @collapse()
 		collapse: ->
 			return if @collection.length is 0
-			App.Action.orchestrator.triggerAction('basicAction', @model, collapsed: true) if not @model.get('collapsed')
 			if @collapsable() and not @isCollapsed()
+				setTimeout =>
+					App.Action.orchestrator.triggerAction('basicAction', @model, collapsed: true) if not @model.get('collapsed')
+				, 500
 				@ui.descendants.slideToggle("fast")
 				@ui.descendants.addClass('collapsed')
 				@$(@ui.descendants).removeAttr('style')
