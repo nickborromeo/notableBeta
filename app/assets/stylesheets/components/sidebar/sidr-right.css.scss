@@ -32,12 +32,12 @@
 	input[type="time"],
 	input[type="url"],
 	textarea, select {
-		width: 84%;
+		width: 93%;
 		height: 2em;
 		padding: 0 1.5em;
 		@include box-sizing(border-box);
 		@include border-radius(15px);
-		margin: 0.5em 0;
+		margin: 0.5em;
 		border: $gray;
 		display: inline-block;
 		clear: both;
@@ -56,13 +56,11 @@
 	}
 
 	.glyphicon-search {
-		color: $notableWhite;
-		border: 1px solid white;
-		border-radius: 14px;
-		padding: 7px;
-		margin-left: 3px;
-		display: inline-block;
+		color: $grayDark;
+		padding: 0;
+		margin-right: 20px;
+		float: right;
 		position: relative;
-		top: 4px;
+		top: -27px;
 	}
 }
