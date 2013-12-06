@@ -11,6 +11,7 @@
 // GO AFTER THE REQUIRES BELOW.
 //
 //= require jquery
+//= require jquery_ujs
 //= require lib/underscore
 //= require lib/backbone
 //= require lib/marionette
@@ -29,7 +30,6 @@
 //= require_tree ./modules/scaffold
 //= require_tree ./modules/note
 //= require_tree ./modules/notebook
-//= require_tree ./modules/user
 //= require_tree ./modules/notification
 //= require_tree ./modules/manager
 //= require_tree ./modules/helpers
