@@ -34,9 +34,6 @@
 	Action.updateContent = (branch, attributes, options = {}) ->
 		addToHistory: -> Action.addHistory 'updateContent', branch, options.isUndo
 
-	Action.processAction = (action) ->
-		action.addToHistory()
-
 	class Action.Orchestrator
 
 		constructor: ->
@@ -47,7 +44,6 @@
 			@destroyGuidQueue = []
 
 		queueAction: (action) ->
-			# will have to play with the action manager
 			@actionQueue.push action
 		queueDestroy: (action) ->
 			App.OfflineAccess.addDelete action.branch unless action.options.noLocalStorage
@@ -62,13 +58,12 @@
 			else
 				@queueAction action
 				@processActionQueue()
-			# @queueSaving attributes, branch
 		triggerSaving: ->
 			interval = setInterval =>
 				@clearSavingQueueTimeout()
 				if not @processingActions and @actionQueue.length is 0
 					clearInterval interval
-					@processSavingQueue()
+					@processValidationQueue()
 
 		processActionQueue: ->
 			return if @processingActions
@@ -90,23 +85,20 @@
 			App.OfflineAccess.addChange action.branch unless action.options.noLocalStorage
 
 		validate: (branch, attributes, options) ->
-			if (val = branch.validation attributes)?
-				# console.log val
-				false
-			else
-				true
+			return false if (val = branch.validation attributes)?
+			true
 
 		clearSavingQueueTimeout: ->
 			clearTimeout @savingQueueTimeout			
 		startSavingQueueTimeout: ->
-			@savingQueueTimeout = setTimeout @processSavingQueue.bind(@), 5000
-		processSavingQueue: () ->
+			@savingQueueTimeout = setTimeout @processValidationQueue.bind(@), 5000
+		processValidationQueue: () ->
 			valid = true
 			savingQueue = []
 			# console.log "Complete validation Queue"
 			# _.each @validationQueue, (v) ->
 			# 	console.log v.branch.get('guid'), v.branch.id, "Sent attributes", v.attributes, "branch attributes", v.branch.attributes
-			@validationQueue = @trimValidQueue @validationQueue
+			@validationQueue = @mergeValidQueue @validationQueue
 			# console.log "Trimed validation queue", @validationQueue
 			# console.log "validation queue", @validationQueue
 			do rec = (branch = @validationQueue.shift()) =>
@@ -118,6 +110,14 @@
 				# console.log branch.get('guid'), "validated"
 				rec @validationQueue.shift()
 			if valid then @acceptChanges(savingQueue) else @rejectChanges(savingQueue)
+		mergeValidQueue: (validQueue) ->
+			guids = []
+			queue = []
+			_.each validQueue, (obj) =>
+				if obj.branch.get('guid') not in guids and obj.branch not in @destroyQueue
+					guids.push obj.branch.get('guid')
+					queue.push obj.branch
+			queue
 
 		rejectChanges: (validQueue) ->
 			@validationQueue = []
@@ -142,15 +142,3 @@
 				rec validQueue.shift()
 			App.OfflineAccess.clearCached()
 			App.Notify.alert 'saved', 'save'
-		getDestroyGuids: ->
-			guids = []
-			_.each @destroyQueue, (toDestroy) ->
-				guids.push toDestroy.guid
-		trimValidQueue: (validQueue) ->
-			guids = []
-			queue = []
-			_.each validQueue, (obj) =>
-				if obj.branch.get('guid') not in guids and obj.branch not in @destroyQueue
-					guids.push obj.branch.get('guid')
-					queue.push obj.branch
-			queue
