@@ -5,6 +5,8 @@ class Evernote
 	include ActiveModel::Model
 	attr_accessor :forest, :trunk, :root, :lastSyncTime, :lastUpdateCount
 
+
+=begin
 	fullSyncBefore = getFullSyncBefore # the last time Evernote performed a full sync
 	updateCount = getUpdateCount # the server’s updateCount at the last sync
 
@@ -192,20 +194,7 @@ class Evernote
 			@fresh
 		end
 
-		def make_note(note_store, note_title, note_body, parent_notebook=nil)
-			n_body = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>"
-			n_body += "<!DOCTYPE en-note SYSTEM \"http://xml.evernote.com/pub/enml2.dtd\">"
-			n_body += "<en-note>#{note_body}</en-note>"
-
-			our_note = Evernote::EDAM::Type::Note.new
-			our_note.title = note_title
-			our_note.content = n_body
-
-			## parent_notebook is optional; if omitted, default notebook is used
-			# if parent_notebook && parent_notebook.guid
-			#   our_note.notebookGuid = parent_notebook.guid
-			# end
-		end
+=end
 
 end
 
