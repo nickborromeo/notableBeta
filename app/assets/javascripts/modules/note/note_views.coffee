@@ -148,8 +148,10 @@
 			if @model.get('collapsed') then @expand() else @collapse()
 		collapse: ->
 			return if @collection.length is 0
-			App.Action.orchestrator.triggerAction('basicAction', @model, collapsed: true) if not @model.get('collapsed')
 			if @collapsable() and not @isCollapsed()
+				setTimeout =>
+					App.Action.orchestrator.triggerAction('basicAction', @model, collapsed: true) if not @model.get('collapsed')
+				, 500
 				@ui.descendants.slideToggle("fast")
 				@ui.descendants.addClass('collapsed')
 				@$(@ui.descendants).removeAttr('style')
@@ -476,7 +478,7 @@
 			"click .glyphicon-remove": "clearExport"
 
 		initialize: (options) ->
-			@model = new Note.ExportModel tree: @collection, inParagraph: options.inParagraph
+			@model = new Note.ExportModel tree: @collection, inParagraph: options.inParagraph, title: options.title
 			if options.inParagraph then App.Notify.alert 'exportParagraph', 'success'
 			else App.Notify.alert 'exportPlain', 'success'
 			# console.log "exportView", arguments
@@ -490,7 +492,7 @@
 		initialize: ->
 			# console.log "exportModel", arguments
 			if @get('inParagraph') then @render = @renderTreeParagraph else @render = @renderTree
-			@set 'title', "Fake Title" #Note.activeBranch.get('title')
+			# @set 'title', "Fake Title" #Note.activeBranch.get('title')
 			@set 'text', @render @get('tree')
 
 		make_spaces: (num, spaces = '') ->
@@ -512,10 +514,11 @@
 			indent = 0
 			do rec = (current = tree.first(), rest = tree.rest()) =>
 				return (text) if not current?
-				text+=current.get('title')+' '
+				text += '<p>' if current.isARoot true
+				text += current.get('title') + ' '
 				if current.descendants.length isnt 0
 					rec current.descendants.first(), current.descendants.rest()
-				if current.isARoot(true) then text+='<br>'
+				if current.isARoot(true) then text += '</p>'
 				rec _.first(rest), _.rest(rest)
 
 )
