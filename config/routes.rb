@@ -6,7 +6,7 @@ Notable::Application.routes.draw do
 
   get "start" => "evernote#start"
   get "finish" => "evernote#finish"
-  match "sync" => "evernote#sync"
+  get "sync" => "evernote#sync"
   # The priority is based upon order of creation:
   # first created -> highest priority.
 
