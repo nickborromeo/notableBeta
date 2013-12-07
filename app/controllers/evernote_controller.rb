@@ -31,7 +31,7 @@ class EvernoteController < ApplicationController
 				@notebooks ||= evernote_notebooks token_credentials
 				@note_count = total_note_count(token_credentials)
 
-				sendSampleBranch
+				userGeneratedSync
 			rescue => e
 				puts e.message
 			end
@@ -43,9 +43,10 @@ class EvernoteController < ApplicationController
 		end
 	end
 
-	def sendSampleBranch
+	def userGeneratedSync
 		note_title = "Title of the Root"
-		note_body = "compiled titles of the descendant branches, possibly some subtitles"
+		random_number = 1 + rand(100)
+		note_body = "compiled titles of the descendant branches with #{random_number}"
 
 		note_content = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>"
 		note_content += "<!DOCTYPE en-note SYSTEM \"http://xml.evernote.com/pub/enml2.dtd\">"
