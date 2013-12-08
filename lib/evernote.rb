@@ -1,15 +1,19 @@
 #Evernote model directly passes payload data to Evernote, so we can
 #just use a tableless model.  This means we can include ActiveModel,
 #rather than inheriting from ActiveRecord::Base
-class Evernote
-  include ActiveAttr::Model
-	attr_accessor :forest, :trunk, :root, :lastSyncTime, :lastUpdateCount
+module Evernote # < ActiveRecord::Base
+  # include ActiveAttr::Model
+	# attr_accessor :forest, :trunk, :root, :lastSyncTime, :lastUpdateCount
 
-	fullSyncBefore = getFullSyncBefore # the last time Evernote performed a full sync
-	updateCount = getUpdateCount # the server’s updateCount at the last sync
+	# fullSyncBefore = getFullSyncBefore # the last time Evernote performed a full sync
+	# updateCount = getUpdateCount # the server’s updateCount at the last sync
 
-	after_create: fullSync
-	after_update: incrementalSync
+	# after_create: fullSync
+	# after_update: incrementalSync
+
+	def self.cronJobSync
+		puts "to do and I ain't"
+  end
 
 	def beginSync
 		if (lastSyncTime = nil) || (fullSyncBefore > lastSyncTime)
@@ -26,7 +30,7 @@ class Evernote
 		syncChunk = getSyncChunk(0, 100) # afternUSN = 0, maxEntries = 100
 		while chunkHighUSN < updateCount
 			addToBuffer(syncChunk)
-			getSyncChunk (chunkHighUSN, 100)
+			getSyncChunk(chunkHighUSN, 100)
 		end
 		notes = processBuffer
 		sendBranches(notes)
@@ -39,8 +43,8 @@ class Evernote
 	end
 
 	def sendBranches
-		Notes.all.each do |note|
-			roots = findRootBranch
+		Note.all.each do |note|
+			roots = findRootBranch(note)
 			noteData = prepareRootBranch(roots)
 			deliverRootBranch(noteData)
 		end
@@ -121,9 +125,9 @@ class Evernote
 
 	def mergeNotes(noteList)
 		noteList.each do |note|
-			unless note.guid in clientNote.guid
+			unless note.guid = clientNote.guid
 				clientNote.guid.push(note.guid)
-				if note.name in clientNote.name
+				if note.name = clientNote.name
 					note.name = note.name+ "(2)"
 				end
 			end
@@ -136,7 +140,7 @@ class Evernote
 		branches.each do |branch|
 			if branch.fresh
 				rootBranch.guid = branch.guid
-				while rootBranch.parent_id is not "root"
+				while rootBranch.parent_id != "root"
 					rootBranch.guid = branch.parent_id
 				end
 				rootBranches.push(rootBranch)
@@ -149,7 +153,7 @@ class Evernote
 		rootBranches.each do |root|
 			root_title = root.title
 			root_content = Note.compileRoot(root.guid)
-			root_note = makeNote ("notestore", "root_title", "root_content")
+			root_note = makeNote("notestore", "root_title", "root_content")
 		end
 		noteData # return created note object
 	end
@@ -174,23 +178,20 @@ class Evernote
 		end
 	end
 
-	private
-		def getFullSyncBefore
-			NoteStore.getSyncState(@token_crendentials)
-		end
+	def getFullSyncBefore
+		NoteStore.getSyncState(@token_crendentials)
+		true
+	end
 
-		def getUpdateCount
-			NoteStore.getUSN(@token_crendentials)
-		end
+	def getUpdateCount
+		NoteStore.getUSN(@token_crendentials)
+		true
+	end
 
-		def updateMarkers
-			Evernote.lastUpdateCount = updateCount
-			Evernote.lastSyncTime = fullSyncBefore
-		end
-
-		def fresh?
-			@fresh
-		end
+	def updateMarkers
+		Evernote.lastUpdateCount = updateCount
+		Evernote.lastSyncTime = fullSyncBefore
+	end
 
 end
-
+end

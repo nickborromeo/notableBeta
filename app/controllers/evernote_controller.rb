@@ -1,48 +1,47 @@
 class EvernoteController < ApplicationController
 
-  def show #incrementalSync
-    @note = Note.find(params[:id])
-    respond_with @note
-  end
+	def show #incrementalSync
+		@note = Note.find(params[:id])
+		respond_with @note
+	end
 
-  def new
-  end
+	def new
+	end
 
-  def create #fullSync
-    @note = Note.new(params[:note])
-    respond_with(@note) do |format|
-      if @note.save
-        format.html { redirect_to @note, notice: 'Note was successfully created.' }
-        format.json { render json: @note, status: :created, location: @note }
-      else
-        format.html { render action: "new" }
-        format.json { render json: @note.errors, status: :unprocessable_entity }
-      end
-    end
-  end
+	def create #fullSync
+		@note = Note.new(params[:note])
+		respond_with(@note) do |format|
+			if @note.save
+				format.html { redirect_to @note, notice: 'Note was successfully created.' }
+				format.json { render json: @note, status: :created, location: @note }
+			else
+				format.html { render action: "new" }
+				format.json { render json: @note.errors, status: :unprocessable_entity }
+			end
+		end
+	end
 
-  def update #sendBranches
-    @note = Note.find(params[:id])
-    respond_with(@note) do |format|
-      if @note.update_attributes(params[:note])
-        format.html { redirect_to @note, notice: 'Note was successfully updated.' }
-        format.json { head :no_content }
-      else
-        format.html { render action: "edit" }
-        format.json { render json: @note.errors, status: :unprocessable_entity }
-      end
-    end
-  end
+	def update #sendBranches
+		@note = Note.find(params[:id])
+		respond_with(@note) do |format|
+			if @note.update_attributes(params[:note])
+				format.html { redirect_to @note, notice: 'Note was successfully updated.' }
+				format.json { head :no_content }
+			else
+				format.html { render action: "edit" }
+				format.json { render json: @note.errors, status: :unprocessable_entity }
+			end
+		end
+	end
 
-  def index
-  end
+	def index
+	end
 
+	def edit
+	end
 
-  def edit
-  end
-
-  def destroy
-  end
+	def destroy
+	end
 
 	def start
 		begin #sending client credentials in order to obtain temporary credentials
