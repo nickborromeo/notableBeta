@@ -9,6 +9,7 @@
 			rank: 1
 			depth: 0
 			collapsed: false
+			fresh: true
 
 		validation: (attributes, options) ->
 			# console.log "validate", @get('guid')
@@ -43,6 +44,7 @@
 			return e
 
 		save: (attributes = null, options = {}) =>
+			@set "fresh", true
 			callBackOptions =
 				success: (model, response, opts)  =>
 					App.OfflineAccess.informConnectionSuccess()
@@ -139,9 +141,9 @@
 			attributesHash
 
 		# the following four methods can be used by anyone,
-		# but are relied on by Action Manager to get relevent history information
+		# but are relied on by Action Manager to get relevant history information
 		getAllAtributes: =>
-			@generateAttributeHash ['depth', 'rank', 'parent_id', 'guid', 'title', 'subtitle', 'created_at', 'collapsed']
+			@generateAttributeHash ['depth', 'rank', 'parent_id', 'guid', 'title', 'subtitle', 'created_at', 'collapsed', 'fresh']
 		getPositionAttributes: =>
 			@generateAttributeHash ['guid', 'depth', 'rank', 'parent_id']
 		getContentAttributes: =>
@@ -192,6 +194,5 @@
 		rank: followingNote.get 'rank'
 		parent_id: followingNote.get 'parent_id'
 		depth: followingNote.get 'depth'
-
 
 )

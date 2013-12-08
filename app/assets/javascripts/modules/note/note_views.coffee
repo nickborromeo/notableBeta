@@ -87,7 +87,7 @@
 			@.$el.on 'keydown', null, 'meta+z', @triggerUndoEvent
 			# @.$el.on 'keydown', null, 'ctrl+y', @triggerRedoEvent
 			# @.$el.on 'keydown', null, 'meta+y', @triggerRedoEvent
-	 
+
 		onClose: ->
 			@.$el.off()
 			# delete @collection
@@ -422,7 +422,6 @@
 			Note.eventManager.trigger "setTitle:#{createdFrom.get('guid')}", createdFromNewTitle
 			Note.eventManager.trigger "setCursor:#{newNote.get('guid')}"
 
-			
 		updateNote: (forceUpdate = false) ->
 			noteTitle = @getNoteTitle()
 			noteSubtitle = "" #@getNoteSubtitle()
