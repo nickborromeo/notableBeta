@@ -3,10 +3,10 @@
 #rather than inheriting from ActiveRecord::Base
 class Evernote < ActiveRecord::Base
   # include ActiveAttr::Model
-	# attr_accessor :forest, :trunk, :root, :lastSyncTime, :lastUpdateCount
+	attr_accessor :forest, :trunk, :root, :lastSyncTime, :lastUpdateCount
 
-	# fullSyncBefore = getFullSyncBefore # the last time Evernote performed a full sync
-	# updateCount = getUpdateCount # the server’s updateCount at the last sync
+	fullSyncBefore = getFullSyncBefore # the last time Evernote performed a full sync
+	updateCount = getUpdateCount # the server’s updateCount at the last sync
 
 	# after_create: fullSync
 	# after_update: incrementalSync
