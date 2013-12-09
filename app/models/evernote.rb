@@ -1,7 +1,7 @@
 #Evernote model directly passes payload data to Evernote, so we can
 #just use a tableless model.  This means we can include ActiveModel,
 #rather than inheriting from ActiveRecord::Base
-module Evernote # < ActiveRecord::Base
+class Evernote < ActiveRecord::Base
   # include ActiveAttr::Model
 	# attr_accessor :forest, :trunk, :root, :lastSyncTime, :lastUpdateCount
 
@@ -10,10 +10,6 @@ module Evernote # < ActiveRecord::Base
 
 	# after_create: fullSync
 	# after_update: incrementalSync
-
-	def self.cronJobSync
-		puts "to do and I ain't"
-  end
 
 	def beginSync
 		if (lastSyncTime = nil) || (fullSyncBefore > lastSyncTime)
