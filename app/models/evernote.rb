@@ -12,9 +12,9 @@ class Evernote < ActiveRecord::Base
 	# after_update: incrementalSync
 
 	def beginSync
-		if (lastSyncTime = nil) || (fullSyncBefore > lastSyncTime)
+		if (lastSyncTime == nil) || (fullSyncBefore > lastSyncTime)
 			fullSync
-		elsif updateCount = lastUpdateCount #Evernote has no updates
+		elsif updateCount == lastUpdateCount #Evernote has no updates
 			notes = compileRoots
 			sendBranches(notes)
 		else
@@ -62,7 +62,7 @@ class Evernote < ActiveRecord::Base
 		@noteGuid = params[:noteGuid]
 		@notebookGuid = params[:notebookGuid]
 		@reason = params[:reason]
-		if @reason = "changeNote"
+		if @reason == "changeNote"
 			incrementalSync
 		else
 			#something else
@@ -112,7 +112,7 @@ class Evernote < ActiveRecord::Base
 		@buffer.inject([]) do |serverNotes, chunkBlock|
 			note = chunkBlock.guid
 			serverNotes.push(note)
-			if note = "expunged"
+			if note == "expunged"
 				serverNotes[note].pop
 			end
 			serverNotes
