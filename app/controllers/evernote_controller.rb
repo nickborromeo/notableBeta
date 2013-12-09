@@ -66,6 +66,7 @@ class EvernoteController < ApplicationController
 				#sending temporary credentials to gain token credentials
 				access_token = session[:request_token].get_access_token(:oauth_verifier => oauth_verifier)
 				token_credentials = access_token.token
+				User.update(current_user.id, {:token_credentials => token_credentials})
 
 				#use token credentials to access the Evernote API
 				@client ||= EvernoteOAuth::Client.new(token: token_credentials)
@@ -74,7 +75,7 @@ class EvernoteController < ApplicationController
 				@notebooks ||= evernote_notebooks token_credentials
 				@note_count = total_note_count(token_credentials)
 
-				userGeneratedSync
+				# userGeneratedSync
 			rescue => e
 				puts e.message
 			end

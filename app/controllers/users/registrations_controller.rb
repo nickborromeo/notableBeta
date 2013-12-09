@@ -8,27 +8,15 @@ class Users::RegistrationsController < Devise::RegistrationsController
 
   def create
     super
-=begin
-    @email = params[:email]
-
-    @user = User.new(params[:user])
-    if @user.save
-      flash[:success] = "Welcome to Notable!"
-      sign_in @user
-      redirect_to root_path
-    else
-      render 'new'
-    end
-=end
   end
 
-  def new
+  def update
     super
   end
 
   private
     def admin_user
-      # redirect_to(root_path) unless current_user.admin?
+      redirect_to(root_path) unless current_user.admin?
     end
 
 end

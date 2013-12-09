@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20131205021118) do
+ActiveRecord::Schema.define(:version => 20131209062617) do
 
   create_table "notes", :force => true do |t|
     t.text     "title"
@@ -27,7 +27,7 @@ ActiveRecord::Schema.define(:version => 20131205021118) do
   end
 
   create_table "users", :force => true do |t|
-    t.string   "username"
+    t.string   "token_credentials"
     t.string   "email"
     t.boolean  "admin"
     t.datetime "created_at",                             :null => false
