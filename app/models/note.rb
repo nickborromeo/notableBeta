@@ -3,24 +3,32 @@ class Note < ActiveRecord::Base
 	validates_presence_of :guid, :rank, :depth
 
 	def self.compileRoot
+		# collect underpants
 		compiledRoots = []
 		roots = Note.where("parent_id ='root'").order(:rank)
 		roots.each do |root|
 			descendantList = Note.getCompleteDescendantList root
 			if self.freshBranches?(descendantList) or root.fresh
-				compiledRoots.push(:root => root.title,
+				compiledRoots.push(:root => root,
 													 :list => descendantList)
 			end
 		end
+		everNoteData = []
 		compiledRoots.each do |r|
-			puts "<ul><li>#{r[:root]}</li>"
+			currentDepth = 1
+			puts r[:root].title
+			content = "<ul>"
 			r[:list].each do |branch|
-				puts "  <li>#{branch.title}</li>"
+				content += '<ul>' if branch.depth > currentDepth and currentDepth+=1
+				content += '</ul' if branch.depth < currentDepth and currentDepth-=1
+				content += " <li>#{branch.title}</li>"
 			end
-			puts "</ul>"
+			currentDepth.downto(0).each do |level|
+				content += "</ul>"
+			end
+			puts content
+			everNoteData.push :title => r[:root], :content => content, :guid => r[:root].guid
 		end
-		# collect underpants
-		# some kind of loop function ?
 		# profit!!!
 		# http://knowyourmeme.com/memes/profit
 	end
@@ -31,7 +39,7 @@ class Note < ActiveRecord::Base
 	def self.getCompleteDescendantList (root)
 		descendantsList = []
 		rec = -> (current) do
-			descendantsList.push current
+			descendantsList.push current if current.parent_id != 'root'
 			descendants = Note.getDescendants current
 			descendants.each do |d|
 				rec.call d
@@ -51,7 +59,7 @@ class Note < ActiveRecord::Base
 	end
 	
 	def self.getDescendants (branch)
-		Note.where "parent_id = '#{branch.guid}'"
+		Note.where("parent_id = '#{branch.guid}'").order(:rank)
 	end
 
 	def compileBranches (root)
