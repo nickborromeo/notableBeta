@@ -34,3 +34,4 @@
 //= require_tree ./modules/manager
 //= require_tree ./modules/helpers
 //= require_tree ./modules/breadcrumb
+//= require_tree ./modules/feat
