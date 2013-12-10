@@ -74,8 +74,6 @@ class EvernoteController < ApplicationController
 				@user ||= evernote_user token_credentials
 				@notebooks ||= evernote_notebooks token_credentials
 				@note_count = total_note_count(token_credentials)
-
-				# userGeneratedSync
 			rescue => e
 				puts e.message
 			end
@@ -87,39 +85,57 @@ class EvernoteController < ApplicationController
 		end
 	end
 
-	def userGeneratedSync
-		note_title = "Title of the Root"
+	def sync
+		noteData = getRootBranches
+		deliverRootBranch(noteData)
+		puts "Sync generally worked up to here."
+	end
+
+	def getRootBranches
 		random_number = 1 + rand(100)
-		note_body = "compiled titles of the descendant branches with #{random_number}"
+		two_notes = [{
+			title: "A New Title",
+			content: "<ul><li>compiled titles of the</li><li>descendant branches with #{random_number}</li></ul>"
+		},{
+			title: "New Title Foobar",
+			content: "<ul><li>compiled titles of</li><li>the descendant branches with #{random_number}</li></ul>"
+		}]
+		two_notes
+	end
 
-		note_content = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>"
-		note_content += "<!DOCTYPE en-note SYSTEM \"http://xml.evernote.com/pub/enml2.dtd\">"
-		note_content += "<en-note>#{note_body}</en-note>"
+	def deliverRootBranch(noteData)
+		@client ||= EvernoteOAuth::Client.new(token: current_user.token_credentials)
 
-		## Create note object
-		enml_note = Evernote::EDAM::Type::Note.new
-		enml_note.title = note_title
-		enml_note.content = note_content
+		noteData.each do |note|
+			puts note
+			note_content = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>"
+			note_content += "<!DOCTYPE en-note SYSTEM \"http://xml.evernote.com/pub/enml2.dtd\">"
+			note_content += "<en-note>#{note[:content]}</en-note>"
 
-		## parent_notebook is optional; if omitted, default notebook is used
-		# if parent_notebook && parent_notebook.guid
-		# 	emnl_note.notebookGuid = parent_notebook.guid
-		# end
+			## Create note object
+			enml_note = Evernote::EDAM::Type::Note.new
+			enml_note.title = note[:title]
+			enml_note.content = note_content
 
-		## Attempt to create note in Evernote account
-		begin
-			note = note_store.createNote(enml_note)
-		rescue Evernote::EDAM::Error::EDAMUserException => edue
-			## Something was wrong with the note data
-			## See EDAMErrorCode enumeration for error code explanation
-			## http://dev.evernote.com/documentation/reference/Errors.html#Enum_EDAMErrorCode
-			puts "EDAMUserException: #{edue}"
-		rescue Evernote::EDAM::Error::EDAMNotFoundException => ednfe
-			## Parent Notebook GUID doesn't correspond to an actual notebook
-			puts "EDAMNotFoundException: Invalid parent notebook GUID"
+			## parent_notebook is optional; if omitted, default notebook is used
+			# if parent_notebook && parent_notebook.guid
+			# 	emnl_note.notebookGuid = parent_notebook.guid
+			# end
+
+			## Attempt to create note in Evernote account
+			begin
+				note = note_store.createNote(enml_note)
+			rescue Evernote::EDAM::Error::EDAMUserException => edue
+				## Something was wrong with the note data
+				## See EDAMErrorCode enumeration for error code explanation
+				## http://dev.evernote.com/documentation/reference/Errors.html#Enum_EDAMErrorCode
+				puts "EDAMUserException: #{edue}"
+			rescue Evernote::EDAM::Error::EDAMNotFoundException => ednfe
+				## Parent Notebook GUID doesn't correspond to an actual notebook
+				puts "EDAMNotFoundException: Invalid parent notebook GUID"
+			end
 		end
 
-		# note - Return created note object if desired
 	end
 
 	private
