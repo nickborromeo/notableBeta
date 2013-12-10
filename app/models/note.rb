@@ -4,22 +4,30 @@ class Note < ActiveRecord::Base
 
 	def self.compileRoot
 		compiledRoots = []
-		roots = Note.where("parent_id ='root'")
+		roots = Note.where("parent_id ='root'").order(:rank)
 		roots.each do |root|
-			compiledRoots.push Note.getCompleteDescendantList root
+			descendantList = Note.getCompleteDescendantList root
+			if self.freshBranches?(descendantList) or root.fresh
+				compiledRoots.push(:root => root.title,
+													 :list => descendantList)
+			end
 		end
 		compiledRoots.each do |r|
-			puts "ROOT --"
-			r.each do |branch|
-				puts branch.title
+			puts "<ul><li>#{r[:root]}</li>"
+			r[:list].each do |branch|
+				puts "  <li>#{branch.title}</li>"
 			end
+			puts "</ul>"
 		end
 		# collect underpants
 		# some kind of loop function ?
 		# profit!!!
 		# http://knowyourmeme.com/memes/profit
 	end
-	
+	# def self.formatListToEvernote (descendantList)
+	# 	descendantList.
+
+	# end
 	def self.getCompleteDescendantList (root)
 		descendantsList = []
 		rec = -> (current) do
@@ -33,10 +41,13 @@ class Note < ActiveRecord::Base
 		descendantsList
 	end
 
-	def self.rootIsFresh (descendantList)
+	def self.freshBranches? (descendantList)
+		fresh = false
 		descendantList.each do |descendant|
-
+			fresh = descendant.fresh
+			break if fresh == true
 		end
+		fresh
 	end
 	
 	def self.getDescendants (branch)
