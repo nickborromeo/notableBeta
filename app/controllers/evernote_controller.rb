@@ -1,4 +1,6 @@
 class EvernoteController < ApplicationController
+	require 'modules/evernote'
+	include Evernote
 
 	def show #incrementalSync
 		@note = Note.find(params[:id])
@@ -59,6 +61,7 @@ class EvernoteController < ApplicationController
 	end
 
 	def finish
+		testModule
 		if params['oauth_verifier']
 			oauth_verifier = params['oauth_verifier']
 

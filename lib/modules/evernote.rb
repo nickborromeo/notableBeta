@@ -1,15 +1,19 @@
 #Evernote model directly passes payload data to Evernote, so we can
 #just use a tableless model.  This means we can include ActiveModel,
 #rather than inheriting from ActiveRecord::Base
-class Evernote < ActiveRecord::Base
+module Evernote # < ActiveRecord::Base
   # include ActiveAttr::Model
-	attr_accessor :forest, :trunk, :root, :lastSyncTime, :lastUpdateCount
+	# attr_accessor :forest, :trunk, :root, :lastSyncTime, :lastUpdateCount
 
-	fullSyncBefore = getFullSyncBefore # the last time Evernote performed a full sync
-	updateCount = getUpdateCount # the server’s updateCount at the last sync
+	# fullSyncBefore = getFullSyncBefore # the last time Evernote performed a full sync
+	# updateCount = getUpdateCount # the server’s updateCount at the last sync
 
 	# after_create: fullSync
 	# after_update: incrementalSync
+
+	def testModule
+		puts "the modeul is connected"
+	end
 
 	def beginSync
 		if (lastSyncTime == nil) || (fullSyncBefore > lastSyncTime)
@@ -75,11 +79,12 @@ class Evernote < ActiveRecord::Base
 
 	# ------------------ SYNC TO RECEIVE CHANGES FROM EVERNOTE ------------------
 
-	def getSyncChunk (afterUSN, maxEntries)
+	def getSyncChunk(afterUSN, maxEntries)
 		NoteStore.getSyncChunk(@token_crendentials, afterUSN, maxEntries)
+		true
 	end
 
-	def addToBuffer (syncChunk)
+	def addToBuffer(syncChunk)
 		@buffer = Array.new
 		@buffer.push(syncChunk)
 	end
@@ -105,6 +110,7 @@ class Evernote < ActiveRecord::Base
 				return true
 			else
 				return false
+			end
 		end
 	end
 
