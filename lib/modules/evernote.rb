@@ -181,8 +181,8 @@ module Evernote # < ActiveRecord::Base
 	end
 
 	def getFullSyncBefore
-		NoteStore.getSyncState(@token_crendentials)
-		true
+		state = NoteStore.getSyncState(@token_crendentials)
+		state.fullSyncBefore
 	end
 
 	def getUpdateCount

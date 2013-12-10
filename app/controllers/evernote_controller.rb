@@ -89,7 +89,7 @@ class EvernoteController < ApplicationController
 	end
 
 	def sync
-		noteData = getRootBranches
+		noteData = Note.compileRoot
 		begin
 			deliverRootBranch(noteData)
 		rescue => e
@@ -98,21 +98,10 @@ class EvernoteController < ApplicationController
 		redirect_to root_url
 	end
 
-	def getRootBranches
-		random_number = 1 + rand(100)
-		two_notes = [{
-			title: "A New Title",
-			content: "<ul><li>compiled titles of the</li><li>descendant branches with #{random_number}</li></ul>"
-		},{
-			title: "New Title Foobar",
-			content: "<ul><li>compiled titles of</li><li>the descendant branches with #{random_number}</li></ul>"
-		}]
-		two_notes
-	end
-
 	def deliverRootBranch(noteData)
 		@client ||= EvernoteOAuth::Client.new(token: current_user.token_credentials)
 
+		date = getFullSyncBefore
 		noteData.each do |note|
 			note_content = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>"
 			note_content += "<!DOCTYPE en-note SYSTEM \"http://xml.evernote.com/pub/enml2.dtd\">"
@@ -131,7 +120,11 @@ class EvernoteController < ApplicationController
 
 			## Attempt to create note in Evernote account
 			begin
-				new_note = note_store.createNote(enml_note)
+				if date > note[:created_at]
+					new_note = note_store.createNote(enml_note)
+				else
+					updated_note = note_store.updateNote(enml_note)
+				end
 			rescue Evernote::EDAM::Error::EDAMUserException => edue
 				## Something was wrong with the note data
 				## See EDAMErrorCode enumeration for error code explanation
@@ -142,7 +135,8 @@ class EvernoteController < ApplicationController
 				puts "EDAMNotFoundException: Invalid parent notebook GUID"
 			end
 
-			Note.update(note[:id], {:eng => new_note.guid})
+			# Note.update(note[:id], {:fresh => false})
+			# Note.update(note[:id], {:eng => new_note.guid})
 		end
 
 	end
