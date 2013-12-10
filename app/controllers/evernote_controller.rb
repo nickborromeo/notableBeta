@@ -119,6 +119,7 @@ class EvernoteController < ApplicationController
 			enml_note = Evernote::EDAM::Type::Note.new
 			enml_note.title = note[:title]
 			enml_note.content = note_content
+			enml_note.guid = note[:guid]
 
 			## parent_notebook is optional; if omitted, default notebook is used
 			# if parent_notebook && parent_notebook.guid
@@ -138,7 +139,7 @@ class EvernoteController < ApplicationController
 				puts "EDAMNotFoundException: Invalid parent notebook GUID"
 			end
 
-			Note.update(note.id, {:eng => new_note.guid})
+			Note.update(note[:id], {:eng => new_note.guid})
 		end
 
 	end

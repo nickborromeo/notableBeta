@@ -190,4 +190,3 @@ class Evernote < ActiveRecord::Base
 	end
 
 end
-end
