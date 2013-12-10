@@ -3,7 +3,6 @@ class NotesController < ApplicationController
 
   # GET /notes.json
   def index
-		Note.compileRoot
     @notes = Note.order("depth").order("rank")
     respond_with(@notes)
   end

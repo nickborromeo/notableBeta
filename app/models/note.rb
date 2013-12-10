@@ -4,7 +4,6 @@ class Note < ActiveRecord::Base
 	validates_presence_of :guid, :rank, :depth
 
 	def self.compileRoot
-		# collect underpants
 		compiledRoots = []
 		roots = Note.where("parent_id ='root'").order(:rank)
 		roots.each do |root|
@@ -17,7 +16,6 @@ class Note < ActiveRecord::Base
 		evernoteData = []
 		compiledRoots.each do |r|
 			currentDepth = 1
-			puts r[:root].title
 			content = "<ul>"
 			r[:list].each do |branch|
 				content += '<ul>' if branch.depth > currentDepth and currentDepth+=1
@@ -27,17 +25,11 @@ class Note < ActiveRecord::Base
 			currentDepth.downto(1).each do |level|
 				content += "</ul>"
 			end
-			puts content
 			evernoteData.push :title => r[:root].title, :content => content, :guid => r[:root].guid, :id => r[:root].id, :created_at => r[:root].created_at
 		end
-		# profit!!!
-		# http://knowyourmeme.com/memes/profit
 		evernoteData
 	end
-	# def self.formatListToEvernote (descendantList)
-	# 	descendantList.
 
-	# end
 	def self.getCompleteDescendantList (root)
 		descendantsList = []
 		rec = -> (current) do
