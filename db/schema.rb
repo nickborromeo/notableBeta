@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20131209062617) do
+ActiveRecord::Schema.define(:version => 20131210014319) do
 
   create_table "notes", :force => true do |t|
     t.text     "title"
@@ -24,6 +24,7 @@ ActiveRecord::Schema.define(:version => 20131209062617) do
     t.integer  "depth"
     t.boolean  "collapsed"
     t.boolean  "fresh"
+    t.string   "eng"
   end
 
   create_table "users", :force => true do |t|
