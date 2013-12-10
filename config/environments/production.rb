@@ -66,7 +66,7 @@ Notable::Application.configure do
   # config.active_record.auto_explain_threshold_in_seconds = 0.5
 
   # Devise Mailer setup
-  config.action_mailer.default_url_options = { :host => 'notable.im' }
+  config.action_mailer.default_url_options = { :host => 'getnotable.com' }
   config.action_mailer.raise_delivery_errors = true
   config.action_mailer.delivery_method = :smtp
   config.action_mailer.perform_deliveries = true
