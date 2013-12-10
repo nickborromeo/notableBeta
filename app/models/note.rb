@@ -20,17 +20,18 @@ class Note < ActiveRecord::Base
 			content = "<ul>"
 			r[:list].each do |branch|
 				content += '<ul>' if branch.depth > currentDepth and currentDepth+=1
-				content += '</ul' if branch.depth < currentDepth and currentDepth-=1
+				content += '</ul>' if branch.depth < currentDepth and currentDepth-=1
 				content += " <li>#{branch.title}</li>"
 			end
-			currentDepth.downto(0).each do |level|
+			currentDepth.downto(1).each do |level|
 				content += "</ul>"
 			end
 			puts content
-			everNoteData.push :title => r[:root], :content => content, :guid => r[:root].guid
+			everNoteData.push :title => r[:root].title, :content => content, :guid => r[:root].guid, :id => r[:root].id
 		end
 		# profit!!!
 		# http://knowyourmeme.com/memes/profit
+		everNoteData
 	end
 	# def self.formatListToEvernote (descendantList)
 	# 	descendantList.
