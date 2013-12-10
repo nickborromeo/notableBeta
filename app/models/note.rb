@@ -14,7 +14,7 @@ class Note < ActiveRecord::Base
 													 :list => descendantList)
 			end
 		end
-		everNoteData = []
+		evernoteData = []
 		compiledRoots.each do |r|
 			currentDepth = 1
 			puts r[:root].title
@@ -28,11 +28,11 @@ class Note < ActiveRecord::Base
 				content += "</ul>"
 			end
 			puts content
-			everNoteData.push :title => r[:root].title, :content => content, :guid => r[:root].guid, :id => r[:root].id
+			evernoteData.push :title => r[:root].title, :content => content, :guid => r[:root].guid, :id => r[:root].id, :created_at => r[:root].created_at
 		end
 		# profit!!!
 		# http://knowyourmeme.com/memes/profit
-		everNoteData
+		evernoteData
 	end
 	# def self.formatListToEvernote (descendantList)
 	# 	descendantList.
@@ -72,7 +72,7 @@ class Note < ActiveRecord::Base
 		fresh = false
 		guid = @noteGuid
 	end
-	
+
 	def markStale
 		if branch.isCompiled?
 			branch.fresh = false
