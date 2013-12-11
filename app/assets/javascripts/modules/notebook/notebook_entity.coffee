@@ -1,7 +1,10 @@
-@Notable.module("Notebooks", (Notebooks, App, Backbone, Marionette, $, _) ->
+@Notable.module("Notebook", (Notebook, App, Backbone, Marionette, $, _) ->
 
-	class Notebook extends Backbone.Model
+	class Notebook.Trunk extends Backbone.Model
+		urlRoot: '/notebooks'
 
-	class Notebooks extends Backbone.Collection
-		model: Notebook
+
+	class Notebook.Forest extends Backbone.Collection
+		url: '/notebooks'
+		model: Notebook.Trunk
 )

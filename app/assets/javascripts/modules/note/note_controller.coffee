@@ -17,8 +17,10 @@
 			@setGlobals()
 			@setEvents()
 		start: ->
-			App.OfflineAccess.checkAndLoadLocal (_.bind @buildTree, @)
-			App.Action.orchestrator = new App.Action.Orchestrator()
+			App.Notebook.initializedTrunk.then =>
+				console.log App.Notebook.activeTrunk
+				App.OfflineAccess.checkAndLoadLocal (_.bind @buildTree, @)
+				App.Action.orchestrator = new App.Action.Orchestrator()
 		reset: ->
 			@tree._reset()
 			@allNotesByDepth._reset()
