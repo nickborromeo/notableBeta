@@ -52,8 +52,8 @@ class EvernoteController < ApplicationController
 				:request_token_path => "/oauth",
 				:access_token_path => "/oauth",
 				:authorize_path => "/OAuth.action"})
-				session[:request_token] = consumer.get_request_token(:oauth_callback => finish_url)
-				redirect_to session[:request_token].authorize_url
+			session[:request_token] = consumer.get_request_token(:oauth_callback => finish_url)
+			redirect_to session[:request_token].authorize_url
 		rescue => e
 			@last_error = "Error obtaining temporary credentials: #{e.message}"
 			puts @last_error
@@ -89,7 +89,7 @@ class EvernoteController < ApplicationController
 	end
 
 	def sync
-		noteData = getRootBranches
+		noteData = Note.compileRoot
 		begin
 			deliverRootBranch(noteData)
 		rescue => e
@@ -98,21 +98,9 @@ class EvernoteController < ApplicationController
 		redirect_to root_url
 	end
 
-	def getRootBranches
-		random_number = 1 + rand(100)
-		two_notes = [{
-			title: "A New Title",
-			content: "<ul><li>compiled titles of the</li><li>descendant branches with #{random_number}</li></ul>"
-		},{
-			title: "New Title Foobar",
-			content: "<ul><li>compiled titles of</li><li>the descendant branches with #{random_number}</li></ul>"
-		}]
-		two_notes
-	end
-
 	def deliverRootBranch(noteData)
 		@client ||= EvernoteOAuth::Client.new(token: current_user.token_credentials)
-
+		lastFullSync = Time.at(getLastFullSync/1000)
 		noteData.each do |note|
 			note_content = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>"
 			note_content += "<!DOCTYPE en-note SYSTEM \"http://xml.evernote.com/pub/enml2.dtd\">"
@@ -131,45 +119,59 @@ class EvernoteController < ApplicationController
 
 			## Attempt to create note in Evernote account
 			begin
-				new_note = note_store.createNote(enml_note)
-			rescue Evernote::EDAM::Error::EDAMUserException => edue
+				puts "--------------------"
+				if Time.now < note[:created_at]
+					new_note = note_store.createNote(enml_note)
+					puts "create a note"
+				else
+					puts enml_note.guid
+					updated_note = note_store.updateNote(enml_note)
+					puts "updated a note"
+				end
+			rescue Evernote::EDAM::Error::EDAMUserException => eue
 				## Something was wrong with the note data
 				## See EDAMErrorCode enumeration for error code explanation
 				## http://dev.evernote.com/documentation/reference/Errors.html#Enum_EDAMErrorCode
-				puts "EDAMUserException: #{edue}"
-			rescue Evernote::EDAM::Error::EDAMNotFoundException => ednfe
+				puts "EDAMUserException: #{eue}"
+			rescue Evernote::EDAM::Error::EDAMNotFoundException => enfe
 				## Parent Notebook GUID doesn't correspond to an actual notebook
-				puts "EDAMNotFoundException: Invalid parent notebook GUID"
+				puts "Error: #{enfe.message}"
 			end
 
-			Note.update(note[:id], {:eng => new_note.guid})
+			# Note.update(note[:id], {:fresh => false})
+			# Note.update(note[:id], {:eng => new_note.guid})
 		end
+	end
 
+	def getLastFullSync
+		state = note_store.getSyncState(current_user.token_credentials)
+		puts state
+		state.fullSyncBefore
 	end
 
 	private
-		def note_store
-			@note_store ||= @client.note_store
-		end
+	def note_store
+		@note_store ||= @client.note_store
+	end
 
-		def user_store
-			@user_store ||= @client.user_store
-		end
+	def user_store
+		@user_store ||= @client.user_store
+	end
 
-		def evernote_user (token)
-			user_store.getUser(token)
-		end
+	def evernote_user (token)
+		user_store.getUser(token)
+	end
 
-		def evernote_notebooks (token)
-			note_store.listNotebooks(token)
-		end
+	def evernote_notebooks (token)
+		note_store.listNotebooks(token)
+	end
 
-		def total_note_count(token_credentials)
-			filter = Evernote::EDAM::NoteStore::NoteFilter.new
-			counts = note_store.findNoteCounts(token_credentials, filter, false)
-			@notebooks.inject(0) do |total_count, notebook|
-				total_count + (counts.notebookCounts[notebook.guid] || 0)
-			end
+	def total_note_count(token_credentials)
+		filter = Evernote::EDAM::NoteStore::NoteFilter.new
+		counts = note_store.findNoteCounts(token_credentials, filter, false)
+		@notebooks.inject(0) do |total_count, notebook|
+			total_count + (counts.notebookCounts[notebook.guid] || 0)
 		end
+	end
 
 end
