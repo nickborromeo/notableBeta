@@ -2,6 +2,7 @@ Notable::Application.routes.draw do
   devise_for :users, :module => "users", :path => ''
 
   resources :notes
+  resources :notebooks
   root :to => 'scaffold#index'
 
   get "start" => "evernote#start"
