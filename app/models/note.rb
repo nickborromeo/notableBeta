@@ -26,7 +26,13 @@ class Note < ActiveRecord::Base
 			currentDepth.downto(1).each do |level|
 				content += "</ul>"
 			end
-			evernoteData.push :title => r[:root].title, :content => content, :guid => r[:root].guid, :id => r[:root].id, :created_at => r[:root].created_at
+			notebookGuid = Notebook.where("id = #{r[:root].notebook_id}").first.guid
+			evernoteData.push(:title => r[:root].title,
+												:content => content,
+												:guid => r[:root].guid,
+												:id => r[:root].id,
+												:created_at => r[:root].created_at,
+												:notebookGuid => notebookGuid)
 		end
 		evernoteData
 	end
