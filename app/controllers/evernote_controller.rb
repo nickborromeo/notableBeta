@@ -101,11 +101,7 @@ class EvernoteController < ApplicationController
 	def deliverRootBranch(noteData)
 		@client ||= EvernoteOAuth::Client.new(token: current_user.token_credentials)
 		lastFullSync = Time.at(getLastFullSync/1000)
-		puts "--------------------here is the full getFullSyncBefore"
-		puts lastFullSync
-		puts 'created_at'
 		noteData.each do |note|
-			puts note[:created_at]
 			note_content = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>"
 			note_content += "<!DOCTYPE en-note SYSTEM \"http://xml.evernote.com/pub/enml2.dtd\">"
 			note_content += "<en-note>#{note[:content]}</en-note>"
@@ -123,22 +119,23 @@ class EvernoteController < ApplicationController
 
 			## Attempt to create note in Evernote account
 			begin
-				# if lastFullSync < note[:created_at]
+				puts "--------------------"
 				if Time.now < note[:created_at]
 					new_note = note_store.createNote(enml_note)
 					puts "create a note"
 				else
+					puts enml_note.guid
 					updated_note = note_store.updateNote(enml_note)
 					puts "updated a note"
 				end
-			rescue Evernote::EDAM::Error::EDAMUserException => edue
+			rescue Evernote::EDAM::Error::EDAMUserException => eue
 				## Something was wrong with the note data
 				## See EDAMErrorCode enumeration for error code explanation
 				## http://dev.evernote.com/documentation/reference/Errors.html#Enum_EDAMErrorCode
-				puts "EDAMUserException: #{edue}"
-			rescue Evernote::EDAM::Error::EDAMNotFoundException => ednfe
+				puts "EDAMUserException: #{eue}"
+			rescue Evernote::EDAM::Error::EDAMNotFoundException => enfe
 				## Parent Notebook GUID doesn't correspond to an actual notebook
-				puts "EDAMNotFoundException: Invalid parent notebook GUID"
+				puts "Error: #{enfe.message}"
 			end
 
 			# Note.update(note[:id], {:fresh => false})
