@@ -2,6 +2,7 @@ class Note < ActiveRecord::Base
 	attr_accessible :guid, :title, :subtitle, :parent_id, :rank, :depth,
 		:collapsed, :fresh
 	validates_presence_of :guid, :rank, :depth
+  belongs_to :notebook
 
 	def self.compileRoot
 		compiledRoots = []
