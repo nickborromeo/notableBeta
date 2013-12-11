@@ -5,12 +5,12 @@
 		initialize: (options) ->
 			@forest = new App.Notebook.Forest()
 			@activeTrunk = new App.Notebook.Trunk()
-			@setGlobals()
 			@setEvents()
+			@setGlobals()
 		start: ->
 			@forest.fetch success: =>
 				console.log @forest
-				@activeTrunk = @forest.first()
+				Notebook.activeTrunk = @activeTrunk = @forest.first()
 				Notebook.initializedTrunk.resolve()
 		reset: ->
 		setGlobals: ->
