@@ -85,6 +85,11 @@
 			@.$el.on 'keydown', null, 'meta+s', @triggerSaving.bind @
 			@.$el.on 'keydown', null, 'ctrl+z', @triggerUndoEvent
 			@.$el.on 'keydown', null, 'meta+z', @triggerUndoEvent
+
+			@.$el.on 'keydown', null, 'ctrl+b meta+b', @applyStyling.bind @, 'bold'
+			@.$el.on 'keydown', null, 'ctrl+i meta+i', @applyStyling.bind @, 'italic'
+			@.$el.on 'keydown', null, 'ctrl+u meta+u', @applyStyling.bind @, 'underline'
+			@.$el.on 'keydown', null, 'ctrl+k meta+k', @applyStyling.bind @, 'strikeThrough'
 			# @.$el.on 'keydown', null, 'ctrl+y', @triggerRedoEvent
 			# @.$el.on 'keydown', null, 'meta+y', @triggerRedoEvent
 
@@ -96,6 +101,11 @@
 			Note.eventManager.off "setTitle:#{@model.get('guid')}", @setNoteTitle, @
 			Note.eventManager.off "timeoutUpdate:#{@model.get('guid')}", @updateNote, @
 			Note.eventManager.off "expand:#{@model.get('guid')}", @expand, @
+
+		applyStyling: (style, e) ->
+			e.preventDefault()
+			e.stopPropagation()
+			document.execCommand(style)
 		triggerRedoEvent: (e) =>
 			e.preventDefault()
 			e.stopPropagation()
@@ -468,56 +478,5 @@
 
 		export: (paragraph = false) -> (e) ->
 			Note.eventManager.trigger "render:export", @model, paragraph
-
-	class Note.ExportView extends Marionette.ItemView
-		id: "tree"
-		template: "note/exportModel"
-
-		events: ->
-			"click .glyphicon-remove": "clearExport"
-
-		initialize: (options) ->
-			@model = new Note.ExportModel tree: @collection, inParagraph: options.inParagraph, title: options.title
-			if options.inParagraph then App.Notify.alert 'exportParagraph', 'success'
-			else App.Notify.alert 'exportPlain', 'success'
-			# console.log "exportView", arguments
-
-		clearExport: ->
-			Note.eventManager.trigger "clear:export"
-
-	class Note.ExportModel extends Backbone.Model
-		urlRoot : '/sync'
-
-		initialize: ->
-			# console.log "exportModel", arguments
-			if @get('inParagraph') then @render = @renderTreeParagraph else @render = @renderTree
-			# @set 'title', "Fake Title" #Note.activeBranch.get('title')
-			@set 'text', @render @get('tree')
-
-		make_spaces: (num, spaces = '') ->
-			if num is 0 then return spaces
-			@make_spaces(--num, spaces + '&nbsp;&nbsp;')
-		renderTree: (tree)->
-			text = ""
-			indent = 0
-			do rec = (current = tree.first(), rest = tree.rest()) =>
-				return (--indent; text) if not current?
-				text += @make_spaces(indent) + ' - ' + current.get('title') + '<br>'
-				if current.descendants.length isnt 0
-					++indent
-					rec current.descendants.first(), current.descendants.rest()
-				rec _.first(rest), _.rest(rest)
-
-		renderTreeParagraph: (tree) ->
-			text = ""
-			indent = 0
-			do rec = (current = tree.first(), rest = tree.rest()) =>
-				return (text) if not current?
-				text += '<p>' if current.isARoot true
-				text += current.get('title') + ' '
-				if current.descendants.length isnt 0
-					rec current.descendants.first(), current.descendants.rest()
-				if current.isARoot(true) then text += '</p>'
-				rec _.first(rest), _.rest(rest)
 
 )
