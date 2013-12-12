@@ -29,7 +29,7 @@ class Note < ActiveRecord::Base
 			notebookGuid = Notebook.where("id = #{r[:root].notebook_id}").first.guid
 			evernoteData.push(:title => r[:root].title,
 												:content => content,
-												:guid => r[:root].guid,
+												:guid => r[:root].eng,
 												:id => r[:root].id,
 												:created_at => r[:root].created_at,
 												:notebookGuid => notebookGuid)

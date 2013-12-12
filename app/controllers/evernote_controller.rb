@@ -101,6 +101,7 @@ class EvernoteController < ApplicationController
 	def deliverRootBranch(noteData)
 		@client ||= EvernoteOAuth::Client.new(token: current_user.token_credentials)
 		lastFullSync = Time.at(getLastFullSync/1000)
+		notebook = getDefaultNotebook
 		noteData.each do |note|
 			note_content = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>"
 			note_content += "<!DOCTYPE en-note SYSTEM \"http://xml.evernote.com/pub/enml2.dtd\">"
@@ -111,7 +112,8 @@ class EvernoteController < ApplicationController
 			enml_note.title = note[:title]
 			enml_note.content = note_content
 			enml_note.guid = note[:guid]
-
+			enml_note.notebookGuid = notebook.guid
+			# puts note[:notebookGuid]
 			## parent_notebook is optional; if omitted, default notebook is used
 			# if parent_notebook && parent_notebook.guid
 			# 	emnl_note.notebookGuid = parent_notebook.guid
@@ -125,8 +127,8 @@ class EvernoteController < ApplicationController
 					puts "create a note"
 				else
 					puts enml_note.guid
-					updated_note = note_store.updateNote(enml_note)
 					puts "updated a note"
+					new_note = note_store.updateNote(current_user.token_credentials, enml_note)
 				end
 			rescue Evernote::EDAM::Error::EDAMUserException => eue
 				## Something was wrong with the note data
@@ -135,18 +137,25 @@ class EvernoteController < ApplicationController
 				puts "EDAMUserException: #{eue}"
 			rescue Evernote::EDAM::Error::EDAMNotFoundException => enfe
 				## Parent Notebook GUID doesn't correspond to an actual notebook
-				puts "Error: #{enfe.message}"
+				puts "Error: identifier: #{enfe.identifier}, key: #{enfe.key}"
 			end
-
+			puts "guid sent: #{enml_note.guid}, received: #{new_note.guid}"
+			puts "title sent: #{enml_note.title}, title received : #{new_note.title}"
+			puts "notebook guid sent: #{enml_note.notebookGuid}, received: #{new_note.notebookGuid}"
+			puts "guid sent: #{enml_note.guid}, received: #{new_note.guid}"
 			# Note.update(note[:id], {:fresh => false})
-			# Note.update(note[:id], {:eng => new_note.guid})
+			# Note.update(note[:id], :eng => new_note.guid)
 		end
+		Note.update_all("fresh = false")
 	end
 
 	def getLastFullSync
 		state = note_store.getSyncState(current_user.token_credentials)
-		puts state
+		# puts state
 		state.fullSyncBefore
+	end
+	def getDefaultNotebook
+		note_store.getDefaultNotebook
 	end
 
 	private
