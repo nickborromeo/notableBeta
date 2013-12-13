@@ -15,4 +15,5 @@
 			source: '#right-sidr-center'
 			side: 'right'
 
+		window.scrollTo(0,1)
 )
