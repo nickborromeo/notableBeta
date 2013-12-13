@@ -100,7 +100,8 @@ class EvernoteController < ApplicationController
 									 end
 
 		# User.update current_user.id, :lastUpdateCount => evernoteData[:lastChunk].updateCount, :lastSyncTime => evernoteData[:lastChunk].time
-		receiveRootBranch evernoteData[:notes]
+		processExpungedAndDeletion evernoteData
+		receiveRootBranches evernoteData[:notes]
 		# begin
 		# 	deliverRootBranch(noteData)
 		# rescue => e
@@ -108,6 +109,23 @@ class EvernoteController < ApplicationController
 		# end
 		redirect_to root_url
 	end
+
+	def processExpungedAndDeletion (evernoteData)
+		evernoteData[:notes].delete_if do |n|
+			puts "title: #{n.title}, eng: #{n.guid}, deleted: #{n.deleted}"
+			if not n.deleted.nil?
+				evernoteData[:deleted].push n.guid
+				true
+			end
+		end
+		evernoteData[:deleted].each do |eng|
+			Note.deleteByEng eng
+		end
+	end
+
+	def receiveRootBranches (notes)
+	end
+
 	def incrementalSync (syncState)
 		fullSync syncState
 	end
@@ -115,16 +133,19 @@ class EvernoteController < ApplicationController
 	def fullSync (syncState)
 		currentUSN = current_user.last_update_count
 		notes = []
+		deleted = []
 		return unless currentUSN < syncState.updateCount
 		lastChunk = getSyncChunk(currentUSN, 100)
 		rec = -> (syncChunk) do
 			puts "chunkHigh : #{syncChunk.chunkHighUSN}, updateCount: #{syncChunk.updateCount}"
 			notes.concat syncChunk.notes
+			deleted.concat syncChunk.expungedNotes if not syncChunk.expungedNotes.nil?
 			return unless syncChunk.chunkHighUSN < syncChunk.updateCount
 			rec.call lastChunk = getSyncChunk(syncChunk.chunkHighUSN, 100)
 		end
 		rec.call lastChunk
 		{ :notes => notes,
+			:deleted => deleted,
 			:lastChunked => lastChunk }
 	end
 
@@ -136,13 +157,6 @@ class EvernoteController < ApplicationController
 			:includeExpunged => true
 		})
 		note_store.getFilteredSyncChunk(current_user.token_credentials, afterUSN, maxEntries, syncFilter)
-	end
-
-	def receiveRootBranch (notes)
-		notes.each do |n|
-			puts n.title
-			puts note_store.getNoteContent(n.guid)
-		end		
 	end
 	
 	def deliverRootBranch(noteData)

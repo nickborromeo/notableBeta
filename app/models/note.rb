@@ -1,6 +1,5 @@
 class Note < ActiveRecord::Base
-	attr_accessible :guid, :title, :subtitle, :parent_id, :rank, :depth,
-		:collapsed, :fresh
+	attr_accessible :guid, :title, :subtitle, :parent_id, :rank, :depth, :collapsed, :fresh
 	validates_presence_of :guid, :rank, :depth
   belongs_to :notebook
 
@@ -48,6 +47,26 @@ class Note < ActiveRecord::Base
 		end
 		rec.call root
 		descendantsList
+	end	
+
+	def self.getDescendants (branch)
+		Note.where("parent_id = '#{branch.guid}'").order(:rank)
+	end
+
+	def self.deleteByEng (eng)
+		Note.deleteBranch Note.where("eng = '#{eng}'").first
+	end
+
+	def self.deleteBranch (branch)
+		puts "?"
+		return false if branch.nil?
+		descendantList = Note.getCompleteDescendantList branch
+		descendantList.each do |b|
+			puts "destroy #{b[:title]}"
+			Note.find(b[:id]).destroy
+		end
+		Note.find(branch[:id]).destroy
+		puts "destroy root #{branch[:title]}"
 	end
 
 	def self.freshBranches? (descendantList)
@@ -57,10 +76,6 @@ class Note < ActiveRecord::Base
 			break if fresh == true
 		end
 		fresh
-	end
-	
-	def self.getDescendants (branch)
-		Note.where("parent_id = '#{branch.guid}'").order(:rank)
 	end
 
 	def compileBranches (root)
