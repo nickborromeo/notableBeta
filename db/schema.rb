@@ -54,8 +54,8 @@ ActiveRecord::Schema.define(:version => 20131212223257) do
     t.string   "last_sign_in_ip"
     t.integer  "failed_attempts",        :default => 0,  :null => false
     t.datetime "locked_at"
-    t.integer  "lastUpdateCount"
-    t.datetime "lastFullSync"
+    t.integer  "last_update_count"
+    t.datetime "last_full_sync"
   end
 
   add_index "users", ["email"], :name => "index_users_on_email", :unique => true
