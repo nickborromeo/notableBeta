@@ -15,7 +15,6 @@
 //= require lib/underscore
 //= require lib/backbone
 //= require lib/marionette
-//= require lib/wysiwyg
 //= require lib/sidr
 //= require lib/jquery.hotkeys
 //= require handlebars
