@@ -93,35 +93,43 @@ class EvernoteController < ApplicationController
 		syncState = getSyncState
 		puts "serverLastFUllSync: #{syncState.fullSyncBefore}"
 		fullSyncBefore = Time.at(syncState.fullSyncBefore/1000)
-		chunkHighUSN = if current_user.last_full_sync.nil? or serverLastFullSync > current_user.last_full_sync
+		evernoteData = if current_user.last_full_sync.nil? or serverLastFullSync > current_user.last_full_sync
 										 fullSync syncState
 									 else 
 										 incrementalSync syncState
 									 end
 
-		# User.update current_user.id, :lastUpdateCount => chunkHighUSN, :lastSyncTime => Time.now.to_i
+		# User.update current_user.id, :lastUpdateCount => evernoteData[:lastChunk].updateCount, :lastSyncTime => evernoteData[:lastChunk].time
 
-		# Begin
+		# begin
 		# 	deliverRootBranch(noteData)
 		# rescue => e
 		# 	puts e.message
 		# end
-		redirect_to root_url
+		# redirect_to root_url
 	end
 	def incrementalSync (syncState)
 		fullSync syncState
 	end
+
 	def fullSync (syncState)
 		currentUSN = current_user.last_update_count
+		notes = []
 		return unless currentUSN < syncState.updateCount
-		chunkSync = getSyncChunk(currentUSN, 100)
+		lastChunk = getSyncChunk(currentUSN, 100)
 		rec = -> (syncChunk) do
 			puts "chunkHigh : #{syncChunk.chunkHighUSN}, updateCount: #{syncChunk.updateCount}"
+			notes.concat syncChunk.notes
 			return unless syncChunk.chunkHighUSN < syncChunk.updateCount
-			rec.call getSyncChunk(currentUSN, 100)
+			rec.call lastChunk = getSyncChunk(syncChunk.chunkHighUSN, 100)
 		end
-		rec.call chunkSync
-		currentUSN
+		rec.call lastChunk
+		# notes.each do |n|
+		# 	puts n.title
+		# 	puts note_store.getNoteContent(n.guid)
+		# end
+		{ :notes => notes,
+			:lastChunked => lastChunk }
 	end
 
 	def getSyncChunk(afterUSN, maxEntries)
@@ -134,6 +142,9 @@ class EvernoteController < ApplicationController
 		note_store.getFilteredSyncChunk(current_user.token_credentials, afterUSN, maxEntries, syncFilter)
 	end
 
+	def receiveRootBranch (notes)
+		
+	end
 	
 	def deliverRootBranch(noteData)
 		notebook = getDefaultNotebook
