@@ -17,7 +17,6 @@
 			"click .mindmap_icon": "applyModview"
 			"click .grid_icon": "applyModview"
 		createNote: ->
-			App.Notify.alert 'newNote','success'
 			if App.Note.activeTree.models.length is 0
 				if App.Note.activeBranch is 'root'
 					lastNote =
@@ -39,6 +38,8 @@
 					title: ""
 			App.Note.eventManager.trigger "render:#{App.Note.activeBranch.get('guid')}" if App.Note.activeBranch isnt "root"
 			App.Note.eventManager.trigger "setCursor:#{App.Note.activeTree.last().get('guid')}"
+			App.Notify.alert 'newNote','success'
+			mixpanel.track("New Note")
 		applyModview: (e) ->
 			type = e.currentTarget.classList[1]
 			# $(".alert").text(type+" modview is displayed").show()

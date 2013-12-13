@@ -29,9 +29,10 @@
 		<div class="response" id="mce-success-response" style="display:none"></div>
 	</div>
 	<div class="clear">
-		<input type="submit" value="Submit" name="subscribe" id="mc-embedded-subscribe" class="submit btn">
+		<input type="submit" value="Submit" name="subscribe" id="mc-embedded-subscribe" class="submit btn" onsubmit="mixpanel.track('Request Invite');">
 	</div>
 	</form>
 </div>
 
+<%= render 'scaffold/footer' %>
 </div>
