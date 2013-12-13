@@ -20,7 +20,7 @@
 	}
 	.tagline {
 		background-color: $notableBlue;
-		color: $notableWhite;
+		color: $white;
 		font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
 		border-radius: 2px;
 		padding: 10px;
@@ -35,11 +35,11 @@
 		font-size: 14px;
 		margin: 0 auto 4.5% auto;
 		max-width: 80%;
-		color: $notableBlack;
+		color: $black;
 	}
 	.message {
 		font: 12px Tahoma, Helvetica, Arial, sans-serif;
-		color: $notableBlack;
+		color: $black;
 		margin: 5px 0;
 	}
 	form {
@@ -61,7 +61,7 @@
 	}
 	.submit {
 		display: block;
-		color: $notableWhite;
+		color: $white;
 		background-color: $notableOrange;
 		width: 100%;
 		border-radius: 5px;

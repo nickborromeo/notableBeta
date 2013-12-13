@@ -2,7 +2,7 @@
 @import "../variables";
 
 $sidr-background: $grayDark;
-$sidr-text-color: $notableWhite;
+$sidr-text-color: $white;
 $sidr-font-family: 'lucida grande',tahoma,verdana,arial,sans-serif;
 
 // ----------------------------------------------------
@@ -24,7 +24,7 @@ $sidr-font-family: 'lucida grande',tahoma,verdana,arial,sans-serif;
 	&.left {
 		left: -260px;
 		right: auto;
-		@include single-box-shadow($notableBlack, -7px, 3px, 14px, 3px, inset);
+		@include single-box-shadow($black, -7px, 3px, 14px, 3px, inset);
 	}
 
 	/* Theme Settings */
@@ -41,7 +41,7 @@ $sidr-font-family: 'lucida grande',tahoma,verdana,arial,sans-serif;
 		color: $sidr-text-color;
 		line-height: 22px;
 		border-top: 1px solid darken($sidr-background, 14%);
-		@include single-box-shadow($notableBlack, -14px, 0px, 21px, -7px, inset);
+		@include single-box-shadow($black, -14px, 0px, 21px, -7px, inset);
 		.list-toggle {
 			margin-right: 0.5em;
 			padding: 0;
@@ -65,14 +65,14 @@ $sidr-font-family: 'lucida grande',tahoma,verdana,arial,sans-serif;
 		margin: 0;
 		padding: 0;
 		&:last-child {
-			border-bottom: 1px solid $notableBlack;
+			border-bottom: 1px solid $black;
 		}
 
 		li {
 			display: block;
 			margin: 0;
 			line-height: 36px;
-			border-bottom: 1px solid $notableBlack;
+			border-bottom: 1px solid $black;
 			&:last-child {
 				border-bottom: none;
 			}
@@ -81,7 +81,7 @@ $sidr-font-family: 'lucida grande',tahoma,verdana,arial,sans-serif;
 				border-top: none;
 				line-height: 36px;
 				> a, > span {
-					@include single-box-shadow($notableBlack, 0, 0, 15px, 3px, inset);
+					@include single-box-shadow($black, 0, 0, 15px, 3px, inset);
 				}
 			}
 
