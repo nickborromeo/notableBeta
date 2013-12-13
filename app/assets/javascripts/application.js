@@ -31,7 +31,7 @@
 //= require_tree ./modules/note
 //= require_tree ./modules/notebook
 //= require_tree ./modules/notification
-//= require_tree ./modules/manager
+//= require_tree ./modules/action
 //= require_tree ./modules/helpers
 //= require_tree ./modules/breadcrumb
 //= require_tree ./modules/feat
