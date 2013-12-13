@@ -82,8 +82,13 @@ nav {
 
 /* --------------FOOTER REGION ------------------ */
 footer {
-	text-align: center;
-	margin: 100px auto 10px auto;
+	height: 2em;
+	ul {
+		list-style-type: none;
+		font-size: 12px;
+		padding-left: 3%;
+		width: 97%;
+	}
 }
 
 // ----------------------------------------------------
