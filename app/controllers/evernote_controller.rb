@@ -100,13 +100,13 @@ class EvernoteController < ApplicationController
 									 end
 
 		# User.update current_user.id, :lastUpdateCount => evernoteData[:lastChunk].updateCount, :lastSyncTime => evernoteData[:lastChunk].time
-
+		receiveRootBranch evernoteData[:notes]
 		# begin
 		# 	deliverRootBranch(noteData)
 		# rescue => e
 		# 	puts e.message
 		# end
-		# redirect_to root_url
+		redirect_to root_url
 	end
 	def incrementalSync (syncState)
 		fullSync syncState
@@ -124,10 +124,6 @@ class EvernoteController < ApplicationController
 			rec.call lastChunk = getSyncChunk(syncChunk.chunkHighUSN, 100)
 		end
 		rec.call lastChunk
-		# notes.each do |n|
-		# 	puts n.title
-		# 	puts note_store.getNoteContent(n.guid)
-		# end
 		{ :notes => notes,
 			:lastChunked => lastChunk }
 	end
@@ -143,7 +139,10 @@ class EvernoteController < ApplicationController
 	end
 
 	def receiveRootBranch (notes)
-		
+		notes.each do |n|
+			puts n.title
+			puts note_store.getNoteContent(n.guid)
+		end		
 	end
 	
 	def deliverRootBranch(noteData)
