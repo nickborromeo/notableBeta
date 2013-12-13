@@ -90,17 +90,52 @@ class EvernoteController < ApplicationController
 
 	def sync
 		noteData = Note.compileRoot
-		begin
-			deliverRootBranch(noteData)
-		rescue => e
-			puts e.message
-		end
+		syncState = getSyncState
+		puts "serverLastFUllSync: #{syncState.fullSyncBefore}"
+		fullSyncBefore = Time.at(syncState.fullSyncBefore/1000)
+		chunkHighUSN = if current_user.last_full_sync.nil? or serverLastFullSync > current_user.last_full_sync
+										 fullSync syncState
+									 else 
+										 incrementalSync syncState
+									 end
+
+		# User.update current_user.id, :lastUpdateCount => chunkHighUSN, :lastSyncTime => Time.now.to_i
+
+		# Begin
+		# 	deliverRootBranch(noteData)
+		# rescue => e
+		# 	puts e.message
+		# end
 		redirect_to root_url
 	end
+	def incrementalSync (syncState)
+		fullSync syncState
+	end
+	def fullSync (syncState)
+		currentUSN = current_user.last_update_count
+		return unless currentUSN < syncState.updateCount
+		chunkSync = getSyncChunk(currentUSN, 100)
+		rec = -> (syncChunk) do
+			puts "chunkHigh : #{syncChunk.chunkHighUSN}, updateCount: #{syncChunk.updateCount}"
+			return unless syncChunk.chunkHighUSN < syncChunk.updateCount
+			rec.call getSyncChunk(currentUSN, 100)
+		end
+		rec.call chunkSync
+		currentUSN
+	end
 
+	def getSyncChunk(afterUSN, maxEntries)
+		syncFilter =  Evernote::EDAM::NoteStore::SyncChunkFilter.new({
+			:includeNotes => true,
+			:includeNotebooks => true,
+			:includeTags => true,
+			:includeExpunged => true
+		})
+		note_store.getFilteredSyncChunk(current_user.token_credentials, afterUSN, maxEntries, syncFilter)
+	end
+
+	
 	def deliverRootBranch(noteData)
-		@client ||= EvernoteOAuth::Client.new(token: current_user.token_credentials)
-		lastFullSync = Time.at(getLastFullSync/1000)
 		notebook = getDefaultNotebook
 		noteData.each do |note|
 			note_content = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>"
@@ -118,7 +153,7 @@ class EvernoteController < ApplicationController
 			# if parent_notebook && parent_notebook.guid
 			# 	emnl_note.notebookGuid = parent_notebook.guid
 			# end
-
+			
 			## Attempt to create note in Evernote account
 			begin
 				puts "--------------------"
@@ -149,24 +184,28 @@ class EvernoteController < ApplicationController
 		Note.update_all("fresh = false")
 	end
 
-	def getLastFullSync
+	def getSyncState
 		state = note_store.getSyncState(current_user.token_credentials)
-		# puts state
-		state.fullSyncBefore
+	end
+	def getFullSyncBefore
+		getSyncState.fullSyncBefore
 	end
 	def getDefaultNotebook
 		note_store.getDefaultNotebook
 	end
-
+	
 	private
 	def note_store
-		@note_store ||= @client.note_store
+		@note_store ||= client.note_store
 	end
 
 	def user_store
-		@user_store ||= @client.user_store
+		@user_store ||= client.user_store
 	end
-
+	def client
+		@client ||= EvernoteOAuth::Client.new(token: current_user.token_credentials)
+	end
+	
 	def evernote_user (token)
 		user_store.getUser(token)
 	end
