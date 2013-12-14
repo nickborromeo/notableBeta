@@ -10,6 +10,7 @@ gem 'active_model_serializers'
 gem 'bootstrap-sass', '~> 3.0.2.0'
 gem 'sass-rails', '>= 3.2'
 gem 'compass-rails'
+gem 'bootstrap_form'
 gem 'evernote_oauth'
 gem "figaro"
 gem 'bcrypt-ruby', '~> 3.1.0'

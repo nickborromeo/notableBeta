@@ -18,7 +18,7 @@
 		</div>
 	</div>
 
-	<!-- Collect the nav links, forms, and other content for toggling -->
+<% unless controller_name == 'registrations' %>
 	<ul class="nav navbar-nav navbar-right hidden-xs">
 		<li class="dropdown">
 			<a href="#" class="dropdown-toggle" data-toggle="dropdown">
@@ -31,7 +31,7 @@
 				<li><%= link_to("Connect to Evernote", start_path) %></li>
 			<% end %>
 				<li><a href="#">Help</a></li>
-				<li><a href="#">Settings</a></li>
+				<li><%= link_to("Settings", edit_user_registration_path) %></li>
 				<li><a href="http://getnotable.uservoice.com/">Give Feedback</a></li>
 			<% if current_user.admin? %>
 				<li><%= link_to "Admin Console", evernote_index_path %></li>
@@ -45,5 +45,7 @@
 		<input type="text" class="form-control" placeholder="Search">
 		<span  class="glyphicon glyphicon-search search-btn"></span>
 	</form>
+<% end %>
+
 </nav>
 </header>

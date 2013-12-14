@@ -1,19 +1,16 @@
 <%= render 'scaffold/header_out' %>
-<div class="container padder">
+<div class="container" id="user-form">
 	<h2>Sign in</h2>
 
-	<%= form_for(resource, :as => resource_name, :url => session_path(resource_name)) do |f| %>
+	<%= bootstrap_form_for(resource, as: resource_name, url: session_path(resource_name)) do |f| %>
 
-	  <div><%= f.label :email %><br/>
-	  <%= f.email_field :email, :autofocus => true %></div>
-	  <div><%= f.label :password %><br />
-	  <%= f.password_field :password %></div>
-	  <% if devise_mapping.rememberable? -%>
-	    <div><%= f.check_box :remember_me %> <%= f.label :remember_me %></div>
-	  <% end %>
+	  <%= f.email_field :email, autofocus: true %>
+	  <%= f.password_field :password %>
+	  <%= f.check_box :remember_me %>
 
-	  <div id="input-btn"><%= f.submit "Sign in" %></div>
+	  <%= f.submit "Sign in", class: "btn btn-submit" %>
 	<% end %>
 
-<%= render "devise/shared/links" %>
+  <%= link_to "Forgot your password?", new_password_path(resource_name),
+   class: "pull-right" %>
 </div>
