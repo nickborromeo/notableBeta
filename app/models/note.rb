@@ -100,6 +100,7 @@ class Note < ActiveRecord::Base
 		
 		branch = Note.new(branch)
 		branch.save
+		puts "CONTENT #{data[:content]}"
 		descendants = self.parseContent(branch.guid, data[:content])
 		descendants.each do |d|
 			descendant = Note.new d
@@ -119,7 +120,8 @@ class Note < ActiveRecord::Base
 	# this obscur code retrieve what is between <en-note>...</en-note> and trims the rest
 	def self.trimContent (content)
 		content = content.slice((i1 = content.index('<en-note>') + '<en-note>'.size), (content.index('</en-note>') - i1))
-		content.gsub />(\s)+</, '><' # Delete space between <tags>
+		content = content.gsub />(\s)+</, '><' # Delete space between <tags>
+		content.gsub /<(\/)?(?!ul|li)([\w\s',"=]*)(\/)?>/, ''
 	end
 
 	def self.processNextTag (content)
