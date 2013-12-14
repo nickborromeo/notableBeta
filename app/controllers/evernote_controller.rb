@@ -100,8 +100,8 @@ class EvernoteController < ApplicationController
 									 end
 
 		# User.update current_user.id, :lastUpdateCount => evernoteData[:lastChunk].updateCount, :lastSyncTime => evernoteData[:lastChunk].time
-		processExpungedAndDeletion evernoteData
-		receiveRootBranches evernoteData[:notes]
+		changedBranches = processExpungedAndDeletion evernoteData
+		receiveRootBranches changedBranches
 		# begin
 		# 	deliverRootBranch(noteData)
 		# rescue => e
@@ -110,8 +110,13 @@ class EvernoteController < ApplicationController
 		redirect_to root_url
 	end
 
+	def filterNils (evernoteNotes)
+		evernoteNotes.delete_if {|n| n.nil?}
+	end
+
 	def processExpungedAndDeletion (evernoteData)
-		evernoteData[:notes].delete_if do |n|
+		puts "evernote notes : #{evernoteData[:notes]}"
+		filterNils(evernoteData[:notes]).delete_if do |n|
 			puts "title: #{n.title}, eng: #{n.guid}, deleted: #{n.deleted}"
 			if not n.deleted.nil?
 				evernoteData[:deleted].push n.guid
@@ -121,9 +126,19 @@ class EvernoteController < ApplicationController
 		evernoteData[:deleted].each do |eng|
 			Note.deleteByEng eng
 		end
+		evernoteData[:notes]
 	end
 
-	def receiveRootBranches (notes)
+	def receiveRootBranches (branches)
+		branchData = []
+		branches.each do |b|
+			content = note_store.getNoteContent(b.guid)
+			# puts n.title
+			# puts content
+			puts "note tile: #{b.title}, deleted at #{b.deleted} and created at #{b.created}"
+			branchData.push :eng => b.guid, :title => b.title, :content => content
+		end
+		Note.receiveBranches branchData
 	end
 
 	def incrementalSync (syncState)

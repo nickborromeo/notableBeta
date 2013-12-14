@@ -1,5 +1,6 @@
 class Note < ActiveRecord::Base
-	attr_accessible :guid, :title, :subtitle, :parent_id, :rank, :depth, :collapsed, :fresh
+	require 'securerandom'
+	attr_accessible :guid, :eng, :title, :subtitle, :parent_id, :rank, :depth, :collapsed, :fresh
 	validates_presence_of :guid, :rank, :depth
   belongs_to :notebook
 
@@ -58,15 +59,86 @@ class Note < ActiveRecord::Base
 	end
 
 	def self.deleteBranch (branch)
-		puts "?"
 		return false if branch.nil?
 		descendantList = Note.getCompleteDescendantList branch
 		descendantList.each do |b|
 			puts "destroy #{b[:title]}"
-			Note.find(b[:id]).destroy
+			# Note.find(b[:id]).destroy
 		end
-		Note.find(branch[:id]).destroy
+		# Note.find(branch[:id]).destroy
 		puts "destroy root #{branch[:title]}"
+	end
+
+	def self.receiveBranches (branchData)
+		branchData.each do |data|
+			branch = Note.where("eng = '#{data[:eng]}'").first
+			data[:content] = self.digestEvernoteContent data[:content]
+			if branch.nil? then self.createBranch data else self.updateBranch data end		
+		end
+	end
+
+	def self.createBranch (data)
+		puts "ARe you coming her?"
+		branch = {
+			:parent_id => 'root',
+			:title => data[:title],
+			:guid => data[:eng],
+			:eng => data[:eng],
+			:rank => self.getLastRank,
+			:depth => 0,
+			:fresh => false,
+			:collapsed => false
+		}
+		puts branch
+		branch = Note.new(branch)
+		descendant = {
+			:parent_id => data[:eng],
+			:title => data[:content],
+			:guid => SecureRandom.uuid,
+			:eng => nil,
+			:rank => 1,
+			:depth => 1,
+			:fresh => false,
+			:collapsed => false
+		}
+		puts descendant
+		descendant = Note.new(descendant)
+		branch.save
+		descendant.save
+		# descendant[:parent_id] = 'root'
+		# descendant[:title] = data[:content]
+		# descendant[:guid] = #{SecureRandom.uuid}
+		# descendant[:eng] = nil
+		# descendant[:rank] = self.getLastRank
+		# descendant[:depth] = 0
+		# descendant[:fresh] = false
+		# descendant[:collapsed] = false
+		branch
+	end
+
+	def self.getLastRank
+		rank = Note.order("depth, rank DESC").first
+		if rank.nil?
+			1
+		else
+			rank.rank
+		end
+	end
+
+	def self.updateBranch
+		puts "NO REASON TO COME DOWN HERE MOFO"
+	end
+
+	def self.setDefaultAttributes (data)
+		defaults = {
+			:collapsed => false,
+			:fresh => false,
+			:guid => data[:eng],
+		}
+	end
+
+	def self.digestEvernoteContent (content)
+		content
 	end
 
 	def self.freshBranches? (descendantList)
