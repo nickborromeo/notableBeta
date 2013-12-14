@@ -70,21 +70,23 @@ class Note < ActiveRecord::Base
 	end
 
 	def self.receiveBranches (branchData)
+		rank = self.getLastRank
 		branchData.each do |data|
 			branch = Note.where("eng = '#{data[:eng]}'").first
 			data[:content] = self.digestEvernoteContent data[:content]
-			if branch.nil? then self.createBranch data else self.updateBranch data end		
+			if branch.nil? then self.createBranch data, rank else self.updateBranch data end		
+			rank += 1
 		end
 	end
 
-	def self.createBranch (data)
+	def self.createBranch (data, rank)
 		puts "ARe you coming her?"
 		branch = {
 			:parent_id => 'root',
 			:title => data[:title],
 			:guid => data[:eng],
 			:eng => data[:eng],
-			:rank => self.getLastRank,
+			:rank => rank,
 			:depth => 0,
 			:fresh => false,
 			:collapsed => false
@@ -117,15 +119,15 @@ class Note < ActiveRecord::Base
 	end
 
 	def self.getLastRank
-		rank = Note.order("depth, rank DESC").first
-		if rank.nil?
+		lastNote = Note.order("depth, rank DESC").first
+		if lastNote.nil?
 			1
 		else
-			rank.rank
+			lastNote.rank
 		end
 	end
 
-	def self.updateBranch
+	def self.updateBranch (data)
 		puts "NO REASON TO COME DOWN HERE MOFO"
 	end
 
