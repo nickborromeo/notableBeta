@@ -100,7 +100,11 @@ class Note < ActiveRecord::Base
 		
 		branch = Note.new(branch)
 		branch.save
-		self.parseContent(branch.guid, data[:content])
+		descendants = self.parseContent(branch.guid, data[:content])
+		descendants.each do |d|
+			descendant = Note.new d
+			descendant.save
+		end
 		# descendant[:parent_id] = 'root'
 		# descendant[:title] = data[:content]
 		# descendant[:guid] = #{SecureRandom.uuid}
@@ -127,7 +131,7 @@ class Note < ActiveRecord::Base
 	end
 
 	def self.parseContent (parent_id, content)
-		puts content = self.trimContent content
+		content = self.trimContent content
 		notes = []
 		indentation = 0
 		rec = -> (content) do
@@ -168,6 +172,7 @@ class Note < ActiveRecord::Base
 			preceding = n
 		end
 
+		notes
 		# makeNote = -> (current, rest, preceding) do
 		# 	return if current.nil?
 
