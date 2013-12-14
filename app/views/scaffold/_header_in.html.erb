@@ -34,7 +34,7 @@
 				<li><a href="#">Settings</a></li>
 				<li><a href="http://getnotable.uservoice.com/">Give Feedback</a></li>
 			<% if current_user.admin? %>
-				<li><%= link_to("Admin Console", "http://google.com")%></li>
+				<li><%= link_to "Admin Console", evernote_index_path %></li>
 			<% end %>
 				<li role="presentation" class="divider"></li>
 				<li><%= link_to("Sign Out", destroy_user_session_path, {method: :delete}) %></li>

@@ -1,0 +1,24 @@
+<%= render 'scaffold/header_out' %>
+<div class="container">
+
+  <h2>Notable Users</h1>
+
+	<table class="table table-striped">
+	<tr class="table-head">
+    <td>Email</td>
+    <td>ID</td>
+    <td>Admin</td>
+  </tr>
+	<% @users.each do |user| %>
+  <tr>
+    <td><%= user.email %></td>
+    <td><%= user.id %></td>
+    <td><%= user.admin %></td>
+  </tr>
+  <% end %>
+	</table>
+
+	<%= link_to "Go back home", root_path %>
+
+
+</div>

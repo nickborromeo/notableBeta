@@ -37,6 +37,7 @@ class EvernoteController < ApplicationController
 	end
 
 	def index
+		@users = User.order("email")
 	end
 
 	def edit
