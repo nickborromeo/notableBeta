@@ -26,7 +26,8 @@ class Note < ActiveRecord::Base
 			currentDepth.downto(1).each do |level|
 				content += "</ul>"
 			end
-			notebookGuid = Notebook.where("id = #{r[:root].notebook_id}").first.guid
+			# notebookGuid = Notebook.where("id = #{r[:root].notebook_id}").first.guid
+			notebookGuid = nil
 			evernoteData.push(:title => r[:root].title,
 												:content => content,
 												:guid => r[:root].eng,
@@ -96,21 +97,10 @@ class Note < ActiveRecord::Base
 			:collapsed => false
 		}
 		puts branch
+		
 		branch = Note.new(branch)
-		descendant = {
-			:parent_id => data[:eng],
-			:title => data[:content],
-			:guid => SecureRandom.uuid,
-			:eng => nil,
-			:rank => 1,
-			:depth => 1,
-			:fresh => false,
-			:collapsed => false
-		}
-		puts descendant
-		descendant = Note.new(descendant)
 		branch.save
-		descendant.save
+		self.parseContent(branch.guid, data[:content])
 		# descendant[:parent_id] = 'root'
 		# descendant[:title] = data[:content]
 		# descendant[:guid] = #{SecureRandom.uuid}
@@ -120,6 +110,29 @@ class Note < ActiveRecord::Base
 		# descendant[:fresh] = false
 		# descendant[:collapsed] = false
 		branch
+	end
+
+	# this obscur code retrieve what is between <en-note>...</en-note> and trims the rest
+	def self.trimContent (content)
+		content.slice((i1 = content.index('<en-note>') + '<en-note>'.size), (content.index('</en-note>') - i1))
+	end
+
+	def self.parseContent (parent_id, content)
+		puts self.trimContent content
+		# descendant = {
+		# 	:parent_id => data[:eng],
+		# 	:title => data[:content],
+		# 	:guid => SecureRandom.uuid,
+		# 	:eng => nil,
+		# 	:rank => 1,
+		# 	:depth => 1,
+		# 	:fresh => false,
+		# 	:collapsed => false
+		# }
+		# puts descendant
+		# descendant = Note.new(descendant)
+		# descendant.save
+
 	end
 
 	def self.getLastRank
@@ -132,7 +145,6 @@ class Note < ActiveRecord::Base
 	end
 
 	def self.updateBranch (data)
-		puts "NO REASON TO COME DOWN HERE MOFO"
 	end
 
 	def self.setDefaultAttributes (data)
