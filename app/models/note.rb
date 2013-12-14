@@ -147,6 +147,27 @@ class Note < ActiveRecord::Base
 		end
 		rec.call content
 
+		preceding = {:depth => 0, :title => "who cares!", :guid => parent_id}
+		parents = [{:guid => parent_id, :next_rank => 1}]
+		notes2 = notes
+		notes2.each do |n|
+			parent = parents[n[:depth] - 1]
+			if n[:depth] > preceding[:depth]
+				parents[preceding[:depth]] = {:guid => preceding[:guid], :next_rank => 2}
+				n[:rank] = 1
+				n[:parent_id] = preceding[:guid]
+			elsif n[:depth] < preceding[:depth]
+				n[:rank] = parent[:next_rank]
+				n[:parent_id] = parent[:guid]
+				parent[:next_rank] += 1
+			else
+				n[:rank] = parent[:next_rank]
+				n[:parent_id] = parent[:guid]
+				parent[:next_rank] += 1
+			end
+			preceding = n
+		end
+
 		# makeNote = -> (current, rest, preceding) do
 		# 	return if current.nil?
 
