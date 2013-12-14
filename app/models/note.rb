@@ -114,11 +114,79 @@ class Note < ActiveRecord::Base
 
 	# this obscur code retrieve what is between <en-note>...</en-note> and trims the rest
 	def self.trimContent (content)
-		content.slice((i1 = content.index('<en-note>') + '<en-note>'.size), (content.index('</en-note>') - i1))
+		content = content.slice((i1 = content.index('<en-note>') + '<en-note>'.size), (content.index('</en-note>') - i1))
+		content.gsub />(\s)+</, '><' # Delete space between <tags>
+	end
+
+	def self.processNextTag (content)
+			
+	end
+
+	def self.getContentNextLi (content)
+		content.slice '<li>'.size, content.index('</li>') - '<li>'.size
 	end
 
 	def self.parseContent (parent_id, content)
-		puts self.trimContent content
+		puts content = self.trimContent content
+		notes = []
+		indentation = 0
+		rec = -> (content) do
+			if not (test = content.index('<ul>')).nil? and test.zero?
+				indentation +=1
+				rec.call content.slice content.index('<li>'), content.size
+			elsif not (test = content.index('</ul>')).nil? and test.zero?
+				indentation -=1
+				rec.call content.slice '</ul>'.size, content.size
+			elsif not (test = content.index('<li>')).nil? and test.zero?
+				title = self.getContentNextLi content
+				notes.push :depth => indentation, :title => title, :guid => SecureRandom.uuid
+				rec.call(content.slice content.index('</li>') + '</li>'.size, content.size)
+			else
+				notes
+			end
+		end
+		rec.call content
+
+		# makeNote = -> (current, rest, preceding) do
+		# 	return if current.nil?
+
+		# end
+		# depth = 0
+		# currentObject = ""
+		# nextMatch = "<"
+		# content.each do |c|
+		# 	if c != nextMatch
+		# 		currentObject += c
+		# 	elsif nextMatch = '<'
+						 
+		# 	end
+		# 	if nextMatch == c
+				
+		# 	end
+		# 	# if c == '<'
+		# 	# 	currentObject = c
+		# 	# 	nextMatch = '>'
+		# 	# end
+			
+		# end
+		# rec = -> (content) do
+		# 	# return if (currentUl = content.index('<ul>')).nil?
+		# 	currentUl = content.index('<ul>')
+		# 	if currentUl.zero?
+		# 		depth+=1
+		# 		nextUl = content.index('<ul>',4)
+		# 		while (nextLi = content.index('<li>') + '<li>'.size) < nextUl
+		# 			closingLi = content.index '</li>'
+		# 			sliceLength = closingLi - nextLi
+		# 			content.slice nextLi, sliceLength
+		# 		end
+		# 	end
+			
+		# 	nextClosing = content.index('</ul>')
+		# 	if nextClosing > currentUl
+				
+		# 	end
+		# end
 		# descendant = {
 		# 	:parent_id => data[:eng],
 		# 	:title => data[:content],
