@@ -1,4 +1,4 @@
-class Users::SessionsController < Devise::RegistrationsController
+class Users::UnlocksController < Devise::RegistrationsController
 
   def edit
     super
