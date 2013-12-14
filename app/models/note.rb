@@ -74,8 +74,12 @@ class Note < ActiveRecord::Base
 		branchData.each do |data|
 			branch = Note.where("eng = '#{data[:eng]}'").first
 			data[:content] = self.digestEvernoteContent data[:content]
-			if branch.nil? then self.createBranch data, rank else self.updateBranch data end		
-			rank += 1
+			if branch.nil?
+				rank += 1
+				self.createBranch data, rank 
+			else
+				self.updateBranch data
+			end		
 		end
 	end
 
@@ -121,7 +125,7 @@ class Note < ActiveRecord::Base
 	def self.getLastRank
 		lastNote = Note.order("depth, rank DESC").first
 		if lastNote.nil?
-			1
+			0
 		else
 			lastNote.rank
 		end
