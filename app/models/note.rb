@@ -115,7 +115,6 @@ class Note < ActiveRecord::Base
 			:fresh => false,
 			:collapsed => false
 		}
-		puts branch
 		
 		branch = Note.new(branch)
 		branch.save
@@ -139,11 +138,12 @@ class Note < ActiveRecord::Base
 	# this obscur code retrieve what is between <en-note>...</en-note> and trims the rest
 	def self.trimContent (content)
 		
-		if not content.index('<en-note>').nil? 
-			content = content.slice((i1 = content.index('<en-note>') + '<en-note>'.size), (content.index('</en-note>') - i1))
+		if not content.index(/<en-note( .*?)>/).nil? 
+			content = content.slice((i1 = content.index($~[0]) + $~[0].size), (content.index('</en-note>') - i1))
 		end
 		content = content.gsub />(\s)+</, '><' # Delete space between <tags>
 		content = content.gsub /<(\/)?(?!ul|li)([\w\s',"=]*)(\/)?>/, '' #strip out any other not li tags
+		content = content.gsub /<li (.*?)style=('|").*?none.*?('|")(.*?)>/, '' # To strip out hidden li added by mce editor in evernote
 		content = content.gsub /<li( .*?)?>/, '<li>' # Strip <li|ul style="".. or w/e could be in the tag as well
 		content = content.gsub /<ul( .*?)?>/, '<ul>'
 		content = content.gsub /<\/li>/, '' # Strip out closing li
