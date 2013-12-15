@@ -62,13 +62,15 @@ class Note < ActiveRecord::Base
 	def self.deleteBranch (branch)
 		return false if branch.nil?
 		self.decreaseRankOfFollowing branch.rank
+		self.deleteDescendants branch
+		Note.find(branch[:id]).destroy
+	end
+
+	def self.deleteDescendants (branch)
 		descendantList = Note.getCompleteDescendantList branch
 		descendantList.each do |b|
-			puts "destroy #{b[:title]}"
 			Note.find(b[:id]).destroy
 		end
-		Note.find(branch[:id]).destroy
-		puts "destroy root #{branch[:title]}"
 	end
 
 	def self.decreaseRankOfFollowing (rank)
@@ -94,6 +96,11 @@ class Note < ActiveRecord::Base
 		end
 	end
 
+	def self.updateBranch (data)
+		branch = Note.where("eng = #{data[:eng]}")
+		self.deleteDescendants branch
+	end
+
 	def self.createBranch (data, rank)
 		puts "ARe you coming her?"
 		branch = {
@@ -110,21 +117,20 @@ class Note < ActiveRecord::Base
 		
 		branch = Note.new(branch)
 		branch.save
-		puts "CONTENT #{data[:content]}"
-		descendants = self.parseContent(branch.guid, data[:content])
+		self.createDescendants data
+		branch
+	end
+
+	def self.createDescendants (data)
+		descendants = data[:content]
 		descendants.each do |d|
 			descendant = Note.new d
 			descendant.save
 		end
-		# descendant[:parent_id] = 'root'
-		# descendant[:title] = data[:content]
-		# descendant[:guid] = #{SecureRandom.uuid}
-		# descendant[:eng] = nil
-		# descendant[:rank] = self.getLastRank
-		# descendant[:depth] = 0
-		# descendant[:fresh] = false
-		# descendant[:collapsed] = false
-		branch
+	end
+
+	def self.digestEvernoteContent (content)
+		self.parseContent content
 	end
 
 	# this obscur code retrieve what is between <en-note>...</en-note> and trims the rest
@@ -195,60 +201,6 @@ class Note < ActiveRecord::Base
 		end
 
 		notes
-		# makeNote = -> (current, rest, preceding) do
-		# 	return if current.nil?
-
-		# end
-		# depth = 0
-		# currentObject = ""
-		# nextMatch = "<"
-		# content.each do |c|
-		# 	if c != nextMatch
-		# 		currentObject += c
-		# 	elsif nextMatch = '<'
-						 
-		# 	end
-		# 	if nextMatch == c
-				
-		# 	end
-		# 	# if c == '<'
-		# 	# 	currentObject = c
-		# 	# 	nextMatch = '>'
-		# 	# end
-			
-		# end
-		# rec = -> (content) do
-		# 	# return if (currentUl = content.index('<ul>')).nil?
-		# 	currentUl = content.index('<ul>')
-		# 	if currentUl.zero?
-		# 		depth+=1
-		# 		nextUl = content.index('<ul>',4)
-		# 		while (nextLi = content.index('<li>') + '<li>'.size) < nextUl
-		# 			closingLi = content.index '</li>'
-		# 			sliceLength = closingLi - nextLi
-		# 			content.slice nextLi, sliceLength
-		# 		end
-		# 	end
-			
-		# 	nextClosing = content.index('</ul>')
-		# 	if nextClosing > currentUl
-				
-		# 	end
-		# end
-		# descendant = {
-		# 	:parent_id => data[:eng],
-		# 	:title => data[:content],
-		# 	:guid => SecureRandom.uuid,
-		# 	:eng => nil,
-		# 	:rank => 1,
-		# 	:depth => 1,
-		# 	:fresh => false,
-		# 	:collapsed => false
-		# }
-		# puts descendant
-		# descendant = Note.new(descendant)
-		# descendant.save
-
 	end
 
 	def self.getLastRank
@@ -260,19 +212,12 @@ class Note < ActiveRecord::Base
 		end
 	end
 
-	def self.updateBranch (data)
-	end
-
 	def self.setDefaultAttributes (data)
 		defaults = {
 			:collapsed => false,
 			:fresh => false,
 			:guid => data[:eng],
 		}
-	end
-
-	def self.digestEvernoteContent (content)
-		content
 	end
 
 	def self.freshBranches? (descendantList)
