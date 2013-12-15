@@ -121,7 +121,9 @@ class Note < ActiveRecord::Base
 	def self.trimContent (content)
 		content = content.slice((i1 = content.index('<en-note>') + '<en-note>'.size), (content.index('</en-note>') - i1))
 		content = content.gsub />(\s)+</, '><' # Delete space between <tags>
-		content.gsub /<(\/)?(?!ul|li)([\w\s',"=]*)(\/)?>/, ''
+		content = content.gsub /<li( .*?)?>/, '<li>'
+		content = content.gsub /<ul( .*?)?>/, '<ul>'
+		content = content.gsub /<(\/)?(?!ul|li)([\w\s',"=]*)(\/)?>/, ''
 	end
 
 	def self.processNextTag (content)
