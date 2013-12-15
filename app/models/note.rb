@@ -86,7 +86,6 @@ class Note < ActiveRecord::Base
 		rank = self.getLastRank
 		branchData.each do |data|
 			branch = Note.where("eng = '#{data[:eng]}'").first
-			data[:content] = self.digestEvernoteContent data[:content]
 			if branch.nil?
 				rank += 1
 				self.createBranch data, rank 
@@ -97,8 +96,11 @@ class Note < ActiveRecord::Base
 	end
 
 	def self.updateBranch (data)
-		branch = Note.where("eng = #{data[:eng]}")
+		branch = Note.where("eng = '#{data[:eng]}'").first
+		data[:content] = self.digestEvernoteContent branch.guid, data[:content]
 		self.deleteDescendants branch
+		Note.update(branch.id, :title => data[:title])
+		self.createDescendants data
 	end
 
 	def self.createBranch (data, rank)
@@ -117,6 +119,7 @@ class Note < ActiveRecord::Base
 		
 		branch = Note.new(branch)
 		branch.save
+		data[:content] = self.digestEvernoteContent branch.guid, data[:content]
 		self.createDescendants data
 		branch
 	end
@@ -129,8 +132,8 @@ class Note < ActiveRecord::Base
 		end
 	end
 
-	def self.digestEvernoteContent (content)
-		self.parseContent content
+	def self.digestEvernoteContent (parent_id, content)
+		self.parseContent parent_id, content
 	end
 
 	# this obscur code retrieve what is between <en-note>...</en-note> and trims the rest
