@@ -119,11 +119,15 @@ class Note < ActiveRecord::Base
 
 	# this obscur code retrieve what is between <en-note>...</en-note> and trims the rest
 	def self.trimContent (content)
-		content = content.slice((i1 = content.index('<en-note>') + '<en-note>'.size), (content.index('</en-note>') - i1))
+		
+		if not content.index('<en-note>').nil? 
+			content = content.slice((i1 = content.index('<en-note>') + '<en-note>'.size), (content.index('</en-note>') - i1))
+		end
 		content = content.gsub />(\s)+</, '><' # Delete space between <tags>
-		content = content.gsub /<li( .*?)?>/, '<li>'
+		content = content.gsub /<(\/)?(?!ul|li)([\w\s',"=]*)(\/)?>/, '' #strip out any other not li tags
+		content = content.gsub /<li( .*?)?>/, '<li>' # Strip <li|ul style="".. or w/e could be in the tag as well
 		content = content.gsub /<ul( .*?)?>/, '<ul>'
-		content = content.gsub /<(\/)?(?!ul|li)([\w\s',"=]*)(\/)?>/, ''
+		content = content.gsub /<\/li>/, '' # Strip out closing li
 	end
 
 	def self.processNextTag (content)
@@ -131,7 +135,8 @@ class Note < ActiveRecord::Base
 	end
 
 	def self.getContentNextLi (content)
-		content.slice '<li>'.size, content.index('</li>') - '<li>'.size
+		t = content.slice '<li>'.size, content.index(/<(\/)?(li|ul)>/, 4) - '<li>'.size
+		{:title  => t, :index => $~.begin(0)}
 	end
 
 	def self.parseContent (parent_id, content)
@@ -139,6 +144,7 @@ class Note < ActiveRecord::Base
 		notes = []
 		indentation = 0
 		rec = -> (content) do
+			return notes if content.index(/<(ul|li)>/).nil?
 			if not (test = content.index('<ul>')).nil? and test.zero?
 				indentation +=1
 				rec.call content.slice content.index('<li>'), content.size
@@ -146,9 +152,11 @@ class Note < ActiveRecord::Base
 				indentation -=1
 				rec.call content.slice '</ul>'.size, content.size
 			elsif not (test = content.index('<li>')).nil? and test.zero?
-				title = self.getContentNextLi content
+				hash = self.getContentNextLi content
+				title = hash[:title]
+				index = hash[:index]
 				notes.push :depth => indentation, :title => title, :guid => SecureRandom.uuid
-				rec.call(content.slice content.index('</li>') + '</li>'.size, content.size)
+				rec.call(content.slice index, content.size)				
 			else
 				notes
 			end
