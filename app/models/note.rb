@@ -61,13 +61,23 @@ class Note < ActiveRecord::Base
 
 	def self.deleteBranch (branch)
 		return false if branch.nil?
+		self.decreaseRankOfFollowing branch.rank
 		descendantList = Note.getCompleteDescendantList branch
 		descendantList.each do |b|
 			puts "destroy #{b[:title]}"
-			# Note.find(b[:id]).destroy
+			Note.find(b[:id]).destroy
 		end
-		# Note.find(branch[:id]).destroy
+		Note.find(branch[:id]).destroy
 		puts "destroy root #{branch[:title]}"
+	end
+
+	def self.decreaseRankOfFollowing (rank)
+		notes = Note.where("depth = 0")
+		notes.each do |n|
+			if n.rank > rank
+				Note.update(n.id, :rank => n.rank - 1)
+			end
+		end
 	end
 
 	def self.receiveBranches (branchData)
