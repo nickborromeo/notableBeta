@@ -89,25 +89,41 @@ class EvernoteController < ApplicationController
 	end
 
 	def sync
-		noteData = Note.compileRoot
+		notableData = Note.compileRoot
 		syncState = getSyncState
 		puts "serverLastFUllSync: #{syncState.fullSyncBefore}"
 		fullSyncBefore = Time.at(syncState.fullSyncBefore/1000)
-		evernoteData = if current_user.last_full_sync.nil? or serverLastFullSync > current_user.last_full_sync
+		evernoteData = if current_user.last_full_sync.nil? or fullSyncBefore > current_user.last_full_sync
 										 fullSync syncState
 									 else 
 										 incrementalSync syncState
 									 end
 
 		# User.update current_user.id, :lastUpdateCount => evernoteData[:lastChunk].updateCount, :lastSyncTime => evernoteData[:lastChunk].time
-		changedBranches = processExpungedAndDeletion evernoteData
-		receiveRootBranches changedBranches
-		# begin
-		# 	deliverRootBranch(noteData)
-		# rescue => e
-		# 	puts e.message
-		# end
+		if not evernoteData.nil?
+			changedBranches = processExpungedAndDeletion evernoteData
+			changedBranches = resolveConflicts notableData, changedBranches
+			begin
+				receiveRootBranches changedBranches
+			rescue => e
+				puts e.message
+			end
+		end
+		begin
+			deliverRootBranch(notableData)
+		rescue => e
+			puts e.message
+		end
+		if not evernoteData.nil?
+			User.update(current_user.id, :last_update_count => evernoteData[:lastChunk].updateCount, :last_full_sync => Time.at(evernoteData[:lastChunk].currentTime/1000))
+		end
 		redirect_to root_url
+	end
+
+	def resolveConflicts (notableData, evernoteData)
+		evernoteData.delete_if do |n|
+			not (notableData.index {|b| n.guid == b[:eng]}).nil?
+		end
 	end
 
 	def filterNils (evernoteNotes)
@@ -115,9 +131,7 @@ class EvernoteController < ApplicationController
 	end
 
 	def processExpungedAndDeletion (evernoteData)
-		puts "evernote notes : #{evernoteData[:notes]}"
 		filterNils(evernoteData[:notes]).delete_if do |n|
-			puts "title: #{n.title}, eng: #{n.guid}, deleted: #{n.deleted}"
 			if not n.deleted.nil?
 				evernoteData[:deleted].push n.guid
 				true
@@ -133,9 +147,6 @@ class EvernoteController < ApplicationController
 		branchData = []
 		branches.each do |b|
 			content = note_store.getNoteContent(b.guid)
-			# puts n.title
-			# puts content
-			puts "note tile: #{b.title}, deleted at #{b.deleted} and created at #{b.created}"
 			branchData.push :eng => b.guid, :title => b.title, :content => content
 		end
 		Note.receiveBranches branchData
@@ -161,7 +172,7 @@ class EvernoteController < ApplicationController
 		rec.call lastChunk
 		{ :notes => notes,
 			:deleted => deleted,
-			:lastChunked => lastChunk }
+			:lastChunk=> lastChunk }
 	end
 
 	def getSyncChunk(afterUSN, maxEntries)
@@ -176,6 +187,7 @@ class EvernoteController < ApplicationController
 	
 	def deliverRootBranch(noteData)
 		notebook = getDefaultNotebook
+		last_sync = current_user.last_full_sync
 		noteData.each do |note|
 			note_content = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>"
 			note_content += "<!DOCTYPE en-note SYSTEM \"http://xml.evernote.com/pub/enml2.dtd\">"
@@ -195,30 +207,32 @@ class EvernoteController < ApplicationController
 			
 			## Attempt to create note in Evernote account
 			begin
-				puts "--------------------"
-				if Time.now < note[:created_at]
-					new_note = note_store.createNote(enml_note)
-					puts "create a note"
+				if last_sync < note[:created_at]
+					new_note = note_store.createNote(current_user.token_credentials, enml_note)
 				else
 					puts enml_note.guid
-					puts "updated a note"
-					new_note = note_store.updateNote(current_user.token_credentials, enml_note)
+					# if notable and evernote are not sync (time) a created note might be considered an update
+					begin
+						new_note = note_store.updateNote(current_user.token_credentials, enml_note)
+					rescue Evernote::EDAM::Error::EDAMUserException => eue
+						if eue.parameter == 'Note.guid'
+							new_note = note_store.createNote(current_user.token_credentials, enml_note)
+						else
+							throw eue
+						end
+					end
 				end
 			rescue Evernote::EDAM::Error::EDAMUserException => eue
 				## Something was wrong with the note data
 				## See EDAMErrorCode enumeration for error code explanation
 				## http://dev.evernote.com/documentation/reference/Errors.html#Enum_EDAMErrorCode
-				puts "EDAMUserException: #{eue}"
+				puts "EDAMUserException: #{eue.errorCode}"
+				puts "EDAMUserException: #{eue.parameter}"
 			rescue Evernote::EDAM::Error::EDAMNotFoundException => enfe
 				## Parent Notebook GUID doesn't correspond to an actual notebook
 				puts "Error: identifier: #{enfe.identifier}, key: #{enfe.key}"
 			end
-			puts "guid sent: #{enml_note.guid}, received: #{new_note.guid}"
-			puts "title sent: #{enml_note.title}, title received : #{new_note.title}"
-			puts "notebook guid sent: #{enml_note.notebookGuid}, received: #{new_note.notebookGuid}"
-			puts "guid sent: #{enml_note.guid}, received: #{new_note.guid}"
-			# Note.update(note[:id], {:fresh => false})
-			# Note.update(note[:id], :eng => new_note.guid)
+			Note.update(note[:id], :eng => new_note.guid)
 		end
 		Note.update_all("fresh = false")
 	end
