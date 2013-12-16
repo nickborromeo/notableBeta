@@ -137,7 +137,7 @@ class Note < ActiveRecord::Base
 
 	# this obscur code retrieve what is between <en-note>...</en-note> and trims the rest		
 	def self.retrieveContentFromEnml (content)
-		if not content.index(/<en-note( .*?)>/).nil? 
+		if not content.index(/<en-note( .*?)?>/).nil? 
 			content = content.slice((i1 = content.index($~[0]) + $~[0].size), (content.index('</en-note>') - i1))
 		end
 		content
@@ -148,26 +148,29 @@ class Note < ActiveRecord::Base
 
 	def self.trimContent (content)
 		content = self.retrieveContentFromEnml content
+		content = self.transformPlainText content if content.index('<ul>').nil?
 		content = content.gsub />(\s)+</, '><' # Delete space between <tags>
-		content = content.gsub /<(\/)?(?!ul|li)([\w\s',"=]*)(\/)?>/, '' #strip out any other not li tags
+		content = content.gsub /<(\/)?(?!ul|li)([\w\s',"=]*)(\/)?>/, '' # strip out any other not li or ul tags
 		content = content.gsub /<li (.*?)style=('|").*?none.*?('|")(.*?)>/, '' # To strip out hidden li added by mce editor in evernote
 		content = content.gsub /<li( .*?)?>/, '<li>' # Strip <li|ul style="".. or w/e could be in the tag as well
 		content = content.gsub /<ul( .*?)?>/, '<ul>'
 		content = content.gsub /<\/li>/, '' # Strip out closing li
 		if content.match /<ul>(<ul>)+/
-			content = content.gsub /<(\/)?ul>/, ''
+			content = content.gsub /<(\/)?ul>/, '' # stip out all uls
 			content = '<ul>' + content + '</ul>'
 		end
 		content
 	end
 
-	def self.processNextTag (content)
-			
-	end
-
 	def self.getContentNextLi (content)
 		t = content.slice '<li>'.size, content.index(/<(\/)?(li|ul)>/, 4) - '<li>'.size
 		{:title  => t, :index => $~.begin(0)}
+	end
+
+	def self.transformPlainText (content)
+		content = content.gsub '<div></div>', ''
+		content = content.gsub '<div>', '<li>'
+		content = '<ul>' + content + '</ul>'
 	end
 
 	def self.parseContent (parent_id, content)
