@@ -171,6 +171,7 @@ class Note < ActiveRecord::Base
 	def self.transformPlainText (content)
 		content = content.gsub '<div></div>', ''
 		content = content.gsub '<div>', '<li>'
+		content = content.gsub '<p>', '<li>'
 		content = '<ul>' + content + '</ul>' if not content.index('<ul>').zero?
 		content
 	end
