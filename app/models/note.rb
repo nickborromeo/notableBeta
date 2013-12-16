@@ -148,7 +148,7 @@ class Note < ActiveRecord::Base
 
 	def self.trimContent (content)
 		content = self.retrieveContentFromEnml content
-		content = self.transformPlainText content if content.index('<ul>').nil?
+		content = self.transformPlainText content # if content.index('<ul>').nil?
 		content = content.gsub />(\s)+</, '><' # Delete space between <tags>
 		content = content.gsub /<(\/)?(?!ul|li|ol)([\w\s',"=]*)(\/)?>/, '' # strip out any other not li or ul tags
 		content = content.gsub /<li (.*?)style=('|").*?none.*?('|")(.*?)>/, '' # To strip out hidden li added by mce editor in evernote
@@ -171,7 +171,8 @@ class Note < ActiveRecord::Base
 	def self.transformPlainText (content)
 		content = content.gsub '<div></div>', ''
 		content = content.gsub '<div>', '<li>'
-		content = '<ul>' + content + '</ul>'
+		content = '<ul>' + content + '</ul>' if not content.index('<ul>').zero?
+		content
 	end
 
 	def self.parseContent (parent_id, content)
