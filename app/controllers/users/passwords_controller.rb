@@ -1,4 +1,4 @@
-class Users::PasswordsController < Devise::RegistrationsController
+class Users::PasswordsController < Devise::PasswordsController
 
   def edit
     super
