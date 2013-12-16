@@ -150,8 +150,9 @@ class Note < ActiveRecord::Base
 		content = self.retrieveContentFromEnml content
 		content = self.transformPlainText content if content.index('<ul>').nil?
 		content = content.gsub />(\s)+</, '><' # Delete space between <tags>
-		content = content.gsub /<(\/)?(?!ul|li)([\w\s',"=]*)(\/)?>/, '' # strip out any other not li or ul tags
+		content = content.gsub /<(\/)?(?!ul|li|ol)([\w\s',"=]*)(\/)?>/, '' # strip out any other not li or ul tags
 		content = content.gsub /<li (.*?)style=('|").*?none.*?('|")(.*?)>/, '' # To strip out hidden li added by mce editor in evernote
+		content = content.gsub /<ol( .*?)?>/, '<ul>' # Strip <li|ul style="".. or w/e could be in the tag as well
 		content = content.gsub /<li( .*?)?>/, '<li>' # Strip <li|ul style="".. or w/e could be in the tag as well
 		content = content.gsub /<ul( .*?)?>/, '<ul>'
 		content = content.gsub /<\/li>/, '' # Strip out closing li
