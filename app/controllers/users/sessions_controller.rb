@@ -5,7 +5,6 @@ class Users::SessionsController < Devise::SessionsController
 
   def create
   	super
-  	puts "---------- create session from SessionsController ---------"
   end
 
 end

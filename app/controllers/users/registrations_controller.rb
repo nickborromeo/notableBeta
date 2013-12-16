@@ -8,12 +8,10 @@ class Users::RegistrationsController < Devise::RegistrationsController
 
   def create
     super
-    puts "---------- create user from RegistrationsController ---------"
   end
 
   def update
     super
-    puts "---------- update user from RegistrationsController ---------"
   end
 
   private
