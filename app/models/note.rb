@@ -135,18 +135,30 @@ class Note < ActiveRecord::Base
 		self.parseContent parent_id, content
 	end
 
-	# this obscur code retrieve what is between <en-note>...</en-note> and trims the rest
-	def self.trimContent (content)
-		
+	# this obscur code retrieve what is between <en-note>...</en-note> and trims the rest		
+	def self.retrieveContentFromEnml (content)
 		if not content.index(/<en-note( .*?)>/).nil? 
 			content = content.slice((i1 = content.index($~[0]) + $~[0].size), (content.index('</en-note>') - i1))
 		end
+		content
+	end
+
+	def self.dispatchParsing 
+	end
+
+	def self.trimContent (content)
+		content = self.retrieveContentFromEnml content
 		content = content.gsub />(\s)+</, '><' # Delete space between <tags>
 		content = content.gsub /<(\/)?(?!ul|li)([\w\s',"=]*)(\/)?>/, '' #strip out any other not li tags
 		content = content.gsub /<li (.*?)style=('|").*?none.*?('|")(.*?)>/, '' # To strip out hidden li added by mce editor in evernote
 		content = content.gsub /<li( .*?)?>/, '<li>' # Strip <li|ul style="".. or w/e could be in the tag as well
 		content = content.gsub /<ul( .*?)?>/, '<ul>'
 		content = content.gsub /<\/li>/, '' # Strip out closing li
+		if content.match /<ul>(<ul>)+/
+			content = content.gsub /<(\/)?ul>/, ''
+			content = '<ul>' + content + '</ul>'
+		end
+		content
 	end
 
 	def self.processNextTag (content)
@@ -163,7 +175,6 @@ class Note < ActiveRecord::Base
 		notes = []
 		indentation = 0
 		rec = -> (content) do
-			return notes if content.index(/<(ul|li)>/).nil?
 			if not (test = content.index('<ul>')).nil? and test.zero?
 				indentation +=1
 				rec.call content.slice content.index('<li>'), content.size
@@ -175,7 +186,7 @@ class Note < ActiveRecord::Base
 				title = hash[:title]
 				index = hash[:index]
 				notes.push :depth => indentation, :title => title, :guid => SecureRandom.uuid
-				rec.call(content.slice index, content.size)				
+				rec.call(content.slice index, content.size)
 			else
 				notes
 			end
