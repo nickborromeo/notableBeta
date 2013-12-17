@@ -44,10 +44,15 @@ class NotesController < ApplicationController
   # DELETE /notes/1.json
   def destroy
     @note = Note.find(params[:id])
-		Note.update(@note.id, :trashed => true)
+		if @note.parent_id == 'root'
+			Note.update(@note.id, :trashed => true)
+		else
+			@note.destroy
+		end
     respond_with(@note) do |format|
       format.html { redirect_to notes_url }
       format.json { head :no_content }
     end
   end
 end
+

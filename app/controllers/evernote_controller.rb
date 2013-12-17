@@ -90,6 +90,7 @@ class EvernoteController < ApplicationController
 
 	def sync
 		notableData = Note.compileRoot
+		notableTrashed = Note.getTrashed
 		syncState = getSyncState
 		puts "serverLastFUllSync: #{syncState.fullSyncBefore}"
 		fullSyncBefore = Time.at(syncState.fullSyncBefore/1000)
@@ -100,17 +101,19 @@ class EvernoteController < ApplicationController
 									 end
 
 		# User.update current_user.id, :lastUpdateCount => evernoteData[:lastChunk].updateCount, :lastSyncTime => evernoteData[:lastChunk].time
+		puts notableTrashed.each do |t| puts t.guid; puts t.title; puts t.eng end
 		if not evernoteData.nil?
 			changedBranches = processExpungedAndDeletion evernoteData
-			changedBranches = resolveConflicts notableData, changedBranches
-			begin
-				receiveRootBranches changedBranches
-			rescue => e
-				puts e.message
-			end
+			changedBranches = resolveConflicts notableData, notableTrashed, changedBranches
+			# begin
+			receiveRootBranches changedBranches
+			# rescue => e
+			# 	puts e.message
+			# end
 		end
 		begin
 			deliverRootBranch(notableData)
+			trashRootBranch(notableTrashed)
 		rescue => e
 			puts e.message
 		end
@@ -120,9 +123,17 @@ class EvernoteController < ApplicationController
 		redirect_to root_url
 	end
 
-	def resolveConflicts (notableData, evernoteData)
+	def trashRootBranch(notableTrashed)
+		notableTrashed.each do |t|
+			note_store.deleteNote(current_user.token_credentials, t.eng) if not t.eng.nil?
+			Note.deleteBranch t
+		end
+	end
+
+	def resolveConflicts (notableData, notableTrashed, evernoteData)
 		evernoteData.delete_if do |n|
-			not (notableData.index {|b| n.guid == b[:eng]}).nil?
+			not (notableData.index {|b| n.guid == b[:eng]}).nil? or
+				not (notableTrashed.index {|t| n.guid == t.eng}).nil?
 		end
 	end
 
@@ -172,7 +183,7 @@ class EvernoteController < ApplicationController
 		rec.call lastChunk
 		{ :notes => notes,
 			:deleted => deleted,
-			:lastChunk=> lastChunk }
+			:lastChunk => lastChunk }
 	end
 
 	def getSyncChunk(afterUSN, maxEntries)
