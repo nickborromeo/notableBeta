@@ -3,7 +3,7 @@ class NotesController < ApplicationController
 
   # GET /notes.json
   def index
-    @notes = Note.order("depth").order("rank")
+    @notes = Note.where("trashed = false").order("depth").order("rank")
     respond_with(@notes)
   end
 
@@ -44,7 +44,7 @@ class NotesController < ApplicationController
   # DELETE /notes/1.json
   def destroy
     @note = Note.find(params[:id])
-    @note.destroy
+		Note.update(@note.id, :trashed => true)
     respond_with(@note) do |format|
       format.html { redirect_to notes_url }
       format.json { head :no_content }
