@@ -24,9 +24,31 @@ body {
 label {
 	font: 14px Tahoma, Helvetica, Arial, sans-serif;
 }
-h2
 .container {
 	padding: 0;
+
+	.alert {
+		margin: 0;
+		padding: 0.7em 1.2em 0.7em 1.4em;
+		border: none;
+		.close {
+			position: relative;
+			bottom: 0.05em;
+			opacity: 0.8;
+			font-size: 1.4em;
+		}
+		&.alert-danger {
+			> .close { color: $notableRed; }
+			color: $notableRed;
+			border-color: rgba(237, 24, 85, 0.8);
+		}
+		&.alert-success {
+			> .close { color: $notableGreen; }
+			color: $notableGreen;
+			border-color: rgba(88, 199, 71, 0.8);
+		}
+	}
+
 }
 
 /* --------------HEADER REGION ------------------ */
@@ -140,6 +162,15 @@ footer {
 		padding: 0 15px;
 		margin-top: 57px;
 		max-width: $screen-sm;
+
+		.alert {
+			padding: 0.42em 1.0em 0.42em 1.2em;
+			width: 65%;
+			position: relative;
+			top: 2.53em;
+			left: 8em;
+			border: 1px solid transparent;
+		}
 	}
 
 	nav {
@@ -257,6 +288,11 @@ footer {
 	.container {
 		max-width: $screen-md;
 		margin-top: 60px;
+		.alert {
+			width: 48em;
+			top: 2.63em;
+			left: 7.7em;
+		}
 	}
 
 	nav {
@@ -307,4 +343,5 @@ footer {
 // ---------------DESKTOP MEDIA QUERIES ---------------
 // ----------------------------------------------------
 @media (min-width: $screen-lg) {
+	.container .alert { left: 7.9em; }
 }

@@ -1,6 +1,7 @@
 <% if user_signed_in? %>
 	<%= render 'scaffold/header_in' %>
 	<div class="container">
+		<%= render 'static/flash_msg' %>
 		<div id="message-region"></div>
 		<div id="content-region"></div>
 		<div id="sidebar-region"></div>

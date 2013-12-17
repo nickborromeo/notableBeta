@@ -10,7 +10,7 @@
 		#   App.Notify.alert 'connectionLost', 'danger', {selfDestruct: false}
 
 
-	# Variables and Settings
+	# Private Variables and Settings
 	@_alertTimeOut = 7000
 	@_fadeOutTime = 400
 
@@ -27,16 +27,14 @@
 		synced: "Changes synced."
 		deleted: "Note deleted. <a class ='clickCallback'> undo </a>"
 		undo: "Change undone."
-		redo: "Change redone."
 		connectionLost: "Connection has been lost."
 		connected: "We're back online!"
 		newNote: "New note has been added."
-		moved: "Note has been moved."
 		# Danger
 		exceedPasting: "Pasting limit exceeded. Let us know if you really need to simultaneously paste more than 100 notes."
 		exportPlain: "Your notes are ready for export in plain text format."
 		exportParagraph: "Your notes are ready for export in paragraph form."
-		brokenTree: "Sorry, your notebook just broke. It was set back in its latest stable state."
+		brokenTree: "Sorry, something just broke. Your notebook was reset to its latest stable state."
 		#Upgrade
 		upgradePrompt: "Have you tried out Notable premium? Redeem a 50% discount now!"
 

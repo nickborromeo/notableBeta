@@ -1,16 +1,16 @@
 @import "../variables";
 
-$successNotifyBorder: #d6e9c6;
+$successNotifyBorder: rgba(88, 199, 71, 0.8);
 $successNotifyBackground: #dff0d8;
-$successNotifyText: #468847;
+$successNotifyText: $notableGreen;
 
 $warningNotifyBorder: #faebcc;
 $warningNotifyBackground: #fcf8e3;
 $warningNotifyText: #c09853;
 
-$dangerNotifyBorder: #ebccd1;
+$dangerNotifyBorder: rgba(237, 24, 85, 0.8);
 $dangerNotifyBackground: #f2dede;
-$dangerNotifyText: #b94a48;
+$dangerNotifyText: $notableRed;
 
 // ----------------------------------------------------
 // ----------------MOBILE FIRST CSS -------------------
@@ -28,12 +28,12 @@ $dangerNotifyText: #b94a48;
 		padding: 0;
 	}
 	.notify {
-		padding: 5px 12px;
+		padding:  0.42em 1.0em 0.42em 1.2em;
 		position: absolute;
 		z-index: 5;
 		left: -2em;
 		width: 100%;
-		margin-bottom: 0;
+		margin-bottom: 1px;
 		border-radius: 4px;
 	}
 	.alertText{
@@ -42,6 +42,9 @@ $dangerNotifyText: #b94a48;
 	.closeAlert{
 		float: right;
 		cursor: pointer;
+		font-size: 1.4em;
+		opacity: 0.8;
+		font-weight: bold;
 	}
 	.success-notification{
 		background-color: $successNotifyBackground;
