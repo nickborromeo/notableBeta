@@ -12,6 +12,7 @@
 # It's strongly recommended to check this file into your version control system.
 
 ActiveRecord::Schema.define(:version => 20131216211526) do
+# ActiveRecord::Schema.define(:version => 20131217001056) do
 
   create_table "notebooks", :force => true do |t|
     t.string   "title"
@@ -35,6 +36,7 @@ ActiveRecord::Schema.define(:version => 20131216211526) do
     t.boolean  "fresh",       :default => true
     t.string   "eng"
     t.integer  "notebook_id"
+    t.boolean  "trashed",     :default => false
   end
 
   create_table "users", :force => true do |t|
@@ -54,6 +56,8 @@ ActiveRecord::Schema.define(:version => 20131216211526) do
     t.string   "last_sign_in_ip"
     t.integer  "failed_attempts",        :default => 0,     :null => false
     t.datetime "locked_at"
+    t.integer  "last_update_count"
+    t.datetime "last_full_sync"
   end
 
   add_index "users", ["email"], :name => "index_users_on_email", :unique => true

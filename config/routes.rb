@@ -3,6 +3,7 @@ Notable::Application.routes.draw do
 
   resources :notes
   resources :evernote
+  resources :notebooks
   root :to => 'scaffold#index'
 
 

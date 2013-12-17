@@ -12,6 +12,7 @@
 		App.module("Scaffold").start()
 
 	App.addInitializer ->
+		App.module("Notebook").start()
 		App.module("Note").start()
 		App.module("Action").start()
 		# App.module("Notification").start()
