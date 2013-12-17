@@ -19,13 +19,24 @@ class Note < ActiveRecord::Base
 			currentDepth = 1
 			content = "<ul>"
 			r[:list].each do |branch|
+				content += '</li>' if branch.depth == currentDepth and not content.index('<li>').nil?
 				content += '<ul>' if branch.depth > currentDepth and currentDepth+=1
-				content += '</ul>' if branch.depth < currentDepth and currentDepth-=1
-				content += " <li>#{branch.title}</li>"
+				if branch.depth < currentDepth
+					content += '</li>'
+					currentDepth.downto(branch.depth+1).each do |level|
+						content += '</ul></li>'
+					end
+					currentDepth = branch.depth
+				end
+				content += "<li>#{branch.title}"
 			end
-			currentDepth.downto(1).each do |level|
-				content += "</ul>"
+			content += "</li>"
+			currentDepth.downto(2).each do |level|
+				content += "</ul></li>"
 			end
+			content += "</ul>"
+			puts "SENT CONTENT"
+			puts content
 			# notebookGuid = Notebook.where("id = #{r[:root].notebook_id}").first.guid
 			notebookGuid = nil
 			evernoteData.push(:title => r[:root].title,
