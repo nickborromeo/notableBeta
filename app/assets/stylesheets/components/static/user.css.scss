@@ -10,25 +10,11 @@
 #user-form {
 	width: 80%;
 	padding-left: 0;
-
-	.alert {
-		margin: 20px 0;
-		padding: 0.8em 1.4em;
-		.close {
-			position: relative;
-			bottom: 0.2em;
-			opacity: 0.8;
-		}
-		&.alert-danger>.close { color: #b94a48; }
-		&.alert-success>.close { color: $notableGreen; }
-	}
-
+	.alert { margin: 20px 0; }
+	.form-group { margin-bottom: 8px; }
 	form {
 		margin: 10% 0 5% 0;
 		&.button_to { margin-top: 3%; }
-	}
-	.form-group {
-		margin-bottom: 8px;
 	}
 }
 
@@ -65,7 +51,12 @@ span.help-block {
 @media (min-width: $screen-sm) {
 	#user-form {
 		width: 60%;
-		.alert { margin: 0 0 2em 0; }
+		.alert {
+			margin: 0 0 2em 0;
+			padding: 0.7em 1.2em 0.7em 1.4em;
+			position: static;
+			width: 100%;
+		}
 	}
 	.btn-submit {
 		width: inherit;
@@ -86,7 +77,10 @@ span.help-block {
 		padding-left: 10%;
 		display: inline-block;
 
-		.alert .close { bottom: 0.1em; }
+		.alert {
+			width: 100%;
+			.close { bottom: 0.1em; }
+		}
 	}
 }
 

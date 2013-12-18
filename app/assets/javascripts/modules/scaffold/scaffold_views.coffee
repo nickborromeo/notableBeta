@@ -16,6 +16,7 @@
 			"click .outline_icon": "applyModview"
 			"click .mindmap_icon": "applyModview"
 			"click .grid_icon": "applyModview"
+
 		createNote: ->
 			if App.Note.activeTree.models.length is 0
 				if App.Note.activeBranch is 'root'

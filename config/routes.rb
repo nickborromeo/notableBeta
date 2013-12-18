@@ -6,10 +6,11 @@ Notable::Application.routes.draw do
   resources :notebooks
   root :to => 'scaffold#index'
 
-
   get "start" => "evernote#start"
   get "finish" => "evernote#finish"
   get "sync" => "evernote#sync"
+
+  get "pricing" => "upgrade#pricing"
   # The priority is based upon order of creation:
   # first created -> highest priority.
 

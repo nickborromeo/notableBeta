@@ -1,5 +1,16 @@
 @Notable.module("Notify", (Notify, App, Backbone, Marionette, $, _) ->
-	# Private --------------------------
+	# Notify Documentation
+		# Use anywhere in JavaScript by calling:
+		#   App.Notify.alert alertType, notificationType,{options}
+		# Options include:
+		#   selfDestruct: [boolean]
+		#   destructTime: [time in ms]  // time until it is destroyed
+		#   customClickCallBack: [function]  // until it is destroyed
+		# For example:
+		#   App.Notify.alert 'connectionLost', 'danger', {selfDestruct: false}
+
+
+	# Private Variables and Settings
 	@_alertTimeOut = 7000
 	@_fadeOutTime = 400
 
@@ -16,17 +27,14 @@
 		synced: "Changes synced."
 		deleted: "Note deleted. <a class ='clickCallback'> undo </a>"
 		undo: "Change undone."
-		redo: "Change redone."
-		updating: "<i>updating data...</i>"
-		complete: "Done updating, back to learning!"
 		connectionLost: "Connection has been lost."
 		connected: "We're back online!"
 		newNote: "New note has been added."
-		moved: "Note has been moved."
-		exceedPasting: "Pasting limit exceeded. Let us know if you would really like to paste more"
-		exportPlain: "Your notes are ready for export in plain text format"
-		exportParagraph: "Your notes are ready for export in paragraph format"
-		brokenTree: "Sorry, your tree just broke. It was set back in its latest stable state"
+		# Danger
+		exceedPasting: "Pasting limit exceeded. Let us know if you really need to simultaneously paste more than 100 notes."
+		exportPlain: "Your notes are ready for export in plain text format."
+		exportParagraph: "Your notes are ready for export in paragraph form."
+		brokenTree: "Sorry, something just broke. Your notebook was reset to its latest stable state."
 
 	_alertClickCallbacks =
 		deleted: ->
@@ -57,10 +65,6 @@
 		$('.save-notification').html("<div> #{ _alertTypes[alertType]} </div>").show()
 		_timeoutID = setTimeout (=>$('.save-notification').first().fadeOut(Notify._fadeOutTime)), 3000
 
-	# Useful options:
-	#   selfDestruct: [boolean]
-	#   destructTime: [time in ms]  // time until it is destroyed
-	#   customClickCallBack: [function]  // until it is destroyed
 	@alert = (alertType, alertClass, options) ->
 		throw "invalid alert" unless _alertTypes[alertType]?
 		throw "invalid alert class" unless _notificationType[alertClass]?
