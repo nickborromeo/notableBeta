@@ -4,13 +4,19 @@ Notable::Application.routes.draw do
   resources :notes
   resources :evernote
   resources :notebooks
-  root :to => 'scaffold#index'
 
   get "start" => "evernote#start"
   get "finish" => "evernote#finish"
   get "sync" => "evernote#sync"
 
-  get "pricing" => "upgrade#pricing"
+  UpgradeController.action_methods.each do |action|
+    get "/#{action}", to: "upgrade##{action}", as: "#{action}_page"
+  end
+
+  match ':action' => 'pages#:action'
+
+  root :to => 'scaffold#index'
+
   # The priority is based upon order of creation:
   # first created -> highest priority.
 

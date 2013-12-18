@@ -1,13 +1,13 @@
 <% if user_signed_in? %>
 	<%= render 'scaffold/header_in' %>
 	<div class="container">
-		<%= render 'static/flash_msg' %>
+		<%= render 'layouts/flash_msg' %>
 		<div id="message-region"></div>
 		<div id="content-region"></div>
 		<div id="sidebar-region"></div>
 	</div>
-	<%= render 'static/uservoice' %>
+	<%= render 'layouts/uservoice' %>
 <% else %>
 	<%= render 'scaffold/header_out' %>
-	<%= render 'static/landing' %>
+	<%= render 'layouts/landing' %>
 <% end %>
