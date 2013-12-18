@@ -17,8 +17,6 @@
 			"click .mindmap_icon": "applyModview"
 			"click .grid_icon": "applyModview"
 
-		testNotifatio: ->
-			App.Notify.alert 'upgradePrompt', 'success'
 		createNote: ->
 			if App.Note.activeTree.models.length is 0
 				if App.Note.activeBranch is 'root'

@@ -15,6 +15,5 @@
 			source: '#right-sidr-center'
 			side: 'right'
 
-		$(".alert").delay(7000).fadeOut(400);
 		window.scrollTo(0,1)
 )

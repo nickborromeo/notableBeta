@@ -35,8 +35,6 @@
 		exportPlain: "Your notes are ready for export in plain text format."
 		exportParagraph: "Your notes are ready for export in paragraph form."
 		brokenTree: "Sorry, something just broke. Your notebook was reset to its latest stable state."
-		#Upgrade
-		upgradePrompt: "Have you tried out Notable premium? Redeem a 50% discount now!"
 
 	_alertClickCallbacks =
 		deleted: ->
