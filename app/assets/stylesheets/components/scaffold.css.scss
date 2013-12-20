@@ -87,9 +87,7 @@ nav {
 }
 
 /* --------------MESSAGE REGION ------------------ */
-#message-center {
-	display: none;
-}
+.message-template {	display: none; }
 
 .btn-default:focus {
 	outline: none;
@@ -253,8 +251,8 @@ footer {
 
 	}
 
+	.message-template {	display: block; }
 	#message-center {
-		display: block;
 		height: 3em;
 		padding-top: 2px;
 		.message-template {

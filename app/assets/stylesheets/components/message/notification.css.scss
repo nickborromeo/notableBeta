@@ -15,6 +15,46 @@ $dangerNotifyText: $notableRed;
 // ----------------------------------------------------
 // ----------------MOBILE FIRST CSS -------------------
 // ----------------------------------------------------
+#notification-region {
+	padding: 0;
+}
+.notify {
+	padding:  0.5em 1em 0.5em 1em;
+	z-index: 1140;
+	position: static;
+	width: 100%;
+	margin-bottom: 0;
+	border: none;
+}
+.alertText{
+
+}
+.closeAlert{
+	float: right;
+	cursor: pointer;
+	font-size: 1.4em;
+	opacity: 0.8;
+	font-weight: bold;
+}
+.success-notification{
+	background-color: $successNotifyBackground;
+	color: $successNotifyText;
+	border: 1px solid $successNotifyBorder;
+}
+.warning-notification{
+	background-color: $warningNotifyBackground;
+	color: $warningNotifyText;
+	border: 1px solid $warningNotifyBorder;
+}
+.danger-notification{
+	background-color: $dangerNotifyBackground;
+	color: $dangerNotifyText;
+	border: 1px solid $dangerNotifyBorder;
+}
+.save-notification{
+	color: $grayDark;
+}
+
 @media (max-width: $screen-sm) {
 }
 
@@ -25,79 +65,43 @@ $dangerNotifyText: $notableRed;
 	#notification-region {
 		display: inline-block;
 		width: 65%;
-		padding: 0;
 	}
 	.notify {
 		padding:  0.42em 1.0em 0.42em 1.2em;
-		z-index: 1140;
-		// position: absolute;
-		// left: -2em;
-		position: fixed;
-		left: 60%;
-		top: 0.5em;
-		width: 100%;
-		margin-bottom: 0;
+		position: absolute;
+		left: -2em;
 		border-radius: 4px;
-	}
-	.alertText{
-
-	}
-	.closeAlert{
-		float: right;
-		cursor: pointer;
-		font-size: 1.4em;
-		opacity: 0.8;
-		font-weight: bold;
-	}
-	.success-notification{
-		background-color: $successNotifyBackground;
-		color: $successNotifyText;
-		border: 1px solid $successNotifyBorder;
-	}
-	.warning-notification{
-		background-color: $warningNotifyBackground;
-		color: $warningNotifyText;
-		border: 1px solid $warningNotifyBorder;
-	}
-	.danger-notification{
-		background-color: $dangerNotifyBackground;
-		color: $dangerNotifyText;
-		border: 1px solid $dangerNotifyBorder;
-	}
-	.save-notification{
-		color: $grayDark;
+		&.save-notification {
+			position: fixed;
+			left: 60%;
+			top: 0.5em;
+		}
 	}
 }
-
 
 // ----------------------------------------------------
 // --------------LAPTOP MEDIA QUERIES -----------------
 // ----------------------------------------------------
+@media (min-width: 860px) {
+	.notify.save-notification {	left: 64%; }
+}
 @media (min-width: $screen-md) {
 	.notify {
-		// left: -3.5em;
-		left: 64.5%;
+		left: -3.5em;
 		width: 48em;
+		&.save-notification { left: 64.5%; }
 	}
 }
-
 // ----------------------------------------------------
 // ---------------DESKTOP MEDIA QUERIES ---------------
 // ----------------------------------------------------
-@media (min-width: $screen-lg) {
-	.notify {
-		left: 70%;
-	}
-}
-
-// ----------------------------------------------------
-// ---------------SPECIAL MEDIA QUERIES ---------------
-// ----------------------------------------------------
-
-@media (min-width: 860px) {
-	.notify {	left: 64%; }
-}
 @media (min-width: 1100px) {
-	.notify {	left: 68%; }
+	.notify.save-notification {	left: 68%; }
 }
+@media (min-width: $screen-lg) {
+	.notify.save-notification { left: 71%; }
+}
+
+
+
 
