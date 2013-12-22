@@ -4,6 +4,12 @@ class Note < ActiveRecord::Base
 	validates_presence_of :guid, :rank, :depth
   belongs_to :notebook
 
+  include PgSearch
+  pg_search_scope :search, against: [:title, :subtitle],
+  	using: {tsearch: {dictionary: "english"}},
+  	associated_against: {notebook: :title} #,
+  	# ignoring: :accents
+
 	def self.compileRoot
 		compiledRoots = []
 		roots = Note.where("parent_id ='root'").order(:rank)

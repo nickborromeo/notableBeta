@@ -1,5 +1,5 @@
-<header>
-<nav class="navbar-fixed-top" role="navigation">
+<header><nav class="navbar-fixed-top" role="navigation">
+	<!-- Logo Area -->
 	<div class="navbar-header row">
 		<div class="col-xs-1 xs-toggle-left">
 			<button type="button" class="btn btn-info btn-xs sidr-toggle-left">
@@ -17,35 +17,9 @@
 			</button>
 		</div>
 	</div>
-
-<% unless controller_name == 'registrations' %>
-	<ul class="nav navbar-nav navbar-right hidden-xs">
-		<li class="dropdown">
-			<a href="#" class="dropdown-toggle" data-toggle="dropdown">
-				<span class="glyphicon glyphicon-play"></span>
-			</a>
-			<ul class="dropdown-menu">
-			<% if current_user.token_credentials? %>
-				<li><%= link_to("Sync Now", sync_path) %></li>
-			<% else %>
-				<li><%= link_to("Connect to Evernote", start_path) %></li>
-			<% end %>
-				<li><a href="help">Help</a></li>
-				<li><%= link_to("Settings", edit_user_registration_path) %></li>
-				<li><a href="http://getnotable.uservoice.com/">Give Feedback</a></li>
-			<% if current_user.admin? %>
-				<li><%= link_to "Admin Console", evernote_index_path %></li>
-			<% end %>
-				<li role="presentation" class="divider"></li>
-				<li><%= link_to("Sign Out", destroy_user_session_path, {method: :delete}) %></li>
-			</ul>
-		</li>
-	</ul>
-	<form class="navbar-search navbar-right hidden-xs" role="search">
-		<input type="text" class="form-control" placeholder="Search">
-		<span  class="glyphicon glyphicon-search search-btn"></span>
-	</form>
-<% end %>
-
-</nav>
-</header>
+	<!-- Dropdown and Search -->
+	<% unless controller_name == 'registrations' %>
+		<%= render 'layouts/dropdown' %>
+		<%= render 'layouts/search' %>
+	<% end %>
+</nav></header>

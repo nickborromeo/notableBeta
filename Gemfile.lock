@@ -97,6 +97,10 @@ GEM
     oauth (0.4.7)
     orm_adapter (0.4.0)
     pg (0.16.0)
+    pg_search (0.7.2)
+      activerecord (>= 3.1)
+      activesupport (>= 3.1)
+      arel
     polyglot (0.3.3)
     quiet_assets (1.0.2)
       railties (>= 3.1, < 5.0)
@@ -177,6 +181,7 @@ DEPENDENCIES
   jasminerice!
   jquery-rails
   pg
+  pg_search
   quiet_assets
   rails (= 3.2.11)
   rails_12factor
