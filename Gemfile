@@ -18,7 +18,7 @@ gem 'bcrypt-ruby', '~> 3.1.0'
 gem 'devise'
 
 group :development, :test do
-  gem 'quiet_assets', :group => :development
+  gem 'quiet_assets'
   gem "jasminerice", :git => 'https://github.com/bradphelan/jasminerice.git'
 end
 

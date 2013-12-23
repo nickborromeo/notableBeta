@@ -9,13 +9,9 @@
 		appRoutes:
 			"zoom/:guid": "zoomIn"
 			"search?query=:query": "runSearch"
-			"foo/:page": "showPage"
 			"": "clearZoom"
 
 	Note.Controller = Marionette.Controller.extend
-		showPage: (page) ->
-			console.log page
-
 		initialize: (options) ->
 			@allNotesByDepth = new App.Note.Collection()
 			@tree = new App.Note.Tree()

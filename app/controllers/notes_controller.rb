@@ -1,19 +1,16 @@
 class NotesController < ApplicationController
   respond_to :html, :json
 
-  # GET /notes.json
   def index
     @notes = Note.where("trashed = false").order("depth").order("rank")
     respond_with(@notes)
   end
 
-  # GET /notes/1.json
   def show
     @note = Note.find(params[:id])
     respond_with @note
   end
 
-  # POST /notes.json
   def create
     @note = Note.new(params[:note])
     if @note.save
@@ -21,18 +18,8 @@ class NotesController < ApplicationController
     else
       render json: @note.errors, status: :unprocessable_entity
     end
-    # respond_with(@note) do |format|
-    #   if @note.save
-    #     format.html { redirect_to @note, notice: 'Note was successfully created.' }
-    #     format.json { render json: @note, status: :created, location: @note }
-    #   else
-    #     format.html { render action: "new" }
-    #     format.json { render json: @note.errors, status: :unprocessable_entity }
-    #   end
-    # end
   end
 
-  # PUT /notes/1.json
   def update
     @note = Note.find(params[:id])
     if @note.update_attributes(params[:note])
@@ -42,7 +29,6 @@ class NotesController < ApplicationController
     end
   end
 
-  # DELETE /notes/1.json
   def destroy
     @note = Note.find(params[:id])
 		if @note.parent_id == 'root'

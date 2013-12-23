@@ -83,15 +83,16 @@
 			@.$el.on 'keydown', null, 'ctrl+down', @triggerLocalShortcut @expand.bind @
 			@.$el.on 'keydown', null, 'ctrl+s', @triggerSaving.bind @
 			@.$el.on 'keydown', null, 'meta+s', @triggerSaving.bind @
+
 			@.$el.on 'keydown', null, 'ctrl+z', @triggerUndoEvent
 			@.$el.on 'keydown', null, 'meta+z', @triggerUndoEvent
+			# @.$el.on 'keydown', null, 'ctrl+y', @triggerRedoEvent
+			# @.$el.on 'keydown', null, 'meta+y', @triggerRedoEvent
 
 			@.$el.on 'keydown', null, 'ctrl+b meta+b', @applyStyling.bind @, 'bold'
 			@.$el.on 'keydown', null, 'ctrl+i meta+i', @applyStyling.bind @, 'italic'
 			@.$el.on 'keydown', null, 'ctrl+u meta+u', @applyStyling.bind @, 'underline'
 			@.$el.on 'keydown', null, 'ctrl+k meta+k', @applyStyling.bind @, 'strikeThrough'
-			# @.$el.on 'keydown', null, 'ctrl+y', @triggerRedoEvent
-			# @.$el.on 'keydown', null, 'meta+y', @triggerRedoEvent
 
 		onClose: ->
 			@.$el.off()
@@ -230,7 +231,7 @@
 				Note.eventManager.trigger "setTitle:#{currentBranch.get('guid')}", text
 				rec _.first(splitPaste), _.rest(splitPaste)
 			@pasteLast currentBranch, textAfter
-		pasteLast: (branch, textAfter) -> 
+		pasteLast: (branch, textAfter) ->
 			text = branch.get('title')
 			Note.eventManager.trigger "setTitle:#{branch.get('guid')}", text + textAfter
 			Note.eventManager.trigger "setCursor:#{branch.get('guid')}", text
