@@ -107,6 +107,26 @@
 			return branch if branch.isARoot(true)
 			@getRoot @findNote branch.get('parent_id')
 
+		# Returns an array of queryAncestry's to build the searchedTree
+		getSearchedCollection: (results) ->
+			ancestryChains = (buildAncestry result for result in results)
+			searchedTree = (dedupeTree chain for chain in ancestryChains)
+		buildAncestry: (result) ->
+			queryAncestry = []
+			queryResult = @findNote result.guid
+			addToAncestry(queryResult)
+				queryAncestry.push(queryResult)
+				return if queryResult.isARoot(true);
+				addToAncestry @findNote queryResult.get('parent_id')
+			queryAncestry
+		dedupeTree: (chain) ->
+			searchResult = []
+			if chain isnt duplicateAncestryChain
+				searchResults.push chain
+				# remove trees where a descendant is already a queryResult
+				# figure out how to handle situation with siblings
+			searchResults
+
 		# Search the whole tree recursively but top level
 		# Returns the element maching id and throws error if this fails
 		findNote: (guid) ->
@@ -220,7 +240,7 @@
 			do rec = (depth = initDepth - 1, target) ->
 				return getJumpTarget(initDepth, target.descendants.models) || target if target?
 				return false if depth is 0
-				rec depth - 1, getJumpTarget depth, descendantList	
+				rec depth - 1, getJumpTarget depth, descendantList
 		makeDescendant: (preceding, depth, jumpTarget) ->
 			return jumpTarget if depth - 1 < jumpTarget.get('depth')
 			Note.buildBranchLike rank: 0, depth: jumpTarget.get('depth') + 1, parent_id: jumpTarget.get('guid') || preceding.get('guid')

@@ -1,6 +1,5 @@
 @Notable.module "Notebook", (Notebook, App, Backbone, Marionette, $, _) ->
 
-
 	Notebook.Controller = Marionette.Controller.extend
 		initialize: (options) ->
 			@forest = new App.Notebook.Forest()
