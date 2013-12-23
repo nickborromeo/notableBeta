@@ -16,28 +16,29 @@ class NotesController < ApplicationController
   # POST /notes.json
   def create
     @note = Note.new(params[:note])
-    respond_with(@note) do |format|
-      if @note.save
-        format.html { redirect_to @note, notice: 'Note was successfully created.' }
-        format.json { render json: @note, status: :created, location: @note }
-      else
-        format.html { render action: "new" }
-        format.json { render json: @note.errors, status: :unprocessable_entity }
-      end
+    if @note.save
+      render json: @note, status: :created, location: @note
+    else
+      render json: @note.errors, status: :unprocessable_entity
     end
+    # respond_with(@note) do |format|
+    #   if @note.save
+    #     format.html { redirect_to @note, notice: 'Note was successfully created.' }
+    #     format.json { render json: @note, status: :created, location: @note }
+    #   else
+    #     format.html { render action: "new" }
+    #     format.json { render json: @note.errors, status: :unprocessable_entity }
+    #   end
+    # end
   end
 
   # PUT /notes/1.json
   def update
     @note = Note.find(params[:id])
-    respond_with(@note) do |format|
-      if @note.update_attributes(params[:note])
-        format.html { redirect_to @note, notice: 'Note was successfully updated.' }
-        format.json { head :no_content }
-      else
-        format.html { render action: "edit" }
-        format.json { render json: @note.errors, status: :unprocessable_entity }
-      end
+    if @note.update_attributes(params[:note])
+      head :no_content
+    else
+      render json: @note.errors, status: :unprocessable_entity
     end
   end
 
@@ -54,5 +55,17 @@ class NotesController < ApplicationController
       format.json { head :no_content }
     end
   end
+
+  def search
+    @notes = Note.where("trashed = false").search(params[:query])
+    respond_with(@notes) do |format|
+      format.html { @notes }
+      # Even though the request from the search form is a JavaScript request
+      # we will still send the response as json because that is what Backbone
+      # needs to produce the active tree from the search results
+      format.js { render json: @notes }
+    end
+  end
+
 end
 

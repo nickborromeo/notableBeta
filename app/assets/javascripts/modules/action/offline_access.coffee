@@ -112,7 +112,7 @@
 	_fullSyncNoAsync = (changeHashGUIDs, time, callback) ->
 		unless changeHashGUIDs.length > 0
 			if OfflineAccess.hasChangesToSync()
-				App.Notify.alertOnly 'syncing', 'save'
+				App.Notify.alertOnly 'syncing', 'warning'
 			_clearCached()
 			if callback? then return callback() else return
 

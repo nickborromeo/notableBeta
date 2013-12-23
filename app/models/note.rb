@@ -5,10 +5,18 @@ class Note < ActiveRecord::Base
   belongs_to :notebook
 
   include PgSearch
-  pg_search_scope :search, against: [:title, :subtitle],
-  	using: {tsearch: {dictionary: "english"}},
+  pg_search_scope :pg_search, against: [:title, :subtitle],
+  	using: {tsearch: { dictionary: "english" }},
   	associated_against: {notebook: :title} #,
   	# ignoring: :accents
+
+  def self.search(query)
+  	if query.present?
+  		pg_search(query)
+  	else
+  		scoped.order('created_at DESC')
+  	end
+  end
 
 	def self.compileRoot
 		compiledRoots = []
@@ -67,7 +75,7 @@ class Note < ActiveRecord::Base
 		end
 		rec.call root
 		descendantsList
-	end	
+	end
 
 	def self.getDescendants (branch)
 		Note.where("parent_id = '#{branch.guid}'").order(:rank)
@@ -106,10 +114,10 @@ class Note < ActiveRecord::Base
 			branch = Note.where("eng = '#{data[:eng]}'").first
 			if branch.nil?
 				rank += 1
-				self.createBranch data, rank 
+				self.createBranch data, rank
 			else
 				self.updateBranch data
-			end		
+			end
 		end
 	end
 
@@ -133,7 +141,7 @@ class Note < ActiveRecord::Base
 			:fresh => false,
 			:collapsed => false
 		}
-		
+
 		branch = Note.new(branch)
 		branch.save
 		data[:content] = self.digestEvernoteContent branch.guid, data[:content]
@@ -161,7 +169,7 @@ class Note < ActiveRecord::Base
 		content
 	end
 
-	def self.dispatchParsing 
+	def self.dispatchParsing
 	end
 
 	def self.trimContent (content)
@@ -288,5 +296,5 @@ class Note < ActiveRecord::Base
 	def self.getTrashed
 		Note.where("trashed = true AND parent_id = 'root'")
 	end
-	
+
 end

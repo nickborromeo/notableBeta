@@ -9,6 +9,8 @@ Notable::Application.routes.draw do
   get "finish" => "evernote#finish"
   get "sync" => "evernote#sync"
 
+  get "search" => "notes#search"
+
   UpgradeController.action_methods.each do |action|
     get "/#{action}", to: "upgrade##{action}", as: "#{action}_page"
   end

@@ -1,0 +1,23 @@
+<%= render 'scaffold/header_out' %>
+<div class="container">
+
+  <h2>Search Results</h1>
+
+	<table class="table table-striped">
+	<tr class="table-head">
+    <td>Title</td>
+    <td>Rank</td>
+    <td>Depth</td>
+  </tr>
+	<% @notes.each do |note| %>
+  <tr>
+    <td><%= note.title %></td>
+    <td><%= note.rank %></td>
+    <td><%= note.depth %></td>
+  </tr>
+  <% end %>
+	</table>
+
+	<%= link_to "Go back home", root_path %>
+
+</div>

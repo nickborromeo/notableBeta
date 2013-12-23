@@ -8,9 +8,14 @@
 	Note.Router = Marionette.AppRouter.extend
 		appRoutes:
 			"zoom/:guid": "zoomIn"
+			"search?query=:query": "runSearch"
+			"foo/:page": "showPage"
 			"": "clearZoom"
 
 	Note.Controller = Marionette.Controller.extend
+		showPage: (page) ->
+			console.log page
+
 		initialize: (options) ->
 			@allNotesByDepth = new App.Note.Collection()
 			@tree = new App.Note.Tree()
@@ -84,6 +89,9 @@
 			App.contentRegion.currentView.breadcrumbRegion.show @notebookTitleView
 			App.Note.activeBranch = "root"
 
+		runSearch: (utf, query) ->
+			# find the guid of the first note that matches the query
+			console.log query
 		clearZoom: ->
 			App.Note.initializedTree.then =>
 				Backbone.history.navigate '#'

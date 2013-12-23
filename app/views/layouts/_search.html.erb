@@ -1,4 +1,4 @@
-<%= form_tag notes_path, class: "navbar-search navbar-right hidden-xs", method: :get, remote: true do %>
+<%= form_tag search_path, class: "navbar-search navbar-right hidden-xs", method: :get, remote: true do %>
 	<%= search_field_tag :query, params[:query], class: "form-control", placeholder: "Search" %>
 	<%= button_tag(type: "submit", class: "search-btn") do %><span class="glyphicon-search glyphicon"></span><% end %>
 <% end %>
