@@ -67,37 +67,40 @@ $sidr-font-family: 'lucida grande',tahoma,verdana,arial,sans-serif;
 		&:last-child {
 			border-bottom: 1px solid $black;
 		}
-
 		li {
 			display: block;
 			margin: 0;
 			line-height: 36px;
 			border-bottom: 1px solid $black;
-			&:last-child {
-				border-bottom: none;
-			}
-			&:active,
-			&.sidr-class-active {
+			padding: 0 15px;
+			color: $sidr-text-color;
+			cursor: pointer;
+			&:hover { color: $notableYellow; }
+			&:active {
 				border-top: none;
-				line-height: 36px;
-				> a, > span {
-					@include single-box-shadow($black, 0, 0, 15px, 3px, inset);
-				}
+				color: $notableOrange;
+				@include single-box-shadow($black, 0, 0, 15px, 3px, inset);
 			}
-
-			a, span {
-				padding: 0 15px;
-				display: block;
-				text-decoration: none;
-				color: $sidr-text-color;
-				&:hover {
-					color: $notableYellow;
-				}
-				&:active {
-					color: $notableOrange;
-				}
+			&.selected {
+				color: $notableBlue;
+				&:active { color: $notableBlue; }
 			}
+			&:last-child { border-bottom: none; }
 		}
+
+	}
+
+	#create-notebook {
+		font-style: italic;
+		color: $grayDark;
+		display: inline-block;
+		cursor: text;
+	}
+	.glyphicon-plus {
+		display: none;
+		margin: 9px 5px 0 0;
+		color: $grayDark;
+		font-size: 0.9em;
 	}
 
 }

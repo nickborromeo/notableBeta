@@ -43,8 +43,6 @@
 			mixpanel.track("New Note")
 		applyModview: (e) ->
 			type = e.currentTarget.classList[1]
-			# $(".alert").text(type+" modview is displayed").show()
-			# $(".alert").delay(7000).fadeOut(1400)
 			$(".modview-btn").removeClass("selected")
 			$(".#{type}").addClass("selected")
 		shiftNavbar: (e) ->
@@ -82,7 +80,12 @@
 
 		events: ->
 			"click h1.sidebar-dropdown": "toggleList"
+			"click li": "selectNote"
 
+		selectNote: (e) ->
+			@$('li').removeClass('selected')
+			console.log e.currentTarget
+			$(e.currentTarget).addClass('selected')
 		toggleList: (e) ->
 			$(e.currentTarget.nextElementSibling).toggle(400)
 			$(e.currentTarget.firstElementChild).toggleClass("closed")
