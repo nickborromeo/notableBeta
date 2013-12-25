@@ -5,6 +5,7 @@
   <title>Notable</title>
   <%= stylesheet_link_tag    "application", :media => "all" %>
   <%= javascript_include_tag :application %>
+  <%= favicon_link_tag 'logo/favicon.png' %>
   <%= analytics_init if Rails.env.production? %>
   <%= render 'layouts/mixpanel' if Rails.env.production? %>
   <%= csrf_meta_tags %>
