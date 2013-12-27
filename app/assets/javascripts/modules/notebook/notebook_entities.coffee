@@ -3,8 +3,9 @@
 	class Notebook.Trunk extends Backbone.Model
 		urlRoot: '/notebooks'
 		# defaults:
-		# 	title: "Notebook Title"
-		# 	user_id: 7
+		# 	title: "My Notebook"
+		#   modview: "outline"
+		#		user_id: @.current_user
 
 	class Notebook.Forest extends Backbone.Collection
 		url: '/notebooks'

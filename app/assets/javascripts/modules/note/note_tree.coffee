@@ -114,7 +114,7 @@
 		buildAncestry: (result) ->
 			queryAncestry = []
 			queryResult = @findNote result.guid
-			addToAncestry(queryResult)
+			addToAncestry(queryResult) ->
 				queryAncestry.push(queryResult)
 				return if queryResult.isARoot(true);
 				addToAncestry @findNote queryResult.get('parent_id')

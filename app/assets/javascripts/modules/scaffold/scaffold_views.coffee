@@ -81,14 +81,32 @@
 		events: ->
 			"click h1.sidebar-dropdown": "toggleList"
 			"click li": "selectNote"
+			'keypress #new-trunk': 'checkForEnter'
+			'click .new-trunk-btn': 'createTrunk'
 
-		selectNote: (e) ->
-			@$('li').removeClass('selected')
-			console.log e.currentTarget
-			$(e.currentTarget).addClass('selected')
 		toggleList: (e) ->
 			$(e.currentTarget.nextElementSibling).toggle(400)
 			$(e.currentTarget.firstElementChild).toggleClass("closed")
+		selectNote: (e) ->
+			@$('li').removeClass('selected')
+			$(e.currentTarget).addClass('selected')
+		checkForEnter: (e) ->
+			@createTrunk() if e.which == 13
+		createTrunk: ->
+			if @$('#new-trunk').val().trim()
+				App.Notebook.forest.create
+					title: @$('#new-trunk').val().trim()
+					modview: "outline"
+					guid: @generateGuid()
+				@$('#new-trunk').val('')
+		generateGuid: ->
+			guidFormat = "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx"
+			guid = guidFormat.replace(/[xy]/g, (c) ->
+				r = Math.random() * 16 | 0
+				v = (if c is "x" then r else (r & 0x3 | 0x8))
+				v.toString 16
+			)
+			guid
 
 	# Initializers -------------------------
 	App.Scaffold.on "start", ->

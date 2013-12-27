@@ -1,5 +1,8 @@
 @Notable.module "Notebook", (Notebook, App, Backbone, Marionette, $, _) ->
+	# Private --------------------------
+	Notebook.startWithParent = false
 
+	# Public -------------------------
 	Notebook.Controller = Marionette.Controller.extend
 		initialize: (options) ->
 			@forest = new App.Notebook.Forest()
@@ -8,7 +11,6 @@
 			@setGlobals()
 		start: ->
 			@forest.fetch success: =>
-				console.log @forest
 				Notebook.activeTrunk = @activeTrunk = @forest.first()
 				Notebook.initializedTrunk.resolve()
 		reset: ->
@@ -20,6 +22,6 @@
 
 	# Initializers -------------------------
 	Notebook.addInitializer ->
-		Notebook.controller = new Notebook.Controller()
-		Notebook.controller.start()
+		Notebook.notebookController = new Notebook.Controller()
+		Notebook.notebookController.start()
 		# new Notebook.Router controller: Notebook.controller

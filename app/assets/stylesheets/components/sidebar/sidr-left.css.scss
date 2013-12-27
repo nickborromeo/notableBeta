@@ -90,17 +90,26 @@ $sidr-font-family: 'lucida grande',tahoma,verdana,arial,sans-serif;
 
 	}
 
-	#create-notebook {
-		font-style: italic;
-		color: $grayDark;
+	#new-trunk {
+		color: $white;
 		display: inline-block;
-		cursor: text;
+		background-color: $grayUltraDark;
+		border: none;
+		width: 88%;
+		letter-spacing: 0.4px;
+		-webkit-font-smoothing: antialiased;
+		&::-webkit-input-placeholder { font-style: italic; letter-spacing: 0; }
+		&:-moz-placeholder { font-style: italic; letter-spacing: 0; }
+		&::-moz-placeholder { font-style: italic; letter-spacing: 0; }
+		&:-ms-input-placeholder { font-style: italic; letter-spacing: 0; }
 	}
-	.glyphicon-plus {
-		display: none;
-		margin: 9px 5px 0 0;
+	.new-trunk-btn {
+		display: inline-block;
+		margin: 8px 0 0 0;
+		padding: 1px 3px 2px 4px;
+		border: 2px solid $grayDark;
 		color: $grayDark;
-		font-size: 0.9em;
+		line-height: 1.2em;
 	}
 
 }
@@ -115,6 +124,10 @@ $sidr-font-family: 'lucida grande',tahoma,verdana,arial,sans-serif;
 // --------------LAPTOP MEDIA QUERIES -----------------
 // ----------------------------------------------------
 @media (min-width: $screen-md) {
+	.sidr {
+		.new-trunk-btn { margin-top: 7px; }
+	}
+
 }
 
 // ----------------------------------------------------
