@@ -7,8 +7,8 @@
 
 	Note.Router = Marionette.AppRouter.extend
 		appRoutes:
-			"zoom/:guid": "zoomIn"
 			"search/:results": "searchResults"
+			":guid": "zoomIn"
 			"": "clearZoom"
 
 	Note.Controller = Marionette.Controller.extend
@@ -46,6 +46,7 @@
 			@showContentView(@tree)
 			App.Note.initializedTree.resolve()
 
+		# Export Feat
 		showExportView: (model, paragraph) ->
 			App.contentRegion.currentView.treeRegion.close()
 			App.contentRegion.currentView.crownRegion.close()
@@ -62,6 +63,8 @@
 			App.contentRegion.currentView.treeRegion.close()
 			@treeView = new App.Note.TreeView(collection: tree)
 			App.contentRegion.currentView.treeRegion.show @treeView
+
+		# Crown
 		showCrownView: ->
 				@crownView = new App.Note.CrownView(model: App.Note.activeBranch)
 				App.contentRegion.currentView.crownRegion.show @crownView
@@ -70,6 +73,8 @@
 				@crownView.close()
 				delete @crownView
 			App.Note.activeBranch = "root"
+
+		# Breadcrumbs
 		showBreadcrumbView: ->
 			if @breadcrumbView?
 				@breadcrumbView.collection = new Note.Breadcrumbs null, Note.activeBranch
@@ -81,7 +86,7 @@
 			if @notebookTitleView?
 				@notebookTitleView.render()
 			else
-				@notebookTitleView = new App.Note.NotebookTitleView()
+				@notebookTitleView = new App.Notebook.NotebookTitleView()
 			App.contentRegion.currentView.breadcrumbRegion.show @notebookTitleView
 			App.Note.activeBranch = "root"
 

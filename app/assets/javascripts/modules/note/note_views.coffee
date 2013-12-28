@@ -153,7 +153,7 @@
 				@triggerShortcut('jumpFocusUp')(e, true)
 
 		zoomIn: ->
-			Backbone.history.navigate "#/zoom/#{@model.get('guid')}"
+			Backbone.history.navigate "#/#{@model.get('guid')}"
 
 		toggleCollapse: ->
 			if @model.get('collapsed') then @expand() else @collapse()
@@ -386,7 +386,7 @@
 			else
 				@clearZoom()
 		zoomIn: (model) ->
-			Backbone.history.navigate "#/zoom/#{model.get('guid')}"
+			Backbone.history.navigate "#/#{model.get('guid')}"
 
 		clearZoom: ->
 			Backbone.history.navigate ""
@@ -473,7 +473,7 @@
 			else
 				@clearZoom()
 		zoomIn: (guid) ->
-			Backbone.history.navigate "#/zoom/#{guid}"
+			Backbone.history.navigate "#/#{guid}"
 		clearZoom: ->
 			Note.eventManager.trigger "clearZoom"
 
