@@ -80,16 +80,20 @@
 
 		events: ->
 			"click h1.sidebar-dropdown": "toggleList"
-			"click li": "selectNote"
+			"click li": "selectListItem"
 			'keypress #new-trunk': 'checkForEnter'
 			'click .new-trunk-btn': 'createTrunk'
 
 		toggleList: (e) ->
 			$(e.currentTarget.nextElementSibling).toggle(400)
 			$(e.currentTarget.firstElementChild).toggleClass("closed")
-		selectNote: (e) ->
-			@$('li').removeClass('selected')
-			$(e.currentTarget).addClass('selected')
+		selectListItem: (e) ->
+			liClass = e.currentTarget.className
+			if liClass is "note" or liClass is "trunk"
+				@$('li.'+liClass).removeClass('selected')
+				$(e.currentTarget).addClass('selected')
+			else if liClass is "tag" or liClass is "tag selected"
+				@$(e.currentTarget).toggleClass('selected')
 		checkForEnter: (e) ->
 			@createTrunk() if e.which == 13
 		createTrunk: ->

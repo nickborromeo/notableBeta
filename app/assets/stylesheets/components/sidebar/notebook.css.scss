@@ -23,9 +23,22 @@
 			}
 		}
 		input { display: none; }
-
 		&:hover span.remove {
 			display:inline-block;
+		}
+	}
+	li.trunk.editing {
+		label { display: none; }
+		&:hover span.remove { display:none; }
+		input {
+			color: $white;
+			display: inline-block;
+			background-color: $grayUltraDark;
+			border: none;
+			letter-spacing: 0.4px;
+			line-height: 16px;
+			padding: 10px 0;
+			outline: none;
 		}
 	}
 
@@ -76,6 +89,14 @@
 				padding: 8px 0;
 			}
 		}
+
+		li.trunk.editing {
+			input {
+				line-height: 20px;
+				padding: 8px 0;
+			}
+		}
+
 
 	}
 }

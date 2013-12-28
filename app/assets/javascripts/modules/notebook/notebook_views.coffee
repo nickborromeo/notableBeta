@@ -5,17 +5,17 @@
 		tagName: "li"
 		className: "trunk"
 		events: ->
-			"dblclick label": "openEdit"
-			"keypress .edit": "closeEdit"
-			"blur .edit": "updateTrunk"
-			"click .remove": "removeTrunk"
-			"click li": "selectTrunk"
+			"dblclick label": "openEdit" #done
+			"keypress .edit": "closeEdit" #done
+			"blur .edit": "updateTrunk" #done
+			"click .remove": "removeTrunk" #done
+			"click li": "selectTrunk" #done
 
 		initialize: ->
 			@listenTo @model, 'change', @render
 			@listenTo @model, 'destroy', @remove
 		ui:
-			input: ".edit"
+			input: "input.edit"
 
 		selectTrunk: ->
 			$(".trunk").removeClass("selected")
@@ -25,16 +25,15 @@
 			@$el.addClass('editing')
 			@ui.input.focus()
 		closeEdit: (e) ->
-			if e.which = 13
+			ENTER_KEY = 13
+			if e.which is ENTER_KEY
 				@updateTrunk()
 		updateTrunk: ->
 			newTitle = @ui.input.val().trim()
-			#trunkGUID = @generateGuid
 			if newTitle
-				@model.save()
+				@model.save
 					title: newTitle
 					# modview: modview
-					# guid: trunkGUID
 			else
 				@removeTrunk()
 			@$el.removeClass('editing')
