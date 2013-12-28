@@ -5,11 +5,11 @@
 		tagName: "li"
 		className: "trunk"
 		events: ->
-			"click li": "selectTrunk"
 			"dblclick label": "openEdit"
 			"keypress .edit": "closeEdit"
 			"blur .edit": "updateTrunk"
 			"click .remove": "removeTrunk"
+			"click li": "selectTrunk"
 
 		initialize: ->
 			@listenTo @model, 'change', @render
@@ -31,15 +31,15 @@
 			newTitle = @ui.input.val().trim()
 			#trunkGUID = @generateGuid
 			if newTitle
-				@model.save
+				@model.save()
 					title: newTitle
 					# modview: modview
 					# guid: trunkGUID
 			else
-				@removeTrunk
+				@removeTrunk()
 			@$el.removeClass('editing')
 		removeTrunk: ->
-			@model.destroy
+			@model.destroy()
 
 	class Notebook.ForestView extends Marionette.CollectionView
 		id: "forest"
