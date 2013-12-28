@@ -25,11 +25,13 @@
 		saved: "Changes saved."
 		syncing: "<i>Syncing with server...</i>"
 		synced: "Changes synced."
-		deleted: "Note deleted. <a class ='clickCallback'> undo </a>"
+		deleted: "Note deleted. <a class='clickCallback'> undo </a>"
 		undo: "Change undone."
 		connectionLost: "Connection has been lost."
 		connected: "We're back online!"
 		newNote: "New note has been added."
+		# Warning
+		needsName: "Give your notebook a name first."
 		# Danger
 		exceedPasting: "Pasting limit exceeded. Let us know if you really need to simultaneously paste more than 100 notes."
 		exportPlain: "Your notes are ready for export in plain text format."

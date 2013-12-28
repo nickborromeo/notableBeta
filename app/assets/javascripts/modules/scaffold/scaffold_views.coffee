@@ -73,7 +73,7 @@
 		tagName:	"section"
 		id: "sidebar-center"
 		regions:
-			notebookRegion: "#notebook-region"
+			notebookRegion: "#notebook-list"
 			recentNoteRegion: "#recentNote-region"
 			favoriteRegion: "#favorite-region"
 			tagRegion: "#tag-region"
@@ -99,6 +99,8 @@
 					modview: "outline"
 					guid: @generateGuid()
 				@$('#new-trunk').val('')
+			else
+				App.Notify.alert 'needsName', 'warning'
 		generateGuid: ->
 			guidFormat = "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx"
 			guid = guidFormat.replace(/[xy]/g, (c) ->

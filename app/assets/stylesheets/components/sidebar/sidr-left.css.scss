@@ -64,9 +64,6 @@ $sidr-font-family: 'lucida grande',tahoma,verdana,arial,sans-serif;
 		display: block;
 		margin: 0;
 		padding: 0;
-		&:last-child {
-			border-bottom: 1px solid $black;
-		}
 		li {
 			display: block;
 			margin: 0;
@@ -89,29 +86,6 @@ $sidr-font-family: 'lucida grande',tahoma,verdana,arial,sans-serif;
 		}
 
 	}
-
-	#new-trunk {
-		color: $white;
-		display: inline-block;
-		background-color: $grayUltraDark;
-		border: none;
-		width: 88%;
-		letter-spacing: 0.4px;
-		-webkit-font-smoothing: antialiased;
-		&::-webkit-input-placeholder { font-style: italic; letter-spacing: 0; }
-		&:-moz-placeholder { font-style: italic; letter-spacing: 0; }
-		&::-moz-placeholder { font-style: italic; letter-spacing: 0; }
-		&:-ms-input-placeholder { font-style: italic; letter-spacing: 0; }
-	}
-	.new-trunk-btn {
-		display: inline-block;
-		margin: 8px 0 0 0;
-		padding: 1px 3px 2px 4px;
-		border: 2px solid $grayDark;
-		color: $grayDark;
-		line-height: 1.2em;
-	}
-
 }
 
 // ----------------------------------------------------
@@ -124,10 +98,6 @@ $sidr-font-family: 'lucida grande',tahoma,verdana,arial,sans-serif;
 // --------------LAPTOP MEDIA QUERIES -----------------
 // ----------------------------------------------------
 @media (min-width: $screen-md) {
-	.sidr {
-		.new-trunk-btn { margin-top: 7px; }
-	}
-
 }
 
 // ----------------------------------------------------

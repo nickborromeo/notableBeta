@@ -1,6 +1,6 @@
 @Notable.module("Notebook", (Notebook, App, Backbone, Marionette, $, _) ->
 
-	class Notebook.TrunkView extends Marionette.CompositeView
+	class Notebook.TrunkView extends Marionette.ItemView
 		template: "notebook/trunkModel"
 		tagName: "li"
 		className: "trunk"
@@ -14,9 +14,8 @@
 		initialize: ->
 			@listenTo @model, 'change', @render
 			@listenTo @model, 'destroy', @remove
-		render: ->
-			@$el.html @template( @model.toJSON() )
-			@$input = @$('.edit')
+		ui:
+			input: ".edit"
 
 		selectTrunk: ->
 			$(".trunk").removeClass("selected")
@@ -24,12 +23,12 @@
 			# show the appropriate notebook in the contentRegion
 		openEdit: ->
 			@$el.addClass('editing')
-			@$el.input.focus()
+			@ui.input.focus()
 		closeEdit: (e) ->
 			if e.which = 13
 				@updateTrunk()
 		updateTrunk: ->
-			newTitle = @$input.val().trim()
+			newTitle = @ui.input.val().trim()
 			#trunkGUID = @generateGuid
 			if newTitle
 				@model.save
@@ -44,8 +43,13 @@
 
 	class Notebook.ForestView extends Marionette.CollectionView
 		id: "forest"
+		tagName: "ul"
+		# template: "notebook/forestCollection"
 		itemView: Notebook.TrunkView
 
-		initialize: ->
+		# appendHtml: (compositeView, itemView) ->
+		# 	console.log compositeView.$el.children
+		# 	# .lastChild.before("<p>Test</p>")
+		# 	compositeView.$el.append(itemView.el)
 
 )

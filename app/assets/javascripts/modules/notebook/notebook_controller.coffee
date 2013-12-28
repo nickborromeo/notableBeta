@@ -12,6 +12,7 @@
 		start: ->
 			@forest.fetch success: =>
 				Notebook.activeTrunk = @activeTrunk = @forest.first()
+				@showNotebookView(@forest)
 				Notebook.initializedTrunk.resolve()
 		reset: ->
 		setGlobals: ->
@@ -19,6 +20,11 @@
 			Notebook.activeTrunk = @activeTrunk
 			Notebook.forest = @forest
 		setEvents: ->
+
+		showNotebookView: (forest) ->
+			App.sidebarRegion.currentView.notebookRegion.close()
+			@forestView = new App.Notebook.ForestView(collection: forest)
+			App.sidebarRegion.currentView.notebookRegion.show @forestView
 
 	# Initializers -------------------------
 	Notebook.addInitializer ->
