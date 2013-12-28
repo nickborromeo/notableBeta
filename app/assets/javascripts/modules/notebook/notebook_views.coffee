@@ -38,7 +38,12 @@
 				@removeTrunk()
 			@$el.removeClass('editing')
 		removeTrunk: ->
-			@model.destroy()
+			# Add safety mechanism to ask "Are you sure? Yes/No."
+			if Notebook.forest.length > 1
+				@model.destroy()
+				App.Notify.alert 'deleteNotebook', 'warning'
+			else
+				App.Notify.alert 'needsNotebook', 'danger'
 
 	class Notebook.ForestView extends Marionette.CollectionView
 		id: "forest"

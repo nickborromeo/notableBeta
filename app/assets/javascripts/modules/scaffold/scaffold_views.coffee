@@ -103,6 +103,7 @@
 					modview: "outline"
 					guid: @generateGuid()
 				@$('#new-trunk').val('')
+				App.Notify.alert 'newNotebook', 'success', {destructTime: 5000}
 			else
 				App.Notify.alert 'needsName', 'warning'
 		generateGuid: ->

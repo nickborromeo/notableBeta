@@ -27,12 +27,16 @@
 		synced: "Changes synced."
 		deleted: "Note deleted. <a class='clickCallback'> undo </a>"
 		undo: "Change undone."
+		newNote: "New note has been added."
+		# Internet
 		connectionLost: "Connection has been lost."
 		connected: "We're back online!"
-		newNote: "New note has been added."
-		# Warning
+		# Notebook
 		needsName: "Give your notebook a name first."
-		# Danger
+		needsNotebook: "Your account needs to have at least one notebook."
+		newNotebook: "A new notebook has been created!"
+		deleteNotebook: "Notebook deleted. <a class='clickCallback'> undo </a>"
+		# Import/Export
 		exceedPasting: "Pasting limit exceeded. Let us know if you really need to simultaneously paste more than 100 notes."
 		exportPlain: "Your notes are ready for export in plain text format."
 		exportParagraph: "Your notes are ready for export in paragraph form."

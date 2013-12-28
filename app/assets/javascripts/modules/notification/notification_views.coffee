@@ -36,7 +36,7 @@
 
 		remove: =>
 			clearTimeout @timeoutID
-			@$el.slideUp Notify._fadeOutTime, =>
+			@$el.fadeOut Notify._fadeOutTime, =>
 				@$el.remove()
 
 	class Notify.AlertsView extends Marionette.CollectionView

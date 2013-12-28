@@ -83,6 +83,7 @@
 // ----------------------------------------------------
 @media (min-width: $screen-sm) {
 	#notebook-region {
+		label {	width: 85%; }
 		li.trunk-input {
 			#new-trunk {
 				line-height: 20px;
@@ -96,7 +97,6 @@
 				padding: 8px 0;
 			}
 		}
-
 
 	}
 }
