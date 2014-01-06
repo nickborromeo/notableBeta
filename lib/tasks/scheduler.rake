@@ -7,6 +7,9 @@ namespace :evernote do
 	desc "Cron job used to sync Notable with Evernote account"
 	task :sync => :environment do
 		puts "My contact info is"
-		puts User.last.email
+		User.all.each do |u|
+			en_ctrl = EvernoteController.new u
+			puts en_ctrl.current_user.email
+		end
 	end
 end

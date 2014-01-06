@@ -2,6 +2,14 @@ class EvernoteController < ApplicationController
 	require 'modules/evernote'
 	include Evernote
 
+	def initialize (user = nil)
+		@current_user = user || current_user
+	end
+
+	def current_user
+		@current_user ||= current_user
+	end
+
 	def show #incrementalSync
 		@note = Note.find(params[:id])
 		respond_with @note
