@@ -9,7 +9,7 @@ namespace :evernote do
 		puts "My contact info is"
 		User.all.each do |u|
 			en_ctrl = EvernoteController.new u
-			puts en_ctrl.current_user.email
+			puts en_ctrl.sync
 		end
 	end
 end
