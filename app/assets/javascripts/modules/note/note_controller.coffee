@@ -28,7 +28,7 @@
 			@allNotesByDepth.fetch success: => @buildTree()
 			Note.eventManager.trigger "clearZoom"
 		setGlobals: ->
-			Note.initializedTree = $.Deferred();
+			Note.initializedTree = $.Deferred()
 			Note.allNotesByDepth = @allNotesByDepth
 			Note.tree = @tree
 			Note.activeTree = @tree

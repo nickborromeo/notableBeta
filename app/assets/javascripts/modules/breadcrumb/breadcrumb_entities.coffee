@@ -6,7 +6,7 @@
 			if (route = branch.get('route'))?
 				@set "route", route
 			else
-				@set "route", "#/zoom/#{branch.get('guid')}"
+				@set "route", "#/#{branch.get('guid')}"
 			@set "title", branch.get('title')
 			@set "depth", branch.get('depth')
 
@@ -17,10 +17,11 @@
 			@addRoot()
 
 		addRoot: ->
+			activeTrunkTitle = App.Notebook.activeTrunk.attributes.title
 			breadcrumb = new Note.Breadcrumb
 				attributes:
 					route: "#/"
-					title: "My Notebook"
+					title: activeTrunkTitle
 					depth: -1
 
 				get: (attr) ->
