@@ -20,10 +20,14 @@
 					itemView.className = "chain-breadcrumb"
 					itemView.render();
 			@$el.append(itemView.el)
+)
 
-	class Note.NotebookTitleView extends Marionette.ItemView
+
+@Notable.module("Notebook", (Notebook, App, Backbone, Marionette, $, _) ->
+	class Notebook.NotebookTitleView extends Marionette.ItemView
 		id: "notebook-title"
 		className: "hidden-xs"
 		tagName: "h3"
 		template: "breadcrumb/notebookTitle"
+
 )

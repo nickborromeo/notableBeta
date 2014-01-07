@@ -20,7 +20,10 @@
 		selectTrunk: ->
 			$(".trunk").removeClass("selected")
 			@$el.addClass("selected")
-			# show the appropriate notebook in the contentRegion
+			# App.Notebook.activeTrunk = (selected notebook in the sidebar)
+			# Show the appropriate notebook in the contentRegion
+			#   Note.compileTree(activeTree)
+			#   Note.$el.render()
 		openEdit: ->
 			@$el.addClass('editing')
 			@ui.input.focus()
