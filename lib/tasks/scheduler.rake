@@ -8,8 +8,12 @@ namespace :evernote do
 	task :sync => :environment do
 		puts "My contact info is"
 		User.all.each do |u|
-			en_ctrl = EvernoteController.new u
-			puts en_ctrl.sync
+			if not u.token_credentials.nil?
+				puts u.email
+				en_ctrl = EvernoteController.new u, true
+				puts en_ctrl.sync
+				puts u.email
+			end
 		end
 	end
 end
