@@ -86,7 +86,8 @@
 			if @notebookTitleView?
 				@notebookTitleView.render()
 			else
-				@notebookTitleView = new App.Notebook.NotebookTitleView()
+				notebook = model: App.Notebook.activeTrunk
+				@notebookTitleView = new App.Notebook.NotebookTitleView notebook
 			App.contentRegion.currentView.breadcrumbRegion.show @notebookTitleView
 			App.Note.activeBranch = "root"
 

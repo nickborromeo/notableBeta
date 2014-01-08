@@ -30,4 +30,7 @@
 		tagName: "h3"
 		template: "breadcrumb/notebookTitle"
 
+		initialize: (options) ->
+			@listenTo @model, "change:title", @render
+
 )
