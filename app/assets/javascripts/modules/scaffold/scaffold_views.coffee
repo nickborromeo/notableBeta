@@ -23,12 +23,14 @@
 					lastNote =
 						rank: 1
 						title: ""
+						notebook_id: App.Notebook.activeTrunk.id
 				else
 					lastNote =
 						rank: 1
 						title: ""
 						depth: App.Note.activeBranch.get('depth') + 1
 						parent_id: App.Note.activeBranch.get('guid')
+						notebook_id: App.Notebook.activeTrunk.id
 				App.Note.tree.create lastNote
 			else
 				lastNote = App.Note.activeTree.last()
@@ -37,6 +39,7 @@
 					parent_id: lastNote.get('parent_id')
 					rank: lastNote.get('rank') + 1
 					title: ""
+					notebook_id: App.Notebook.activeTrunk.id
 			App.Note.eventManager.trigger "render:#{App.Note.activeBranch.get('guid')}" if App.Note.activeBranch isnt "root"
 			App.Note.eventManager.trigger "setCursor:#{App.Note.activeTree.last().get('guid')}"
 			App.Notify.alert 'newNote','success'
@@ -102,6 +105,7 @@
 					title: @$('#new-trunk').val().trim()
 					modview: "outline"
 					guid: @generateGuid()
+					user_id: App.User.activeUser.id
 				@$('#new-trunk').val('')
 				App.Notify.alert 'newNotebook', 'success', {destructTime: 5000}
 			else

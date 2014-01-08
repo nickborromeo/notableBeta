@@ -194,5 +194,5 @@
 		rank: followingNote.get 'rank'
 		parent_id: followingNote.get 'parent_id'
 		depth: followingNote.get 'depth'
-
+		notebook_id: App.Notebook.activeTrunk.id
 )
