@@ -4,6 +4,9 @@
 		template: "breadcrumb/breadcrumb"
 		className: "chain-breadcrumb"
 		tagName: "li"
+		initialize: ->
+			@listenTo @model, "change:title", @render
+
 
 	class Note.BreadcrumbsView extends Marionette.CollectionView
 		id: "breadcrumb"

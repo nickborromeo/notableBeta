@@ -10,6 +10,12 @@
 			@set "title", branch.get('title')
 			@set "depth", branch.get('depth')
 
+			if @get("depth") is -1
+				@listenTo App.Notebook.activeTrunk, "change:title", @updateNotebookTitle
+
+		updateNotebookTitle: ->
+			@set "title", App.Notebook.activeTrunk.get("title")
+
 	class Note.Breadcrumbs extends Backbone.Collection
 		model: Note.Breadcrumb
 		initialize: (models, branch) ->
