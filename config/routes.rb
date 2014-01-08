@@ -5,6 +5,10 @@ Notable::Application.routes.draw do
   resources :evernote
   resources :notebooks
 
+	devise_scope :user do
+		get "active_user" => "users/sessions#index"
+	end
+
   get "start" => "evernote#start"
   get "finish" => "evernote#finish"
   get "sync" => "evernote#sync"
