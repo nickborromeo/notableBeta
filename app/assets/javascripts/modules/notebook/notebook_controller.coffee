@@ -10,10 +10,13 @@
 			@setEvents()
 			@setGlobals()
 		start: ->
-			@forest.fetch success: =>
-				Notebook.activeTrunk = @activeTrunk = @forest.first()
-				@showNotebookView(@forest)
-				Notebook.initializedTrunk.resolve()
+			@forest.fetch
+				data:
+					user_id: 4
+				success: =>
+					Notebook.activeTrunk = @activeTrunk = @forest.first()
+					@showNotebookView(@forest)
+					Notebook.initializedTrunk.resolve()
 		reset: ->
 		setGlobals: ->
 			Notebook.initializedTrunk = $.Deferred();

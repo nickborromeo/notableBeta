@@ -3,7 +3,7 @@ class NotebooksController < ApplicationController
 
   # GET /notebooks.json
   def index
-    @notebooks = Notebook.all
+    @notebooks = Notebook.where("user_id = " + params[:user_id])
     respond_with(@notebooks)
   end
 
