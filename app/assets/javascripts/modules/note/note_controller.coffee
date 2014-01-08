@@ -25,7 +25,9 @@
 		reset: ->
 			@tree._reset()
 			@allNotesByDepth._reset()
-			@allNotesByDepth.fetch success: => @buildTree()
+			@allNotesByDepth.fetch
+				data: notebook_id: App.Notebook.activeTrunk.id
+				success: => @buildTree()
 			Note.eventManager.trigger "clearZoom"
 		setGlobals: ->
 			Note.initializedTree = $.Deferred()
@@ -40,11 +42,6 @@
 			Note.eventManager.on "activeTrunk:changed", @changeActiveTrunk, @
 
 		buildTree: ->
-			notesInNotebook = @allNotesByDepth.filter (n) ->
-				n.get("notebook_id") is App.Notebook.activeTrunk.id
-			@allNotesByDepth._reset()
-			_.each notesInNotebook, (note) =>
-				@allNotesByDepth.add note
 			@allNotesByDepth.sort()
 			@allNotesByDepth.validateTree()
 			@allNotesByDepth.each (note) =>

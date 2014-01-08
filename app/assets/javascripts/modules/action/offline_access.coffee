@@ -85,6 +85,7 @@
 		console.log 'trying to sync...'
 		App.Notify.alert 'synced', 'save'
 		App.Note.allNotesByDepth.fetch
+			data: notebook_id: App.Notebook.activeTrunk.id
 			success: -> _deleteAndSave Object.keys(_inMemoryCachedDeletes), time, callback
 			error: -> _notifyFailureAndBackOff(time)
 

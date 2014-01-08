@@ -11,8 +11,7 @@
 			@setGlobals()
 		start: ->
 			@forest.fetch
-				data:
-					user_id: 4
+				data: user_id: 4
 				success: =>
 					Notebook.activeTrunk = @activeTrunk = @forest.first()
 					@showNotebookView(@forest)
