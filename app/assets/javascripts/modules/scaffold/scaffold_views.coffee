@@ -104,20 +104,12 @@
 				App.Notebook.forest.create
 					title: @$('#new-trunk').val().trim()
 					modview: "outline"
-					guid: @generateGuid()
+					guid: App.Note.generateGuid()
 					user_id: App.User.activeUser.id
 				@$('#new-trunk').val('')
 				App.Notify.alert 'newNotebook', 'success', {destructTime: 5000}
 			else
 				App.Notify.alert 'needsName', 'warning'
-		generateGuid: ->
-			guidFormat = "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx"
-			guid = guidFormat.replace(/[xy]/g, (c) ->
-				r = Math.random() * 16 | 0
-				v = (if c is "x" then r else (r & 0x3 | 0x8))
-				v.toString 16
-			)
-			guid
 
 	# Initializers -------------------------
 	App.Scaffold.on "start", ->
