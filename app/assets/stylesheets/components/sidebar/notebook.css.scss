@@ -48,7 +48,7 @@
 			display: inline-block;
 			background-color: $grayUltraDark;
 			border: none;
-			width: 88%;
+			width: 83%;
 			letter-spacing: 0.4px;
 			line-height: 16px;
 			padding: 10px 0;
@@ -83,7 +83,7 @@
 // ----------------------------------------------------
 @media (min-width: $screen-sm) {
 	#notebook-region {
-		label {	width: 85%; }
+		label {	width: 83%; }
 		li.trunk-input {
 			#new-trunk {
 				line-height: 20px;
