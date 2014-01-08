@@ -40,6 +40,11 @@
 			Note.eventManager.on "activeTrunk:changed", @changeActiveTrunk, @
 
 		buildTree: ->
+			notesInNotebook = @allNotesByDepth.filter (n) ->
+				n.get("notebook_id") is App.Notebook.activeTrunk.id
+			@allNotesByDepth._reset()
+			_.each notesInNotebook, (note) =>
+				@allNotesByDepth.add note
 			@allNotesByDepth.sort()
 			@allNotesByDepth.validateTree()
 			@allNotesByDepth.each (note) =>
@@ -128,6 +133,8 @@
 				@showNotebookTitleView()
 			else
 				@showBreadcrumbView()
+
+			@reset()
 
 	# Initializers -------------------------
 	Note.addInitializer ->

@@ -1,6 +1,6 @@
 class Note < ActiveRecord::Base
 	require 'securerandom'
-	attr_accessible :guid, :eng, :title, :subtitle, :parent_id, :rank, :depth, :collapsed, :fresh, :trashed
+	attr_accessible :guid, :eng, :title, :subtitle, :parent_id, :rank, :depth, :collapsed, :fresh, :trashed, :notebook_id
 	validates_presence_of :guid, :rank, :depth
   belongs_to :notebook
 
