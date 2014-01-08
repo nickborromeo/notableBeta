@@ -37,6 +37,7 @@
 			Note.eventManager.on "clearZoom", @clearZoom, @
 			Note.eventManager.on "render:export", @showExportView, @
 			Note.eventManager.on "clear:export", @clearExportView, @
+			Note.eventManager.on "activeTrunk:changed", @changeActiveTrunk, @
 
 		buildTree: ->
 			@allNotesByDepth.sort()
@@ -84,6 +85,7 @@
 			App.contentRegion.currentView.breadcrumbRegion.show @breadcrumbView
 		showNotebookTitleView: ->
 			if @notebookTitleView?
+				@notebookTitleView.model = App.Notebook.activeTrunk
 				@notebookTitleView.render()
 			else
 				notebook = model: App.Notebook.activeTrunk
@@ -120,6 +122,12 @@
 					Note.eventManager.trigger "setCursor:#{Note.activeTree.first().get('guid')}"
 				else
 					Note.eventManager.trigger "setCursor:#{Note.activeBranch.get('guid')}"
+
+		changeActiveTrunk: ->
+			if Note.activeBranch is "root"
+				@showNotebookTitleView()
+			else
+				@showBreadcrumbView()
 
 	# Initializers -------------------------
 	Note.addInitializer ->

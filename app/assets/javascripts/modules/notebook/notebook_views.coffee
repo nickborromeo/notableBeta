@@ -5,25 +5,24 @@
 		tagName: "li"
 		className: "trunk"
 		events: ->
-			"dblclick label": "openEdit" #done
-			"keypress .edit": "closeEdit" #done
-			"blur .edit": "updateTrunk" #done
-			"click .remove": "removeTrunk" #done
-			"click li": "selectTrunk" #done
+			"dblclick label": "openEdit"
+			"keypress .edit": "closeEdit"
+			"blur .edit": "updateTrunk"
+			"click .remove": "removeTrunk"
+			"click": "selectTrunk"
 
 		initialize: ->
 			@listenTo @model, 'change', @render
 			@listenTo @model, 'destroy', @remove
+			
 		ui:
 			input: "input.edit"
 
 		selectTrunk: ->
 			$(".trunk").removeClass("selected")
 			@$el.addClass("selected")
-			# App.Notebook.activeTrunk = (selected notebook in the sidebar)
-			# Show the appropriate notebook in the contentRegion
-			#   Note.compileTree(activeTree)
-			#   Note.$el.render()
+			App.Notebook.activeTrunk = @model
+			App.Note.eventManager.trigger "activeTrunk:changed"
 		openEdit: ->
 			@$el.addClass('editing')
 			@ui.input.focus()
