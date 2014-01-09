@@ -271,7 +271,7 @@
 		jumpPositionUp: (note) ->
 			previousNote = @findPreviousNote note, false
 			return false if not previousNote?
-			App.Action.addHistory 'moveNote', note
+			App.Action.addHistory 'moveBranch', note
 			if note.isInSameCollection previousNote
 				@jumpNoteUpInCollection note
 			else
@@ -294,7 +294,7 @@
 		jumpPositionDown: (branch) ->
 			followingBranch = @findFollowingNote branch, false
 			return false if not followingBranch?
-			App.Action.addHistory 'moveNote', branch
+			App.Action.addHistory 'moveBranch', branch
 			if branch.isInSameCollection followingBranch
 				@jumpNoteDownInCollection branch
 			else
@@ -312,7 +312,7 @@
 
 		tabNote: (note, parent = @findPrecedingInCollection note) ->
 			return false unless note.get('rank') > 1
-			App.Action.addHistory 'moveNote', note
+			App.Action.addHistory 'moveBranch', note
 			previousParentCollection = @getCollection note.get 'parent_id'
 			@removeFromCollection previousParentCollection, note
 			Note.eventManager.trigger "expand:#{parent.get('guid')}"

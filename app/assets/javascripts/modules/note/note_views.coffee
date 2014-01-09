@@ -203,7 +203,7 @@
 			noteTitle = @getNoteTitle()
 			noteSubtitle = "" #@getNoteSubtitle()
 			if @model.get('title') isnt noteTitle or forceUpdate is true
-				App.Action.orchestrator.triggerAction 'updateContent', @model,
+				App.Action.orchestrator.triggerAction 'updateBranch', @model,
 					title: noteTitle
 					subtitle: noteSubtitle
 			noteTitle
@@ -325,7 +325,7 @@
 		startMove: (ui, e, model) ->
 			# e.preventDefault();
 			# ui.noteContent.style.opacity = '0.7'
-			App.Action.addHistory 'moveNote', model
+			App.Action.addHistory 'moveBranch', model
 			@drag = model
 			e.dataTransfer.effectAllowed = "move"
 			e.dataTransfer.setData("text", model.get 'guid')
@@ -437,7 +437,7 @@
 			noteTitle = @getNoteTitle()
 			noteSubtitle = "" #@getNoteSubtitle()
 			if @model.get('title') isnt noteTitle or forceUpdate is true
-				App.Action.orchestrator.triggerAction 'updateContent', @model,
+				App.Action.orchestrator.triggerAction 'updateBranch', @model,
 					title: noteTitle
 					subtitle: noteSubtitle
 			noteTitle

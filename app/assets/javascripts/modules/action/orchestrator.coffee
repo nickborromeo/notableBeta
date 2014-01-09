@@ -1,4 +1,4 @@
-@Notable.module "Action", (Action, App, Backbone, Marionette, $, _) ->
+OA@Notable.module "Action", (Action, App, Backbone, Marionette, $, _) ->
 
 	Action.defaultAction = (branch, attributes, options = {}) ->
 		branch: branch
@@ -29,10 +29,10 @@
 
 	Action.createBranch = (branch, attributes, options = {}) ->
 		# compound: -> unless options.isUndo then Action.addHistory "compoundAction", {actions:2}
-		addToHistory: -> unless options.isUndo then Action.addHistory 'createNote', branch
+		addToHistory: -> unless options.isUndo then Action.addHistory 'createBranch', branch
 
-	Action.updateContent = (branch, attributes, options = {}) ->
-		addToHistory: -> Action.addHistory 'updateContent', branch, options.isUndo
+	Action.updateBranch = (branch, attributes, options = {}) ->
+		addToHistory: -> Action.addHistory 'updateBranch', branch, options.isUndo
 
 	class Action.Orchestrator
 
