@@ -14,19 +14,20 @@
 	#  		6 - reset focus on the correct note
 	#		-***- to improve the pattern for SOME actions only ie: content updates, don't remove or add, just trigger update
 
-	Action.helpers.getReference = (guid) ->
+	Action.Helpers = {}
+	Action.Helpers.getReference = (guid) ->
 		note = App.Note.tree.findNote(guid)
 		parent_id = note.get('parent_id')
 		parentCollection = App.Note.tree.getCollection(parent_id)
 		{note: note, parent_id: parent_id, parentCollection: parentCollection}
 
 	Action.stack = {}
-	Action.stack.redo = {}
-	Action.stack.undo = {}
+	Action.stack.redo = []
+	Action.stack.undo = []
 
 	class Action.Manager
 
-		initialize: ->
+		constructor: ->
 			@undoStack = Action.stack.redo
 			@redoStack = Action.stack.undo
 			@historyLimit = 100
@@ -35,22 +36,22 @@
 			@addAction = new Action.HistoryActions
 
 		initializeRevert: ->
-			createBranch: (change, isUndo = true) ->
+			createBranch: (change, isUndo = true) =>
 				reference = Action.Helpers.getReference(change.guid)
 				@addAction.deleteBranch reference.note, isUndo
 				@revertActions.createBranch.apply(@revertActions, arguments)
-			deleteBranch: (change, isUndo = true) ->
-				@addAction.createBranch Action.Helpers.getReference(change.ancestorNote.guid).note, isUndo		
+			deleteBranch: (change, isUndo = true) =>
 				@revertActions.deleteBranch.apply(@revertActions, arguments)
-			moveBranch: (change, isUndo = true) ->
+				@addAction.createBranch Action.Helpers.getReference(change.ancestorNote.guid).note, isUndo		
+			moveBranch: (change, isUndo = true) =>
 				reference = Action.Helpers.getReference(change.guid)
 				@addAction.moveBranch reference.note, isUndo
 				@revertActions.moveBranch.apply(@revertActions, arguments)
-			updateBranch: (change, isUndo = true) ->
+			updateBranch: (change, isUndo = true) =>
 				reference = Action.Helpers.getReference(change.guid)
 				@addAction.updateBranch reference.note, isUndo
 				@revertActions.updateBranch.apply(@revertActions, arguments)
-			compoundAction: (change, isUndo = true) ->
+			compoundAction: (change, isUndo = true) =>
 				@addAction.compoundActionCreator change.actions, isUndo
 				@revertActions.compoundAction.apply(@revertActions, arguments)
 
@@ -63,7 +64,7 @@
 		addHistory: (actionType, note, isUndo = false) ->
 			throw "!!--cannot track this change--!!" unless @addAction[actionType]?
 			throw "compoundAction takes an object with an integer!" if actionType is "compoundAction" and isNaN(note.actions)
-			clearRedoHistory() if @redoStack.length > 1 and isUndo is false
+			@clearRedoHistory() if @redoStack.length > 1 and isUndo is false
 			if @undoStack.length >= @historyLimit then @undoStack.shift()
 			@addAction[actionType] note, isUndo
 			@addAction.compoundTrigger() unless actionType is "compoundAction"
@@ -101,7 +102,7 @@
 
 	class Action.HistoryActions
 
-		initialize: ->
+		constructor: ->
 			@undoStack = Action.stack.redo
 			@redoStack = Action.stack.undo
 			@compoundTargets = [] #this is a list of targets to listen
@@ -147,70 +148,48 @@
 
 	class Action.RevertActions
 
-		# -----------------------------
-		# Action: createNote
-		# -----------------------------
 		# EXPECTS change: {guid: guid}
-
-		createNote: (change, isUndo = true) ->
+		createBranch: (change, isUndo = true) ->
 			reference = Action.Helpers.getReference(change.guid)
 			noteToFocusOn = App.Note.tree.jumpFocusUp(reference.note) ? App.Note.tree.jumpFocusDown(reference.note)
 			App.Note.tree.deleteNote reference.note, true
 			App.Note.eventManager.trigger "setCursor:#{noteToFocusOn.get('guid')}"
 
 
-		# -----------------------------
-		# undo deleted branch
-		# -----------------------------
 		# EXPECTS change: {ancestorNote: {<ancestorNote attributes>}, childNoteSet: [list of child notes + attributes] }
-
-		reverseDeleteNote: (attributes) ->
+		deleteBranch: (change, isUndo = true) ->
+			@reverseDeleteBranch(change.ancestorNote)
+			for attributes in change.childNoteSet
+				@reverseDeleteBranch(attributes)
+		reverseDeleteBranch: (attributes) ->
 			newBranch = new App.Note.Branch()
-			# newBranch.save attributes
 			App.Action.orchestrator.triggerAction 'createBranch', newBranch, attributes, isUndo: true
 			App.Note.tree.insertInTree newBranch
 			#remove from storage if offline
 			App.OfflineAccess.addToDeleteCache attributes.guid, false
 			App.Note.eventManager.trigger "setCursor:#{newBranch.get('guid')}"			
 
-		deleteBranch: (change, isUndo = true) ->
-			@reverseDeleteNote(change.ancestorNote)
-			for attributes in change.childNoteSet
-				@reverseDeleteNote(attributes)
-
-		# -----------------------------
-		# undo move note
-		# -----------------------------
 		# EXPECTS change: {guid:'', parent_id:'', rank:'', depth: ''}
-
-		moveNote: (change, isUndo = true) ->
+		moveBranch: (change, isUndo = true) ->
 			reference = Action.Helpers.getReference(change.guid)
 			App.Note.tree.removeFromCollection reference.parentCollection, reference.note
 			App.Action.orchestrator.triggerAction 'basicAction', reference.note, change, isUndo: isUndo
 			App.Note.tree.insertInTree reference.note
 			App.Note.eventManager.trigger "setCursor:#{reference.note.get('guid')}"
 
-		# -----------------------------
-		# undo note content update
-		# -----------------------------
 		# EXPECTS change: {guid: '', title:'', subtitle:''}
-
-		updateContent: (change, isUndo = true) ->
+		updateBranch: (change, isUndo = true) ->
 			reference = Action.Helpers.getReference(change.guid)
-			App.Action.orchestrator.triggerAction 'updateContent', reference.note, change, isUndo: isUndo
+			App.Action.orchestrator.triggerAction 'updateBranch', reference.note, change, isUndo: isUndo
 			App.Note.eventManager.trigger "setTitle:#{change.guid}", change.title
 			# App.Note.eventManager.trigger "setSubtitle:#{change.guid}", change.subtitle
 
-		# -----------------------------
-		# undo compoundAction
-		# -----------------------------
 		# EXPECTS change: {actions: 'number'}
-
 		compoundAction: (change, isUndo = true) ->
 			if isUndo
-				Action.undo() for i in [change.actions..1]
+				Action.manager.undo() for i in [change.actions..1]
 			else
-				Action.redo() for i in [change.actions..1]
+				Action.manager.redo() for i in [change.actions..1]
 
 	Action.addInitializer ->
 		Action.stack.undo = JSON.parse(window.localStorage.getItem('actionHistory')) ? []
