@@ -7,8 +7,8 @@
 
 	Note.Router = Marionette.AppRouter.extend
 		appRoutes:
-			"zoom/:guid": "zoomIn"
 			"search/:results": "searchResults"
+			":guid": "zoomIn"
 			"": "clearZoom"
 
 	Note.Controller = Marionette.Controller.extend
@@ -25,10 +25,12 @@
 		reset: ->
 			@tree._reset()
 			@allNotesByDepth._reset()
-			@allNotesByDepth.fetch success: => @buildTree()
+			@allNotesByDepth.fetch
+				data: notebook_id: App.Notebook.activeTrunk.id
+				success: => @buildTree()
 			Note.eventManager.trigger "clearZoom"
 		setGlobals: ->
-			Note.initializedTree = $.Deferred();
+			Note.initializedTree = $.Deferred()
 			Note.allNotesByDepth = @allNotesByDepth
 			Note.tree = @tree
 			Note.activeTree = @tree
@@ -37,6 +39,7 @@
 			Note.eventManager.on "clearZoom", @clearZoom, @
 			Note.eventManager.on "render:export", @showExportView, @
 			Note.eventManager.on "clear:export", @clearExportView, @
+			Note.eventManager.on "activeTrunk:changed", @changeActiveTrunk, @
 
 		buildTree: ->
 			@allNotesByDepth.sort()
@@ -46,6 +49,7 @@
 			@showContentView(@tree)
 			App.Note.initializedTree.resolve()
 
+		# Export Feat
 		showExportView: (model, paragraph) ->
 			App.contentRegion.currentView.treeRegion.close()
 			App.contentRegion.currentView.crownRegion.close()
@@ -62,6 +66,8 @@
 			App.contentRegion.currentView.treeRegion.close()
 			@treeView = new App.Note.TreeView(collection: tree)
 			App.contentRegion.currentView.treeRegion.show @treeView
+
+		# Crown
 		showCrownView: ->
 				@crownView = new App.Note.CrownView(model: App.Note.activeBranch)
 				App.contentRegion.currentView.crownRegion.show @crownView
@@ -70,6 +76,8 @@
 				@crownView.close()
 				delete @crownView
 			App.Note.activeBranch = "root"
+
+		# Breadcrumbs
 		showBreadcrumbView: ->
 			if @breadcrumbView?
 				@breadcrumbView.collection = new Note.Breadcrumbs null, Note.activeBranch
@@ -79,9 +87,11 @@
 			App.contentRegion.currentView.breadcrumbRegion.show @breadcrumbView
 		showNotebookTitleView: ->
 			if @notebookTitleView?
+				@notebookTitleView.model = App.Notebook.activeTrunk
 				@notebookTitleView.render()
 			else
-				@notebookTitleView = new App.Note.NotebookTitleView()
+				notebook = model: App.Notebook.activeTrunk
+				@notebookTitleView = new App.Notebook.NotebookTitleView notebook
 			App.contentRegion.currentView.breadcrumbRegion.show @notebookTitleView
 			App.Note.activeBranch = "root"
 
@@ -114,6 +124,14 @@
 					Note.eventManager.trigger "setCursor:#{Note.activeTree.first().get('guid')}"
 				else
 					Note.eventManager.trigger "setCursor:#{Note.activeBranch.get('guid')}"
+
+		changeActiveTrunk: ->
+			if Note.activeBranch is "root"
+				@showNotebookTitleView()
+			else
+				@showBreadcrumbView()
+
+			@reset()
 
 	# Initializers -------------------------
 	Note.addInitializer ->

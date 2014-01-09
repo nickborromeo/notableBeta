@@ -12,11 +12,11 @@
 		App.module("Scaffold").start()
 
 	App.addInitializer ->
+		App.module("User").start()
 		App.module("Notebook").start()
 		App.module("Note").start()
 		App.module("Action").start()
-		# App.module("Notification").start()
-		# App.module("Notebook").start()
+		App.module("Notify").start()
 		# App.module("Feat").start()
 		# App.module("Modview").start()
 		# App.module("Tag").start()

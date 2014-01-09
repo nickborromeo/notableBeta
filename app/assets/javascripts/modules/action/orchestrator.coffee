@@ -18,21 +18,21 @@
 
 	Action.mergeWithPreceding = (branch, attributes, options = {}) ->
 		_(
-			compound: -> unless options.isUndo then App.Action.addHistory 'compoundAction', {actions: 2}
+			compound: -> unless options.isUndo then App.Action.manager.addHistory 'compoundAction', {actions: 2}
 			triggerNotification: ->
 		).defaults(Action.buildAction('deleteBranch', branch, attributes, options))
 
 	Action.deleteBranch = (branch, attributes, options = {}) ->
-		addToHistory:	-> unless options.isUndo then App.Action.addHistory 'deleteBranch', branch
+		addToHistory:	-> unless options.isUndo then App.Action.manager.addHistory 'deleteBranch', branch
 		triggerNotification: -> unless options.isUndo then App.Notify.alert 'deleted', 'warning'
 		destroy: true
 
 	Action.createBranch = (branch, attributes, options = {}) ->
-		# compound: -> unless options.isUndo then Action.addHistory "compoundAction", {actions:2}
-		addToHistory: -> unless options.isUndo then Action.addHistory 'createNote', branch
+		# compound: -> unless options.isUndo then App.Action.manager.addHistory "compoundAction", {actions:2}
+		addToHistory: -> unless options.isUndo then App.Action.manager.addHistory 'createBranch', branch
 
-	Action.updateContent = (branch, attributes, options = {}) ->
-		addToHistory: -> Action.addHistory 'updateContent', branch, options.isUndo
+	Action.updateBranch = (branch, attributes, options = {}) ->
+		addToHistory: -> App.Action.manager.addHistory 'updateBranch', branch, options.isUndo
 
 	class Action.Orchestrator
 

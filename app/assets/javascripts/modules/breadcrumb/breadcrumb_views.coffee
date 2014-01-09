@@ -4,6 +4,9 @@
 		template: "breadcrumb/breadcrumb"
 		className: "chain-breadcrumb"
 		tagName: "li"
+		initialize: ->
+			@listenTo @model, "change:title", @render
+
 
 	class Note.BreadcrumbsView extends Marionette.CollectionView
 		id: "breadcrumb"
@@ -20,10 +23,17 @@
 					itemView.className = "chain-breadcrumb"
 					itemView.render();
 			@$el.append(itemView.el)
+)
 
-	class Note.NotebookTitleView extends Marionette.ItemView
+
+@Notable.module("Notebook", (Notebook, App, Backbone, Marionette, $, _) ->
+	class Notebook.NotebookTitleView extends Marionette.ItemView
 		id: "notebook-title"
 		# className: "hidden-xs"
 		tagName: "h3"
 		template: "breadcrumb/notebookTitle"
+
+		initialize: (options) ->
+			@listenTo @model, "change:title", @render
+
 )

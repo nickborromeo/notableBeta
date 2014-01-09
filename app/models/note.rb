@@ -1,6 +1,6 @@
 class Note < ActiveRecord::Base
 	require 'securerandom'
-	attr_accessible :guid, :eng, :title, :subtitle, :parent_id, :rank, :depth, :collapsed, :fresh, :trashed
+	attr_accessible :guid, :eng, :title, :subtitle, :parent_id, :rank, :depth, :collapsed, :fresh, :trashed, :notebook_id
 	validates_presence_of :guid, :rank, :depth
   belongs_to :notebook
 
@@ -197,11 +197,24 @@ class Note < ActiveRecord::Base
 		{:title  => t, :index => $~.begin(0)}
 	end
 
+	# def self.getContentNextLi (content)
+	# 	nextTag = content.index(/<(\/)?(li|ul)>/, 4)
+	# 	nextTag ||= content.size # Meaning there is only a li tag left open, and no closing tag
+	# 	t = content.slice '<li>'.size, nextTag - '<li>'.size
+	# 	if not $~.nil?
+	# 		index = $~.begin(0)
+	# 	else
+	# 		index = content.size
+	# 	end
+		
+	# 	{:title  => t, :index => index}
+	# end
+
 	def self.transformPlainText (content)
 		content = content.gsub '<div></div>', ''
 		content = content.gsub '<div>', '<li>'
 		content = content.gsub '<p>', '<li>'
-		content = '<ul>' + content + '</ul>' if not content.index('<ul>').zero?
+		content = '<ul>' + content + '</ul>' if content.index('<ul>').nil? or not content.index('<ul>').zero?
 		content
 	end
 

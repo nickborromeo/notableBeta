@@ -2,7 +2,8 @@ class NotesController < ApplicationController
   respond_to :html, :json
 
   def index
-    @notes = Note.where("trashed = false").order("depth").order("rank")
+    @notes = Note.where("trashed = false AND notebook_id = " + params[:notebook_id])
+			.order("depth").order("rank")
     respond_with(@notes)
   end
 

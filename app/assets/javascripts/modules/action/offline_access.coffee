@@ -1,7 +1,7 @@
 @Notable.module("OfflineAccess", (OfflineAccess, App, Backbone, Marionette, $, _) ->
 
 	_backOffTimeoutID = null
-	_backOffInterval = 2000
+	_backOffInterval = 0
 	_cachedChanges = 'unsyncedChanges'
 	_cachedDeletes = 'unsyncedDeletes'
 	_localStorageEnabled = true
@@ -9,6 +9,10 @@
 	_inMemoryCachedChanges = {}
 
 	# ------------	cached changes & deletes ------------
+
+	_fibonacci = (n) ->
+		return 1 if n is 0 or n is 1
+		_fibonacci(n-1) + _fibonacci(n-2)
 
 	_addToChangeCache = (attributes) ->
 		_inMemoryCachedChanges[attributes.guid] = attributes
@@ -54,17 +58,18 @@
 
 	# ------------ back off methods ------------
 
-	_startBackOff = (time = _backOffInterval, clearFirst = false) ->
+	_startBackOff = (count = _backOffInterval, clearFirst = false) ->
 		if clearFirst then _clearBackOff()
 		unless _backOffTimeoutID?
+			time = _fibonacci(count) * 1000
 			_backOffTimeoutID = setTimeout (->
-				_startSync time
+				_startSync ++count
 				), time
 
-	_notifyFailureAndBackOff = (time) ->
+	_notifyFailureAndBackOff = (count) ->
 		App.Notify.alert 'connectionLost', 'danger', {selfDestruct: false}
-		if time < 60000 then _startBackOff time*2, true
-		else _startBackOff time, true
+		if _fibonacci(count) < 140000 then _startBackOff count, true
+		else _startBackOff count, true
 
 	_clearBackOff = () ->
 		clearTimeout _backOffTimeoutID
@@ -85,6 +90,7 @@
 		console.log 'trying to sync...'
 		App.Notify.alert 'synced', 'save'
 		App.Note.allNotesByDepth.fetch
+			data: notebook_id: App.Notebook.activeTrunk.id
 			success: -> _deleteAndSave Object.keys(_inMemoryCachedDeletes), time, callback
 			error: -> _notifyFailureAndBackOff(time)
 

@@ -6,9 +6,15 @@
 			if (route = branch.get('route'))?
 				@set "route", route
 			else
-				@set "route", "#/zoom/#{branch.get('guid')}"
+				@set "route", "#/#{branch.get('guid')}"
 			@set "title", branch.get('title')
 			@set "depth", branch.get('depth')
+
+			if @get("depth") is -1
+				@listenTo App.Notebook.activeTrunk, "change:title", @updateNotebookTitle
+
+		updateNotebookTitle: ->
+			@set "title", App.Notebook.activeTrunk.get("title")
 
 	class Note.Breadcrumbs extends Backbone.Collection
 		model: Note.Breadcrumb
@@ -17,10 +23,11 @@
 			@addRoot()
 
 		addRoot: ->
+			activeTrunkTitle = App.Notebook.activeTrunk.attributes.title
 			breadcrumb = new Note.Breadcrumb
 				attributes:
 					route: "#/"
-					title: "My Notebook"
+					title: activeTrunkTitle
 					depth: -1
 
 				get: (attr) ->

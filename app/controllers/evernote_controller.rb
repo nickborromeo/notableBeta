@@ -2,6 +2,15 @@ class EvernoteController < ApplicationController
 	require 'modules/evernote'
 	include Evernote
 
+	def initialize (user = nil, rake_task = false)
+		@current_user = user
+		@rake_task = rake_task # hack
+	end
+
+	def connected_user
+		@current_user ||= current_user
+	end
+
 	def show #incrementalSync
 		@note = Note.find(params[:id])
 		respond_with @note
@@ -70,7 +79,7 @@ class EvernoteController < ApplicationController
 				#sending temporary credentials to gain token credentials
 				access_token = session[:request_token].get_access_token(:oauth_verifier => oauth_verifier)
 				token_credentials = access_token.token
-				User.update(current_user.id, {:token_credentials => token_credentials})
+				User.update(connected_user.id, {:token_credentials => token_credentials})
 
 				#use token credentials to access the Evernote API
 				@client ||= EvernoteOAuth::Client.new(token: token_credentials)
@@ -95,13 +104,12 @@ class EvernoteController < ApplicationController
 		syncState = getSyncState
 		puts "serverLastFUllSync: #{syncState.fullSyncBefore}"
 		fullSyncBefore = Time.at(syncState.fullSyncBefore/1000)
-		evernoteData = if current_user.last_full_sync.nil? or fullSyncBefore > current_user.last_full_sync
+		evernoteData = if connected_user.last_full_sync.nil? or fullSyncBefore > connected_user.last_full_sync
 										 fullSync syncState
 									 else 
 										 incrementalSync syncState
 									 end
-
-		# User.update current_user.id, :lastUpdateCount => evernoteData[:lastChunk].updateCount, :lastSyncTime => evernoteData[:lastChunk].time
+		# User.update connected_user.id, :lastUpdateCount => evernoteData[:lastChunk].updateCount, :lastSyncTime => evernoteData[:lastChunk].time
 		puts notableTrashed.each do |t| puts t.guid; puts t.title; puts t.eng end
 		if not evernoteData.nil?
 			changedBranches = processExpungedAndDeletion evernoteData
@@ -119,14 +127,14 @@ class EvernoteController < ApplicationController
 			puts e.message
 		end
 		if not evernoteData.nil?
-			User.update(current_user.id, :last_update_count => evernoteData[:lastChunk].updateCount, :last_full_sync => Time.at(evernoteData[:lastChunk].currentTime/1000))
+			User.update(connected_user.id, :last_update_count => evernoteData[:lastChunk].updateCount, :last_full_sync => Time.at(evernoteData[:lastChunk].currentTime/1000))
 		end
-		redirect_to root_url
+		redirect_to root_url unless @rake_task
 	end
 
 	def trashRootBranch(notableTrashed)
 		notableTrashed.each do |t|
-			note_store.deleteNote(current_user.token_credentials, t.eng) if not t.eng.nil?
+			note_store.deleteNote(connected_user.token_credentials, t.eng) if not t.eng.nil?
 			Note.deleteBranch t
 		end
 	end
@@ -169,7 +177,7 @@ class EvernoteController < ApplicationController
 	end
 
 	def fullSync (syncState)
-		currentUSN = current_user.last_update_count
+		currentUSN = connected_user.last_update_count
 		notes = []
 		deleted = []
 		return unless currentUSN < syncState.updateCount
@@ -194,12 +202,12 @@ class EvernoteController < ApplicationController
 			:includeTags => true,
 			:includeExpunged => true
 		})
-		note_store.getFilteredSyncChunk(current_user.token_credentials, afterUSN, maxEntries, syncFilter)
+		note_store.getFilteredSyncChunk(connected_user.token_credentials, afterUSN, maxEntries, syncFilter)
 	end
 	
 	def deliverRootBranch(noteData)
 		notebook = getDefaultNotebook
-		last_sync = current_user.last_full_sync
+		last_sync = connected_user.last_full_sync
 		noteData.each do |note|
 			note_content = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>"
 			note_content += "<!DOCTYPE en-note SYSTEM \"http://xml.evernote.com/pub/enml2.dtd\">"
@@ -220,15 +228,15 @@ class EvernoteController < ApplicationController
 			## Attempt to create note in Evernote account
 			begin
 				if last_sync < note[:created_at]
-					new_note = note_store.createNote(current_user.token_credentials, enml_note)
+					new_note = note_store.createNote(connected_user.token_credentials, enml_note)
 				else
 					puts enml_note.guid
 					# if notable and evernote are not sync (time) a created note might be considered an update
 					begin
-						new_note = note_store.updateNote(current_user.token_credentials, enml_note)
+						new_note = note_store.updateNote(connected_user.token_credentials, enml_note)
 					rescue Evernote::EDAM::Error::EDAMUserException => eue
 						if eue.parameter == 'Note.guid'
-							new_note = note_store.createNote(current_user.token_credentials, enml_note)
+							new_note = note_store.createNote(connected_user.token_credentials, enml_note)
 						else
 							throw eue
 						end
@@ -250,7 +258,7 @@ class EvernoteController < ApplicationController
 	end
 
 	def getSyncState
-		state = note_store.getSyncState(current_user.token_credentials)
+		state = note_store.getSyncState(connected_user.token_credentials)
 	end
 	def getFullSyncBefore
 		getSyncState.fullSyncBefore
@@ -268,7 +276,7 @@ class EvernoteController < ApplicationController
 		@user_store ||= client.user_store
 	end
 	def client
-		@client ||= EvernoteOAuth::Client.new(token: current_user.token_credentials)
+		@client ||= EvernoteOAuth::Client.new(token: connected_user.token_credentials)
 	end
 	
 	def evernote_user (token)

@@ -110,11 +110,11 @@
 		triggerRedoEvent: (e) =>
 			e.preventDefault()
 			e.stopPropagation()
-			App.Action.redo()
+			App.Action.manager.redo()
 		triggerUndoEvent: (e) =>
 			e.preventDefault()
 			e.stopPropagation()
-			App.Action.undo()
+			App.Action.manager.undo()
 		triggerShortcut: (event) -> (e) =>
 			e.preventDefault()
 			e.stopPropagation()
@@ -153,7 +153,7 @@
 				@triggerShortcut('jumpFocusUp')(e, true)
 
 		zoomIn: ->
-			Backbone.history.navigate "#/zoom/#{@model.get('guid')}"
+			Backbone.history.navigate "#/#{@model.get('guid')}"
 
 		toggleCollapse: ->
 			if @model.get('collapsed') then @expand() else @collapse()
@@ -193,7 +193,7 @@
 				textBefore = @cursorApi.textBeforeCursor sel, title
 				textAfter = (@cursorApi.textAfterCursor sel, title).replace(/^\s/, "")
 				Note.eventManager.trigger 'createNote', @model, textBefore, textAfter
-				if textAfter.length > 0 then App.Action.addHistory "compoundAction", {actions:2, previousActions: true}
+				if textAfter.length > 0 then App.Action.manager.addHistory "compoundAction", {actions:2, previousActions: true}
 		triggerSaving: (e) ->
 			e.preventDefault()
 			e.stopPropagation()
@@ -203,7 +203,7 @@
 			noteTitle = @getNoteTitle()
 			noteSubtitle = "" #@getNoteSubtitle()
 			if @model.get('title') isnt noteTitle or forceUpdate is true
-				App.Action.orchestrator.triggerAction 'updateContent', @model,
+				App.Action.orchestrator.triggerAction 'updateBranch', @model,
 					title: noteTitle
 					subtitle: noteSubtitle
 			noteTitle
@@ -325,7 +325,7 @@
 		startMove: (ui, e, model) ->
 			# e.preventDefault();
 			# ui.noteContent.style.opacity = '0.7'
-			App.Action.addHistory 'moveNote', model
+			App.Action.manager.addHistory 'moveBranch', model
 			@drag = model
 			e.dataTransfer.effectAllowed = "move"
 			e.dataTransfer.setData("text", model.get 'guid')
@@ -386,7 +386,7 @@
 			else
 				@clearZoom()
 		zoomIn: (model) ->
-			Backbone.history.navigate "#/zoom/#{model.get('guid')}"
+			Backbone.history.navigate "#/#{model.get('guid')}"
 
 		clearZoom: ->
 			Backbone.history.navigate ""
@@ -437,7 +437,7 @@
 			noteTitle = @getNoteTitle()
 			noteSubtitle = "" #@getNoteSubtitle()
 			if @model.get('title') isnt noteTitle or forceUpdate is true
-				App.Action.orchestrator.triggerAction 'updateContent', @model,
+				App.Action.orchestrator.triggerAction 'updateBranch', @model,
 					title: noteTitle
 					subtitle: noteSubtitle
 			noteTitle
@@ -473,7 +473,7 @@
 			else
 				@clearZoom()
 		zoomIn: (guid) ->
-			Backbone.history.navigate "#/zoom/#{guid}"
+			Backbone.history.navigate "#/#{guid}"
 		clearZoom: ->
 			Note.eventManager.trigger "clearZoom"
 

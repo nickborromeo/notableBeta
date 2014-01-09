@@ -76,15 +76,7 @@
 			@descendants = new App.Note.Tree()
 			if @isNew()
 				@set 'created', Date.now()
-				@set 'guid', @generateGuid()
-		generateGuid: ->
-			guidFormat = "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx"
-			guid = guidFormat.replace(/[xy]/g, (c) ->
-				r = Math.random() * 16 | 0
-				v = (if c is "x" then r else (r & 0x3 | 0x8))
-				v.toString 16
-			)
-			guid
+				@set 'guid', Note.generateGuid()
 
 		isARoot: (activeRoot = false)->
 			@get('parent_id') is "root" or (activeRoot and @isAnActiveRoot())
@@ -194,5 +186,5 @@
 		rank: followingNote.get 'rank'
 		parent_id: followingNote.get 'parent_id'
 		depth: followingNote.get 'depth'
-
+		notebook_id: App.Notebook.activeTrunk.id
 )

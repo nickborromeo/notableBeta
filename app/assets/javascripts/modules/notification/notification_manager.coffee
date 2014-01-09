@@ -44,7 +44,7 @@
 
 	_alertClickCallbacks =
 		deleted: ->
-			App.Action.undo()
+			App.Action.manager.undo()
 
 	_renderNotification = (alertAttributes) ->
 		Notify.alerts.add new Notify.Alert alertAttributes
@@ -86,8 +86,5 @@
 	@flushAlerts = ->
 		Notify.alerts.reset()
 
-	Notify.addInitializer ->
-		Notify.alerts = new Notify.Alerts()
-		App.messageRegion.currentView.notificationRegion.show new Notify.AlertsView({collection: Notify.alerts})
 
 )

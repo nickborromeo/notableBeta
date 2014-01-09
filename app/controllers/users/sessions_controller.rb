@@ -1,6 +1,10 @@
 class Users::SessionsController < Devise::SessionsController
+  respond_to :json
 
 	def index
+		# @user = User.where("id = " + current_user.id)
+		# respond_With(@user)
+		respond_with(current_user)
 	end
 
 	def create
