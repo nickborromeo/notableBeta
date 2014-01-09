@@ -1,3 +1,5 @@
+@import "icon-fonts";
+
 // Primary Colors
 $notableBlue: #14A4FF;     // (main)
 $notableOrange: #E97C12;   // (accent)
@@ -10,14 +12,17 @@ $notableViolet: #8F489C;
 
 // Shades of Gray
 $white: #FDFDFD;
-$grayLight: #EAEAEA;
+$grayLight: #E2E3E3; //before #EAEAEA
+$grayLighty: #D1D1D1;
 $gray: #C1C1C1;
 $grayDark: #989898;
 $grayUltraDark: #515151;
 $black: #3D3D3D;
+$black-muted: rgba(61,61,61,.3);
 
 //Screen Sizes
 $screen-xs: 450px;
 $screen-sm: 768px;
 $screen-md: 992px;
 $screen-lg: 1200px;
+

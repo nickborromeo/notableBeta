@@ -23,7 +23,7 @@
 
 	class Note.NotebookTitleView extends Marionette.ItemView
 		id: "notebook-title"
-		className: "hidden-xs"
+		# className: "hidden-xs"
 		tagName: "h3"
 		template: "breadcrumb/notebookTitle"
 )

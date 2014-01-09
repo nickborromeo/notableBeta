@@ -1,3 +1,4 @@
+@import "compass/css3";
 @import "../variables";
 
 // ----------------------------------------------------
@@ -5,28 +6,44 @@
 // ----------------------------------------------------
 .move {
 	margin: 0;
-	padding: 0 0 5px 0;
 	color: $black;
 	border: none;
 	background: none;
 	line-height: 0.8em;
 	outline: none;
-  &.is-collapsed { color: $notableBlue; }
-	&:after {content: "•";}
+	
+	&:after {
+		content: "";
+		width: 13px;
+		height: 13px;
+		display: block;
+		border: 2px solid $black;
+		@include border-radius(50%);
+	}
+	
+	&.is-collapsed { 
+		&:after {
+			background-color: $black-muted;
+		}
+	}
 }
 
 .branch {
 	position: relative;
-	font-size: 12px;
-	line-height: 0.8em;
+	font-weight: 100;
+	line-height: 1em;
 	font-family: Tahoma, 'Lucida Grande', 'Lucida Sans Unicode', Arial, sans-serif;
+	&.depth-0 .note-content { font-size: 14px; }
+	&:not(.depth-0) .note-content { font-size: 12px; }
 	.note-content {
-		margin-left: 3px;
-		width: 97%;
+		margin-left: 4px;
 		display: inline-block;
 		outline: none;
+		padding: 8px 0;
+		width: auto;
 	}
 }
+
 
 .descendants.collapsed {
 	display: none;
@@ -34,12 +51,29 @@
 }
 
 .descendants {
-	margin-left: 1.8em;
-	-webkit-transition-property: all;
-	-webkit-transition-duration: 4s;
-	transition-property: all;
-	transition-duration: 4s;
+	// margin-left: 1.8em;
+	// -webkit-transition-property: all;
+	// -webkit-transition-duration: 4s;
+	// transition-property: all;
+	// transition-duration: 4s;
+
+	.move { display: inline-block; }
 }
+
+$max: 20;
+@for $i from 0 through $max {
+	$x: $i + 1;
+	$bgOpac: 0.005 * $x;
+	.depth-#{$i} {
+		// background: rgba(0,0,0,$bgOpac);
+		.move {
+			margin-left: 26px * $i;
+		}
+	}
+}
+
+// .branch-template > .branch .descendants { padding-top: 15px; }
+
 
 /*** Drag N Drop ***/
 
@@ -53,16 +87,12 @@
 	height: 10px;
 	width:100%;
 	display: inline-block;
+	position: absolute;
 }
 .dropTarget.over {
 	border-top: 3px dashed #AAAEAE;
 }
 
-@media (max-width: 450px) {
-	#tree .branch .note-content {
-		width: 94%;
-	}
-}
 
 // ----------------------------------------------------
 // ---------------TABLET MEDIA QUERIES ----------------
@@ -73,17 +103,18 @@
 		font-size: 16px;
 	}
 	.branch {
-		font-size: 14px;
 		line-height: 0.9em;
 		font-family: 'Lucida Grande', 'Lucida Sans Unicode', Tahoma, Arial, sans-serif;
 		letter-spacing: -0.1px;
+		&.depth-0 .note-content, &:not(.depth-0) .note-content { font-size: 14px; }
 		.note-content {
-			margin-left: 0;
-			width: 95%;
+			font-size: 14px;
+			margin-left: 4px;
+			width: auto; //95%
 		}
 	}
 	.descendants {
-		margin-left: 2.1em;
+		// margin-left: 2.1em;
 	}
 
 }
@@ -97,7 +128,7 @@
 		font-size: 18px;
 	}
 	.branch {
-		font-size: 15px;
+		font-size: 17px;
 		line-height: 1.0em;
 		letter-spacing: -0.3px;
 	}
