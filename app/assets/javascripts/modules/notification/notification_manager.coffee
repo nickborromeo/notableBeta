@@ -44,7 +44,7 @@
 
 	_alertClickCallbacks =
 		deleted: ->
-			App.Action.undo()
+			App.Action.manager.undo()
 
 	_renderNotification = (alertAttributes) ->
 		Notify.alerts.add new Notify.Alert alertAttributes

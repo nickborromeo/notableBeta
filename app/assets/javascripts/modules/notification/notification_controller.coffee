@@ -21,5 +21,3 @@
 	Notify.addInitializer ->
 		Notify.notificationController = new Notify.Controller()
 		Notify.notificationController.start()
-		# new Notebook.Router controller: Notebook.controller
-
