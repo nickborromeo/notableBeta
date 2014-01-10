@@ -129,7 +129,7 @@
 			if isUndo then @redoStack.push(history) else @undoStack.push(history)
 
 		compoundAction: (options, isUndo = false) ->
-			if !!options.previousActions then @addAction.compoundActionCreator options.actions, isUndo
+			if !!options.previousActions then @compoundActionCreator options.actions, isUndo
 			else @compoundTargets.push 
 				actions: options.actions
 				count: options.actions
