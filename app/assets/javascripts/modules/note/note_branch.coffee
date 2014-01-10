@@ -52,7 +52,7 @@
 				error: (model, xhr, opts) =>
 					if xhr.status isnt 404
 						App.Notify.alert 'connectionLost', 'danger', {selfDestruct: false}
-						App.OfflineAccess.addChangeAndStart(@)
+						App.OfflineAccess.addChangeAndStart(@, options.doNotAddToLocal)
 					if options.error? then options.error(model, xhr, opts)
 
 			_(callBackOptions).defaults(options)
@@ -67,7 +67,7 @@
 				error: (model, xhr, opts) =>
 					if xhr.status isnt 404
 						App.Notify.alert 'connectionLost', 'danger', {selfDestruct: false}
-						App.OfflineAccess.addDeleteAndStart(@)
+						App.OfflineAccess.addDeleteAndStart(@, options.doNotAddToLocal)
 					if options.error? then options.error(model, xhr, opts)
 			_(callBackOptions).defaults(options)
 			Backbone.Model.prototype.destroy.call(@, callBackOptions)

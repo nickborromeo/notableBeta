@@ -138,7 +138,9 @@
 			# console.log "trimed changes", validQueue
 			do rec = (branch = validQueue.shift()) ->
 				return if not branch?
-				branch.save()
+				branch.save null,
+					success: -> if validQueue.length is 0 then App.OfflineAccess.clearCached()
+					doNotAddToLocal: true
 				rec validQueue.shift()
-			App.OfflineAccess.clearCached()
+			# App.OfflineAccess.clearCached()
 			App.Notify.alert 'saved', 'save'

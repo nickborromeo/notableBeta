@@ -38,8 +38,8 @@
 			_inMemoryCachedChanges = JSON.parse( window.localStorage.getItem _cachedChanges ) ? {}
 			_inMemoryCachedDeletes = JSON.parse( window.localStorage.getItem _cachedDeletes ) ? {}
 
-	@addChangeAndStart = (note) ->
-		_addToChangeCache note.getAllAtributes()
+	@addChangeAndStart = (note, doNotAddToLocal = false) ->
+		_addToChangeCache note.getAllAtributes() unless doNotAddToLocal
 		_startBackOff()
 
 	@addChange = (note) -> #this guy is for testing!
@@ -47,8 +47,8 @@
 
 	@addDelete = (note) ->
 		_addToDeleteCache note.get('guid')
-	@addDeleteAndStart = (note) ->
-		_addToDeleteCache note.get('guid')
+	@addDeleteAndStart = (note, options = {}) ->
+		_addToDeleteCache note.get('guid') unless options.doNotAddToLocal?
 		_startBackOff()
 
 	# this is used by action manager.....
