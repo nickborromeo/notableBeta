@@ -129,17 +129,17 @@
 			if isUndo then @redoStack.push(history) else @undoStack.push(history)
 
 		compoundAction: (options, isUndo = false) ->
-			if !!options.previousActions then @addAction.compoundActionCreator options.actions, isUndo
+			if !!options.previousActions then @compoundActionCreator options.actions, isUndo
 			else @compoundTargets.push 
 				actions: options.actions
 				count: options.actions
 				isUndo: isUndo
 		compoundTrigger: ->
 			if @compoundTargets.length > 0
-				_(@compoundTargets).each (target, index, fullList) ->
+				_(@compoundTargets).each (target, index, fullList) =>
 					target.count--
 					if target.count is 0
-						@addAction.compoundActionCreator target.actions, target.isUndo
+						@compoundActionCreator target.actions, target.isUndo
 						delete fullList[index]
 				@compoundTargets = _(@compoundTargets).reject (item) -> return item is undefined
 		compoundActionCreator: (actions, isUndo = false) ->
