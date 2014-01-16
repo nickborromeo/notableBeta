@@ -23,31 +23,38 @@
 	-moz-osx-font-smoothing: grayscale;
 }
 
+
+.icon-icons-11:before {//cloud
+	content: "\e610";
+}
+.icon-icons-10:before {//cross2
+	content: "\e611";
+}
+.icon-icons-09:before {//cross
+	content: "\e612";
+}
 .icon-icons-08:before {
 	content: "\e600";
 }
-.icon-emoticons-01:before {
-	content: "\e601";
-}
-.icon-icons-07:before {
+.icon-icons-07:before {//export -> change to cloud
 	content: "\e602";
 }
-.icon-icons-06:before {
+.icon-icons-06:before {//delete
 	content: "\e603";
 }
-.icon-icons-05:before {
+.icon-icons-05:before {//smiley
 	content: "\e604";
 }
-.icon-icons-04:before {
+.icon-icons-04:before {//attach
 	content: "\e605";
 }
-.icon-icons-03:before {
+.icon-icons-03:before {//copy
 	content: "\e606";
 }
 .icon-icons-02:before {
 	content: "\e607";
 }
-.icon-icons-01:before {
+.icon-icons-01:before {//tag
 	content: "\e608";
 }
 .icon-emoticons-08:before {
@@ -59,15 +66,18 @@
 .icon-emoticons-06:before {
 	content: "\e60b";
 }
-.icon-emoticons-05:before {
+.icon-emoticons-05:before {//question mark
 	content: "\e60c";
 }
-.icon-emoticons-04:before {
+.icon-emoticons-04:before {//check mark
 	content: "\e60d";
 }
-.icon-emoticons-03:before {
+.icon-emoticons-03:before {//smiley
 	content: "\e60e";
 }
-.icon-emoticons-02:before {
+.icon-emoticons-02:before {//star
 	content: "\e60f";
+}
+.icon-emoticons-01:before {//heart
+	content: "\e601";
 }

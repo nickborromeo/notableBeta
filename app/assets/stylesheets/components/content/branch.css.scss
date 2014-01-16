@@ -11,7 +11,8 @@
 	background: none;
 	line-height: 0.8em;
 	outline: none;
-	
+	position: relative; 
+
 	&:after {
 		content: "";
 		width: 13px;
@@ -92,6 +93,195 @@ $max: 20;
 .dropTarget.over {
 	border-top: 3px dashed #AAAEAE;
 }
+
+
+// Feat Wheel
+$slicesize:100px;
+$menuitems:6;
+$rawangle:360/$menuitems;
+$angle:$rawangle+0deg;
+$currentslicesize:$rawangle / 360 * ($slicesize*1.8)-7;
+$duration:0.15s;
+
+$middleH: 14px;
+$middleW: $middleH;
+
+.bulletpoint {
+	background: $white;
+	border-radius: 100%;
+	border: 2px solid $black;
+	display: none;
+	@include box-sizing(border-box);
+	position: absolute;
+	height: $middleH;
+	width: $middleH;
+	z-index: 9999;
+}
+
+.featwheel {
+	position: relative;
+	top: 7px;
+	z-index: 1000;
+	@include transition(transform 0.2s ease);
+	@include transform(scale(0));
+	&.scale-featwheel{ @include transform(scale(1)); }
+	.radialmenu {
+		cursor: default;
+		position:absolute;
+		top:50%;
+		left:50%;
+		display:block;
+		//overflow:hidden;
+		width:250px;
+		height:250px;
+		margin: (-250px/2) 0 0 (-250px/2);
+		padding: 0;
+		list-style:none;
+		z-index: 2;
+	  &:before {
+	    content:"";
+	    display:block;
+	    position:absolute;
+	    top:50%;
+	    left:50%;
+	    z-index:1;
+	    width:$middleW;
+	    height:$middleH;
+	    margin: (-$middleH/2) 0 0 (-$middleH/2);
+	    border-radius:100%;
+	    border: 2px solid $black;
+	    @include box-sizing(border-box);
+	    @include box-shadow(0 0 0 2px $grayLight);
+	    background:$white;
+	    color:#fff;
+	    font-size:2em;
+	    line-height:80px;
+	    text-align:center;
+	    pointer-events:none;
+	  }
+
+	  li {
+	    position:absolute;
+	    top:50%;
+	    left:50%;
+	    margin:0;
+	    width:$slicesize;
+	    height:$slicesize;
+	    margin:(-$slicesize/2) 0 0 (-$slicesize/2);
+	    border-radius:100%;
+	    clip: rect(-25px, $slicesize, $slicesize/2, $slicesize/2);
+	    pointer-events:none;
+	    &:nth-child(1) {
+			@include transform(rotate(90deg));
+	    	a i{ @include transform( rotate(-150deg)); }
+	    }
+		&:nth-child(2) {
+			@include transform(rotate(90deg+$angle));
+			a i{ @include transform( rotate(150deg)); }
+		}
+		&:nth-child(3) {
+			@include transform(rotate(90deg+$angle*2));
+			a i{ @include transform( rotate(90deg)); }
+		}
+		&:nth-child(4) {
+			@include transform(rotate(90deg+$angle*3));
+			a i{ @include transform( rotate(30deg)); }
+		}
+		&:nth-child(5) {
+			@include transform(rotate(90deg+$angle*4));
+			a i{ @include transform( rotate(-30deg)); }
+		}
+		&:nth-child(6) {
+			@include transform(rotate(90deg+$angle*5));
+			a i{ @include transform( rotate(-90deg)); }
+		}
+	  }
+
+	  a {
+	    border: 1px solid $grayDark;
+	    @include box-sizing(border-box);
+	    @include box-shadow(0 0 8px 0 $gray);
+	    position:absolute;
+	    top:0;
+	    left:0;
+	    display:block;
+	    width:$slicesize;
+	    height:$slicesize;
+	    border-radius: 100%;
+	    clip: rect(-25px, $slicesize/2, $slicesize/2, 0);
+	    @include transform(rotate($angle) scale(0.85));
+	    @include transition(0.15s ease-in-out);
+	    backface-visibility:hidden;
+	    cursor:pointer;
+	    pointer-events:auto;
+
+	    i {
+	      color: $black;
+	      font-size: 26px;
+	      position: absolute;
+	      top: 8px;
+	      left: 20px;
+	    }
+
+	    &:hover {
+	      //transform:rotate($angle) scale(1);
+	      background: $grayLight !important;
+	      &:before {
+	        //transform:scale(1) translate(0,0);
+	      }
+	    }
+	  }
+	}
+
+	.radialmenu li:nth-child(1n+1) {
+	  a{
+	    background:$white;
+	  }
+	}
+	.radialmenu li:nth-child(2n+1) {
+	  a {
+	    background:$white;
+	  }
+	}
+
+	.radialmenu.colormenu, .radialmenu.emoticonsmenu {
+		z-index: 1;
+		opacity: 0;
+		@include transition(opacity 0.5s ease, z-index 0s ease);
+
+		&.radial-to-front {
+			z-index: 100;
+			opacity: 1;
+			@include transition(z-index 1s ease);
+		}
+
+		li {
+			@include transition(all 0.5s ease);
+			a { @include box-shadow(none); }
+			a:active{background: $notableOrange !important;}
+		}
+	}
+	.radialmenu.colormenu {
+		li:nth-child(1) a { background: $notableBlue; }
+		li:nth-child(2) a { background: $notableGreen; }
+		li:nth-child(3) a { background: $notableYellow; }
+		li:nth-child(4) a { background: $notableOrange; }
+		li:nth-child(5) a { background: $notableRed; }
+		li:nth-child(6) a { background: $notableViolet; }
+		i { 
+			color: $white; 
+			display: none;
+			&.selected { display: block; }
+		}
+	}
+
+}
+
+.radial-closed{ @include transform(rotate(0deg) !important); }
+
+
+
+
 
 
 // ----------------------------------------------------

@@ -1,9 +1,39 @@
 <div data-guid="{{guid}}" class="branch depth-{{depth}}">
 	<div class="dropTarget dropBefore"></div>
+
+	<!-- <div class="highlight"></div> btn-success  -->
+	<button class="btn-xs move" draggable="true">
 		<div class="bulletpoint"></div>
-		<!-- <div class="highlight"></div> btn-success  -->
-		<button class="btn-xs move" draggable="true"></button>
-		<div class="note-content" contenteditable="true">{{{title}}}</div>
+		<div class="featwheel">
+			<ul class="radialmenu">
+				<li class="feat-color"><a href="#"><i class="icon-icons-08"></i></a></li>
+				<li class="feat-delete"><a href="#"><i class="icon-icons-06"></i></a></li>
+				<li class="feat-copy"><a href="#"><i class="icon-icons-03"></i></a></li>
+				<li class="feat-share"><a href="#"><i class="icon-icons-11"></i></a></li>
+				<li class="feat-tag"><a href="#"><i class="icon-icons-01"></i></a></li>
+				<li class="feat-emoticons"><a href="#"><i class="icon-emoticons-03"></i></a></li>
+			</ul>
+
+			<ul class="radialmenu colormenu">
+				<li class="radial-closed notable-blue"><a href="#"><i class="icon-icons-09"></i></a></li>
+				<li class="radial-closed notable-green"><a href="#"><i class="icon-icons-09 selected"></i></a></li>
+				<li class="radial-closed notable-yellow"><a href="#"><i class="icon-icons-09"></i></a></li>
+				<li class="radial-closed notable-orange"><a href="#"><i class="icon-icons-09"></i></a></li>
+				<li class="radial-closed notable-red"><a href="#"><i class="icon-icons-09"></i></a></li>
+				<li class="radial-closed notable-violet"><a href="#"><i class="icon-icons-09"></i></a></li>
+			</ul>
+
+			<ul class="radialmenu emoticonsmenu">
+				<li class="radial-closed emoti-star"><a href="#"><i class="icon-emoticons-02"></i></a></li>
+				<li class="radial-closed emoti-question"><a href="#"><i class="icon-emoticons-05"></i></a></li>
+				<li class="radial-closed emoti-smiley"><a href="#"><i class="icon-icons-05"></i></a></li>
+				<li class="radial-closed emoti-cross"><a href="#"><i class="icon-icons-09"></i></a></li>
+				<li class="radial-closed emoti-heart"><a href="#"><i class="icon-emoticons-01"></i></a></li>
+				<li class="radial-closed emoti-check"><a href="#"><i class="icon-emoticons-04"></i></a></li>
+			</ul>
+		</div>
+	</button>
+	<div class="note-content" contenteditable="true">{{{title}}}</div>
 	<!-- <div class="note-content">{{{subtitle}}}</div> -->
 	<div class="descendants"></div>
 	<div class="dropTarget dropAfter"></div>
