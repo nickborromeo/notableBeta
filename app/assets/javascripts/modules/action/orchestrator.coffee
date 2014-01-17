@@ -82,7 +82,11 @@
 			action.addToHistory()
 			action.triggerNotification()
 			action.branch.set action.attributes unless not action.attributes?
-			App.OfflineAccess.addChange action.branch unless action.options.noLocalStorage
+			unless action.options.noLocalStorage
+				if action.destroy
+					App.OfflineAccess.addDelete action.branch
+				else
+					App.OfflineAccess.addChange action.branch
 
 		validate: (branch, attributes, options) ->
 			return false if (val = branch.validation attributes)?
@@ -124,14 +128,8 @@
 			App.Note.noteController.reset()
 			App.OfflineAccess.clearCached()
 			App.Notify.alert 'brokenTree', 'danger'
-		processDestroy: ->
-			# console.log "destroyQueue", @destroyQueue
-			do rec = (branch = @destroyQueue.shift()) =>
-				return if not branch?
-				if branch.id?
-					branch.destroy()				
-				rec @destroyQueue.shift()
 		acceptChanges: (validQueue) ->
+			return if App.OfflineAccess.isOffline()
 			# console.log "accept changes", validQueue
 			@processDestroy()
 			App.Notify.alert 'saving', 'save'
@@ -139,8 +137,14 @@
 			do rec = (branch = validQueue.shift()) ->
 				return if not branch?
 				branch.save null,
-					success: -> if validQueue.length is 0 then App.OfflineAccess.clearCached()
+					success: -> if validQueue.length is 0 then App.OfflineAccess.clearCached(); App.Notify.alert 'saved', 'save'
 					doNotAddToLocal: true
 				rec validQueue.shift()
 			# App.OfflineAccess.clearCached()
-			App.Notify.alert 'saved', 'save'
+		processDestroy: ->
+			# console.log "destroyQueue", @destroyQueue
+			do rec = (branch = @destroyQueue.shift()) =>
+				return if not branch?
+				if branch.id?
+					branch.destroy()				
+				rec @destroyQueue.shift()

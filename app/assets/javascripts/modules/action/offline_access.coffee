@@ -86,6 +86,9 @@
 	# ------------ sync on lost connection: this is the order in which they are called ----------
 
 	# downloads all notes, this is not reflected in DOM
+
+	# PROBLEM WITH THE FUNCTION
+	# Have to be able to be called without knowing the actual count
 	_startSync = (time = _backOffInterval, callback) ->
 		console.log 'trying to sync...'
 		App.Notify.alert 'synced', 'save'
