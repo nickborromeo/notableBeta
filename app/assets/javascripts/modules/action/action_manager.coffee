@@ -130,7 +130,7 @@
 
 		compoundAction: (options, isUndo = false) ->
 			if !!options.previousActions then @compoundActionCreator options.actions, isUndo
-			else @compoundTargets.push 
+			else @compoundTargets.push
 				actions: options.actions
 				count: options.actions
 				isUndo: isUndo
@@ -167,7 +167,7 @@
 			App.Note.tree.insertInTree newBranch
 			#remove from storage if offline
 			App.OfflineAccess.addToDeleteCache attributes.guid, false
-			App.Note.eventManager.trigger "setCursor:#{newBranch.get('guid')}"			
+			App.Note.eventManager.trigger "setCursor:#{newBranch.get('guid')}"
 
 		# EXPECTS change: {guid:'', parent_id:'', rank:'', depth: ''}
 		moveBranch: (change, isUndo = true) ->
@@ -194,7 +194,7 @@
 	Action.addInitializer ->
 		Action.stack.undo = JSON.parse(window.localStorage.getItem('actionHistory')) ? []
 
-	# as great as this idea is, it won't (always) work... 
+	# as great as this idea is, it won't (always) work...
 	Action.addFinalizer ->
 		Action.stack.redo = window.localStorage.setItem 'actionHistory', JSON.stringify @undoStack
 
