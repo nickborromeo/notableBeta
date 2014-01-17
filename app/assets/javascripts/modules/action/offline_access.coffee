@@ -94,7 +94,7 @@
 			success: -> _deleteAndSave Object.keys(_inMemoryCachedDeletes), time, callback
 			error: -> _notifyFailureAndBackOff(time)
 
-	# deltes all notes that were deleted to fix server ID references
+	# deletes all notes that were deleted to fix server ID references
 	_deleteAndSave = (notesToDelete, time, callback) ->
 		unless notesToDelete.length > 0
 			return _startAllNoteSync time, callback

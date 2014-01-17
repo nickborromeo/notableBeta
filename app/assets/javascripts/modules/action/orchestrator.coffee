@@ -14,6 +14,7 @@
 		args = App.Note.sliceArgs arguments
 		_(Action[actionType].apply @, args).defaults(Action.defaultAction.apply @, args)
 
+	# Action Types: basicActipn, mergeWithPreceding, deleteBranch, createBranch, updateBranch
 	Action.basicAction = -> {}
 
 	Action.mergeWithPreceding = (branch, attributes, options = {}) ->
@@ -37,14 +38,13 @@
 	class Action.Orchestrator
 
 		constructor: ->
-			@savingQueue = []
-			@validationQueue = []
-			@actionQueue = []
+			@changeQueue = []
 			@destroyQueue = []
-			@destroyGuidQueue = []
+			@validationQueue = []
+			@savingQueue = []
 
-		queueAction: (action) ->
-			@actionQueue.push action
+		queueChange: (action) ->
+			@changeQueue.push action
 		queueDestroy: (action) ->
 			App.OfflineAccess.addDelete action.branch unless action.options.noLocalStorage
 			@destroyQueue.push action.branch
@@ -56,32 +56,31 @@
 				@queueDestroy action
 				@startSavingQueueTimeout()
 			else
-				@queueAction action
-				@processActionQueue()
+				@queueChange action
+				@processChangeQueue()
 		triggerSaving: ->
 			interval = setInterval =>
 				@clearSavingQueueTimeout()
-				if not @processingActions and @actionQueue.length is 0
+				if not @processingActions and @changeQueue.length is 0
 					clearInterval interval
 					@processValidationQueue()
 
-		processActionQueue: ->
+		processChangeQueue: ->
 			return if @processingActions
 			@processingActions = true
-			do rec = (action = @actionQueue.shift()) =>
-				return if not action?
+			do rec = (action = @changeQueue.shift()) =>
+				return if not action?  # continue to process and validate actions if there are any left in the changeQueue
 				# action.branch.set action.attributes
-				@processAction action				
+				@processAction action
 				@validationQueue.push action
-				# console.log "validationQueue", @validationQueue
-				rec @actionQueue.shift()
+				rec @changeQueue.shift()
 			@processingActions = false
 			@startSavingQueueTimeout()
 		processAction: (action) ->
 			action.compound()
 			action.addToHistory()
 			action.triggerNotification()
-			action.branch.set action.attributes unless not action.attributes?
+			action.branch.set action.attributes if action.attributes?
 			App.OfflineAccess.addChange action.branch unless action.options.noLocalStorage
 
 		validate: (branch, attributes, options) ->
@@ -89,7 +88,7 @@
 			true
 
 		clearSavingQueueTimeout: ->
-			clearTimeout @savingQueueTimeout			
+			clearTimeout @savingQueueTimeout
 		startSavingQueueTimeout: ->
 			@savingQueueTimeout = setTimeout @processValidationQueue.bind(@), 5000
 		processValidationQueue: () ->
@@ -129,7 +128,7 @@
 			do rec = (branch = @destroyQueue.shift()) =>
 				return if not branch?
 				if branch.id?
-					branch.destroy()				
+					branch.destroy()
 				rec @destroyQueue.shift()
 		acceptChanges: (validQueue) ->
 			# console.log "accept changes", validQueue
