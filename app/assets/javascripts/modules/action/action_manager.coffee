@@ -14,13 +14,6 @@
 	#  		6 - reset focus on the correct note
 	#		-***- to improve the pattern for SOME actions only ie: content updates, don't remove or add, just trigger update
 
-	Action.Helpers = {}
-	Action.Helpers.getReference = (guid) ->
-		note = App.Note.tree.findNote(guid)
-		parent_id = note.get('parent_id')
-		parentCollection = App.Note.tree.getCollection(parent_id)
-		{note: note, parent_id: parent_id, parentCollection: parentCollection}
-
 	Action.stack = {}
 	Action.stack.redo = []
 	Action.stack.undo = []
@@ -116,7 +109,7 @@
 			completeDescendants = note.getCompleteDescendantList()
 			_.each completeDescendants, (descendant) ->
 				removedBranchs.childNoteSet.push(descendant.getAllAtributes())
-				App.OfflineAccess.addToDeleteCache descendant.get('guid'), true  #<< this should be handled in .destroy()
+				Action.storage.addToDeleteCache descendant, true  #<< this should be handled in .destroy()
 			history = {type: 'deleteBranch', changes: removedBranchs}
 			if isUndo then @redoStack.push(history) else @undoStack.push(history)
 			# App.Action.addHistory('deleteBranch', removedBranchs)
@@ -166,7 +159,7 @@
 			App.Action.orchestrator.triggerAction 'createBranch', newBranch, attributes, isUndo: true
 			App.Note.tree.insertInTree newBranch
 			#remove from storage if offline
-			App.OfflineAccess.addToDeleteCache attributes.guid, false
+			Action.storage.addToDeleteCache newBranch, false
 			App.Note.eventManager.trigger "setCursor:#{newBranch.get('guid')}"
 
 		# EXPECTS change: {guid:'', parent_id:'', rank:'', depth: ''}

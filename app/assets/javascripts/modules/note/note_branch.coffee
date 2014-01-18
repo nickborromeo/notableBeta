@@ -47,12 +47,12 @@
 			@set "fresh", true
 			callBackOptions =
 				success: (model, response, opts)  =>
-					App.OfflineAccess.informConnectionSuccess()
+					App.Action.transporter.informConnectionSuccess()
 					if options.success? then options.success(model, response, opts)
 				error: (model, xhr, opts) =>
 					if xhr.status isnt 404
 						App.Notify.alert 'connectionLost', 'danger', {selfDestruct: false}
-						App.OfflineAccess.addChangeAndStart(@, options.doNotAddToLocal)
+						App.Action.storage.addChangeAndStart(@, options.doNotAddToLocal)
 					if options.error? then options.error(model, xhr, opts)
 
 			_(callBackOptions).defaults(options)
@@ -62,12 +62,12 @@
 			@clearTimeoutAndSave()
 			callBackOptions =
 				success: (model, response, opts) =>
-					if App.OfflineAccess.isOffline() then App.OfflineAccess.addToDeleteCache model.get('guid'), true
+					if App.Action.transporter.isOffline() then App.Action.storage.addToDeleteCache model.get('guid'), true
 					if options.success? then options.success(model, response, opts)
 				error: (model, xhr, opts) =>
 					if xhr.status isnt 404
 						App.Notify.alert 'connectionLost', 'danger', {selfDestruct: false}
-						App.OfflineAccess.addDeleteAndStart(@, options.doNotAddToLocal)
+						App.Action.storage.addDeleteAndStart(@, options.doNotAddToLocal)
 					if options.error? then options.error(model, xhr, opts)
 			_(callBackOptions).defaults(options)
 			Backbone.Model.prototype.destroy.call(@, callBackOptions)

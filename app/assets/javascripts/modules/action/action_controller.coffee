@@ -9,7 +9,9 @@
 			@setGlobals()
 		start: ->
 		setGlobals: ->
-			Action.manager = new Action.Manager()
+			Action.manager = @actionManager
+			Action.transporter = new Action.Transporter()
+			Action.storage = new Action.Storage()
 		setEvents: ->
 
 	# Initializers -------------------------
