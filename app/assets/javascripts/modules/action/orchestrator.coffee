@@ -46,7 +46,6 @@
 		queueAction: (action) ->
 			@actionQueue.push action
 		queueDestroy: (action) ->
-			App.OfflineAccess.addDelete action.branch unless action.options.noLocalStorage
 			@destroyQueue.push action.branch
 			@processAction action
 		triggerAction: (actionType, branch, attributes, options = {}) ->
