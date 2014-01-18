@@ -52,7 +52,7 @@
 				error: (model, xhr, opts) =>
 					if xhr.status isnt 404
 						App.Notify.alert 'connectionLost', 'danger', {selfDestruct: false}
-						App.OfflineAccess.addChangeAndStart(@)
+						App.OfflineAccess.addChangeAndStart(@, options.doNotAddToLocal)
 					if options.error? then options.error(model, xhr, opts)
 
 			_(callBackOptions).defaults(options)
@@ -67,7 +67,7 @@
 				error: (model, xhr, opts) =>
 					if xhr.status isnt 404
 						App.Notify.alert 'connectionLost', 'danger', {selfDestruct: false}
-						App.OfflineAccess.addDeleteAndStart(@)
+						App.OfflineAccess.addDeleteAndStart(@, options.doNotAddToLocal)
 					if options.error? then options.error(model, xhr, opts)
 			_(callBackOptions).defaults(options)
 			Backbone.Model.prototype.destroy.call(@, callBackOptions)
@@ -135,9 +135,9 @@
 		# the following four methods can be used by anyone,
 		# but are relied on by Action Manager to get relevant history information
 		getAllAtributes: =>
-			@generateAttributeHash ['depth', 'rank', 'parent_id', 'guid', 'title', 'subtitle', 'created_at', 'collapsed', 'fresh']
+			@generateAttributeHash ['depth', 'rank', 'parent_id', 'guid', 'title', 'subtitle', 'created_at', 'collapsed', 'fresh', 'notebook_id']
 		getPositionAttributes: =>
-			@generateAttributeHash ['guid', 'depth', 'rank', 'parent_id']
+			@generateAttributeHash ['guid', 'depth', 'rank', 'parent_id', 'notebook_id']
 		getContentAttributes: =>
 			@generateAttributeHash ['guid', 'title', 'subtitle']
 		generateAttributeHash: (okayAttrs) =>
