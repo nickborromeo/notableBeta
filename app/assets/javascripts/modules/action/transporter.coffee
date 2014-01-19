@@ -6,18 +6,18 @@
 			@backOffTimeoutID = null
 			@backOffInterval = 0
 
-		# ------------ back off methods ------------
+		# ------------ Back off methods ------------
 
 		startBackOff: (count = @backOffInterval, clearFirst = false) ->
 			if clearFirst then @clearBackOff()
 			unless @isOffline()
 				time = Action.Helpers.fibonacci(count) * 1000
 				@backOffTimeoutID = setTimeout =>
-					@startSync ++count
+					@syncActions ++count
 				, time
 
-		# Keep in mind condition is broken
-		notifyFailureAndBackOff: (count) ->
+		# >> Keep in mind condition is broken because ...
+		failureBackoff: (count) ->
 			App.Notify.alert 'connectionLost', 'danger', {selfDestruct: false}
 			if Action.Helpers.fibonacci(count) < 140000 then @startBackOff count, true
 			else @startBackOff count, true
@@ -28,77 +28,99 @@
 
 		isOffline: ->
 			@backOffTimeoutID?
-		isOnline: ->
-			!@isOffline()
 
 		informConnectionSuccess: ->
 			if @isOffline()
 				@clearBackOff()
-				@startSync()
+				@syncActions()
 
-		# ------------ Syncing with server: this is the order in which they are called ----------
+		# -------------- Syncing with server ----------------
 
-		# downloads all notes, this is not reflected in DOM
-		# PROBLEM WITH THE FUNCTION
-		# Have to be able to be called without knowing the actual count
-		startSync: (time = @backOffInterval, callback) ->
-			App.Notify.alert 'synced', 'save'
+		# >> Issue: Have to be able to be called without knowing the actual count
+		# >> Are we trying to fetch all notes or just trying to see if there
+		#    is a connetion to the server?
+		# >> We don't seem to do anything with the notes once we get them.
+		syncActions: (time = @backOffInterval, callback) ->
+			App.Notify.alert 'syncing', 'save'
 			App.Note.allNotesByDepth.fetch
 				data: notebook_id: App.Notebook.activeTrunk.id
-				success: => @deleteAndSave Object.keys(Action.storage.deletes), time, callback
-				error: => @notifyFailureAndBackOff(time)
+				success: => @collectDeleteGuids(time, callback)
+				error: => @failureBackoff(time)
+		###
+			testServerConnection().then ->
+				return collectDeleteGuids()
+			.then ->
+			  return syncDeletes()
+			.then ->
+			  return collectChangeGuids()
+			.then ->
+			  return syncChanges()
+			.catch (error) ->
+			  console.log #{error.message}
+			  return failureBackoff()
+		###
+
+		# starts to delete removed notes
+		collectDeleteGuids: (time, callback) ->
+			deleteGuids = Object.keys(Action.storage.deletes)
+			@syncDeletes deleteGuids, time, callback
 
 		# deletes all notes that were deleted to fix server ID references
-		deleteAndSave: (notesToDelete, time, callback) ->
-			unless notesToDelete.length > 0
-				return @startAllNoteSync time, callback
-			noteReference = App.Note.allNotesByDepth.findWhere {guid: notesToDelete.shift()}
+		syncDeletes: (deleteGuids, time, callback) ->
+			unless deleteGuids.length > 0
+				return @collectChangeGuids time, callback
+			noteToDelete = App.Note.allNotesByDepth.findWhere {guid: deleteGuids.shift()}
 			options =
 				success: (note) =>
 					@clearBackOff()
-					@deleteAndSave notesToDelete, time, callback
-				error: => @notifyFailureAndBackOff(time)
+					App.Notify.alert 'synced', 'save'
+					@syncDeletes deleteGuids, time, callback
+				error: => @failureBackoff(time)
 			options.destroy = true
 			options.noLocalStorage = true
-			if noteReference? then noteReference.destroy options # App.Action.orchestrator.trigger noteReference, null, options
+			if noteToDelete? then noteToDelete.destroy options # App.Action.orchestrator.trigger noteToDelete, null, options
 			else options.success()
 
 		# starts to sync the actual note data, ranks, depth, parent IDs, etc
-		startAllNoteSync: (time, callback) ->
-			changeHashGUIDs = Object.keys Action.storage.changes
-			@fullSyncNoAsync changeHashGUIDs, time, callback
+		collectChangeGuids: (time, callback) ->
+			changeGuids = Object.keys Action.storage.changes
+			@fullSyncNoAsync changeGuids, time, callback
 
 		# syncing the actual note data
-		fullSyncNoAsync: (changeHashGUIDs, time, callback) ->
-			unless changeHashGUIDs.length > 0
+		# >> fullSyncNoAsync looks like the parallel to syncDeletes, but
+		#    loadAndSave is where changes are actually synced
+		# >> wtf does fullSyncNoAsync even mean? it's like the worst of
+		#    both worlds: super long name, but not at all descriptive of
+		#    what is happening in the function
+		fullSyncNoAsync: (changeGuids, time, callback) ->
+			unless changeGuids.length > 0
 				if Action.storage.hasChangesToSync()
 					App.Notify.alertOnly 'syncing', 'warning'
 				Action.storage.clearCached()
 				if callback? then return callback() else return
-
 			options =
 				success: =>
 					@clearBackOff()
-					@fullSyncNoAsync changeHashGUIDs, time, callback
-				error: => @notifyFailureAndBackOff(time)
-
-			guid = changeHashGUIDs.pop()
+					@fullSyncNoAsync changeGuids, time, callback
+				error: => @failureBackoff(time)
+			guid = changeGuids.pop()
 			@loadAndSave guid, Action.storage.getChanges(guid), options
 
+		# which one should be called syncChanges?
 		loadAndSave: (guid, attributes, options) ->
-			noteReference = App.Note.allNotesByDepth.findWhere {guid: guid}
-			if not noteReference? and not Action.storage.isAlreadyInDeletes guid
-				noteReference = new App.Note.Branch()
-				App.Note.allNotesByDepth.add noteReference
-			if noteReference?
-				Backbone.Model.prototype.save.call(noteReference,attributes,options)
+			noteToSave = App.Note.allNotesByDepth.findWhere {guid: guid}
+			if not noteToSave? and not Action.storage.isAlreadyInDeletes guid
+				noteToSave = new App.Note.Branch()
+				App.Note.allNotesByDepth.add noteToSave
+			if noteToSave?
+				Backbone.Model.prototype.save.call(noteToSave,attributes,options)
 				options.noLocalStorage = true
-				# App.Action.orchestrator.triggerAction noteReference, attributes, options
+				# App.Action.orchestrator.triggerAction noteToSave, attributes, options
 			else
 				options.success()
 
 		checkAndLoadLocal: (buildTreeCallBack) ->
 			Action.storage.loadCached()
-			@startSync(null, buildTreeCallBack)
+			@syncActions(null, buildTreeCallBack)
 			if Action.storage.hasChangesToSync()
 				App.Note.initializedTree.then -> App.Notify.alert 'synced', 'success'

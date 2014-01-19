@@ -23,8 +23,8 @@
 	_alertTypes =
 		saving: "<i>saving...</i>"
 		saved: "Changes saved."
-		syncing: "<i>Syncing with server...</i>"
-		synced: "Changes synced."
+		syncing: "<i>connecting to Notable ... </i>"
+		synced: "Connected."
 		deleted: "Note deleted. <a class='clickCallback'> undo </a>"
 		undo: "Change undone."
 		newNote: "New note has been added."

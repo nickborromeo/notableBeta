@@ -143,5 +143,5 @@
 			do rec = (branch = @destroyQueue.shift()) =>
 				return if not branch?
 				if branch.id?
-					branch.destroy()				
+					branch.destroy()
 				rec @destroyQueue.shift()
