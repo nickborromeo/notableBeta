@@ -51,24 +51,23 @@
 					if options.success? then options.success(model, response, opts)
 				error: (model, xhr, opts) =>
 					if xhr.status isnt 404
-						App.Notify.alert 'connectionLost', 'danger', {selfDestruct: false}
-						App.Action.storage.addChangeAndStart(@, options.doNotAddToLocal)
+						App.Action.transporter.notifyFailure()
+						App.Action.storage.addChange(@) unless options.doNotAddToLocal
 					if options.error? then options.error(model, xhr, opts)
 
 			_(callBackOptions).defaults(options)
 			Backbone.Model.prototype.save.call(@, attributes, callBackOptions)
-			# console.log "saving", @get('guid'), @id, @, arguments
 		destroy: (options = {}) =>
 			@clearTimeoutAndSave()
 			callBackOptions =
 				success: (model, response, opts) =>
-					# App.Action.transporter.startSync()
-					if App.Action.transporter.isOffline() then App.Action.storage.addToDeleteCache model.get('guid'), true
+					App.Action.transporter.startSync()
+					# if App.Action.transporter.isOffline() then App.Action.storage.addDelete model.get('guid')
 					if options.success? then options.success(model, response, opts)
 				error: (model, xhr, opts) =>
 					if xhr.status isnt 404
-						App.Notify.alert 'connectionLost', 'danger', {selfDestruct: false}
-						App.Action.storage.addDeleteAndStart(@, options.doNotAddToLocal)
+						App.Action.transporter.notifyFailure()
+						App.Action.storage.addDelete(@) unless options.doNotAddToLocal
 					if options.error? then options.error(model, xhr, opts)
 			_(callBackOptions).defaults(options)
 			Backbone.Model.prototype.destroy.call(@, callBackOptions)

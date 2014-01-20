@@ -82,9 +82,9 @@
 			action.branch.set action.attributes if action.attributes?
 			unless action.options.noLocalStorage
 				if action.destroy
-					Action.storage.addToDeleteCache action.branch
+					Action.storage.addDelete action.branch
 				else
-					Action.storage.addToChangeCache action.branch
+					Action.storage.addChange action.branch
 
 		validate: (branch, attributes, options) ->
 			return false if (val = branch.validation attributes)?
@@ -124,7 +124,7 @@
 		rejectChanges: (validQueue) ->
 			@validationQueue = []
 			App.Note.noteController.reset()
-			Action.storage.clearCached()
+			Action.storage.clear()
 			App.Notify.alert 'brokenTree', 'danger'
 		acceptChanges: (validQueue) ->
 			return if Action.transporter.isOffline()
@@ -135,7 +135,7 @@
 			do rec = (branch = validQueue.shift()) ->
 				return if not branch?
 				branch.save null,
-					success: -> if validQueue.length is 0 then Action.storage.clearCached(); App.Notify.alert 'saved', 'save'
+					success: -> if validQueue.length is 0 then Action.storage.clear(); App.Notify.alert 'saved', 'save'
 					doNotAddToLocal: true
 				rec validQueue.shift()
 		processDestroy: ->

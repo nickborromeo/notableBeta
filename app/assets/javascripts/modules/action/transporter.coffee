@@ -3,65 +3,61 @@
 	class Action.Transporter
 
 		constructor: () ->
-			@backOffTimeoutID = null
-			@backOffInterval = 0
+			@backoffTimeoutID = null
+			@backoffCount = 0
+			@MAX_BACKOFF = 140000 # 2 mins 20 secs
 
-		# ------------ Back off methods ------------
-
-		startBackOff: (count = @backOffInterval, clearFirst = false) ->
-			if clearFirst then @clearBackOff()
-			unless @isOffline()
-				time = Action.Helpers.fibonacci(count) * 1000
-				@backOffTimeoutID = setTimeout =>
-					@testServerConnection ++count
-				, time
-
-		# >> Keep in mind condition is broken because ...
-		failureBackoff: (count) ->
-			App.Notify.alert 'connectionLost', 'danger', {selfDestruct: false}
-			if Action.Helpers.fibonacci(count) < 140000 then @startBackOff count, true
-			else @startBackOff count, true
-
-		clearBackOff: ->
-			clearTimeout @backOffTimeoutID
-			@backOffTimeoutID = null
-
-		isOffline: ->
-			@backOffTimeoutID?
-
-		# -------------- Syncing with server ----------------
-
-		# >> Issue: Have to be able to be called without knowing the actual count
-		# syncActions: (time = @backOffInterval, callback) ->
-		# 	App.Notify.alert 'syncing', 'save'
-		# 	App.Note.allNotesByDepth.fetch
-		# 		success: => @collectDeletes(time, callback)
-		# 		error: => @failureBackoff(time)
-		# >> To remember : Data synced here might not have passed through validation
-		#    since the Orchestrator sends data to localStorage before validating
-		# >> needs to be more robust because connection can be lost while syncing,
-		#    which could leave the tree in a broken state
-
-		testServerConnection: (count) ->
+		testServerConnection: (forceBackoff = false) ->
 			App.Note.allNotesByDepth.fetch
 				data: notebook_id: App.Notebook.activeTrunk.id
 				success: =>
+					App.Notify.alert 'connectionFound', 'success' if @isOffline()
 					@startSync()
 				error: =>
-					@failureBackoff(count)
+					@notifyFailure forceBackoff
+		notifyFailure: (forceBackoff) ->
+			App.Notify.alert 'connectionLost', 'danger', {destructTime: 14000, count: @backoffCount}
+			@backoff() if @isOnline() or forceBackoff
+
+		# ------------ Back off methods ------------
+
+		backoff: ->
+			@backoffTimeoutID = setTimeout =>
+	 			@testServerConnection true
+			, @backoffTime()
+			++@backoffCount
+		backoffTime: ->
+			time = Action.Helpers.fibonacci(@backoffCount) * 1000
+			if time < @MAX_BACKOFF then time else @MAX_BACKOFF
+		clearBackoff: (clearCount = false) ->
+			clearTimeout @backoffTimeoutID
+			@backoffTimeoutID = null
+			@backoffCount = 0 if clearCount
+
+		isOffline: ->
+			@backoffTimeoutID?
+		isOnline: ->
+			!@isOffline()
+
+		# -------------- Syncing with server ----------------
+		# >> To remember : Data synced here might not have passed through validation
+		#    since the Orchestrator sends data to localStorage before validating
+	
 		startSync: ->
-			if @isOffline()
-				@clearBackOff()
+			if @isOffline() or Action.storage.hasChangesToSync()
+				@clearBackoff true
 				App.Notify.alert 'syncing', 'warning'
 				@syncActions()
-
+			App.Note.syncingCompleted.resolve()
 		syncActions: ->
 			deleteGuids = @collectDeletes()
 			changeGuids = @collectChanges()
 			_.each deleteGuids, (guid) => @syncDelete(guid)
 			_.each changeGuids, (guid) => @syncChange(guid)
-			Action.storage.clearCached()
-			callback() if callback?
+			setTimeout -> # Purposely slow down so we can see 'syncing' notification
+				App.Notify.alert 'synced', 'success' if Action.storage.hasChangesToSync()
+				Action.storage.clear()
+			, 2500
 
 		collectDeletes: ->
 			deleteGuids = Object.keys Action.storage.deletes
@@ -77,11 +73,6 @@
 			if not branch?
  				branch = new App.Note.Branch()
 				App.Note.allNotesByDepth.add branch
+			attributes = Action.storage.getChanges(guid)
 			options = noLocalStorage: true
 			Backbone.Model.prototype.save.call(branch, attributes, options)
-
-		checkAndLoadLocal: (buildTreeCallBack) ->
-			Action.storage.loadCached()
-			@syncActions(null, buildTreeCallBack)
-			if Action.storage.hasChangesToSync()
-				App.Note.initializedTree.then -> App.Notify.alert 'synced', 'success'

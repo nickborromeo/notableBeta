@@ -109,7 +109,7 @@
 			completeDescendants = note.getCompleteDescendantList()
 			_.each completeDescendants, (descendant) ->
 				removedBranchs.childNoteSet.push(descendant.getAllAtributes())
-				Action.storage.addToDeleteCache descendant, true  #<< this should be handled in .destroy()
+				Action.storage.addDelete descendant, true  #<< this should be handled in .destroy()
 			history = {type: 'deleteBranch', changes: removedBranchs}
 			if isUndo then @redoStack.push(history) else @undoStack.push(history)
 			# App.Action.addHistory('deleteBranch', removedBranchs)
@@ -159,7 +159,7 @@
 			App.Action.orchestrator.triggerAction 'createBranch', newBranch, attributes, isUndo: true
 			App.Note.tree.insertInTree newBranch
 			#remove from storage if offline
-			Action.storage.addToDeleteCache newBranch, false
+			Action.storage.addDelete newBranch, false
 			App.Note.eventManager.trigger "setCursor:#{newBranch.get('guid')}"
 
 		# EXPECTS change: {guid:'', parent_id:'', rank:'', depth: ''}

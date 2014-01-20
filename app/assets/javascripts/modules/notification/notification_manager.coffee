@@ -30,7 +30,7 @@
 		newNote: "New note has been added."
 		# Internet
 		connectionLost: "Connection has been lost."
-		connected: "We're back online!"
+		connectionFound: "We're back online!"
 		# Notebook
 		needsName: "Give your notebook a name first."
 		needsNotebook: "Your account needs to have at least one notebook."
