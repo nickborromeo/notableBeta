@@ -38,8 +38,8 @@
 			_inMemoryCachedChanges = JSON.parse( window.localStorage.getItem _cachedChanges ) ? {}
 			_inMemoryCachedDeletes = JSON.parse( window.localStorage.getItem _cachedDeletes ) ? {}
 
-	@addChangeAndStart = (note) ->
-		_addToChangeCache note.getAllAtributes()
+	@addChangeAndStart = (note, doNotAddToLocal = false) ->
+		_addToChangeCache note.getAllAtributes() unless doNotAddToLocal
 		_startBackOff()
 
 	@addChange = (note) -> #this guy is for testing!
@@ -47,8 +47,8 @@
 
 	@addDelete = (note) ->
 		_addToDeleteCache note.get('guid')
-	@addDeleteAndStart = (note) ->
-		_addToDeleteCache note.get('guid')
+	@addDeleteAndStart = (note, options = {}) ->
+		_addToDeleteCache note.get('guid') unless options.doNotAddToLocal?
 		_startBackOff()
 
 	# this is used by action manager.....
@@ -86,6 +86,9 @@
 	# ------------ sync on lost connection: this is the order in which they are called ----------
 
 	# downloads all notes, this is not reflected in DOM
+
+	# PROBLEM WITH THE FUNCTION
+	# Have to be able to be called without knowing the actual count
 	_startSync = (time = _backOffInterval, callback) ->
 		console.log 'trying to sync...'
 		App.Notify.alert 'synced', 'save'
@@ -94,7 +97,7 @@
 			success: -> _deleteAndSave Object.keys(_inMemoryCachedDeletes), time, callback
 			error: -> _notifyFailureAndBackOff(time)
 
-	# deltes all notes that were deleted to fix server ID references
+	# deletes all notes that were deleted to fix server ID references
 	_deleteAndSave = (notesToDelete, time, callback) ->
 		unless notesToDelete.length > 0
 			return _startAllNoteSync time, callback

@@ -1,9 +1,9 @@
 @Notable.module("Action", (Action, App, Backbone, Marionette, $, _) ->
 
 	# NOTES AND EXPLANATION:
-	# -- all undo histories have a action TYPE, and CHANGE 
+	# -- all undo histories have a action TYPE, and CHANGE
 	#   	history item example: {type: '<<undoActionType>>', change: {object containing only relevant change info} }
-	#	-- at the beginning of each undo action should be a list of EXPECTS 
+	#	-- at the beginning of each undo action should be a list of EXPECTS
 	# 		(attributes expected to be found in 'change')
 	# -- the general pattern for updating changes is:
 	#			1 - get note reference
@@ -42,7 +42,7 @@
 				@revertActions.createBranch.apply(@revertActions, arguments)
 			deleteBranch: (change, isUndo = true) =>
 				@revertActions.deleteBranch.apply(@revertActions, arguments)
-				@addAction.createBranch Action.Helpers.getReference(change.ancestorNote.guid).note, isUndo		
+				@addAction.createBranch Action.Helpers.getReference(change.ancestorNote.guid).note, isUndo
 			moveBranch: (change, isUndo = true) =>
 				reference = Action.Helpers.getReference(change.guid)
 				@addAction.moveBranch reference.note, isUndo
@@ -68,12 +68,12 @@
 			if @undoStack.length >= @historyLimit then @undoStack.shift()
 			@addAction[actionType] note, isUndo
 			@addAction.compoundTrigger() unless actionType is "compoundAction"
-		
+
 		undo: ->
 			throw "nothing to undo" unless @undoStack.length > 0
 			change = @undoStack.pop()
 			@revert[change.type](change.changes)
-			
+
 		redo: ->
 			throw "nothing to redo" unless @redoStack.length > 0
 			change = @redoStack.pop()
@@ -130,7 +130,7 @@
 
 		compoundAction: (options, isUndo = false) ->
 			if !!options.previousActions then @compoundActionCreator options.actions, isUndo
-			else @compoundTargets.push 
+			else @compoundTargets.push
 				actions: options.actions
 				count: options.actions
 				isUndo: isUndo
@@ -167,7 +167,7 @@
 			App.Note.tree.insertInTree newBranch
 			#remove from storage if offline
 			App.OfflineAccess.addToDeleteCache attributes.guid, false
-			App.Note.eventManager.trigger "setCursor:#{newBranch.get('guid')}"			
+			App.Note.eventManager.trigger "setCursor:#{newBranch.get('guid')}"
 
 		# EXPECTS change: {guid:'', parent_id:'', rank:'', depth: ''}
 		moveBranch: (change, isUndo = true) ->
@@ -194,7 +194,7 @@
 	Action.addInitializer ->
 		Action.stack.undo = JSON.parse(window.localStorage.getItem('actionHistory')) ? []
 
-	# as great as this idea is, it won't (always) work... 
+	# as great as this idea is, it won't (always) work...
 	Action.addFinalizer ->
 		Action.stack.redo = window.localStorage.setItem 'actionHistory', JSON.stringify @undoStack
 
