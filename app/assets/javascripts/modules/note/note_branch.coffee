@@ -47,7 +47,7 @@
 			@set "fresh", true
 			callBackOptions =
 				success: (model, response, opts)  =>
-					App.Action.transporter.informConnectionSuccess()
+					App.Action.transporter.startSync()
 					if options.success? then options.success(model, response, opts)
 				error: (model, xhr, opts) =>
 					if xhr.status isnt 404
@@ -62,6 +62,7 @@
 			@clearTimeoutAndSave()
 			callBackOptions =
 				success: (model, response, opts) =>
+					# App.Action.transporter.startSync()
 					if App.Action.transporter.isOffline() then App.Action.storage.addToDeleteCache model.get('guid'), true
 					if options.success? then options.success(model, response, opts)
 				error: (model, xhr, opts) =>
