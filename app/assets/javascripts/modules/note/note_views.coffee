@@ -6,6 +6,15 @@
 		ui:
 			noteContent: ">.branch .note-content"
 			descendants: ">.branch .descendants"
+			#FeatWheel
+			movePoint: ">.branch .move"
+			bulletPoint: ".bulletpoint"
+			featWheel: ".featwheel"
+			colorMenu: ".radialmenu.colormenu"
+			emoticonsMenu: ">.branch .radialmenu.emoticonsmenu"
+			colorButton: ">.branch .feat-color"
+			emoticonsButton: ">.branch .feat-emoticons"
+			#end FeatWheel
 		events: ->
 			"blur >.branch>.note-content": "updateNote"
 			"paste >.branch>.note-content": "pasteContent"
@@ -23,6 +32,12 @@
 			"dragenter .dropTarget": @triggerDragEvent "enterMove"
 			"dragleave .dropTarget": @triggerDragEvent "leaveMove"
 			"dragover .dropTarget": @triggerDragEvent "overMove"
+
+			#FeatWheel
+			"mouseover >.branch .bulletpoint": @expandWheel
+			"mouseleave >.branch .featwheel": @contractWheel
+			"click .feat-color": @showColormenu
+			#end FeatWheel
 
 		initialize: ->
 			@collection = @model.descendants
@@ -268,6 +283,41 @@
 			sel = window.getSelection()
 			title = @getNoteTitle()
 			@cursorApi[testPositionFunction](sel, title)
+
+#FeatWheel
+		featwheelOpen: false
+
+		expandWheel: ->
+			if @featwheelOpen is false
+				console.log "in"
+				$(@.$el).find(@ui.featWheel).addClass 'scale-featwheel'
+				@featwheelOpen = true
+		contractWheel: ->
+			if @featwheelOpen is true
+				console.log "out"
+				$(@.$el).find(@ui.featWheel).removeClass 'scale-featwheel'
+				@featwheelOpen = false
+
+		showColormenu: ->
+			console.log this
+			# $(@.$el).find(@ui.colorMenu)
+			# $('.radialmenu.colormenu li').removeClass 'radial-closed'
+			# $('.radialmenu.colormenu').addClass 'radial-to-front'
+		hideColormenu: ->
+			$('.radialmenu.colormenu li').addClass 'radial-closed'
+			$('.radialmenu.colormenu').removeClass 'radial-to-front'
+
+		showEmoticonsmenu: ->
+			$('.radialmenu.emoticonsmenu li').removeClass 'radial-closed'
+			$('.radialmenu.emoticonsmenu').addClass 'radial-to-front'
+		hideEmoticonsmenu: ->
+			$('.radialmenu.emoticonsmenu li').addClass 'radial-closed'
+			$('.radialmenu.emoticonsmenu').removeClass 'radial-to-front'
+
+		setColor: (context) ->
+			$('.radialmenu.colormenu li i').removeClass 'selected'
+			$(context).find('i').addClass 'selected'
+#end FeatWheel
 
 	class Note.TreeView extends Marionette.CollectionView
 		id: "tree"

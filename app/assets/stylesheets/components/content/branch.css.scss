@@ -6,6 +6,7 @@
 // ----------------------------------------------------
 .move {
 	margin: 0;
+	padding: 0;
 	color: $black;
 	border: none;
 	background: none;
@@ -18,7 +19,7 @@
 		width: 13px;
 		height: 13px;
 		display: block;
-		border: 2px solid $black;
+		// border: 2px solid $black;
 		@include border-radius(50%);
 	}
 	
@@ -110,31 +111,36 @@ $middleW: $middleH;
 	background: $white;
 	border-radius: 100%;
 	border: 2px solid $black;
-	display: none;
 	@include box-sizing(border-box);
 	position: absolute;
+	top: 0;
+	left: 0;
 	height: $middleH;
 	width: $middleH;
-	z-index: 9999;
+	z-index: 101;
 }
 
 .featwheel {
-	position: relative;
+	position: absolute;
 	top: 7px;
-	z-index: 1000;
+	left: 7px;
+	width:90px;
+	height:90px;
+	margin: (-90px/2) 0 0 (-90px/2);
+	z-index: 100;
 	@include transition(transform 0.2s ease);
 	@include transform(scale(0));
 	&.scale-featwheel{ @include transform(scale(1)); }
 	.radialmenu {
 		cursor: default;
 		position:absolute;
-		top:50%;
-		left:50%;
+		top:0;
+		left:0;
 		display:block;
 		//overflow:hidden;
-		width:250px;
-		height:250px;
-		margin: (-250px/2) 0 0 (-250px/2);
+		width:90px;
+		height:90px;
+		margin: 0;
 		padding: 0;
 		list-style:none;
 		z-index: 2;
@@ -289,7 +295,6 @@ $middleW: $middleH;
 // ----------------------------------------------------
 @media (min-width: $screen-sm) {
 	.move {
-		padding: 1px 5px;
 		font-size: 16px;
 	}
 	.branch {
