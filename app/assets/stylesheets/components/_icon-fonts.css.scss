@@ -23,14 +23,43 @@
 	-moz-osx-font-smoothing: grayscale;
 }
 
-
+.icon-icons-21:before {
+	content: "\e61c";
+}
+.icon-icons-18:before {//cross v9
+	content: "\e619";
+}
+.icon-icons-19:before {//cross v8
+	content: "\e61a";
+}
+.icon-icons-20:before {//cross v7
+	content: "\e61b";
+}
+.icon-icons-17:before {//cross v6
+	content: "\e613";
+}
+.icon-icons-16:before {//cross v5
+	content: "\e614";
+}
+.icon-icons-15:before {//cross2 v2
+	content: "\e615";
+}
+.icon-icons-14:before {//cross v4
+	content: "\e616";
+}
+.icon-icons-13:before {//cross v3
+	content: "\e617";
+}
+.icon-icons-12:before {//cross v2
+	content: "\e618";
+}
 .icon-icons-11:before {//cloud
 	content: "\e610";
 }
 .icon-icons-10:before {//cross2
 	content: "\e611";
 }
-.icon-icons-09:before {//cross
+.icon-icons-09:before {//cross v1
 	content: "\e612";
 }
 .icon-icons-08:before {
@@ -56,6 +85,15 @@
 }
 .icon-icons-01:before {//tag
 	content: "\e608";
+}
+.icon-emoticons-09:before {
+	content: "\e61d";
+}
+.icon-emoticons-10:before {
+	content: "\e61e";
+}
+.icon-emoticons-11:before {
+	content: "\e61f";
 }
 .icon-emoticons-08:before {
 	content: "\e609";

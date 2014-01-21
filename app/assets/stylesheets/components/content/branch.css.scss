@@ -118,6 +118,28 @@ $middleW: $middleH;
 	height: $middleH;
 	width: $middleH;
 	z-index: 101;
+
+	&:hover {
+		z-index: 1001;
+	}
+
+	&:hover + .featwheel {
+		z-index: 999;
+		@include transition(transform .2s 0.8s ease);
+	}
+	&.notable-blue { border-color: $notableBlue; }
+	&.notable-green { border-color: $notableGreen; }
+	&.notable-yellow { border-color: $notableYellow; }
+	&.notable-orange { border-color: $notableOrange; }
+	&.notable-red { border-color: $notableRed; }
+	&.notable-violet { border-color: $notableViolet; }
+
+	i {
+		font-size: 14px;
+		position: absolute;
+		top: -2px;
+		left: -2px;
+	}
 }
 
 .featwheel {
@@ -128,9 +150,10 @@ $middleW: $middleH;
 	height:90px;
 	margin: (-90px/2) 0 0 (-90px/2);
 	z-index: 100;
-	@include transition(transform 0.2s ease);
+	@include transition(transform .2s 0s ease);
 	@include transform(scale(0));
 	&.scale-featwheel{ @include transform(scale(1)); }
+	&:hover {z-index: 999; }
 	.radialmenu {
 		cursor: default;
 		position:absolute;
@@ -228,15 +251,11 @@ $middleW: $middleH;
 	      top: 8px;
 	      left: 20px;
 	    }
-
-	    &:hover {
-	      //transform:rotate($angle) scale(1);
-	      background: $grayLight !important;
-	      &:before {
-	        //transform:scale(1) translate(0,0);
-	      }
-	    }
 	  }
+	  &:not(.colormenu), &:not(.emoticonsmenu) {
+	  	a:hover { background: $grayLight; }
+	  }
+  	  &:not(.colormenu) { a:active { background: darken($grayLight, 10%); } }
 	}
 
 	.radialmenu li:nth-child(1n+1) {
@@ -256,7 +275,7 @@ $middleW: $middleH;
 		@include transition(opacity 0.5s ease, z-index 0s ease);
 
 		&.radial-to-front {
-			z-index: 100;
+			z-index: 999;
 			opacity: 1;
 			@include transition(z-index 1s ease);
 		}
@@ -264,23 +283,47 @@ $middleW: $middleH;
 		li {
 			@include transition(all 0.5s ease);
 			a { @include box-shadow(none); }
-			a:active{background: $notableOrange !important;}
+			// a:active{ background: $notableOrange !important; }
 		}
 	}
 	.radialmenu.colormenu {
-		li:nth-child(1) a { background: $notableBlue; }
-		li:nth-child(2) a { background: $notableGreen; }
-		li:nth-child(3) a { background: $notableYellow; }
-		li:nth-child(4) a { background: $notableOrange; }
-		li:nth-child(5) a { background: $notableRed; }
-		li:nth-child(6) a { background: $notableViolet; }
+		li:nth-child(1) a { 
+			background: $notableBlue; 
+			&:hover { background: lighten($notableBlue, 20%); }
+			&:active{ background: darken($notableBlue, 10%); }
+		}
+		li:nth-child(2) a { 
+			background: $notableGreen; 
+			&:hover { background: lighten($notableGreen, 20%); }
+			&:active{ background: darken($notableGreen, 10%); }
+		}
+		li:nth-child(3) a { 
+			background: $notableYellow; 
+			&:hover { background: lighten($notableYellow, 20%); }
+			&:active{ background: darken($notableYellow, 10%); }
+		}
+		li:nth-child(4) a { 
+			background: $notableOrange; 
+			&:hover { background: lighten($notableOrange, 20%); }
+			&:active{ background: darken($notableOrange, 10%); }
+		}
+		li:nth-child(5) a { 
+			background: $notableRed; 
+			&:hover { background: lighten($notableRed, 20%); }
+			&:active{ background: darken($notableRed, 10%); }
+		}
+		li:nth-child(6) a { 
+			background: $notableViolet; 
+			&:hover { background: lighten($notableViolet, 20%); }
+			&:active{ background: darken($notableViolet, 10%); }
+		}
 		i { 
-			color: $white; 
+			color: rgba(0,0,0,0.3);
+			// text-shadow: 0 1px 0 #fff; 
 			display: none;
 			&.selected { display: block; }
 		}
 	}
-
 }
 
 .radial-closed{ @include transform(rotate(0deg) !important); }
