@@ -123,8 +123,8 @@
 				App.Notify.alert 'saved', 'save'
 			do rec = (branch = validQueue.shift()) ->
 				return if not branch?
-				branch.save null,
-					success: -> if validQueue.length is 0 then Action.transporter.storage.clear(); App.Notify.alert 'saved', 'save'
+				# branch.save null,
+				# 	success: -> if validQueue.length is 0 then Action.transporter.storage.clear(); App.Notify.alert 'saved', 'save'
 				rec validQueue.shift()
 		processDestroy: ->
 			do rec = (branch = @destroyQueue.shift()) =>

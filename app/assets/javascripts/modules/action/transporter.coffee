@@ -67,7 +67,7 @@
 		syncDelete: (guid) ->
 			branch = App.Note.allNotesByDepth.findWhere {guid: guid}
 			options =	destroy: true, noLocalStorage: true
-			branch.destroy options if branch?
+			branch.remove options if branch?
 		syncChange: (guid) ->
 			return if @storage.isAlreadyInDeletes guid
 			branch = App.Note.allNotesByDepth.findWhere {guid: guid}
@@ -76,7 +76,7 @@
 				App.Note.allNotesByDepth.add branch
 			attributes = @storage.getChanges(guid)
 			options = noLocalStorage: true
-			Backbone.Model.prototype.save.call(branch, attributes, options)
+			Backbone.Model.prototype.set.call(branch, attributes, options)
 
 		addToStorage: (action) ->		
 			if action.destroy
