@@ -3,6 +3,7 @@
 	class Action.Transporter
 
 		constructor: () ->
+			@storage = new Action.Storage
 			@backoffTimeoutID = -1
 			@backoffCount = 0
 			@MAX_BACKOFF = 140000 # 2 mins 20 secs
@@ -45,7 +46,7 @@
 		startSync: ->
 			if @isOffline()
 				@clearBackoff true
-				if Action.storage.hasChangesToSync()
+				if @storage.hasChangesToSync()
 					App.Notify.alert 'syncing', 'warning'
 					@syncActions()
 			App.Note.syncingCompleted.resolve()
@@ -54,25 +55,31 @@
 			changeGuids = @collectChanges()
 			_.each deleteGuids, (guid) => @syncDelete(guid)
 			_.each changeGuids, (guid) => @syncChange(guid)
+			@storage.clear()
 			setTimeout -> # Purposely delayed so user can see 'syncing' notification
 				App.Notify.alert 'synced', 'success'
 			, 2000
-			Action.storage.clear()
 	
 		collectDeletes: ->
-			deleteGuids = Object.keys Action.storage.deletes
+			deleteGuids = Object.keys @storage.deletes
 		collectChanges: ->
-			changeGuids = Object.keys Action.storage.changes
+			changeGuids = Object.keys @storage.changes
 		syncDelete: (guid) ->
 			branch = App.Note.allNotesByDepth.findWhere {guid: guid}
 			options =	destroy: true, noLocalStorage: true
 			branch.destroy options if branch?
 		syncChange: (guid) ->
-			return if Action.storage.isAlreadyInDeletes guid
+			return if @storage.isAlreadyInDeletes guid
 			branch = App.Note.allNotesByDepth.findWhere {guid: guid}
 			if not branch?
  				branch = new App.Note.Branch()
 				App.Note.allNotesByDepth.add branch
-			attributes = Action.storage.getChanges(guid)
+			attributes = @storage.getChanges(guid)
 			options = noLocalStorage: true
 			Backbone.Model.prototype.save.call(branch, attributes, options)
+
+		addToStorage: (action) ->		
+			if action.destroy
+				@storage.addDelete action.branch
+			else
+				@storage.addChange action.branch

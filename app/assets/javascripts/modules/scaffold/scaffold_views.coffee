@@ -43,7 +43,7 @@
 			App.Note.eventManager.trigger "render:#{App.Note.activeBranch.get('guid')}" if App.Note.activeBranch isnt "root"
 			App.Note.eventManager.trigger "setCursor:#{App.Note.activeTree.last().get('guid')}"
 			App.Notify.alert 'newNote','success'
-			mixpanel.track("New Note")
+			# mixpanel.track("New Note")
 		applyModview: (e) ->
 			type = e.currentTarget.classList[1]
 			$(".modview-btn").removeClass("selected")

@@ -80,12 +80,7 @@
 			action.addToHistory()
 			action.triggerNotification()
 			action.branch.set action.attributes if action.attributes?
-			unless action.options.noLocalStorage
-				if action.destroy
-					Action.storage.addDelete action.branch
-				else
-					Action.storage.addChange action.branch
-
+			Action.transporter.addToStorage(action) unless action.options.noLocalStorage
 		validate: (branch, attributes, options) ->
 			return false if (val = branch.validation attributes)?
 			true
@@ -124,7 +119,7 @@
 		rejectChanges: (validQueue) ->
 			@validationQueue = []
 			App.Note.noteController.reset()
-			Action.storage.clear()
+			Action.transporter.storage.clear()
 			App.Notify.alert 'brokenTree', 'danger'
 		acceptChanges: (validQueue) ->
 			return Action.transporter.testServerConnection() if Action.transporter.isOffline()
@@ -138,7 +133,7 @@
 			do rec = (branch = validQueue.shift()) ->
 				return if not branch?
 				branch.save null,
-					success: -> if validQueue.length is 0 then Action.storage.clear(); App.Notify.alert 'saved', 'save'
+					success: -> if validQueue.length is 0 then Action.transporter.storage.clear(); App.Notify.alert 'saved', 'save'
 				rec validQueue.shift()
 		processDestroy: ->
 			# console.log "destroyQueue", @destroyQueue
