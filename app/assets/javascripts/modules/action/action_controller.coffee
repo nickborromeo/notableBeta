@@ -12,6 +12,7 @@
 			Action.manager = @actionManager
 			Action.transporter = new Action.Transporter()
 			Action.storage = new Action.Storage()
+			Action.orchestrator = new App.Action.Orchestrator()
 		setEvents: ->
 
 	# Initializers -------------------------

@@ -19,9 +19,8 @@
 			@setEvents()
 		start: ->
 			App.Notebook.initializedTrunk.then =>
-				console.log App.Notebook.activeTrunk
-				App.Action.transporter.checkAndLoadLocal (_.bind @buildTree, @)
-				App.Action.orchestrator = new App.Action.Orchestrator()
+				App.Action.transporter.testServerConnection()
+				Note.syncingCompleted.then => @buildTree()
 		reset: ->
 			@tree._reset()
 			@allNotesByDepth._reset()
@@ -31,6 +30,7 @@
 			Note.eventManager.trigger "clearZoom"
 		setGlobals: ->
 			Note.initializedTree = $.Deferred()
+			Note.syncingCompleted = $.Deferred()
 			Note.allNotesByDepth = @allNotesByDepth
 			Note.tree = @tree
 			Note.activeTree = @tree
