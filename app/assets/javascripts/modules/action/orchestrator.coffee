@@ -92,19 +92,12 @@
 		processValidationQueue: () ->
 			valid = true
 			savingQueue = []
-			# console.log "Complete validation Queue"
-			# _.each @validationQueue, (v) ->
-			# 	console.log v.branch.get('guid'), v.branch.id, "Sent attributes", v.attributes, "branch attributes", v.branch.attributes
 			@validationQueue = @mergeValidQueue @validationQueue
-			# console.log "Trimed validation queue", @validationQueue
-			# console.log "validation queue", @validationQueue
 			do rec = (branch = @validationQueue.shift()) =>
 				return if not branch? or not valid
-				# console.log "Validation", branch.get('guid'), branch.id, branch.attributes
 				if not @validate branch, branch.attributes
 					return valid = false
 				savingQueue.push branch
-				# console.log branch.get('guid'), "validated"
 				rec @validationQueue.shift()
 			if valid then @acceptChanges(savingQueue) else @rejectChanges(savingQueue)
 		mergeValidQueue: (validQueue) ->
@@ -123,20 +116,17 @@
 			App.Notify.alert 'brokenTree', 'danger'
 		acceptChanges: (validQueue) ->
 			return Action.transporter.testServerConnection() if Action.transporter.isOffline()
-			# console.log "accept changes", validQueue
 			@processDestroy()
 			if validQueue.length > 0
 				App.Notify.alert 'saving', 'save'
 			else
 				App.Notify.alert 'saved', 'save'
-			# console.log "trimed changes", validQueue
 			do rec = (branch = validQueue.shift()) ->
 				return if not branch?
 				branch.save null,
 					success: -> if validQueue.length is 0 then Action.transporter.storage.clear(); App.Notify.alert 'saved', 'save'
 				rec validQueue.shift()
 		processDestroy: ->
-			# console.log "destroyQueue", @destroyQueue
 			do rec = (branch = @destroyQueue.shift()) =>
 				return if not branch?
 				if branch.id?
