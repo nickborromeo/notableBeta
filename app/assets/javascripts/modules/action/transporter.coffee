@@ -42,9 +42,27 @@
 		# -------------- Syncing with server ----------------
 		# >> To remember : Data synced here might not have passed through validation
 		#    since the Orchestrator sends data to localStorage before validating
-	
+
 		startSync: ->
 			if @isOffline() or Action.storage.hasChangesToSync()
+			###
+				Whenever a branch is updated, it immediately gets added to
+				localStorage by the Orchestator, which causes hasChangesToSync to
+				be 'true'. This then causes the
+				syncing notification to run, which overrides the "Changes Saved."
+				notification.
+
+				hasChangestoSync is also likely causing our issue with double notes
+				because it leads to a second Model.prototype.save, when it is not
+				necessary anymore.  The orchestrator's "acceptChanges" will call
+				branch.save.  The success callback of branch.save will then
+				call startSync > syncActions > syncChange > Model.prototype.save
+
+				branch.save used to call informConnecdtionSuccess before, which
+				did not have hasChangesToSync in the if statement.
+
+				Why did we add Action.storage.hasChangesToSync here?
+			###
 				@clearBackoff true
 				App.Notify.alert 'syncing', 'warning'
 				@syncActions()
@@ -54,10 +72,13 @@
 			changeGuids = @collectChanges()
 			_.each deleteGuids, (guid) => @syncDelete(guid)
 			_.each changeGuids, (guid) => @syncChange(guid)
-			setTimeout -> # Purposely slow down so we can see 'syncing' notification
+			setTimeout -> # Purposely delayed so user can see 'syncing' notification
 				App.Notify.alert 'synced', 'success' if Action.storage.hasChangesToSync()
 				Action.storage.clear()
-			, 2500
+				# why not put storage clearing outside the timer?
+				# What if someone make a note during those two seconds? it won't
+				# go into localStorage like it's supposed to anymore
+			, 2000
 
 		collectDeletes: ->
 			deleteGuids = Object.keys Action.storage.deletes
