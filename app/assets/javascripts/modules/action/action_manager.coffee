@@ -115,7 +115,7 @@
 			completeDescendants = note.getCompleteDescendantList()
 			_.each completeDescendants, (descendant) ->
 				removedBranches.childNoteSet.push(descendant.getAllAtributes())
-				Action.storage.addToDeleteCache descendant, true  #       << this should be handled in .destroy()
+				Action.storage.addDelete descendant, true  #       << this should be handled in .destroy()
 			history = {type: 'deleteBranch', changes: removedBranches}
 			if isUndo then @redoStack.push(history) else @undoStack.push(history)
 		moveBranch: (note, isUndo = false) ->

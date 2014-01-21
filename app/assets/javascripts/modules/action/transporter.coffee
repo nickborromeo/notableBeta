@@ -3,7 +3,7 @@
 	class Action.Transporter
 
 		constructor: () ->
-			@backoffTimeoutID = null
+			@backoffTimeoutID = -1
 			@backoffCount = 0
 			@MAX_BACKOFF = 140000 # 2 mins 20 secs
 
@@ -11,7 +11,6 @@
 			App.Note.allNotesByDepth.fetch
 				data: notebook_id: App.Notebook.activeTrunk.id
 				success: =>
-					App.Notify.alert 'connectionFound', 'success' if @isOffline()
 					@startSync()
 				error: =>
 					@notifyFailure forceBackoff
@@ -44,28 +43,11 @@
 		#    since the Orchestrator sends data to localStorage before validating
 
 		startSync: ->
-			if @isOffline() or Action.storage.hasChangesToSync()
-			###
-				Whenever a branch is updated, it immediately gets added to
-				localStorage by the Orchestator, which causes hasChangesToSync to
-				be 'true'. This then causes the
-				syncing notification to run, which overrides the "Changes Saved."
-				notification.
-
-				hasChangestoSync is also likely causing our issue with double notes
-				because it leads to a second Model.prototype.save, when it is not
-				necessary anymore.  The orchestrator's "acceptChanges" will call
-				branch.save.  The success callback of branch.save will then
-				call startSync > syncActions > syncChange > Model.prototype.save
-
-				branch.save used to call informConnecdtionSuccess before, which
-				did not have hasChangesToSync in the if statement.
-
-				Why did we add Action.storage.hasChangesToSync here?
-			###
+			if @isOffline()
 				@clearBackoff true
-				App.Notify.alert 'syncing', 'warning'
-				@syncActions()
+				if Action.storage.hasChangesToSync()
+					App.Notify.alert 'syncing', 'warning'
+					@syncActions()
 			App.Note.syncingCompleted.resolve()
 		syncActions: ->
 			deleteGuids = @collectDeletes()
@@ -73,13 +55,10 @@
 			_.each deleteGuids, (guid) => @syncDelete(guid)
 			_.each changeGuids, (guid) => @syncChange(guid)
 			setTimeout -> # Purposely delayed so user can see 'syncing' notification
-				App.Notify.alert 'synced', 'success' if Action.storage.hasChangesToSync()
-				Action.storage.clear()
-				# why not put storage clearing outside the timer?
-				# What if someone make a note during those two seconds? it won't
-				# go into localStorage like it's supposed to anymore
+				App.Notify.alert 'synced', 'success'
 			, 2000
-
+			Action.storage.clear()
+	
 		collectDeletes: ->
 			deleteGuids = Object.keys Action.storage.deletes
 		collectChanges: ->
