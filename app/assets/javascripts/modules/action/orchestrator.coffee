@@ -42,6 +42,7 @@
 			@destroyQueue = []
 			@validationQueue = []
 			@savingQueue = []
+			App.Note.eventManager.on "syncingDone", @validateChanges.bind(@), @
 
 		queueChange: (action) ->
 			@changeQueue.push action
@@ -62,7 +63,7 @@
 				@clearSavingQueueTimeout()
 				if not @processingActions and @changeQueue.length is 0
 					clearInterval interval
-					@processValidationQueue()
+					@syncWithLocal() # @processValidationQueue()
 
 		processChangeQueue: ->
 			return if @processingActions
@@ -88,18 +89,32 @@
 		clearSavingQueueTimeout: ->
 			clearTimeout @savingQueueTimeout
 		startSavingQueueTimeout: ->
-			@savingQueueTimeout = setTimeout @processValidationQueue.bind(@), 5000
-		processValidationQueue: () ->
-			valid = true
-			savingQueue = []
-			@validationQueue = @mergeValidQueue @validationQueue
-			do rec = (branch = @validationQueue.shift()) =>
-				return if not branch? or not valid
-				if not @validate branch, branch.attributes
-					return valid = false
-				savingQueue.push branch
-				rec @validationQueue.shift()
-			if valid then @acceptChanges(savingQueue) else @rejectChanges(savingQueue)
+			@savingQueueTimeout = setTimeout @syncWithLocal.bind(@), 5000
+		# startSavingQueueTimeout: ->
+		# 	@savingQueueTimeout = setTimeout @processValidationQueue.bind(@), 5000
+
+		syncWithLocal: ->
+			console.log "huh?."
+			Action.transporter.backoffTimeoutID = -1
+			Action.transporter.testServerConnection()
+		validateChanges: ->
+			try
+				App.Note.allNotesByDepth.validateTree()
+			catch e
+				console.log e
+				@rejectChanges()
+			@acceptChanges()
+		# processValidationQueue: () ->
+		# 	valid = true
+		# 	savingQueue = []
+		# 	@validationQueue = @mergeValidQueue @validationQueue
+		# 	do rec = (branch = @validationQueue.shift()) =>
+		# 		return if not branch? or not valid
+		# 		if not @validate branch, branch.attributes
+		# 			return valid = false
+		# 		savingQueue.push branch
+		# 		rec @validationQueue.shift()
+		# 	if valid then @acceptChanges(savingQueue) else @rejectChanges(savingQueue)
 		mergeValidQueue: (validQueue) ->
 			guids = []
 			queue = []
@@ -109,26 +124,28 @@
 					queue.push obj.branch
 			queue
 
-		rejectChanges: (validQueue) ->
+		rejectChanges: ->
 			@validationQueue = []
 			App.Note.noteController.reset()
 			Action.transporter.storage.clear()
 			App.Notify.alert 'brokenTree', 'danger'
-		acceptChanges: (validQueue) ->
-			return Action.transporter.testServerConnection() if Action.transporter.isOffline()
-			@processDestroy()
-			if validQueue.length > 0
-				App.Notify.alert 'saving', 'save'
-			else
-				App.Notify.alert 'saved', 'save'
-			do rec = (branch = validQueue.shift()) ->
-				return if not branch?
-				# branch.save null,
-				# 	success: -> if validQueue.length is 0 then Action.transporter.storage.clear(); App.Notify.alert 'saved', 'save'
-				rec validQueue.shift()
-		processDestroy: ->
-			do rec = (branch = @destroyQueue.shift()) =>
-				return if not branch?
-				if branch.id?
-					branch.destroy()
-				rec @destroyQueue.shift()
+		acceptChanges:  ->
+			Action.transporter.processToServer()
+		# acceptChanges: (validQueue) ->
+		# 	return Action.transporter.testServerConnection() if Action.transporter.isOffline()
+		# 	@processDestroy()
+		# 	if validQueue.length > 0
+		# 		App.Notify.alert 'saving', 'save'
+		# 	else
+		# 		App.Notify.alert 'saved', 'save'
+		# 	do rec = (branch = validQueue.shift()) ->
+		# 		return if not branch?
+		# 		# branch.save null,
+		# 		# 	success: -> if validQueue.length is 0 then Action.transporter.storage.clear(); App.Notify.alert 'saved', 'save'
+		# 		rec validQueue.shift()
+		# processDestroy: ->
+		# 	do rec = (branch = @destroyQueue.shift()) =>
+		# 		return if not branch?
+		# 		if branch.id?
+		# 			branch.destroy()
+		# 		rec @destroyQueue.shift()

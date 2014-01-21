@@ -4,6 +4,7 @@
 
 		constructor: () ->
 			@storage = new Action.Storage
+			@removed = []
 			@backoffTimeoutID = -1
 			@backoffCount = 0
 			@MAX_BACKOFF = 140000 # 2 mins 20 secs
@@ -50,15 +51,12 @@
 					App.Notify.alert 'syncing', 'warning'
 					@syncActions()
 			App.Note.syncingCompleted.resolve()
+			App.Note.eventManager.trigger 'syncingDone'
 		syncActions: ->
 			deleteGuids = @collectDeletes()
 			changeGuids = @collectChanges()
 			_.each deleteGuids, (guid) => @syncDelete(guid)
 			_.each changeGuids, (guid) => @syncChange(guid)
-			@storage.clear()
-			setTimeout -> # Purposely delayed so user can see 'syncing' notification
-				App.Notify.alert 'synced', 'success'
-			, 2000
 	
 		collectDeletes: ->
 			deleteGuids = Object.keys @storage.deletes
@@ -67,7 +65,8 @@
 		syncDelete: (guid) ->
 			branch = App.Note.allNotesByDepth.findWhere {guid: guid}
 			options =	destroy: true, noLocalStorage: true
-			branch.remove options if branch?
+			@removed.push branch if branch?
+			App.Note.allNotesByDepth.remove branch, options if branch?
 		syncChange: (guid) ->
 			return if @storage.isAlreadyInDeletes guid
 			branch = App.Note.allNotesByDepth.findWhere {guid: guid}
@@ -83,3 +82,10 @@
 				@storage.addDelete action.branch
 			else
 				@storage.addChange action.branch
+		processToServer: ->
+			App.Note.allNotesByDepth.each (b) -> b.save()
+			_.each @removed, (b) -> b.destroy() if b.id?
+			@storage.clear()
+			setTimeout -> # Purposely delayed so user can see 'syncing' notification
+				App.Notify.alert 'synced', 'success'
+			, 2000
