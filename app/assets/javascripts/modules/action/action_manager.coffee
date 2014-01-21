@@ -18,17 +18,23 @@
 	Action.stack.redo = []
 	Action.stack.undo = []
 
-	class Action.Manager
+	class Action.Manager  #Action.HistoryManager
 
 		constructor: ->
 			@undoStack = Action.stack.redo
 			@redoStack = Action.stack.undo
 			@historyLimit = 100
-			@revert = @initializeRevert()
-			@revertActions = new Action.RevertActions
-			@addAction = new Action.HistoryActions
+			@revert = @initializeRevert()								#initiaizeHistory (?)
+			@revertActions = new Action.RevertActions   #Action.RedoActions
+			@addAction = new Action.HistoryActions			#Action.UndoActions
 
 		initializeRevert: ->
+			###
+			createAction: (branch, isUndo=true) =>
+				branchData = Action.Helpers.getBranchData(branch.guid)
+				@UndoActions.deleteBranch branch.note, isUndo
+				@RedoActions.createBranch.apply(@revertActions, arguments)
+			###
 			createBranch: (change, isUndo = true) =>
 				reference = Action.Helpers.getReference(change.guid)
 				@addAction.deleteBranch reference.note, isUndo
@@ -105,15 +111,13 @@
 			history = { type: 'createBranch', changes: {guid: note.get('guid') } }
 			if isUndo then @redoStack.push(history) else @undoStack.push(history)
 		deleteBranch: (note, isUndo = false) ->
-			removedBranchs = {ancestorNote: note.getAllAtributes(), childNoteSet: []}
+			removedBranches = {ancestorNote: note.getAllAtributes(), childNoteSet: []}
 			completeDescendants = note.getCompleteDescendantList()
 			_.each completeDescendants, (descendant) ->
-				removedBranchs.childNoteSet.push(descendant.getAllAtributes())
-				Action.storage.addToDeleteCache descendant, true  #<< this should be handled in .destroy()
-			history = {type: 'deleteBranch', changes: removedBranchs}
+				removedBranches.childNoteSet.push(descendant.getAllAtributes())
+				Action.storage.addToDeleteCache descendant, true  #       << this should be handled in .destroy()
+ 			history = {type: 'deleteBranch', changes: removedBranches}
 			if isUndo then @redoStack.push(history) else @undoStack.push(history)
-			# App.Action.addHistory('deleteBranch', removedBranchs)
-			# App.Notify.alert 'deleted', 'warning'
 		moveBranch: (note, isUndo = false) ->
 			history = {type: 'moveBranch', changes: note.getPositionAttributes()}
 			if isUndo then @redoStack.push(history) else @undoStack.push(history)
