@@ -127,16 +127,18 @@
 			Action.storage.clear()
 			App.Notify.alert 'brokenTree', 'danger'
 		acceptChanges: (validQueue) ->
-			return if Action.transporter.isOffline()
+			return Action.transporter.testServerConnection() if Action.transporter.isOffline()
 			# console.log "accept changes", validQueue
 			@processDestroy()
-			App.Notify.alert 'saving', 'save'
+			if validQueue.length > 0
+				App.Notify.alert 'saving', 'save'
+			else
+				App.Notify.alert 'saved', 'save'
 			# console.log "trimed changes", validQueue
 			do rec = (branch = validQueue.shift()) ->
 				return if not branch?
 				branch.save null,
 					success: -> if validQueue.length is 0 then Action.storage.clear(); App.Notify.alert 'saved', 'save'
-					doNotAddToLocal: true
 				rec validQueue.shift()
 		processDestroy: ->
 			# console.log "destroyQueue", @destroyQueue
