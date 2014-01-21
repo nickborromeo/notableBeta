@@ -8,6 +8,7 @@ class Users::RegistrationsController < Devise::RegistrationsController
 
   def create
     super
+    makeDefaultNotebook
   end
 
   def update
@@ -15,6 +16,16 @@ class Users::RegistrationsController < Devise::RegistrationsController
   end
 
   private
+    def makeDefaultNotebook
+      tutorial = { "guid" => SecureRandom.uuid,
+        "title" => "Notable Tutorial",
+        "modview" => "outline",
+        "user_id" => current_user.id
+      }
+      @default_notebook = Notebook.new(tutorial)
+      @default_notebook.save
+    end
+
     def admin_user
       redirect_to(root_path) unless current_user.admin?
     end
