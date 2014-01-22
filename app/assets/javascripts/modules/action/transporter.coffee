@@ -48,20 +48,17 @@
 			if @isOffline()
 				@clearBackoff true
 				if @storage.hasChangesToSync()
+					@storage.swapToSync()
 					App.Notify.alert 'syncing', 'warning'
 					@syncActions()
 			App.Note.syncingCompleted.resolve()
 			App.Note.eventManager.trigger 'syncingDone'
 		syncActions: ->
-			deleteGuids = @collectDeletes()
-			changeGuids = @collectChanges()
+			deleteGuids = @storage.collectDeletes()
+			changeGuids = @storage.collectChanges()
 			_.each deleteGuids, (guid) => @syncDelete(guid)
 			_.each changeGuids, (guid) => @syncChange(guid)
 	
-		collectDeletes: ->
-			deleteGuids = Object.keys @storage.deletes
-		collectChanges: ->
-			changeGuids = Object.keys @storage.changes
 		syncDelete: (guid) ->
 			branch = App.Note.allNotesByDepth.findWhere {guid: guid}
 			options =	destroy: true, noLocalStorage: true
@@ -85,7 +82,7 @@
 		processToServer: ->
 			App.Note.allNotesByDepth.each (b) -> b.save()
 			_.each @removed, (b) -> b.destroy() if b.id?
-			@storage.clear()
+			@storage.clearSyncing()
 			setTimeout -> # Purposely delayed so user can see 'syncing' notification
 				App.Notify.alert 'synced', 'success'
 			, 2000
