@@ -14,7 +14,9 @@
 				@forest.fetch
 					data: user_id: App.User.activeUser.id
 					success: =>
-						Notebook.activeTrunk = @activeTrunk = @forest.first()
+						trunk = App.User.activeUser.getActiveNotebook()
+						Notebook.activeTrunk = @activeTrunk = trunk
+						App.User.activeUser.setActiveNotebook()
 						@showNotebookView(@forest)
 						Notebook.initializedTrunk.resolve()
 		reset: ->

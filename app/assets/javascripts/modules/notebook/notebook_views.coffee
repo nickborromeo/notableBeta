@@ -14,7 +14,8 @@
 		initialize: ->
 			@listenTo @model, 'change', @render
 			@listenTo @model, 'destroy', @remove
-			
+			@listenTo @model, 'created', @selectTrunk
+
 		ui:
 			input: "input.edit"
 

@@ -7,6 +7,7 @@ Notable::Application.routes.draw do
 
 	devise_scope :user do
 		get "active_user" => "users/sessions#index"
+    put "active_user/:id" => "users/sessions#update"
 	end
 
   get "start" => "evernote#start"

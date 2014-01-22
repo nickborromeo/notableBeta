@@ -101,13 +101,16 @@
 			@createTrunk() if e.which == 13
 		createTrunk: ->
 			if @$('#new-trunk').val().trim()
-				App.Notebook.forest.create
+				trunk_attributes =
 					title: @$('#new-trunk').val().trim()
 					modview: "outline"
 					guid: App.Note.generateGuid()
 					user_id: App.User.activeUser.id
-				@$('#new-trunk').val('')
-				App.Notify.alert 'newNotebook', 'success', {destructTime: 5000}
+				App.Notebook.forest.create trunk_attributes,
+					success: (trunk) ->
+						trunk.trigger "created"
+						@$('#new-trunk').val('')
+						App.Notify.alert 'newNotebook', 'success', {destructTime: 5000}
 			else
 				App.Notify.alert 'needsName', 'warning'
 

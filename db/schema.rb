@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20131217052038) do
+ActiveRecord::Schema.define(:version => 20140122215344) do
 
   create_table "notebooks", :force => true do |t|
     t.string   "title"
@@ -57,6 +57,7 @@ ActiveRecord::Schema.define(:version => 20131217052038) do
     t.datetime "locked_at"
     t.integer  "last_update_count",      :default => 0
     t.datetime "last_full_sync"
+    t.integer  "active_notebook"
   end
 
   add_index "users", ["email"], :name => "index_users_on_email", :unique => true

@@ -14,4 +14,10 @@ class Users::SessionsController < Devise::SessionsController
 		end
 	end
 
+  def update
+    @user = User.find(params[:id])
+    @user.update_attributes(params[:session])
+    head :no_content
+  end
+
 end
