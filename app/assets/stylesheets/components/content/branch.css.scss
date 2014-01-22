@@ -118,7 +118,7 @@ $middleW: $middleH;
 	height: $middleH;
 	width: $middleH;
 	z-index: 101;
-
+	&.only-emoticon { background: $black; }
 	&:hover {
 		z-index: 1001;
 	}
@@ -135,10 +135,16 @@ $middleW: $middleH;
 	&.notable-violet { border-color: $notableViolet; }
 
 	i {
+		color: $white;
 		font-size: 14px;
 		position: absolute;
 		top: -2px;
 		left: -2px;
+		&.icon-emoticons-11 {//smiley
+			font-size: 20px;
+			top: -5px;
+			left: -5px;
+		}
 	}
 }
 
