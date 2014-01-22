@@ -47,7 +47,7 @@
 			@set "fresh", true
 			callBackOptions =
 				success: (model, response, opts)  =>
-					App.Action.transporter.startSync()
+					# App.Action.transporter.startSync()
 					if options.success? then options.success(model, response, opts)
 				error: (model, xhr, opts) =>
 					if xhr.status isnt 404
@@ -60,7 +60,7 @@
 			@clearTimeoutAndSave()
 			callBackOptions =
 				success: (model, response, opts) =>
-					App.Action.transporter.startSync()
+					# App.Action.transporter.startSync()
 					if options.success? then options.success(model, response, opts)
 				error: (model, xhr, opts) =>
 					if xhr.status isnt 404

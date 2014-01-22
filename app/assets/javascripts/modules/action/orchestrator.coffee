@@ -40,8 +40,7 @@
 		constructor: ->
 			@changeQueue = []
 			@destroyQueue = []
-			@validationQueue = []
-			@savingQueue = []
+			App.Note.eventManager.on "syncingDone", @validateChanges.bind(@), @
 
 		queueChange: (action) ->
 			@changeQueue.push action
@@ -62,16 +61,14 @@
 				@clearSavingQueueTimeout()
 				if not @processingActions and @changeQueue.length is 0
 					clearInterval interval
-					@processValidationQueue()
+					@syncWithLocal()
 
 		processChangeQueue: ->
 			return if @processingActions
 			@processingActions = true
 			do rec = (action = @changeQueue.shift()) =>
-				return if not action?  # continue to process and validate actions if there are any left in the changeQueue
-				# action.branch.set action.attributes
+				return if not action? # continue to process and validate actions if there are any left in the changeQueue
 				@processAction action
-				@validationQueue.push action
 				rec @changeQueue.shift()
 			@processingActions = false
 			@startSavingQueueTimeout()
@@ -80,12 +77,7 @@
 			action.addToHistory()
 			action.triggerNotification()
 			action.branch.set action.attributes if action.attributes?
-			unless action.options.noLocalStorage
-				if action.destroy
-					Action.storage.addDelete action.branch
-				else
-					Action.storage.addChange action.branch
-
+			Action.transporter.addToStorage(action) unless action.options.noLocalStorage
 		validate: (branch, attributes, options) ->
 			return false if (val = branch.validation attributes)?
 			true
@@ -93,57 +85,20 @@
 		clearSavingQueueTimeout: ->
 			clearTimeout @savingQueueTimeout
 		startSavingQueueTimeout: ->
-			@savingQueueTimeout = setTimeout @processValidationQueue.bind(@), 5000
-		processValidationQueue: () ->
-			valid = true
-			savingQueue = []
-			# console.log "Complete validation Queue"
-			# _.each @validationQueue, (v) ->
-			# 	console.log v.branch.get('guid'), v.branch.id, "Sent attributes", v.attributes, "branch attributes", v.branch.attributes
-			@validationQueue = @mergeValidQueue @validationQueue
-			# console.log "Trimed validation queue", @validationQueue
-			# console.log "validation queue", @validationQueue
-			do rec = (branch = @validationQueue.shift()) =>
-				return if not branch? or not valid
-				# console.log "Validation", branch.get('guid'), branch.id, branch.attributes
-				if not @validate branch, branch.attributes
-					return valid = false
-				savingQueue.push branch
-				# console.log branch.get('guid'), "validated"
-				rec @validationQueue.shift()
-			if valid then @acceptChanges(savingQueue) else @rejectChanges(savingQueue)
-		mergeValidQueue: (validQueue) ->
-			guids = []
-			queue = []
-			_.each validQueue, (obj) =>
-				if obj.branch.get('guid') not in guids and obj.branch not in @destroyQueue
-					guids.push obj.branch.get('guid')
-					queue.push obj.branch
-			queue
+			@savingQueueTimeout = setTimeout @syncWithLocal.bind(@), 5000
 
-		rejectChanges: (validQueue) ->
-			@validationQueue = []
+		syncWithLocal: ->
+			Action.transporter.testServerConnection()
+		validateChanges: ->
+			try
+				App.Note.allNotesByDepth.validateTree()
+			catch e
+				console.log e
+				@rejectChanges()
+			@acceptChanges()
+		rejectChanges: ->
 			App.Note.noteController.reset()
-			Action.storage.clear()
+			Action.transporter.storage.clear()
 			App.Notify.alert 'brokenTree', 'danger'
-		acceptChanges: (validQueue) ->
-			return Action.transporter.testServerConnection() if Action.transporter.isOffline()
-			# console.log "accept changes", validQueue
-			@processDestroy()
-			if validQueue.length > 0
-				App.Notify.alert 'saving', 'save'
-			else
-				App.Notify.alert 'saved', 'save'
-			# console.log "trimed changes", validQueue
-			do rec = (branch = validQueue.shift()) ->
-				return if not branch?
-				branch.save null,
-					success: -> if validQueue.length is 0 then Action.storage.clear(); App.Notify.alert 'saved', 'save'
-				rec validQueue.shift()
-		processDestroy: ->
-			# console.log "destroyQueue", @destroyQueue
-			do rec = (branch = @destroyQueue.shift()) =>
-				return if not branch?
-				if branch.id?
-					branch.destroy()
-				rec @destroyQueue.shift()
+		acceptChanges:  ->
+			Action.transporter.processToServer()

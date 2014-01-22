@@ -3,6 +3,8 @@
 	class Action.Transporter
 
 		constructor: () ->
+			@storage = new Action.Storage
+			@removed = []
 			@backoffTimeoutID = -1
 			@backoffCount = 0
 			@MAX_BACKOFF = 140000 # 2 mins 20 secs
@@ -42,37 +44,62 @@
 		# >> To remember : Data synced here might not have passed through validation
 		#    since the Orchestrator sends data to localStorage before validating
 
+		selectNotification: ->
+			syncingNotification = [['syncing', 'warning'], ['synced', 'success']]
+			savingNotification = [['saving', 'save'], ['saved', 'save']]
+			@notificationToTrigger = if @isOffline() then syncingNotification else savingNotification
 		startSync: ->
-			if @isOffline()
-				@clearBackoff true
-				if Action.storage.hasChangesToSync()
-					App.Notify.alert 'syncing', 'warning'
-					@syncActions()
+			@selectNotification()
+			@clearBackoff true
+			if @storage.hasChangesToSync()
+				App.Notify.alert.apply(App.Notify.alert, @notificationToTrigger[0])
+				@storage.swapToSync()
+				@syncActions()
 			App.Note.syncingCompleted.resolve()
+			App.Note.eventManager.trigger 'syncingDone'
 		syncActions: ->
-			deleteGuids = @collectDeletes()
-			changeGuids = @collectChanges()
+			deleteGuids = @storage.collectDeletes()
+			changeGuids = @storage.collectChanges()
 			_.each deleteGuids, (guid) => @syncDelete(guid)
 			_.each changeGuids, (guid) => @syncChange(guid)
-			setTimeout -> # Purposely delayed so user can see 'syncing' notification
-				App.Notify.alert 'synced', 'success'
-			, 2000
-			Action.storage.clear()
-	
-		collectDeletes: ->
-			deleteGuids = Object.keys Action.storage.deletes
-		collectChanges: ->
-			changeGuids = Object.keys Action.storage.changes
+
 		syncDelete: (guid) ->
 			branch = App.Note.allNotesByDepth.findWhere {guid: guid}
 			options =	destroy: true, noLocalStorage: true
-			branch.destroy options if branch?
+			@removed.push branch if branch?
+			App.Note.allNotesByDepth.remove branch, options if branch?
 		syncChange: (guid) ->
-			return if Action.storage.isAlreadyInDeletes guid
+			return if @storage.isAlreadyInDeletes guid
 			branch = App.Note.allNotesByDepth.findWhere {guid: guid}
 			if not branch?
  				branch = new App.Note.Branch()
 				App.Note.allNotesByDepth.add branch
-			attributes = Action.storage.getChanges(guid)
+			attributes = @storage.getChanges(guid)
 			options = noLocalStorage: true
-			Backbone.Model.prototype.save.call(branch, attributes, options)
+			Backbone.Model.prototype.set.call(branch, attributes, options)
+
+		addToStorage: (action) ->
+			if action.destroy
+				@storage.addDelete action.branch
+			else
+				@storage.addChange action.branch
+
+		# This returns an option.success method that will trigger the notification
+		# only when all saves have been processed
+		successNotification: ->
+			# gets rid of branches that got deleted but never actually got saved to server
+			@removed = _.filter @removed, (branch) -> branch.id?
+			# numberOfChanges = @removed.length + @storage.collectChanges().length
+			numberOfChanges = @removed.length + App.Note.allNotesByDepth.models.length
+			showNotification = =>
+				i = 0
+				=>
+					if ++i is numberOfChanges
+						App.Notify.alert.apply(App.Notify.alert, @notificationToTrigger[1])
+			options = success: showNotification()
+		processToServer: ->
+			options = @successNotification()
+			App.Note.allNotesByDepth.each (branch) ->	branch.save null, options
+			_.each @removed, (branch) -> branch.destroy(options)
+			@storage.clearSyncing()
+			@removed = []

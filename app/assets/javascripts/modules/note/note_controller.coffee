@@ -42,7 +42,6 @@
 			Note.eventManager.on "activeTrunk:changed", @changeActiveTrunk, @
 
 		buildTree: ->
-			@allNotesByDepth.sort()
 			@allNotesByDepth.validateTree()
 			@allNotesByDepth.each (note) =>
 				@tree.add(note)

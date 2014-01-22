@@ -256,12 +256,12 @@
 			@cursorApi.textAfterCursor sel, title
 		keepTextBeforeCursor: (sel, title) ->
 			textBefore = @cursorApi.textBeforeCursor sel, title
-			@model.save
+			@model.set
 				title: textBefore
 			textBefore
 		keepTextAfterCursor: (sel, title) ->
 			textAfter = @cursorApi.textAfterCursor sel, title
-			@model.save
+			@model.set
 				title: textAfter
 			textAfter
 		testCursorPosition: (testPositionFunction) ->
