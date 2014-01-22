@@ -37,7 +37,7 @@
 			@syncDeletes = {}
 			window.localStorage.setItem @syncChangesKey, JSON.stringify(@syncChanges)
 			window.localStorage.setItem @syncDeletesKey, JSON.stringify(@syncDeletes)
-					
+
 		load: ->
 			@changes = JSON.parse(window.localStorage.getItem @changesKey) ? {}
 			@deletes = JSON.parse(window.localStorage.getItem @deletesKey) ? {}
