@@ -99,7 +99,12 @@
 			options = success: showNotification()
 		processToServer: ->
 			options = @successNotification()
+			changeGuids = @storage.collectChanges()
 			App.Note.allNotesByDepth.each (branch) ->	branch.save null, options
+			# _.each changeGuids, (guid) =>
+			# 	branch = App.Note.allNotesByDepth.findWhere(guid: guid);
+			# 	branch.save null, options
+			#  (branch) ->	branch.save null, options
 			_.each @removed, (branch) -> branch.destroy(options)
 			@storage.clearSyncing()
 			@removed = []
