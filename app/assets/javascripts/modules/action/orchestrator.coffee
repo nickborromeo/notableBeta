@@ -40,8 +40,6 @@
 		constructor: ->
 			@changeQueue = []
 			@destroyQueue = []
-			@validationQueue = []
-			@savingQueue = []
 			App.Note.eventManager.on "syncingDone", @validateChanges.bind(@), @
 
 		queueChange: (action) ->
@@ -63,16 +61,14 @@
 				@clearSavingQueueTimeout()
 				if not @processingActions and @changeQueue.length is 0
 					clearInterval interval
-					@syncWithLocal() # @processValidationQueue()
+					@syncWithLocal()
 
 		processChangeQueue: ->
 			return if @processingActions
 			@processingActions = true
 			do rec = (action = @changeQueue.shift()) =>
-				return if not action?  # continue to process and validate actions if there are any left in the changeQueue
-				# action.branch.set action.attributes
+				return if not action? # continue to process and validate actions if there are any left in the changeQueue
 				@processAction action
-				@validationQueue.push action
 				rec @changeQueue.shift()
 			@processingActions = false
 			@startSavingQueueTimeout()
@@ -90,12 +86,8 @@
 			clearTimeout @savingQueueTimeout
 		startSavingQueueTimeout: ->
 			@savingQueueTimeout = setTimeout @syncWithLocal.bind(@), 5000
-		# startSavingQueueTimeout: ->
-		# 	@savingQueueTimeout = setTimeout @processValidationQueue.bind(@), 5000
 
 		syncWithLocal: ->
-			console.log "huh?."
-			Action.transporter.backoffTimeoutID = -1
 			Action.transporter.testServerConnection()
 		validateChanges: ->
 			try
@@ -104,48 +96,9 @@
 				console.log e
 				@rejectChanges()
 			@acceptChanges()
-		# processValidationQueue: () ->
-		# 	valid = true
-		# 	savingQueue = []
-		# 	@validationQueue = @mergeValidQueue @validationQueue
-		# 	do rec = (branch = @validationQueue.shift()) =>
-		# 		return if not branch? or not valid
-		# 		if not @validate branch, branch.attributes
-		# 			return valid = false
-		# 		savingQueue.push branch
-		# 		rec @validationQueue.shift()
-		# 	if valid then @acceptChanges(savingQueue) else @rejectChanges(savingQueue)
-		mergeValidQueue: (validQueue) ->
-			guids = []
-			queue = []
-			_.each validQueue, (obj) =>
-				if obj.branch.get('guid') not in guids and obj.branch not in @destroyQueue
-					guids.push obj.branch.get('guid')
-					queue.push obj.branch
-			queue
-
 		rejectChanges: ->
-			@validationQueue = []
 			App.Note.noteController.reset()
 			Action.transporter.storage.clear()
 			App.Notify.alert 'brokenTree', 'danger'
 		acceptChanges:  ->
 			Action.transporter.processToServer()
-		# acceptChanges: (validQueue) ->
-		# 	return Action.transporter.testServerConnection() if Action.transporter.isOffline()
-		# 	@processDestroy()
-		# 	if validQueue.length > 0
-		# 		App.Notify.alert 'saving', 'save'
-		# 	else
-		# 		App.Notify.alert 'saved', 'save'
-		# 	do rec = (branch = validQueue.shift()) ->
-		# 		return if not branch?
-		# 		# branch.save null,
-		# 		# 	success: -> if validQueue.length is 0 then Action.transporter.storage.clear(); App.Notify.alert 'saved', 'save'
-		# 		rec validQueue.shift()
-		# processDestroy: ->
-		# 	do rec = (branch = @destroyQueue.shift()) =>
-		# 		return if not branch?
-		# 		if branch.id?
-		# 			branch.destroy()
-		# 		rec @destroyQueue.shift()
