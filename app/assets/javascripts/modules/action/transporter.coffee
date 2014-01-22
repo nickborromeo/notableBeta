@@ -41,8 +41,6 @@
 			!@isOffline()
 
 		# -------------- Syncing with server ----------------
-		# >> To remember : Data synced here might not have passed through validation
-		#    since the Orchestrator sends data to localStorage before validating
 
 		selectNotification: ->
 			syncingNotification = [['syncing', 'warning'], ['synced', 'success']]
@@ -84,7 +82,7 @@
 			else
 				@storage.addChange action.branch
 
-		# This returns an option.success method that will trigger the notification
+		# Returns an option.success method that will trigger the notification
 		# only when all saves have been processed
 		successNotification: ->
 			# gets rid of branches that got deleted but never actually got saved to server

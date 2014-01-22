@@ -9,7 +9,6 @@
 		# For example:
 		#   App.Notify.alert 'connectionLost', 'danger', {selfDestruct: false}
 
-
 	# Private Variables and Settings
 	@_alertTimeOut = 7000
 	@_fadeOutTime = 400
@@ -48,11 +47,11 @@
 			App.Action.manager.undo()
 
 	_renderNotification = (alertAttributes) ->
-		Notify.alerts.add new Notify.Alert alertAttributes
-
-	_renderNotificationOnly = (alertAttributes) ->
 		Notify.alerts.reset()
 		Notify.alerts.add new Notify.Alert alertAttributes
+
+	# _renderStackedAlerts = (alertAttributes) ->
+	# 	Notify.alerts.add new Notify.Alert alertAttributes
 
 	_buildAlertAttributes = (alertType, alertClass, options = {}) ->
 		alertDefaults =
@@ -76,16 +75,6 @@
 		throw "invalid alert" unless _alertTypes[alertType]?
 		throw "invalid alert class" unless _notificationType[alertClass]?
 		if alertClass is 'save' then return _insertSaveNotification(alertType)
-		if not Notify.alerts.findWhere({alertType: alertType})?
-			_renderNotification _buildAlertAttributes(alertType, alertClass, options)
-
-	@alertOnly = (alertType, alertClass, options) ->
-		throw "invalid alert" unless _alertTypes[alertType]?
-		throw "invalid alert class" unless _notificationType[alertClass]?
-		_renderNotificationOnly _buildAlertAttributes(alertType, alertClass, options)
-
-	@flushAlerts = ->
-		Notify.alerts.reset()
-
+		_renderNotification _buildAlertAttributes(alertType, alertClass, options)
 
 )
