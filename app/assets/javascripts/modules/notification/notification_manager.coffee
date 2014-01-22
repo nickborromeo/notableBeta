@@ -23,14 +23,15 @@
 	_alertTypes =
 		saving: "<i>saving...</i>"
 		saved: "Changes saved."
-		syncing: "<i>Syncing with server...</i>"
-		synced: "Changes synced."
+		syncing: "<i>connecting to Notable ... </i>"
+		synced: "Connected."
 		deleted: "Note deleted. <a class='clickCallback'> undo </a>"
 		undo: "Change undone."
 		newNote: "New note has been added."
 		# Internet
 		connectionLost: "Connection has been lost."
-		connected: "We're back online!"
+		connectionAttempt: "Trying to reconnect in X seconds."
+		connectionFound: "We're back online!"
 		# Notebook
 		needsName: "Give your notebook a name first."
 		needsNotebook: "Your account needs to have at least one notebook."
