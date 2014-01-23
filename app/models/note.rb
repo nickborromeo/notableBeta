@@ -45,7 +45,7 @@ class Note < ActiveRecord::Base
 				end
 				content += "<li>#{branch.title}"
 			end
-			content += "</li>"
+			content += "</li>" if not content.index('<li>').nil?
 			currentDepth.downto(2).each do |level|
 				content += "</ul></li>"
 			end
