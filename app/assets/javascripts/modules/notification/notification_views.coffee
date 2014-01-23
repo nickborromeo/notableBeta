@@ -1,4 +1,8 @@
 @Notable.module("Notify", (Notify, App, Backbone, Marionette, $, _) ->
+	class Notify.SaveView extends Marionette.ItemView
+		template: 'notification/save'
+		onRender: =>
+			@$el.fadeIn(Notify._fadeOutTime + 100)
 
 	class Notify.AlertView extends Marionette.ItemView
 		template: 'notification/alert'
@@ -28,5 +32,6 @@
 
 	class Notify.AlertsView extends Marionette.CollectionView
 		itemView: Notify.AlertView
+		emptyView: Notify.SaveView
 
 )
