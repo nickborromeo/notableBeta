@@ -49,12 +49,13 @@
 		startSync: ->
 			@selectNotification()
 			@clearBackoff true
+			console.log "storage", @storage.hasChangesToSync(), @storage, localStorage
 			if @storage.hasChangesToSync()
 				App.Notify.alert.apply(App.Notify.alert, @notificationToTrigger[0])
 				@storage.swapToSync()
 				@syncActions()
+				App.Note.eventManager.trigger 'syncingDone'
 			App.Note.syncingCompleted.resolve()
-			App.Note.eventManager.trigger 'syncingDone'
 		syncActions: ->
 			deleteGuids = @storage.collectDeletes()
 			changeGuids = @storage.collectChanges()
