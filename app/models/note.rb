@@ -18,9 +18,10 @@ class Note < ActiveRecord::Base
   	end
   end
 
-	def self.compileRoot
+	def self.compileRoot (notebook_id)
 		compiledRoots = []
-		roots = Note.where("parent_id ='root'").order(:rank)
+		notebook = Notebook.where("id = #{notebook_id}").first
+		roots = Note.where("parent_id ='root' AND notebook_id=#{notebook_id}").order(:rank)
 		roots.each do |root|
 			descendantList = Note.getCompleteDescendantList root
 			if self.freshBranches?(descendantList) or root.fresh
@@ -51,14 +52,13 @@ class Note < ActiveRecord::Base
 			content += "</ul>"
 			puts "SENT CONTENT"
 			puts content
-			# notebookGuid = Notebook.where("id = #{r[:root].notebook_id}").first.guid
-			notebookGuid = nil
 			evernoteData.push(:title => r[:root].title,
 												:content => content,
 												:guid => r[:root].eng,
 												:id => r[:root].id,
 												:created_at => r[:root].created_at,
-												:notebookGuid => notebookGuid,
+												:notebookid => notebook.id,
+												:notebookEng => notebook.eng,
 												:eng => r[:root].eng)
 		end
 		evernoteData
