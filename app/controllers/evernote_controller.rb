@@ -98,8 +98,18 @@ class EvernoteController < ApplicationController
 		end
 	end
 
+	def findNotes
+		notebooks = connected_user.getNotebooks()
+		notableData = [] 
+		notebooks.each do |n|
+			notableData.concat Note.compileRoot n.id
+		end
+		notableData
+	end
+
 	def sync
-		notableData = Note.compileRoot
+		notableData = findNotes
+		puts notableData
 		notableTrashed = Note.getTrashed
 		syncState = getSyncState
 		puts "serverLastFUllSync: #{syncState.fullSyncBefore}"
@@ -114,12 +124,9 @@ class EvernoteController < ApplicationController
 		if not evernoteData.nil?
 			changedBranches = processExpungedAndDeletion evernoteData
 			changedBranches = resolveConflicts notableData, notableTrashed, changedBranches
-			# begin
-			receiveRootBranches changedBranches
-			# rescue => e
-			# 	puts e.message
-			# end
 		end
+		deliverNotebook # Here because receiveRootBranches depends on the fact that the eng for eacha notebook is set
+		receiveRootBranches changedBranches
 		begin
 			deliverRootBranch(notableData)
 			trashRootBranch(notableTrashed)
@@ -163,13 +170,26 @@ class EvernoteController < ApplicationController
 		evernoteData[:notes]
 	end
 
+	def filterByNotebooks (branchData)
+		notebooks = connected_user.getNotebooks()
+		branchData.delete_if do |b|
+			delete = true
+			notebooks.each do |n|
+				if n.eng is b[:notebookEng]
+					delete = false
+				end
+			end
+			delete
+		end
+	end
+
 	def receiveRootBranches (branches)
 		branchData = []
 		branches.each do |b|
 			content = note_store.getNoteContent(b.guid)
-			branchData.push :eng => b.guid, :title => b.title, :content => content
+			branchData.push :eng => b.guid, :title => b.title, :content => content, :notebookEng => notebookGuid
 		end
-		Note.receiveBranches branchData
+		Note.receiveBranches filterByNotebooks branchData
 	end
 
 	def incrementalSync (syncState)
@@ -204,10 +224,49 @@ class EvernoteController < ApplicationController
 		})
 		note_store.getFilteredSyncChunk(connected_user.token_credentials, afterUSN, maxEntries, syncFilter)
 	end
-	
+
+	def deliverNotebook
+		last_sync = connected_user.last_full_sync
+		notebooks = notebooksToSync
+		notebooks.each do |notebook|
+			enml_notebook = Evernote::EDAM::Type::Notebook.new
+			enml_notebook.name = notebook.title
+			enml_notebook.guid = notebook.guid
+			begin
+				if last_sync < notebook.updated_at
+					new_notebook = note_store.createNotebook(connected_user.token_credentials, enml_notebook)
+				else
+					puts "NotebookGUID"
+					puts enml_notebook.guid
+					# if notable and evernote are not sync (time) a created note might be considered an update
+					begin
+						new_notebook = note_store.updateNotebook(connected_user.token_credentials, enml_notebook)
+					rescue Evernote::EDAM::Error::EDAMNotFoundException => eue
+						puts "PARAMETER!!!!"
+						puts eue.identifier
+						if eue.identifier == 'Notebook.guid'
+							new_notebook = note_store.createNotebook(connected_user.token_credentials, enml_notebook)
+						else
+							throw eue
+						end
+					end
+				end
+			rescue Evernote::EDAM::Error::EDAMUserException => eue
+				## Something was wrong with the note data
+				## See EDAMErrorCode enumeration for error code explanation
+				## http://dev.evernote.com/documentation/reference/Errors.html#Enum_EDAMErrorCode
+				puts "EDAMUserException: #{eue.errorCode}"
+				puts "EDAMUserException: #{eue.parameter}"
+			rescue Evernote::EDAM::Error::EDAMNotFoundException => enfe
+				## Parent Notebook GUID doesn't correspond to an actual notebook
+				puts "Error: identifier: #{enfe.identifier}, key: #{enfe.key}"
+			end
+			Notebook.update(notebook.id, :eng => new_notebook.guid)
+		end	
+	end
+
 	def deliverRootBranch(noteData)
 		notebook = getDefaultNotebook
-		last_sync = connected_user.last_full_sync
 		noteData.each do |note|
 			note_content = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>"
 			note_content += "<!DOCTYPE en-note SYSTEM \"http://xml.evernote.com/pub/enml2.dtd\">"
@@ -218,7 +277,7 @@ class EvernoteController < ApplicationController
 			enml_note.title = note[:title]
 			enml_note.content = note_content
 			enml_note.guid = note[:guid]
-			enml_note.notebookGuid = notebook.guid
+			enml_note.notebookGuid = note[:notebookEng]
 			# puts note[:notebookGuid]
 			## parent_notebook is optional; if omitted, default notebook is used
 			# if parent_notebook && parent_notebook.guid
@@ -266,7 +325,9 @@ class EvernoteController < ApplicationController
 	def getDefaultNotebook
 		note_store.getDefaultNotebook
 	end
-	
+	def notebooksToSync
+		@notebooks ||= connected_user.getNotebooks
+	end
 	private
 	def note_store
 		@note_store ||= client.note_store
