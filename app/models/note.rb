@@ -109,8 +109,8 @@ class Note < ActiveRecord::Base
 	end
 
 	def self.receiveBranches (branchData)
-		rank = self.getLastRank
 		branchData.each do |data|
+			rank = self.getLastRank data[:notebook_id]
 			branch = Note.where("eng = '#{data[:eng]}'").first
 			if branch.nil?
 				rank += 1
@@ -123,7 +123,7 @@ class Note < ActiveRecord::Base
 
 	def self.updateBranch (data)
 		branch = Note.where("eng = '#{data[:eng]}'").first
-		data[:content] = self.digestEvernoteContent branch.guid, data[:content]
+		data[:content] = self.digestEvernoteContent branch.guid, data[:content], data[:notebook_id]
 		self.deleteDescendants branch
 		Note.update(branch.id, :title => data[:title], :notebook_id => data[:notebook_id])
 		self.createDescendants data
@@ -145,7 +145,7 @@ class Note < ActiveRecord::Base
 
 		branch = Note.new(branch)
 		branch.save
-		data[:content] = self.digestEvernoteContent branch.guid, data[:content]
+		data[:content] = self.digestEvernoteContent branch.guid, data[:content], data[:notebook_id]
 		self.createDescendants data
 		branch
 	end
@@ -158,8 +158,8 @@ class Note < ActiveRecord::Base
 		end
 	end
 
-	def self.digestEvernoteContent (parent_id, content)
-		self.parseContent parent_id, content
+	def self.digestEvernoteContent (parent_id, content, notebook_id)
+		self.parseContent parent_id, content, notebook_id
 	end
 
 	# this obscur code retrieve what is between <en-note>...</en-note> and trims the rest		
@@ -219,7 +219,7 @@ class Note < ActiveRecord::Base
 		content
 	end
 
-	def self.parseContent (parent_id, content)
+	def self.parseContent (parent_id, content, notebook_id)
 		content = self.trimContent content
 		notes = []
 		indentation = 0
@@ -260,14 +260,15 @@ class Note < ActiveRecord::Base
 				n[:parent_id] = parent[:guid]
 				parent[:next_rank] += 1
 			end
+			n[:notebook_id] = notebook_id
 			preceding = n
 		end
 
 		notes
 	end
 
-	def self.getLastRank
-		lastNote = Note.order("depth, rank DESC").first
+	def self.getLastRank (notebook_id)
+		lastNote = Note.where("notebook_id=#{notebook_id}").order("depth, rank DESC").first
 		if lastNote.nil?
 			0
 		else
