@@ -175,7 +175,8 @@ class EvernoteController < ApplicationController
 		branchData.delete_if do |b|
 			delete = true
 			notebooks.each do |n|
-				if n.eng is b[:notebookEng]
+				if n.eng == b[:notebook_eng]
+					b[:notebook_id] = n.id
 					delete = false
 				end
 			end
@@ -187,7 +188,7 @@ class EvernoteController < ApplicationController
 		branchData = []
 		branches.each do |b|
 			content = note_store.getNoteContent(b.guid)
-			branchData.push :eng => b.guid, :title => b.title, :content => content, :notebookEng => notebookGuid
+			branchData.push :eng => b.guid, :title => b.title, :content => content, :notebook_eng => b.notebookGuid
 		end
 		Note.receiveBranches filterByNotebooks branchData
 	end
@@ -231,10 +232,11 @@ class EvernoteController < ApplicationController
 		notebooks.each do |notebook|
 			enml_notebook = Evernote::EDAM::Type::Notebook.new
 			enml_notebook.name = notebook.title
-			enml_notebook.guid = notebook.guid
+			enml_notebook.guid = notebook.eng
 			begin
 				if last_sync < notebook.created_at
 					new_notebook = note_store.createNotebook(connected_user.token_credentials, enml_notebook)
+					Notebook.update(notebook.id, :eng => new_notebook.guid)
 				else
 					puts "NotebookGUID"
 					puts enml_notebook.guid
@@ -246,6 +248,7 @@ class EvernoteController < ApplicationController
 						puts eue.identifier
 						if eue.identifier == 'Notebook.guid'
 							new_notebook = note_store.createNotebook(connected_user.token_credentials, enml_notebook)
+							Notebook.update(notebook.id, :eng => new_notebook.guid)
 						else
 							throw eue
 						end
@@ -261,7 +264,6 @@ class EvernoteController < ApplicationController
 				## Parent Notebook GUID doesn't correspond to an actual notebook
 				puts "Error: identifier: #{enfe.identifier}, key: #{enfe.key}"
 			end
-			Notebook.update(notebook.id, :eng => new_notebook.guid)
 		end	
 	end
 
@@ -278,7 +280,7 @@ class EvernoteController < ApplicationController
 			enml_note.title = note[:title]
 			enml_note.content = note_content
 			enml_note.guid = note[:guid]
-			enml_note.notebookGuid = note[:notebookEng]
+			enml_note.notebookGuid = note[:notebook_eng]
 			# puts note[:notebookGuid]
 			## parent_notebook is optional; if omitted, default notebook is used
 			# if parent_notebook && parent_notebook.guid
