@@ -125,7 +125,7 @@ class Note < ActiveRecord::Base
 		branch = Note.where("eng = '#{data[:eng]}'").first
 		data[:content] = self.digestEvernoteContent branch.guid, data[:content]
 		self.deleteDescendants branch
-		Note.update(branch.id, :title => data[:title])
+		Note.update(branch.id, :title => data[:title], :notebook_id => data[:notebook_id])
 		self.createDescendants data
 	end
 
@@ -136,6 +136,7 @@ class Note < ActiveRecord::Base
 			:title => data[:title],
 			:guid => data[:eng],
 			:eng => data[:eng],
+			:notebook_id => data[:notebook_id],
 			:rank => rank,
 			:depth => 0,
 			:fresh => false,
