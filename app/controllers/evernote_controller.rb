@@ -108,8 +108,6 @@ class EvernoteController < ApplicationController
 	end
 
 	def sync
-		notableData = findNotes
-		puts notableData
 		notableTrashed = Note.getTrashed
 		syncState = getSyncState
 		puts "serverLastFUllSync: #{syncState.fullSyncBefore}"
@@ -121,11 +119,13 @@ class EvernoteController < ApplicationController
 									 end
 		# User.update connected_user.id, :lastUpdateCount => evernoteData[:lastChunk].updateCount, :lastSyncTime => evernoteData[:lastChunk].time
 		puts notableTrashed.each do |t| puts t.guid; puts t.title; puts t.eng end
+		deliverNotebook # Here because Notebooks must have a defined eng before comiledRoot is called
+		notableData = findNotes
+		puts notableData
 		if not evernoteData.nil?
 			changedBranches = processExpungedAndDeletion evernoteData
 			changedBranches = resolveConflicts notableData, notableTrashed, changedBranches
 		end
-		deliverNotebook # Here because receiveRootBranches depends on the fact that the eng for eacha notebook is set
 		receiveRootBranches changedBranches
 		begin
 			deliverRootBranch(notableData)
@@ -233,7 +233,7 @@ class EvernoteController < ApplicationController
 			enml_notebook.name = notebook.title
 			enml_notebook.guid = notebook.guid
 			begin
-				if last_sync < notebook.updated_at
+				if last_sync < notebook.created_at
 					new_notebook = note_store.createNotebook(connected_user.token_credentials, enml_notebook)
 				else
 					puts "NotebookGUID"
@@ -266,6 +266,7 @@ class EvernoteController < ApplicationController
 	end
 
 	def deliverRootBranch(noteData)
+		last_sync = connected_user.last_full_sync
 		notebook = getDefaultNotebook
 		noteData.each do |note|
 			note_content = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>"
