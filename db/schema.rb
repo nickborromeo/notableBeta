@@ -11,16 +11,17 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20140123183228) do
+ActiveRecord::Schema.define(:version => 20140124055336) do
 
   create_table "notebooks", :force => true do |t|
     t.string   "title"
     t.string   "modview"
     t.integer  "user_id"
-    t.datetime "created_at", :null => false
-    t.datetime "updated_at", :null => false
+    t.datetime "created_at",                    :null => false
+    t.datetime "updated_at",                    :null => false
     t.string   "guid"
     t.string   "eng"
+    t.boolean  "trashed",    :default => false
   end
 
   create_table "notes", :force => true do |t|
