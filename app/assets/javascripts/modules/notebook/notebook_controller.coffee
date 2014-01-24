@@ -15,6 +15,7 @@
 					data: user_id: App.User.activeUser.id
 					success: =>
 						trunk = App.User.activeUser.getActiveNotebook()
+						trunk = @forest.first() if not trunk?
 						Notebook.activeTrunk = @activeTrunk = trunk
 						App.User.activeUser.setActiveNotebook()
 						@showNotebookView(@forest)
