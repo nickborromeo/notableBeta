@@ -18,14 +18,15 @@
 		.feats {
 			font-size: 23px;
 			padding-left: 0;
-			text-align: left;
 			margin-top: -4px;
+			line-height: 20px;
 			span {
 				cursor: pointer;
-				&:nth-of-type(5) { padding-right: 4px; }
-				&:last-child {
-					border-left: 2px solid $muted;
-					padding-left: 10px;
+				&.icon-feats-tag { padding-right: 2px; }
+				&.icon-feats-emoticon { padding-right: 2px; }
+				&.icon-feats-delete {
+					border-left: 2px solid $gray;
+					padding-left: 9px;
 					padding-right: 0;
 				}
 				&:hover { color: $notableYellow; }
@@ -45,28 +46,14 @@
 @media (min-width: $screen-md) {
 	#crown {
 		.feats {
-			font-size: 28px;
-			span { padding: 2px 2px; }
-		}
+			font-size: 27px;
+			text-align: right;
+			padding-right: 12px;
+			span {
+				padding: 1px;
+				&.icon-feats-tag { padding-right: 3px; }
+			}
 
-		&:hover .trash_icon {
-			display: block;
-		}
-		.trash_icon {
-		  &:active {background-position: -50px -2px;}
-		  &:hover {
-		  	background-position: -26px -2px;
-		  	-webkit-transform: scale(1.1);
-				-moz-transform: scale(1.1);
-				-ms-transform: scale(1.1);
-				-o-transform: scale(1.1);
-				transform: scale(1.1);
-		  }
-		  cursor: pointer;
-		  display: none;
-		  position: absolute;
-		  top: 3.2em;
-		  right: 2em;
 		}
 	}
 
