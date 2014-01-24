@@ -58,7 +58,7 @@ class Note < ActiveRecord::Base
 												:id => r[:root].id,
 												:created_at => r[:root].created_at,
 												:notebookid => notebook.id,
-												:notebookEng => notebook.eng,
+												:notebook_eng => notebook.eng,
 												:eng => r[:root].eng)
 		end
 		evernoteData

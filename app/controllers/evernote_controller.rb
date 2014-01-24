@@ -120,6 +120,7 @@ class EvernoteController < ApplicationController
 		# User.update connected_user.id, :lastUpdateCount => evernoteData[:lastChunk].updateCount, :lastSyncTime => evernoteData[:lastChunk].time
 		puts notableTrashed.each do |t| puts t.guid; puts t.title; puts t.eng end
 		deliverNotebook # Here because Notebooks must have a defined eng before comiledRoot is called
+		trashNotebooks
 		notableData = findNotes
 		puts notableData
 		if not evernoteData.nil?
@@ -143,6 +144,22 @@ class EvernoteController < ApplicationController
 		notableTrashed.each do |t|
 			note_store.deleteNote(connected_user.token_credentials, t.eng) if not t.eng.nil?
 			Note.deleteBranch t
+		end
+	end
+	def trashNotebooks
+		notebooksTrashed = Notebook.getTrashed
+		puts "ERROR"
+		notebooksTrashed.each do |t|
+			begin
+				note_store.expungeNotebook(connected_user.token_credentials, t.eng) if not t.eng.nil?
+			rescue Evernote::EDAM::Error::EDAMUserException => e
+				puts e
+				puts "TRASHED ERROR"
+				puts "EDAMUserException: #{e.errorCode}"
+				puts "EDAMUserException: #{e.parameter}"
+				dontDestroy = true
+			end
+			t.destroy unless dontDestroy
 		end
 	end
 
