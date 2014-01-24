@@ -150,9 +150,8 @@ class EvernoteController < ApplicationController
 		notebooksTrashed.each do |t|
 			begin
 				note_store.expungeNotebook(connected_user.token_credentials, t.eng) if not t.eng.nil?
-			rescue Evernote::EDAM::Error::EDAMUserException => e
-				puts e
-				puts "TRASHED ERROR"
+			rescue Evernote::EDAM::Error::EDAMUserException => e # Will always fail
+				# Because our key does not have privilege to expunge notebooks
 				puts "EDAMUserException: #{e.errorCode}"
 				puts "EDAMUserException: #{e.parameter}"
 				dontDestroy = true
@@ -272,8 +271,7 @@ class EvernoteController < ApplicationController
 					begin
 						new_notebook = note_store.updateNotebook(connected_user.token_credentials, enml_notebook)
 					rescue Evernote::EDAM::Error::EDAMNotFoundException => eue
-						puts "PARAMETER!!!!"
-						puts eue.identifier
+						puts "EDAMNotFoundException. Identifier: #{eue.identifier}"
 						if eue.identifier == 'Notebook.guid'
 							new_notebook = note_store.createNotebook(connected_user.token_credentials, enml_notebook)
 							Notebook.update(notebook.id, :eng => new_notebook.guid)
