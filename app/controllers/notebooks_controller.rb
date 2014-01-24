@@ -44,7 +44,11 @@ class NotebooksController < ApplicationController
   # DELETE /notebooks/1.json
   def destroy
     @notebook = Notebook.find(params[:id])
-    @notebook.destroy
+		if not @notebook.eng.nil?
+			Notebook.update(@notebook.id, :trashed => true)
+		else
+			@notebook.destroy
+		end
     respond_with(@notebook) do |format|
       format.html { redirect_to notebooks_url }
       format.json { head :no_content }
