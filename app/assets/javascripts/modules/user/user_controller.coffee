@@ -8,7 +8,6 @@
 			@setGlobals()
 		start: ->
 			@activeUser.fetch success: (user) ->
-				console.log user
 				User.activeUserInitialized.resolve() if user.id?
 		setGlobals: ->
 			User.activeUserInitialized = $.Deferred()

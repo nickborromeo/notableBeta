@@ -49,7 +49,6 @@
 		startSync: ->
 			@selectNotification()
 			@clearBackoff true
-			console.log "storage", @storage.hasChangesToSync(), @storage, localStorage
 			if @storage.hasChangesToSync()
 				App.Notify.alert.apply(App.Notify.alert, @notificationToTrigger[0])
 				@storage.swapToSync()
