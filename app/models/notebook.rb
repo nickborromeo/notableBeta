@@ -10,14 +10,7 @@ class Notebook < ActiveRecord::Base
 	def self.deleteByEng (eng)
 		notebook = Notebook.where("eng = '#{eng}'").first
 		return if notebook.nil?
-		self.deleteRelatedNotes notebook
 		notebook.destroy
-	end
-	def self.deleteRelatedNotes (notebook)
-		branchesToDelete = Note.where("parent_id='root' AND notebook_id=#{notebook.id}")
-		branchesToDelete.each do |b|
-			Note.deleteBranch b
-		end
 	end
 
 end
