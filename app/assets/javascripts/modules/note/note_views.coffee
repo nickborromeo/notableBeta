@@ -401,9 +401,9 @@
 		events: ->
 			"blur .note-content": "updateNote"
 			"keydown .note-content": @model.timeoutAndSave
-			"click .glyphicon-share": @export false
-			"click .glyphicon-export": @export true
-			"click .destroy": "deleteBranch"
+			"click .icon-feats-share": @export false
+			"click .icon-feats-export": @export true
+			"click .icon-feats-delete": "deleteBranch"
 
 		initialize: ->
 			@cursorApi = App.Helpers.CursorPositionAPI
