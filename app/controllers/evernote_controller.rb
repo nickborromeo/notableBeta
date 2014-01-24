@@ -109,6 +109,7 @@ class EvernoteController < ApplicationController
 
 	def sync
 		notableTrashed = Note.getTrashed
+		puts notableTrashed.each do |t| puts t.guid; puts t.title; puts t.eng end
 		syncState = getSyncState
 		puts "serverLastFUllSync: #{syncState.fullSyncBefore}"
 		fullSyncBefore = Time.at(syncState.fullSyncBefore/1000)
@@ -118,15 +119,12 @@ class EvernoteController < ApplicationController
 										 incrementalSync syncState
 									 end
 		# User.update connected_user.id, :lastUpdateCount => evernoteData[:lastChunk].updateCount, :lastSyncTime => evernoteData[:lastChunk].time
-		puts notableTrashed.each do |t| puts t.guid; puts t.title; puts t.eng end
+		changedBranches = processExpungedAndDeletion evernoteData if not evernoteData.nil?
 		deliverNotebook # Here because Notebooks must have a defined eng before comiledRoot is called
 		trashNotebooks
 		notableData = findNotes
 		puts notableData
-		if not evernoteData.nil?
-			changedBranches = processExpungedAndDeletion evernoteData
-			changedBranches = resolveConflicts notableData, notableTrashed, changedBranches
-		end
+		changedBranches = resolveConflicts notableData, notableTrashed, changedBranches if not evernoteData.nil?
 		receiveRootBranches changedBranches
 		begin
 			deliverRootBranch(notableData)
@@ -175,16 +173,28 @@ class EvernoteController < ApplicationController
 	end
 
 	def processExpungedAndDeletion (evernoteData)
+		processExpungedNotebooks evernoteData
+		processExpungedNotes evernoteData
+	end
+	
+	def processExpungedNotes (evernoteData)
 		filterNils(evernoteData[:notes]).delete_if do |n|
 			if not n.deleted.nil?
-				evernoteData[:deleted].push n.guid
+				evernoteData[:deletedNotes].push n.guid
 				true
 			end
 		end
-		evernoteData[:deleted].each do |eng|
+		evernoteData[:deletedNotes].each do |eng|
 			Note.deleteByEng eng
 		end
 		evernoteData[:notes]
+	end
+	def processExpungedNotebooks(evernoteData)
+		puts "DELETED NOTEBOOKS"
+		puts evernoteData[:deletedNotebooks]
+		evernoteData[:deletedNotebooks].each do |eng|
+			Notebook.deleteByEng eng
+		end
 	end
 
 	def filterByNotebooks (branchData)
@@ -216,20 +226,21 @@ class EvernoteController < ApplicationController
 
 	def fullSync (syncState)
 		currentUSN = connected_user.last_update_count
-		notes = []
-		deleted = []
+		notes, deletedNotebooks, deletedNotes = [],[],[]
 		return unless currentUSN < syncState.updateCount
 		lastChunk = getSyncChunk(currentUSN, 100)
 		rec = -> (syncChunk) do
 			puts "chunkHigh : #{syncChunk.chunkHighUSN}, updateCount: #{syncChunk.updateCount}"
 			notes.concat syncChunk.notes
-			deleted.concat syncChunk.expungedNotes if not syncChunk.expungedNotes.nil?
+			deletedNotes.concat syncChunk.expungedNotes if not syncChunk.expungedNotes.nil?
+			deletedNotebooks.concat syncChunk.expungedNotebooks if not syncChunk.expungedNotebooks.nil?
 			return unless syncChunk.chunkHighUSN < syncChunk.updateCount
 			rec.call lastChunk = getSyncChunk(syncChunk.chunkHighUSN, 100)
 		end
 		rec.call lastChunk
 		{ :notes => notes,
-			:deleted => deleted,
+			:deletedNotes => deletedNotes,
+			:deletedNotebooks => deletedNotebooks,
 			:lastChunk => lastChunk }
 	end
 
