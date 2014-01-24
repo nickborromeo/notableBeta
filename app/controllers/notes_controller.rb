@@ -32,7 +32,7 @@ class NotesController < ApplicationController
 
   def destroy
     @note = Note.find(params[:id])
-		if @note.parent_id == 'root'
+		if @note.parent_id == 'root' and not @note.eng.nil?
 			Note.update(@note.id, :trashed => true)
 		else
 			@note.destroy

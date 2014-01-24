@@ -18,9 +18,10 @@ class Note < ActiveRecord::Base
   	end
   end
 
-	def self.compileRoot
+	def self.compileRoot (notebook_id)
 		compiledRoots = []
-		roots = Note.where("parent_id ='root'").order(:rank)
+		notebook = Notebook.where("id = #{notebook_id}").first
+		roots = Note.where("parent_id ='root' AND notebook_id=#{notebook_id}").order(:rank)
 		roots.each do |root|
 			descendantList = Note.getCompleteDescendantList root
 			if self.freshBranches?(descendantList) or root.fresh
@@ -44,21 +45,20 @@ class Note < ActiveRecord::Base
 				end
 				content += "<li>#{branch.title}"
 			end
-			content += "</li>"
+			content += "</li>" if not content.index('<li>').nil?
 			currentDepth.downto(2).each do |level|
 				content += "</ul></li>"
 			end
 			content += "</ul>"
 			puts "SENT CONTENT"
 			puts content
-			# notebookGuid = Notebook.where("id = #{r[:root].notebook_id}").first.guid
-			notebookGuid = nil
 			evernoteData.push(:title => r[:root].title,
 												:content => content,
 												:guid => r[:root].eng,
 												:id => r[:root].id,
 												:created_at => r[:root].created_at,
-												:notebookGuid => notebookGuid,
+												:notebookid => notebook.id,
+												:notebook_eng => notebook.eng,
 												:eng => r[:root].eng)
 		end
 		evernoteData
@@ -109,8 +109,8 @@ class Note < ActiveRecord::Base
 	end
 
 	def self.receiveBranches (branchData)
-		rank = self.getLastRank
 		branchData.each do |data|
+			rank = self.getLastRank data[:notebook_id]
 			branch = Note.where("eng = '#{data[:eng]}'").first
 			if branch.nil?
 				rank += 1
@@ -123,9 +123,9 @@ class Note < ActiveRecord::Base
 
 	def self.updateBranch (data)
 		branch = Note.where("eng = '#{data[:eng]}'").first
-		data[:content] = self.digestEvernoteContent branch.guid, data[:content]
+		data[:content] = self.digestEvernoteContent branch.guid, data[:content], data[:notebook_id]
 		self.deleteDescendants branch
-		Note.update(branch.id, :title => data[:title])
+		Note.update(branch.id, :title => data[:title], :notebook_id => data[:notebook_id])
 		self.createDescendants data
 	end
 
@@ -136,6 +136,7 @@ class Note < ActiveRecord::Base
 			:title => data[:title],
 			:guid => data[:eng],
 			:eng => data[:eng],
+			:notebook_id => data[:notebook_id],
 			:rank => rank,
 			:depth => 0,
 			:fresh => false,
@@ -144,7 +145,7 @@ class Note < ActiveRecord::Base
 
 		branch = Note.new(branch)
 		branch.save
-		data[:content] = self.digestEvernoteContent branch.guid, data[:content]
+		data[:content] = self.digestEvernoteContent branch.guid, data[:content], data[:notebook_id]
 		self.createDescendants data
 		branch
 	end
@@ -157,8 +158,8 @@ class Note < ActiveRecord::Base
 		end
 	end
 
-	def self.digestEvernoteContent (parent_id, content)
-		self.parseContent parent_id, content
+	def self.digestEvernoteContent (parent_id, content, notebook_id)
+		self.parseContent parent_id, content, notebook_id
 	end
 
 	# this obscur code retrieve what is between <en-note>...</en-note> and trims the rest		
@@ -218,7 +219,7 @@ class Note < ActiveRecord::Base
 		content
 	end
 
-	def self.parseContent (parent_id, content)
+	def self.parseContent (parent_id, content, notebook_id)
 		content = self.trimContent content
 		notes = []
 		indentation = 0
@@ -259,14 +260,15 @@ class Note < ActiveRecord::Base
 				n[:parent_id] = parent[:guid]
 				parent[:next_rank] += 1
 			end
+			n[:notebook_id] = notebook_id
 			preceding = n
 		end
 
 		notes
 	end
 
-	def self.getLastRank
-		lastNote = Note.order("depth, rank DESC").first
+	def self.getLastRank (notebook_id)
+		lastNote = Note.where("notebook_id=#{notebook_id}").order("depth, rank DESC").first
 		if lastNote.nil?
 			0
 		else
