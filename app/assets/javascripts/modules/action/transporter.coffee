@@ -84,7 +84,7 @@
 
 		# Returns an option.success method that will trigger the notification
 		# only when all saves have been processed
-		successNotification: ->
+		successNotification: (callback) ->
 			# gets rid of branches that got deleted but never actually got saved to server
 			@removed = _.filter @removed, (branch) -> branch.id?
 			# numberOfChanges = @removed.length + @storage.collectChanges().length
@@ -94,9 +94,10 @@
 				=>
 					if ++i is numberOfChanges
 						App.Notify.alert.apply(App.Notify.alert, @notificationToTrigger[1])
+						callback() if callback?
 			options = success: showNotification()
-		processToServer: ->
-			options = @successNotification()
+		processToServer: (callback) ->
+			options = @successNotification callback
 			changeGuids = @storage.collectChanges()
 			App.Note.allNotesByDepth.each (branch) ->	branch.save null, options
 			# _.each changeGuids, (guid) =>
