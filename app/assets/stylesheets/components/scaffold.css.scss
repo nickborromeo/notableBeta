@@ -98,6 +98,9 @@ nav {
 	.dropdown-toggle {
 		color: $grayDark;
 	}
+	.sign-in {
+		padding: 0.7em 1.5em;
+	}
 
 }
 
@@ -156,6 +159,7 @@ footer {
 	.xs-toggle-right {
 		padding-left: 9%;
 	}
+
 }
 
 @media (max-width: $screen-xs) {
@@ -229,6 +233,10 @@ footer {
 				top: -23px;
 				right: 7px;
 			}
+		}
+
+		.sign-in {
+			padding: 0.9em 1.5em;
 		}
 
 		.navbar-nav > li > a {
@@ -370,8 +378,8 @@ footer {
 		}
 	}
 
-	#footer-in { margin: 1% 0; }
 	footer {
+		&#footer-in { margin: 2% 0; }
 		#links { font-size: 12px; }
 	}
 }
