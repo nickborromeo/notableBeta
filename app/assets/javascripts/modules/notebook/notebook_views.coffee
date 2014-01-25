@@ -27,7 +27,7 @@
 					@$el.addClass("selected")
 					App.Notebook.activeTrunk = @model
 					App.Note.eventManager.trigger "activeTrunk:changed"
-				if App.Note.tree.length isnt 0
+				if App.Action.transporter.storage.hasChangesToSync()
 					App.Action.orchestrator.triggerSaving(selectTrunkCb)
 				else
 					selectTrunkCb()
