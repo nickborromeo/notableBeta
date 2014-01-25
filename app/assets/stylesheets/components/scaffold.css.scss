@@ -49,9 +49,21 @@ label {
 		}
 	}
 	&#static {
+		&.help {
+			h4 { margin-top: 2em; }
+		}
+		&.about {
+			h4 {
+				margin-top: 1.8em;
+				text-decoration: underline;
+			}
+			a { text-decoration: underline; }
+			li { padding: 0.5em; }
+			margin-bottom: 3em;
+		}
 		padding: 0 4em;
-		h4 { margin-top: 2em; }
 	}
+
 }
 
 /* --------------HEADER REGION ------------------ */
