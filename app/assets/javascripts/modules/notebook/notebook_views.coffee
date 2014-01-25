@@ -20,10 +20,11 @@
 			input: "input.edit"
 
 		selectTrunk: ->
-			$(".trunk").removeClass("selected")
-			@$el.addClass("selected")
-			App.Notebook.activeTrunk = @model
-			App.Note.eventManager.trigger "activeTrunk:changed"
+			if @model isnt App.Notebook.activeTrunk
+				$(".trunk").removeClass("selected")
+				@$el.addClass("selected")
+				App.Notebook.activeTrunk = @model
+				App.Note.eventManager.trigger "activeTrunk:changed"
 		openEdit: ->
 			@$el.addClass('editing')
 			@ui.input.focus()
