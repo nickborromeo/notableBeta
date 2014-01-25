@@ -15,6 +15,7 @@
 			@listenTo @model, 'change', @render
 			@listenTo @model, 'destroy', @remove
 			@listenTo @model, 'created', @selectTrunk
+			@listenTo @model, 'select', @selectTrunk
 
 		ui:
 			input: "input.edit"

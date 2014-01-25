@@ -16,9 +16,8 @@
 					success: =>
 						trunk = App.User.activeUser.getActiveNotebook()
 						trunk = @forest.first() if not trunk?
-						Notebook.activeTrunk = @activeTrunk = trunk
-						App.User.activeUser.setActiveNotebook()
 						@showNotebookView(@forest)
+						trunk.trigger 'select'
 						Notebook.initializedTrunk.resolve()
 		reset: ->
 		setGlobals: ->

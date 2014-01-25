@@ -131,9 +131,7 @@
 				@showNotebookTitleView()
 			else
 				@showBreadcrumbView()
-
-			@reset()
-
+			@reset() if Notable.Notebook.initializedTrunk.state() is "resolved"
 	# Initializers -------------------------
 	Note.addInitializer ->
 		Note.noteController = new Note.Controller()
