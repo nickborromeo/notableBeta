@@ -47,6 +47,8 @@
 				@tree.add(note)
 			@showContentView(@tree)
 			App.Note.initializedTree.resolve()
+			linksView = new App.Scaffold.LinksView
+			App.linksRegion.show linksView
 
 		# Export Feat
 		showExportView: (model, paragraph) ->

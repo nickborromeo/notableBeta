@@ -127,6 +127,5 @@
 		App.contentRegion.show contentView
 		sidebarView = new App.Scaffold.SidebarView
 		App.sidebarRegion.show sidebarView
-		linksView = new App.Scaffold.LinksView
-		App.linksRegion.show linksView
+		# linksRegion populated within note_controller.coffee
 )
