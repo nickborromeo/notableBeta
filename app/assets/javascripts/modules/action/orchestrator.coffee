@@ -56,7 +56,8 @@
 			else
 				@queueChange action
 				@processChangeQueue()
-		triggerSaving: ->
+		triggerSaving: (callback) ->
+			@callback = callback if callback?
 			interval = setInterval =>
 				@clearSavingQueueTimeout()
 				if not @processingActions and @changeQueue.length is 0
@@ -101,4 +102,5 @@
 			Action.transporter.storage.clear()
 			App.Notify.alert 'brokenTree', 'danger'
 		acceptChanges:  ->
-			Action.transporter.processToServer()
+			Action.transporter.processToServer @callback
+			@callback = undefined		
