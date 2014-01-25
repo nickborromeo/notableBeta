@@ -46,6 +46,7 @@
 			@allNotesByDepth.each (note) =>
 				@tree.add(note)
 			@showContentView(@tree)
+			Note.eventManager.trigger("setCursor:#{@tree.first().get('guid')}") if @tree.length isnt 0
 			App.Note.initializedTree.resolve()
 			linksView = new App.Scaffold.LinksView
 			App.linksRegion.show linksView
