@@ -15,15 +15,22 @@
 			@listenTo @model, 'change', @render
 			@listenTo @model, 'destroy', @remove
 			@listenTo @model, 'created', @selectTrunk
+			@listenTo @model, 'select', @selectTrunk
 
 		ui:
 			input: "input.edit"
 
 		selectTrunk: ->
-			$(".trunk").removeClass("selected")
-			@$el.addClass("selected")
-			App.Notebook.activeTrunk = @model
-			App.Note.eventManager.trigger "activeTrunk:changed"
+			if @model isnt App.Notebook.activeTrunk
+				selectTrunkCb = =>
+					$(".trunk").removeClass("selected")
+					@$el.addClass("selected")
+					App.Notebook.activeTrunk = @model
+					App.Note.eventManager.trigger "activeTrunk:changed"
+				if App.Note.tree.length isnt 0
+					App.Action.orchestrator.triggerSaving(selectTrunkCb)
+				else
+					selectTrunkCb()
 		openEdit: ->
 			@$el.addClass('editing')
 			@ui.input.focus()
@@ -40,7 +47,8 @@
 			else
 				@removeTrunk()
 			@$el.removeClass('editing')
-		removeTrunk: ->
+		removeTrunk: (e) ->
+			e.stopPropagation()
 			# Add safety mechanism to ask "Are you sure? Yes/No."
 			if Notebook.forest.length > 1
 				@model.destroy()
