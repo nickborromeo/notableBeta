@@ -22,10 +22,15 @@
 
 		selectTrunk: ->
 			if @model isnt App.Notebook.activeTrunk
-				$(".trunk").removeClass("selected")
-				@$el.addClass("selected")
-				App.Notebook.activeTrunk = @model
-				App.Note.eventManager.trigger "activeTrunk:changed"
+				callback = =>
+					$(".trunk").removeClass("selected")
+					@$el.addClass("selected")
+					App.Notebook.activeTrunk = @model
+					App.Note.eventManager.trigger "activeTrunk:changed"
+				if App.Note.tree.length isnt 0
+					App.Action.orchestrator.triggerSaving(callback)
+				else
+					callback()
 		openEdit: ->
 			@$el.addClass('editing')
 			@ui.input.focus()
