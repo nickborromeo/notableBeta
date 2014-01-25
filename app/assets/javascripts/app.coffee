@@ -6,6 +6,7 @@
 		messageRegion: "#message-region"
 		contentRegion: "#content-region"
 		sidebarRegion: "#sidebar-region"
+		linksRegion: "#links-region"
 
 	# Run BEFORE/DURING/AFTER initializers
 	App.on "initialize:before", ->

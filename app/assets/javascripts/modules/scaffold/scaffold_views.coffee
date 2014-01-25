@@ -114,6 +114,11 @@
 			else
 				App.Notify.alert 'needsName', 'warning'
 
+	class Scaffold.LinksView extends Marionette.Layout
+		template: "scaffold/links"
+		id: "links-center"
+		tagName: "footer"
+
 	# Initializers -------------------------
 	App.Scaffold.on "start", ->
 		messageView = new App.Scaffold.MessageView
@@ -122,4 +127,6 @@
 		App.contentRegion.show contentView
 		sidebarView = new App.Scaffold.SidebarView
 		App.sidebarRegion.show sidebarView
+		linksView = new App.Scaffold.LinksView
+		App.linksRegion.show linksView
 )

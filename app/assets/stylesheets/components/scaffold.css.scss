@@ -104,12 +104,14 @@ nav {
 
 /* --------------FOOTER REGION ------------------ */
 footer {
-	height: 2em;
 	ul {
 		list-style-type: none;
 		font-size: 12px;
 		padding-left: 3%;
 		width: 97%;
+	}
+	#links {
+		display: none;
 	}
 }
 #footer-in {
@@ -273,9 +275,24 @@ footer {
 		}
 	}
 
-	#footer-in {
-		margin: 3% 0;
+	#footer-in { margin: 3% 0; }
+	footer {
+		height: 2em;
+		margin: 1em;
+		#links {
+			display: block;
+			text-align: center;
+			color: $grayDark;
+			font-size: 11px;
+			li {
+				display: inline;
+			}
+			li:after { content: " | "; }
+			li:last-child:after {content: ""}
+		}
 	}
+
+
 }
 
 // ----------------------------------------------------
@@ -336,8 +353,9 @@ footer {
 		}
 	}
 
-	#footer-in {
-		margin: 1% 0;
+	#footer-in { margin: 1% 0; }
+	footer {
+		#links { font-size: 12px; }
 	}
 }
 

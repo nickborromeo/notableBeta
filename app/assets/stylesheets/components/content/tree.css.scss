@@ -20,13 +20,19 @@
 // ---------------TABLET MEDIA QUERIES ----------------
 // ----------------------------------------------------
 @media (min-width: $screen-sm) {
-
-	#tree {
-		margin: 0 2.4% 2.4% 2.4%;
-		min-height: 700px;
-		border-top-right-radius: 0;
-		border-top-left-radius: 0;
-		h4 { margin-top: 16px; }
+	#content-template {
+		display: block;
+		background-image: asset-url('cardboard_@2X.png', image);
+		position: relative;
+		border-radius: 7px;
+		border: 1px solid #C1C1C1;
+		#tree {
+			margin: 0 2.4% 2.4% 2.4%;
+			min-height: 700px;
+			border-top-right-radius: 0;
+			border-top-left-radius: 0;
+			h4 { margin-top: 16px; }
+		}
 	}
 }
 
@@ -34,10 +40,13 @@
 // --------------LAPTOP MEDIA QUERIES -----------------
 // ----------------------------------------------------
 @media (min-width: $screen-md) {
-	#tree {
-		padding: 1% 5%;
-		margin: 0 2% 2% 2%;
-		min-height: 750px;
+	#content-template {
+		border-radius: 10px;
+		#tree {
+			padding: 1% 5%;
+			margin: 0 2% 2% 2%;
+			min-height: 750px;
+		}
 	}
 }
 
