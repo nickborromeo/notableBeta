@@ -42,7 +42,8 @@
 			else
 				@removeTrunk()
 			@$el.removeClass('editing')
-		removeTrunk: ->
+		removeTrunk: (e) ->
+			e.stopPropagation()
 			# Add safety mechanism to ask "Are you sure? Yes/No."
 			if Notebook.forest.length > 1
 				@model.destroy()
