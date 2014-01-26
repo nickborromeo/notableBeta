@@ -50,9 +50,17 @@
 			@$el.removeClass('editing')
 		removeTrunk: (e) ->
 			e.stopPropagation()
-			# Add safety mechanism to ask "Are you sure? Yes/No."
 			if Notebook.forest.length > 1
-				@model.destroy()
+				options =
+					success: (model, response, opts) =>
+						if model is App.Notebook.activeTrunk
+							App.Notebook.activeTrunk = App.Notebook.forest.first()
+							App.Note.eventManager.trigger "activeTrunk:changed"
+							$(".trunk").removeClass("selected")
+							$("#forest li:first-child").addClass("selected")
+					error: (model, response, opts) =>
+						console.log reponse.message
+				@model.destroy(options)
 				App.Notify.alert 'deleteNotebook', 'warning'
 			else
 				App.Notify.alert 'needsNotebook', 'danger'

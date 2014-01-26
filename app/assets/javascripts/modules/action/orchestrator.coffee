@@ -103,4 +103,4 @@
 			App.Notify.alert 'brokenTree', 'danger'
 		acceptChanges:  ->
 			Action.transporter.processToServer @callback
-			@callback = undefined		
+			@callback = undefined
