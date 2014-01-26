@@ -45,6 +45,7 @@
 				@model.save
 					title: newTitle
 					# modview: modview
+				App.Note.eventManager.trigger "activeTrunk:changed"
 			else
 				@removeTrunk()
 			@$el.removeClass('editing')
