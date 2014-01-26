@@ -28,7 +28,8 @@
 					App.Notebook.activeTrunk = @model
 					App.Note.eventManager.trigger "activeTrunk:changed"
 				if App.Action.transporter.storage.hasChangesToSync()
-					App.Action.orchestrator.triggerSaving(selectTrunkCb)
+					App.Note.initializedTree.then ->
+						App.Action.orchestrator.triggerSaving(selectTrunkCb)
 				else
 					selectTrunkCb()
 		openEdit: ->
