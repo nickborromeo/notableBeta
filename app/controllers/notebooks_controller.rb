@@ -44,8 +44,8 @@ class NotebooksController < ApplicationController
   # DELETE /notebooks/1.json
   def destroy
     @notebook = Notebook.find(params[:id])
-		if not @notebook.eng.nil?
-			Notebook.update(@notebook.id, :trashed => true)
+		if @notebook.eng?
+			@notebook.update_attributes(:trashed => true)
 		else
 			@notebook.destroy
 		end

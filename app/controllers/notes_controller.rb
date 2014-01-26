@@ -3,7 +3,7 @@ class NotesController < ApplicationController
 
   def index
     @notes = Note.where("trashed = false AND notebook_id = " + params[:notebook_id])
-			.order("depth").order("rank")
+      .order("depth").order("rank")
     respond_with(@notes)
   end
 
@@ -32,8 +32,8 @@ class NotesController < ApplicationController
 
   def destroy
     @note = Note.find(params[:id])
-		if @note.parent_id == 'root' and not @note.eng.nil?
-			Note.update(@note.id, :trashed => true)
+		if @note.parent_id == 'root' and @note.eng?
+			@note.update_attributes(:trashed => true)
 		else
 			@note.destroy
 		end
