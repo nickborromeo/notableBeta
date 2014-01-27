@@ -48,8 +48,13 @@
 			@showContentView(@tree)
 			Note.eventManager.trigger("setCursor:#{@tree.first().get('guid')}") if @tree.length isnt 0
 			App.Note.initializedTree.resolve()
-			linksView = new App.Scaffold.LinksView
-			App.linksRegion.show linksView
+			@showLinksFooter()
+
+
+		showLinksFooter: ->
+			if _.isUndefined(App.linksRegion.currentView)
+				linksView = new App.Scaffold.LinksView
+				App.linksRegion.show linksView
 
 		# Export Feat
 		showExportView: (model, paragraph) ->
