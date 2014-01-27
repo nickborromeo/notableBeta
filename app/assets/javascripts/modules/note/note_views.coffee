@@ -42,7 +42,7 @@
 		renderCollapsed: ->
 			if descendants = @collection.models.length isnt 0
 				@$(">.branch>.move").addClass("collapsable")
-			if @model.get('collapsed') and descendants then @collapse() else @expand()
+			if @model.get('collapsed') then @collapse() else @expand()
 		appendHtml:(collectionView, itemView, i) ->
 			@$('.descendants:first').append(itemView.el)
 			if i is @collection.length - 1
