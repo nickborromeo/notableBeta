@@ -110,9 +110,7 @@
 					success: (trunk) ->
 						oldTrunk = App.Notebook.activeTrunk.id
 						trunk.trigger "created"
-						i = 0
 						interval = setInterval =>
-							console.log 'called ', ++i	
 							if App.Notebook.activeTrunk.id isnt oldTrunk
 								clearInterval interval
 								@$('#new-trunk').val('')
