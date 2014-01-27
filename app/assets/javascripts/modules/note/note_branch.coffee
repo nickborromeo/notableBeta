@@ -3,7 +3,7 @@
 	class Note.Branch extends Backbone.Model
 		urlRoot : '/notes'
 		defaults:
-			title: "Just type here to create a note"
+			title: ""
 			subtitle: ""
 			parent_id: "root"
 			rank: 1

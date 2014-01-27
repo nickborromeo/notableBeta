@@ -110,6 +110,9 @@
 					success: (trunk) ->
 						trunk.trigger "created"
 						@$('#new-trunk').val('')
+						newNote = notebook_id: App.Notebook.activeTrunk.id
+						App.Note.tree.create newNote
+						App.Note.eventManager.trigger "setCursor:#{App.Note.activeTree.last().get('guid')}"
 						App.Notify.alert 'newNotebook', 'success', {destructTime: 5000}
 			else
 				App.Notify.alert 'needsName', 'warning'
