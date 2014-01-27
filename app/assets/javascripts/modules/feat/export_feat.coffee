@@ -10,7 +10,6 @@
 			@model = new Feat.ExportModel tree: @collection, inParagraph: options.inParagraph, title: options.title
 			if options.inParagraph then App.Notify.alert 'exportParagraph', 'success'
 			else App.Notify.alert 'exportPlain', 'success'
-			# console.log "exportView", arguments
 
 		clearExport: ->
 			App.Note.eventManager.trigger "clear:export"
@@ -19,7 +18,6 @@
 		urlRoot : '/sync'
 
 		initialize: ->
-			# console.log "exportModel", arguments
 			if @get('inParagraph') then @render = @renderTreeParagraph else @render = @renderTree
 			# @set 'title', "Fake Title" #Note.activeBranch.get('title')
 			@set 'text', @render @get('tree')
