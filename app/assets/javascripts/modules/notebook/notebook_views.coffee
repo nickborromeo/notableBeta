@@ -21,10 +21,10 @@
 			input: "input.edit"
 
 		selectTrunk: ->
+			$(".trunk").removeClass("selected")
+			@$el.addClass("selected")
 			if @model isnt App.Notebook.activeTrunk
 				selectTrunkCb = =>
-					$(".trunk").removeClass("selected")
-					@$el.addClass("selected")
 					App.Notebook.activeTrunk = @model
 					App.Note.eventManager.trigger "activeTrunk:changed"
 				if App.Action.transporter.storage.hasChangesToSync()
