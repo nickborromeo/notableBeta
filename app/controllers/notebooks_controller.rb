@@ -1,6 +1,5 @@
 class NotebooksController < ApplicationController
   respond_to :html, :json
-  # helper NotebooksHelper
 
   # GET /notebooks.json
   def index

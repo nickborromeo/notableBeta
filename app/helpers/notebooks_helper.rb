@@ -1,9 +1,5 @@
 module NotebooksHelper
 
-	def test_this_helper
-		puts "-------------------whoa-----------------"
-	end
-
   def make_default_notebook
     tutorial = { "guid" => SecureRandom.uuid,
       "title" => "Notable Tutorial",
@@ -12,6 +8,7 @@ module NotebooksHelper
     @default_notebook = Notebook.new(tutorial)
     if @default_notebook.save
       notebook_id = @default_notebook.id
+      current_user.update_attributes(:active_notebook => notebook_id)
       make_default_notes(notebook_id)
     end
   end
