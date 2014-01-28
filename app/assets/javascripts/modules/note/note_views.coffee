@@ -58,24 +58,17 @@
 
 		bindKeyboardShortcuts: ->
 			@.$el.on 'keydown', null, 'return', @createNote.bind @
-			@.$el.on 'keydown', null, 'ctrl+shift+backspace', @triggerShortcut 'deleteNote'
-			@.$el.on 'keydown', null, 'meta+shift+backspace', @triggerShortcut 'deleteNote'
+			@.$el.on 'keydown', null, 'ctrl+shift+backspace meta+shift+backspace', @triggerShortcut 'deleteNote'
 			@.$el.on 'keydown', null, 'tab', @triggerShortcut 'tabNote'
 			@.$el.on 'keydown', null, 'shift+tab', @triggerShortcut 'unTabNote'
-			@.$el.on 'keydown', null, 'alt+right', @triggerShortcut 'tabNote'
-			@.$el.on 'keydown', null, 'alt+left', @triggerShortcut 'unTabNote'
-			@.$el.on 'keydown', null, 'alt+up', @triggerShortcut 'jumpPositionUp'
-			@.$el.on 'keydown', null, 'alt+down', @triggerShortcut 'jumpPositionDown'
-			@.$el.on 'keydown', null, 'meta+right', @triggerShortcut 'tabNote'
-			@.$el.on 'keydown', null, 'meta+left', @triggerShortcut 'unTabNote'
-			@.$el.on 'keydown', null, 'meta+up', @triggerShortcut 'jumpPositionUp'
-			@.$el.on 'keydown', null, 'meta+down', @triggerShortcut 'jumpPositionDown'
+			@.$el.on 'keydown', null, 'alt+right meta+right', @triggerShortcut 'tabNote'
+			@.$el.on 'keydown', null, 'alt+left meta+left', @triggerShortcut 'unTabNote'
+			@.$el.on 'keydown', null, 'alt+up meta+up', @triggerShortcut 'jumpPositionUp'
+			@.$el.on 'keydown', null, 'alt+down meta+down', @triggerShortcut 'jumpPositionDown'
 			@.$el.on 'keydown', null, 'up', @triggerShortcut 'jumpFocusUp'
 			@.$el.on 'keydown', null, 'down', @triggerShortcut 'jumpFocusDown'
-			@.$el.on 'keydown', null, 'alt+ctrl+left', @triggerShortcut 'zoomOut'
-			@.$el.on 'keydown', null, 'alt+ctrl+right', @triggerShortcut 'zoomIn'
-			@.$el.on 'keydown', null, 'meta+ctrl+left', @triggerShortcut 'zoomOut'
-			@.$el.on 'keydown', null, 'meta+ctrl+right', @triggerShortcut 'zoomIn'
+			@.$el.on 'keydown', null, 'alt+ctrl+left meta+ctrl+left', @triggerShortcut 'zoomOut'
+			@.$el.on 'keydown', null, 'alt+ctrl+right meta+ctrl+right', @triggerShortcut 'zoomIn'
 			@.$el.on 'keydown', null, 'right', @arrowRightJumpLine.bind @
 			@.$el.on 'keydown', null, 'left', @arrowLeftJumpLine.bind @
 			@.$el.on 'keydown', null, 'backspace', @mergeWithPreceding.bind @
@@ -83,12 +76,8 @@
 			@.$el.on 'keydown', null, 'ctrl+down', @triggerLocalShortcut @expand.bind @
 			@.$el.on 'keydown', null, 'ctrl+s', @triggerSaving.bind @
 			@.$el.on 'keydown', null, 'meta+s', @triggerSaving.bind @
-
-			@.$el.on 'keydown', null, 'ctrl+z', @triggerUndoEvent
-			@.$el.on 'keydown', null, 'meta+z', @triggerUndoEvent
-			# @.$el.on 'keydown', null, 'ctrl+y', @triggerRedoEvent
-			# @.$el.on 'keydown', null, 'meta+y', @triggerRedoEvent
-
+			# @.$el.on 'keydown', null, 'ctrl+y meta+y', @triggerRedoEvent
+			@.$el.on 'keydown', null, 'ctrl+z meta+z', @triggerUndoEvent
 			@.$el.on 'keydown', null, 'ctrl+b meta+b', @applyStyling.bind @, 'bold'
 			@.$el.on 'keydown', null, 'ctrl+i meta+i', @applyStyling.bind @, 'italic'
 			@.$el.on 'keydown', null, 'ctrl+u meta+u', @applyStyling.bind @, 'underline'
