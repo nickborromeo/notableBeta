@@ -50,9 +50,10 @@
 		buildTextBefore: (parent, sel) ->
 			it = document.createNodeIterator parent, NodeFilter.SHOW_TEXT
 			text = ""
+			# Firefox uses isEqualNode instead of isSameNode
+			sameNodeFn = if sel.focusNode.isSameNode? then "isSameNode" else "isEqualNode"
 			while n = it.nextNode()
-				sameNodeFn = if n.isSameNode? then n.isSameNode.bind(n) else n.isEqualNode.bind(n)
-				if sameNodeFn(sel.anchorNode)
+				if n[sameNodeFn](sel.anchorNode)
 					text += n.data.slice(0, sel.anchorOffset)
 					break;
 				text += n.data
