@@ -58,24 +58,17 @@
 
 		bindKeyboardShortcuts: ->
 			@.$el.on 'keydown', null, 'return', @createNote.bind @
-			@.$el.on 'keydown', null, 'ctrl+shift+backspace', @triggerShortcut 'deleteNote'
-			@.$el.on 'keydown', null, 'meta+shift+backspace', @triggerShortcut 'deleteNote'
+			@.$el.on 'keydown', null, 'ctrl+shift+backspace meta+shift+backspace', @triggerShortcut 'deleteNote'
 			@.$el.on 'keydown', null, 'tab', @triggerShortcut 'tabNote'
 			@.$el.on 'keydown', null, 'shift+tab', @triggerShortcut 'unTabNote'
-			@.$el.on 'keydown', null, 'alt+right', @triggerShortcut 'tabNote'
-			@.$el.on 'keydown', null, 'alt+left', @triggerShortcut 'unTabNote'
-			@.$el.on 'keydown', null, 'alt+up', @triggerShortcut 'jumpPositionUp'
-			@.$el.on 'keydown', null, 'alt+down', @triggerShortcut 'jumpPositionDown'
-			@.$el.on 'keydown', null, 'meta+right', @triggerShortcut 'tabNote'
-			@.$el.on 'keydown', null, 'meta+left', @triggerShortcut 'unTabNote'
-			@.$el.on 'keydown', null, 'meta+up', @triggerShortcut 'jumpPositionUp'
-			@.$el.on 'keydown', null, 'meta+down', @triggerShortcut 'jumpPositionDown'
+			@.$el.on 'keydown', null, 'alt+right meta+right', @triggerShortcut 'tabNote'
+			@.$el.on 'keydown', null, 'alt+left meta+left', @triggerShortcut 'unTabNote'
+			@.$el.on 'keydown', null, 'alt+up meta+up', @triggerShortcut 'jumpPositionUp'
+			@.$el.on 'keydown', null, 'alt+down meta+down', @triggerShortcut 'jumpPositionDown'
 			@.$el.on 'keydown', null, 'up', @triggerShortcut 'jumpFocusUp'
 			@.$el.on 'keydown', null, 'down', @triggerShortcut 'jumpFocusDown'
-			@.$el.on 'keydown', null, 'alt+ctrl+left', @triggerShortcut 'zoomOut'
-			@.$el.on 'keydown', null, 'alt+ctrl+right', @triggerShortcut 'zoomIn'
-			@.$el.on 'keydown', null, 'meta+ctrl+left', @triggerShortcut 'zoomOut'
-			@.$el.on 'keydown', null, 'meta+ctrl+right', @triggerShortcut 'zoomIn'
+			@.$el.on 'keydown', null, 'alt+ctrl+left meta+ctrl+left', @triggerShortcut 'zoomOut'
+			@.$el.on 'keydown', null, 'alt+ctrl+right meta+ctrl+right', @triggerShortcut 'zoomIn'
 			@.$el.on 'keydown', null, 'right', @arrowRightJumpLine.bind @
 			@.$el.on 'keydown', null, 'left', @arrowLeftJumpLine.bind @
 			@.$el.on 'keydown', null, 'backspace', @mergeWithPreceding.bind @
@@ -83,12 +76,8 @@
 			@.$el.on 'keydown', null, 'ctrl+down', @triggerLocalShortcut @expand.bind @
 			@.$el.on 'keydown', null, 'ctrl+s', @triggerSaving.bind @
 			@.$el.on 'keydown', null, 'meta+s', @triggerSaving.bind @
-
-			@.$el.on 'keydown', null, 'ctrl+z', @triggerUndoEvent
-			@.$el.on 'keydown', null, 'meta+z', @triggerUndoEvent
-			# @.$el.on 'keydown', null, 'ctrl+y', @triggerRedoEvent
-			# @.$el.on 'keydown', null, 'meta+y', @triggerRedoEvent
-
+			# @.$el.on 'keydown', null, 'ctrl+y meta+y', @triggerRedoEvent
+			@.$el.on 'keydown', null, 'ctrl+z meta+z', @triggerUndoEvent
 			@.$el.on 'keydown', null, 'ctrl+b meta+b', @applyStyling.bind @, 'bold'
 			@.$el.on 'keydown', null, 'ctrl+i meta+i', @applyStyling.bind @, 'italic'
 			@.$el.on 'keydown', null, 'ctrl+u meta+u', @applyStyling.bind @, 'underline'
@@ -119,6 +108,8 @@
 			e.preventDefault()
 			e.stopPropagation()
 			args = Note.sliceArgs arguments
+			args.push
+				cursorPosition: @cursorApi.textBeforeCursor window.getSelection(), @getNoteTitle()
 			@triggerEvent(event).apply(@, args)
 		triggerLocalShortcut: (behaviorFn) -> (e) =>
 			e.preventDefault()
@@ -292,13 +283,18 @@
 		dispatchFunction: (functionName, model) ->
 			# This line is for you Gavin.
 			# I pass in the model as well, and any other arguments we would like
-			Note.eventManager.trigger "change:" + functionName, Note.sliceArgs arguments
+			# Note.eventManager.trigger "change:" + functionName, Note.sliceArgs arguments
+			# Small hack here,
+			# This line is to prevent the position of the cursor to be chained further down
+			# in the function stack
+			args = Note.sliceArgs(arguments)[0...-1] if _.last(arguments).cursorPosition? 
 			if @[functionName]?
 				@[functionName].apply(@, Note.sliceArgs arguments)
 			else
-				@collection[functionName].apply(@collection, Note.sliceArgs arguments)
+				@collection[functionName].apply(@collection, args)
 				@render() # Will probably need to do something about rerendering all the time
-				Note.eventManager.trigger "setCursor:#{arguments[1].get 'guid'}"
+				position = _.last(arguments).cursorPosition || ""
+				Note.eventManager.trigger "setCursor:#{arguments[1].get 'guid'}", position
 			Note.eventManager.trigger "actionFinished", functionName, arguments[1]
 		createNote: (createdFrom) ->
 			[newNote, createdFromNewTitle, setFocusIn] =
