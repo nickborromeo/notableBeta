@@ -51,7 +51,8 @@
 			it = document.createNodeIterator parent, NodeFilter.SHOW_TEXT
 			text = ""
 			while n = it.nextNode()
-				if n.isSameNode(sel.anchorNode)
+				sameNodeFn = if n.isSameNode? then n.isSameNode.bind(n) else n.isEqualNode.bind(n)
+				if sameNodeFn(sel.anchorNode)
 					text += n.data.slice(0, sel.anchorOffset)
 					break;
 				text += n.data
