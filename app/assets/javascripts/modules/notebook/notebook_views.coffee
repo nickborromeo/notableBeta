@@ -14,8 +14,9 @@
 		initialize: ->
 			@listenTo @model, 'change', @render
 			@listenTo @model, 'destroy', @remove
-			@listenTo @model, 'created', @selectTrunk
+			@listenTo @model, 'created', @createTrunk
 			@listenTo @model, 'select', @selectTrunk
+			@listenTo @model, 'selected', @createFirstNote
 
 		ui:
 			input: "input.edit"
@@ -32,6 +33,15 @@
 						App.Action.orchestrator.triggerSaving(selectTrunkCb)
 				else
 					selectTrunkCb()
+		createTrunk: ->
+			@selectTrunk()
+			App.Notify.alert 'newNotebook', 'success', {destructTime: 5000}
+		createFirstNote: ->
+			if App.Note.tree.isEmpty()
+				newNote = notebook_id: App.Notebook.activeTrunk.id
+				App.Note.tree.create newNote
+				App.Note.eventManager.trigger "setCursor:#{App.Note.activeTree.last().get('guid')}"
+
 		openEdit: ->
 			@$el.addClass('editing')
 			@ui.input.focus()
