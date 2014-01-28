@@ -108,17 +108,8 @@
 					user_id: App.User.activeUser.id
 				App.Notebook.forest.create trunk_attributes,
 					success: (trunk) ->
-						oldTrunk = App.Notebook.activeTrunk.id
+						@$('#new-trunk').val('')
 						trunk.trigger "created"
-						interval = setInterval =>
-							if App.Notebook.activeTrunk.id isnt oldTrunk
-								clearInterval interval
-								@$('#new-trunk').val('')
-								newNote = notebook_id: App.Notebook.activeTrunk.id
-								App.Note.tree.create newNote
-								App.Note.eventManager.trigger "setCursor:#{App.Note.activeTree.last().get('guid')}"
-								App.Notify.alert 'newNotebook', 'success', {destructTime: 5000}
-						, 50
 			else
 				App.Notify.alert 'needsName', 'warning'
 

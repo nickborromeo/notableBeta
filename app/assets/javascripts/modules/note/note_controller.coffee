@@ -21,12 +21,12 @@
 			App.Notebook.initializedTrunk.then =>
 				App.Action.transporter.testServerConnection()
 				Note.syncingCompleted.then => @buildTree()
-		reset: ->
+		reset: (callback) ->
 			@tree._reset()
 			@allNotesByDepth._reset()
 			@allNotesByDepth.fetch
 				data: notebook_id: App.Notebook.activeTrunk.id
-				success: => @buildTree()
+				success: => @buildTree(); callback()
 			Note.eventManager.trigger "clearZoom"
 		setGlobals: ->
 			Note.initializedTree = $.Deferred()
@@ -137,7 +137,7 @@
 				@showNotebookTitleView()
 			else
 				@showBreadcrumbView()
-			@reset() if Notable.Notebook.initializedTrunk.state() is "resolved"
+			@reset(-> App.Notebook.activeTrunk.trigger "selected") if Notable.Notebook.initializedTrunk.state() is "resolved"
 	# Initializers -------------------------
 	Note.addInitializer ->
 		Note.noteController = new Note.Controller()
