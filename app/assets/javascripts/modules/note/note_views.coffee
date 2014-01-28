@@ -108,6 +108,8 @@
 			e.preventDefault()
 			e.stopPropagation()
 			args = Note.sliceArgs arguments
+			args.push
+				cursorPosition: @cursorApi.textBeforeCursor window.getSelection(), @getNoteTitle()
 			@triggerEvent(event).apply(@, args)
 		triggerLocalShortcut: (behaviorFn) -> (e) =>
 			e.preventDefault()
@@ -281,13 +283,18 @@
 		dispatchFunction: (functionName, model) ->
 			# This line is for you Gavin.
 			# I pass in the model as well, and any other arguments we would like
-			Note.eventManager.trigger "change:" + functionName, Note.sliceArgs arguments
+			# Note.eventManager.trigger "change:" + functionName, Note.sliceArgs arguments
+			# Small hack here,
+			# This line is to prevent the position of the cursor to be chained further down
+			# in the function stack
+			args = Note.sliceArgs(arguments)[0...-1] if _.last(arguments).cursorPosition? 
 			if @[functionName]?
 				@[functionName].apply(@, Note.sliceArgs arguments)
 			else
-				@collection[functionName].apply(@collection, Note.sliceArgs arguments)
+				@collection[functionName].apply(@collection, args)
 				@render() # Will probably need to do something about rerendering all the time
-				Note.eventManager.trigger "setCursor:#{arguments[1].get 'guid'}"
+				position = _.last(arguments).cursorPosition || ""
+				Note.eventManager.trigger "setCursor:#{arguments[1].get 'guid'}", position
 			Note.eventManager.trigger "actionFinished", functionName, arguments[1]
 		createNote: (createdFrom) ->
 			[newNote, createdFromNewTitle, setFocusIn] =
