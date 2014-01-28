@@ -16,4 +16,9 @@
 			side: 'right'
 
 		window.scrollTo(0,1)
+		$(document).bind 'keydown', 'ctrl+s meta+s', (e) ->
+			e.preventDefault()
+			App.Action.orchestrator.triggerSaving()
+			false
+
 )

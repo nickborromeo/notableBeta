@@ -74,8 +74,7 @@
 			@.$el.on 'keydown', null, 'backspace', @mergeWithPreceding.bind @
 			@.$el.on 'keydown', null, 'ctrl+up', @triggerLocalShortcut @collapse.bind @
 			@.$el.on 'keydown', null, 'ctrl+down', @triggerLocalShortcut @expand.bind @
-			@.$el.on 'keydown', null, 'ctrl+s', @triggerSaving.bind @
-			@.$el.on 'keydown', null, 'meta+s', @triggerSaving.bind @
+			@.$el.on 'keydown', null, 'ctrl+s meta+s', @triggerSaving.bind @
 			# @.$el.on 'keydown', null, 'ctrl+y meta+y', @triggerRedoEvent
 			@.$el.on 'keydown', null, 'ctrl+z meta+z', @triggerUndoEvent
 			@.$el.on 'keydown', null, 'ctrl+b meta+b', @applyStyling.bind @, 'bold'
