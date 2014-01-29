@@ -40,41 +40,20 @@
 	class Action.Orchestrator
 
 		constructor: ->
-			@changeQueue = []
 			@destroyQueue = []
 			App.Note.eventManager.on "syncingDone", @validateChanges.bind(@), @
-
-		queueChange: (action) ->
-			@changeQueue.push action
 		queueDestroy: (action) ->
 			@destroyQueue.push action.branch
-			@processAction action
 		triggerAction: (actionType, branch, attributes, options = {}) ->
 			@clearSavingQueueTimeout()
 			action = Action.buildAction.apply(@, arguments)
-			if action.destroy
-				@queueDestroy action
-				@startSavingQueueTimeout()
-			else
-				@queueChange action
-				@processChangeQueue()
+			@queueDestroy action if action.destroy
+			@processAction action
 		triggerSaving: (callback) ->
 			@callback = callback if callback?
-			interval = setInterval =>
-				@clearSavingQueueTimeout()
-				if not @processingActions and @changeQueue.length is 0
-					clearInterval interval
-					@syncWithLocal()
+			@clearSavingQueueTimeout()
+			@syncWithLocal()
 
-		processChangeQueue: ->
-			return if @processingActions
-			@processingActions = true
-			do rec = (action = @changeQueue.shift()) =>
-				return if not action? # continue to process and validate actions if there are any left in the changeQueue
-				@processAction action
-				rec @changeQueue.shift()
-			@processingActions = false
-			@startSavingQueueTimeout()
 		processAction: (action) ->
 			action.compound()
 			action.addToHistory()
