@@ -53,9 +53,12 @@
 			# Firefox uses isEqualNode instead of isSameNode
 			sameNodeFn = if sel.focusNode.isSameNode? then "isSameNode" else "isEqualNode"
 			while n = it.nextNode()
+				# Used if Firefox loses text node focus and focus on .note-content
+				# Maybe look into NodeFilter.SHOW_TEXT ?
+				break if sel.anchorNode.contentEditable is "true" and sel.anchorOffset is 0
 				if n[sameNodeFn](sel.anchorNode)
 					text += n.data.slice(0, sel.anchorOffset)
-					break;
+					break
 				text += n.data
 			text
 		getContentEditable: (sel) ->
