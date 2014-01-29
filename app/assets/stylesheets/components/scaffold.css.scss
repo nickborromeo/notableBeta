@@ -4,13 +4,13 @@
 // ----------------MOBILE FIRST CSS -------------------
 // ----------------------------------------------------
 html {
-  overflow-y: scroll;
+	overflow-y: scroll;
 }
 body {
 	height: 100%;
-  background-image: asset-url('satinweave.png', image);
-  font: 12px Tahoma, Helvetica, Arial, sans-serif;
-  letter-spacing: 0.4px;
+	background-image: asset-url('satinweave.png', image);
+	font: 12px Tahoma, Helvetica, Arial, sans-serif;
+	letter-spacing: 0.4px;
 	line-height: 1.4em;
 	color: $black;
 	margin: 0 auto;
@@ -343,9 +343,11 @@ footer {
 // ----------------------------------------------------
 // --------------LAPTOP MEDIA QUERIES -----------------
 // ----------------------------------------------------
+
+
 @media (min-width: $screen-md) {
 	body {
-	  font-size: 14px;
+		font-size: 14px;
 		// padding-top: 60px;
 	}
 	.container {
@@ -365,8 +367,8 @@ footer {
 			.form-control {
 				font-size: 14px;
 				height: 30px;
-			  -webkit-box-shadow: inset 0 1px 2px rgba(0,0,0,0.2);
-			  box-shadow: inset 0 1px 2px rgba(0,0,0,0.2);
+				-webkit-box-shadow: inset 0 1px 2px rgba(0,0,0,0.2);
+				box-shadow: inset 0 1px 2px rgba(0,0,0,0.2);
 			}
 			.search-btn {
 				top: -26px;
@@ -395,6 +397,9 @@ footer {
 			background-image: none;
 		}
 	}
+	@-moz-document url-prefix() {
+		nav .navbar-nav > li > a { padding: 4.5px 6px 6px 7.5px; }
+	}
 
 	#message-center {
 		padding-top: 4px;
@@ -419,6 +424,7 @@ footer {
 		#links { font-size: 12px; }
 	}
 }
+
 
 // ----------------------------------------------------
 // ---------------DESKTOP MEDIA QUERIES ---------------
