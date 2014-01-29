@@ -38,7 +38,9 @@
 			App.Notify.alert 'newNotebook', 'success', {destructTime: 5000}
 		createFirstNote: ->
 			if App.Note.tree.isEmpty()
-				newNote = notebook_id: App.Notebook.activeTrunk.id
+				newNote = new App.Note.Branch
+				newNoteAttrs = notebook_id: App.Notebook.activeTrunk.id
+				App.Action.orchestrator.triggerAction 'createBranch', newNote, newNoteAttrs
 				App.Note.tree.create newNote
 				App.Note.eventManager.trigger "setCursor:#{App.Note.activeTree.last().get('guid')}"
 
