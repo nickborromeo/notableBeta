@@ -38,7 +38,7 @@
 			@decreaseOffsetAdjustment matches, offset
 		findTargetedNodeAndOffset: (desiredPosition, parent) ->
 			return [parent, 0] if desiredPosition is 0
-			it = document.createNodeIterator parent, NodeFilter.SHOW_TEXT
+			it = document.createNodeIterator parent, NodeFilter.SHOW_TEXT, null, false
 			offset = 0;
 			while n = it.nextNode()
 				offset += n.data.length
@@ -48,7 +48,8 @@
 			[n, offset]
 
 		buildTextBefore: (parent, sel) ->
-			it = document.createNodeIterator parent, NodeFilter.SHOW_TEXT
+			# The two last param or extra param to comply with IE
+			it = document.createNodeIterator parent, NodeFilter.SHOW_TEXT, null, false
 			text = ""
 			# Firefox uses isEqualNode instead of isSameNode
 			sameNodeFn = if sel.focusNode.isSameNode? then "isSameNode" else "isEqualNode"

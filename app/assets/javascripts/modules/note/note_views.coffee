@@ -166,7 +166,8 @@
 				@$(">.branch>.move").removeClass("is-collapsed")
 				@render()
 		isCollapsed: ->
-			"is-collapsed" in @$(">.branch>.move")[0].classList
+			# "is-collapsed" in @$(">.branch>.move")[0].classList
+			"is-collapsed" in App.Helpers.ieShim.classList(@$(">.branch>.move")[0])
 		collapsable: ->
 			@collection.length isnt 0
 		toggleDestroyFeat: (toggleType) ->
@@ -364,7 +365,7 @@
 		dropAllowedAfter: (note) ->
 			@drag isnt note and not note.hasInAncestors @drag
 		getDropType: (e) ->
-			e.currentTarget.classList[1]
+			App.Helpers.ieShim.classList(e.currentTarget)[1]
 
 		mergeWithPreceding: (note) ->
 			[preceding, title] = @collection.mergeWithPreceding note
