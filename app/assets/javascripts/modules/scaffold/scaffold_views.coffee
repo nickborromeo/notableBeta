@@ -45,13 +45,15 @@
 			App.Notify.alert 'newNote','success'
 			# mixpanel.track("New Note")
 		applyModview: (e) ->
-			type = e.currentTarget.classList[1]
+			
+			type = App.Helpers.ieShim.classList(e.currentTarget)[1]
+			console.log "classList", type, e.currentTarget.className
 			$(".modview-btn").removeClass("selected")
 			$(".#{type}").addClass("selected")
 		shiftNavbar: (e) ->
 			$(".navbar-header").toggleClass("navbar-shift")
 			$(".navbar-right").toggleClass("navbar-shift")
-			type = e.currentTarget.classList[1]
+			type = App.Helpers.ieShim.classList(e.currentTarget)[1]
 			$(".#{type}").toggleClass("selected")
 
 	class Scaffold.ContentView extends Marionette.Layout
