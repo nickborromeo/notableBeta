@@ -9,6 +9,7 @@
 		addToHistory: ->
 		triggerNotification: ->
 		destroy: false
+		specificActions: ->
 
 	Action.buildAction = (actionType, branch, attributes, options = {}) ->
 		args = App.Note.sliceArgs arguments
@@ -31,6 +32,7 @@
 	Action.createBranch = (branch, attributes, options = {}) ->
 		# compound: -> unless options.isUndo then App.Action.manager.addHistory "compoundAction", {actions:2}
 		addToHistory: -> unless options.isUndo then App.Action.manager.addHistory 'createBranch', branch
+		specificActions: ->	App.Note.tree.insertInTree branch
 
 	Action.updateBranch = (branch, attributes, options = {}) ->
 		addToHistory: -> App.Action.manager.addHistory 'updateBranch', branch, options.isUndo
@@ -79,6 +81,7 @@
 			action.triggerNotification()
 			action.branch.set action.attributes if action.attributes?
 			Action.transporter.addToStorage(action) unless action.options.noLocalStorage
+			action.specificActions()
 		validate: (branch, attributes, options) ->
 			return false if (val = branch.validation attributes)?
 			true

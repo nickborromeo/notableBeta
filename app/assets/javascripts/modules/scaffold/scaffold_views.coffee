@@ -41,7 +41,6 @@
 					notebook_id: App.Notebook.activeTrunk.id
 			newNote = new App.Note.Branch
 			App.Action.orchestrator.triggerAction 'createBranch', newNote, newNoteAttrs
-			App.Note. tree.insertInTree newNote
 			App.Note.eventManager.trigger "render:#{App.Note.activeBranch.get('guid')}" if App.Note.activeBranch isnt "root"
 			App.Note.eventManager.trigger "setCursor:#{App.Note.activeTree.last().get('guid')}"
 			App.Notify.alert 'newNote','success'

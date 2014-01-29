@@ -161,7 +161,6 @@
 		reverseDeleteBranch: (attributes) ->
 			newBranch = new App.Note.Branch()
 			App.Action.orchestrator.triggerAction 'createBranch', newBranch, attributes, isUndo: true
-			App.Note.tree.insertInTree newBranch
 			#remove from storage if offline
 			Action.transporter.storage.addDelete newBranch, false
 			App.Note.eventManager.trigger "setCursor:#{newBranch.get('guid')}"

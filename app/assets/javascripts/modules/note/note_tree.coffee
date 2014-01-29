@@ -64,7 +64,6 @@
 			newNoteAttributes = Note.Branch.generateAttributes hashMap.createBeforeNote, hashMap.newNoteTitle
 			if hashMap.rankAdjustment then newNoteAttributes.rank += 1
 			App.Action.orchestrator.triggerAction 'createBranch', newNote, newNoteAttributes
-			@insertInTree newNote
 			hashMap.setFocusIn ||= newNote
 			[newNote, hashMap.oldNoteNewTitle, hashMap.setFocusIn]
 		dispatchCreation: (noteCreatedFrom, textBefore, textAfter) ->
