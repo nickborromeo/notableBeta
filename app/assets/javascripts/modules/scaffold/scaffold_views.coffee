@@ -20,26 +20,28 @@
 		createNote: ->
 			if App.Note.activeTree.models.length is 0
 				if App.Note.activeBranch is 'root'
-					lastNote =
+					newNoteAttrs =
 						rank: 1
 						title: ""
 						notebook_id: App.Notebook.activeTrunk.id
 				else
-					lastNote =
+					newNoteAttrs =
 						rank: 1
 						title: ""
 						depth: App.Note.activeBranch.get('depth') + 1
 						parent_id: App.Note.activeBranch.get('guid')
 						notebook_id: App.Notebook.activeTrunk.id
-				App.Note.tree.create lastNote
 			else
 				lastNote = App.Note.activeTree.last()
-				App.Note.activeTree.create
+				newNoteAttrs =
 					depth: lastNote.get('depth')
 					parent_id: lastNote.get('parent_id')
 					rank: lastNote.get('rank') + 1
 					title: ""
 					notebook_id: App.Notebook.activeTrunk.id
+			newNote = new App.Note.Branch
+			App.Action.orchestrator.triggerAction 'createBranch', newNote, newNoteAttrs
+			App.Note. tree.insertInTree newNote
 			App.Note.eventManager.trigger "render:#{App.Note.activeBranch.get('guid')}" if App.Note.activeBranch isnt "root"
 			App.Note.eventManager.trigger "setCursor:#{App.Note.activeTree.last().get('guid')}"
 			App.Notify.alert 'newNote','success'
