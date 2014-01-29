@@ -100,7 +100,7 @@ class EvernoteController < ApplicationController
 
 	def findNotes
 		notebooks = connected_user.getNotebooks()
-		notableData = [] 
+		notableData = []
 		notebooks.each do |n|
 			notableData.concat Note.compileRoot n.id
 		end
@@ -115,7 +115,7 @@ class EvernoteController < ApplicationController
 		fullSyncBefore = Time.at(syncState.fullSyncBefore/1000)
 		evernoteData = if connected_user.last_full_sync.nil? or fullSyncBefore > connected_user.last_full_sync
 										 fullSync syncState
-									 else 
+									 else
 										 incrementalSync syncState
 									 end
 		# User.update connected_user.id, :lastUpdateCount => evernoteData[:lastChunk].updateCount, :lastSyncTime => evernoteData[:lastChunk].time
@@ -175,7 +175,7 @@ class EvernoteController < ApplicationController
 		processExpungedNotebooks evernoteData
 		processExpungedNotes evernoteData
 	end
-	
+
 	def processExpungedNotes (evernoteData)
 		filterNils(evernoteData[:notes]).delete_if do |n|
 			if not n.deleted.nil?

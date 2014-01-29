@@ -27,6 +27,13 @@
 		deleted: "Note deleted. <a class='clickCallback'> undo </a>"
 		undo: "Change undone."
 		newNote: "New note has been added."
+		# Evernote
+		evernoteConnect: "Successfully connected your Notable account to Evernote!
+			<a class='clickCallback' href='sync'>Learn More</a>"
+		evernoteSync: "Your Notable account has been synced to Evernote.
+			<a class='clickCallback' href='sync'>Learn More</a>"
+		evernoteError: "There was an error connecting your Notable account to Evernote.
+			<a class='clickCallback' href='sync'>Learn More</a>"
 		# Internet
 		connectionLost: "Connection has been lost."
 		connectionAttempt: "Trying to reconnect in X seconds."

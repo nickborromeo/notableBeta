@@ -1,4 +1,18 @@
-<div class="container">
-	<h2>Evernote API Start</h2>
-	<p><%= link_to("Click here ", finish_url) %>to go straight to the end</p>
+<%= render 'scaffold/header_out' %>
+<div class="container" id="static">
+	<h2>Syncing with Evernote</h2>
+
+	<p>Connecting your account to Evernote can be a great way to back-up all your notes. You can also use this service to connect Notable to other third-party apps within the Evernote ecosystem.  This is great because you can use any task management app to handle your todo lists, which lets Notable focus on what it does best, helping you learn faster and understand more.</p>
+
+	<h4>Timing</h4>
+	<p>After authenticating your account, Notable will automatically sync your account with Evernote once a day.  You can also force your
+	account to sync immediately by using the "Sync Now" link in the dropdown menu."</p>
+
+	<h4>Known Limitiations</h4>
+	<p>Currently, Notable does not support the import of images, sketches, videos or other mutlimedia files.  Although Notable does plan to include these file types in the future, blank notes will show up in their place for now.  This does not mean they have been deleted, but merely that they do not appear in Notable.</p>
+
+	<h4>Common Errors</h4>
+	<p>Connecting to Evernote is a relatively new feature with many complications. If you receive any errors, please <%= mail_to "hello@getnotable.com", "let us know" %> and we will do our best to fix the issue.  Sometimes, Evernote or Notable servers are just down and there isn't much anyone can do.</p>
+
 </div>
+<%= render 'scaffold/footer_in' %>
