@@ -21,7 +21,7 @@
 			App.Notebook.initializedTrunk.then =>
 				App.Action.transporter.testServerConnection()
 				Note.syncingCompleted.then => @buildTree()
-		reset: (callback) ->
+		reset: (callback = ->) ->
 			@tree._reset()
 			@allNotesByDepth._reset()
 			@allNotesByDepth.fetch
