@@ -48,6 +48,7 @@
 			@notificationToTrigger = if @isOffline() then syncingNotification else savingNotification
 		startSync: ->
 			@selectNotification()
+			App.Notify.alert 'saved', 'save' unless @storage.hasChangesToSync() or @isOffline()
 			@clearBackoff true
 			if @storage.hasChangesToSync()
 				App.Notify.alert.apply(App.Notify.alert, @notificationToTrigger[0])
