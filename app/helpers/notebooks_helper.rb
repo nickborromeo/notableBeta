@@ -39,11 +39,11 @@ module NotebooksHelper
     note12 = { "guid"=> SecureRandom.uuid, "subtitle"=>"", "fresh"=>true, "notebook_id"=>notebook_id,
       "title"=>"Deleting notes: Ctrl+Shift+Delete", "rank"=>1, "depth"=>2, "collapsed"=>false, "parent_id"=>"root" }
     note13 = { "guid"=> SecureRandom.uuid, "subtitle"=>"", "fresh"=>true, "notebook_id"=>notebook_id,
-      "title"=>"Expand/Collapse: Ctrl+Up/Down", "rank"=>2, "depth"=>2, "collapsed"=>false, "parent_id"=>"root" }
+      "title"=>"Expand/Collapse: Ctrl+↑/↓ (up/down)", "rank"=>2, "depth"=>2, "collapsed"=>false, "parent_id"=>"root" }
     note14 = { "guid"=> SecureRandom.uuid, "subtitle"=>"", "fresh"=>true, "notebook_id"=>notebook_id,
-      "title"=>"Zoom In/Out: Ctrl+Alt+Left/Right", "rank"=>3, "depth"=>2, "collapsed"=>false, "parent_id"=>"root" }
+      "title"=>"Zoom In/Out: Ctrl+Alt+←/→ (left/right)", "rank"=>3, "depth"=>2, "collapsed"=>false, "parent_id"=>"root" }
     note15 = { "guid"=> SecureRandom.uuid, "subtitle"=>"", "fresh"=>true, "notebook_id"=>notebook_id,
-      "title"=>"Move notes around: Alt+Left/Right/Up/Down", "rank"=>4, "depth"=>2, "collapsed"=>false, "parent_id"=>"root" }
+      "title"=>"Move notes around: Alt+↑/↓/←/→ (arrows)", "rank"=>4, "depth"=>2, "collapsed"=>false, "parent_id"=>"root" }
     note16 = { "guid"=> SecureRandom.uuid, "subtitle"=>"", "fresh"=>true, "notebook_id"=>notebook_id,
       "title"=>"Features", "rank"=>2, "depth"=>0, "collapsed"=>true, "parent_id"=>"root" }
     note17 = { "guid"=> SecureRandom.uuid, "subtitle"=>"", "fresh"=>true, "notebook_id"=>notebook_id,
