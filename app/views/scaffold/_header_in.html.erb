@@ -18,8 +18,10 @@
 		</div>
 	</div>
 	<!-- Dropdown and Search -->
-	<% unless controller_name == 'registrations' %>
+	<% if current_page? root_path %>
+	<%# unless controller_name == 'registrations' %>
 		<%= render 'layouts/dropdown' %>
 		<%= render 'layouts/search' %>
 	<% end %>
 </nav></header>
+

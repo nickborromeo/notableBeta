@@ -75,7 +75,7 @@ module NotebooksHelper
     note30 = { "guid"=> SecureRandom.uuid, "subtitle"=>"", "fresh"=>true, "notebook_id"=>notebook_id,
       "title"=>"Notable is still in heavy development right now, and there are many features which are not fully functional.", "rank"=>1, "depth"=>1, "collapsed"=>false, "parent_id"=>"root" }
     note31 = { "guid"=> SecureRandom.uuid, "subtitle"=>"", "fresh"=>true, "notebook_id"=>notebook_id,
-      "title"=>"In particular, items such as Tags, Search, Recent Notes, Favorites, and Views do not quite work", "rank"=>2, "depth"=>1, "collapsed"=>true, "parent_id"=>"root" }
+      "title"=>"In particular, items such as Tags, Search, Recent Notes, Favorites, and Views do not work", "rank"=>2, "depth"=>1, "collapsed"=>true, "parent_id"=>"root" }
     note32 = { "guid"=> SecureRandom.uuid, "subtitle"=>"", "fresh"=>true, "notebook_id"=>notebook_id,
       "title"=>"Tags, Recent Notes, and Favorites are found in the left sidebar", "rank"=>1, "depth"=>2, "collapsed"=>false, "parent_id"=>"root" }
     note33 = { "guid"=> SecureRandom.uuid, "subtitle"=>"", "fresh"=>true, "notebook_id"=>notebook_id,
