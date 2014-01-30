@@ -7,7 +7,7 @@
 		<% if current_user.token_credentials? %>
 			<li><%= link_to("Sync Now", sync_path) %></li>
 		<% else %>
-			<li><%= link_to("Connect to Evernote", start_path) %></li>
+			<li><%= link_to("Connect to Evernote", connect_path) %></li>
 		<% end %>
 			<li><a href="help">Help</a></li>
 			<li><%= link_to("Settings", edit_user_registration_path) %></li>

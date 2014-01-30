@@ -12,10 +12,6 @@ module Evernote # < ActiveRecord::Base
 	# after_create: fullSync
 	# after_update: incrementalSync
 
-	def testModule
-		puts "the modeul is connected"
-	end
-
 	def beginSync
 		if (lastSyncTime == nil) || (fullSyncBefore > lastSyncTime)
 			fullSync

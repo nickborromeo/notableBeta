@@ -11,51 +11,7 @@ class EvernoteController < ApplicationController
 		@current_user ||= current_user
 	end
 
-	def show #incrementalSync
-		@note = Note.find(params[:id])
-		respond_with @note
-	end
-
-	def new
-	end
-
-	def create #fullSync
-		@note = Note.new(params[:note])
-		respond_with(@note) do |format|
-			if @note.save
-				format.html { redirect_to @note, notice: 'Note was successfully created.' }
-				format.json { render json: @note, status: :created, location: @note }
-			else
-				format.html { render action: "new" }
-				format.json { render json: @note.errors, status: :unprocessable_entity }
-			end
-		end
-	end
-
-	def update #sendBranches
-		@note = Note.find(params[:id])
-		respond_with(@note) do |format|
-			if @note.update_attributes(params[:note])
-				format.html { redirect_to @note, notice: 'Note was successfully updated.' }
-				format.json { head :no_content }
-			else
-				format.html { render action: "edit" }
-				format.json { render json: @note.errors, status: :unprocessable_entity }
-			end
-		end
-	end
-
-	def index
-		@users = User.order("email")
-	end
-
-	def edit
-	end
-
-	def destroy
-	end
-
-	def start
+	def connect
 		begin #sending client credentials in order to obtain temporary credentials
 			consumer = OAuth::Consumer.new(ENV['EVERNOTE_KEY'], ENV['EVERNOTE_SECRET'],{
 				:site => ENV['EVERNOTE_SERVER'],
@@ -71,7 +27,6 @@ class EvernoteController < ApplicationController
 	end
 
 	def finish
-		testModule
 		if params['oauth_verifier']
 			oauth_verifier = params['oauth_verifier']
 
@@ -87,13 +42,14 @@ class EvernoteController < ApplicationController
 				@user ||= evernote_user token_credentials
 				@notebooks ||= evernote_notebooks token_credentials
 				@note_count = total_note_count(token_credentials)
+				puts "------- Flash notification here ----------"
+				redirect_to root_url
 			rescue => e
 				puts e.message
 			end
 
 		else
-			@last_error = "Content owner did not authorize the temporary credentials"
-			puts @last_error
+			puts "Content owner did not authorize the temporary credentials"
 			redirect_to root_url
 		end
 	end

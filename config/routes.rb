@@ -2,7 +2,7 @@ Notable::Application.routes.draw do
   devise_for :users, :module => "users", :path => ''
 
   resources :notes
-  resources :evernote
+  # resources :evernote
   resources :notebooks
 
 	devise_scope :user do
@@ -10,9 +10,9 @@ Notable::Application.routes.draw do
     put "active_user/:id" => "users/sessions#update"
 	end
 
-  get "start" => "evernote#start"
-  get "finish" => "evernote#finish"
+  get "connect" => "evernote#connect"
   get "sync" => "evernote#sync"
+  get "finish" => "evernote#finish"
 
   get "search" => "notes#search"
 
