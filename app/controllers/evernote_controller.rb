@@ -135,7 +135,8 @@ class EvernoteController < ApplicationController
 		if not evernoteData.nil?
 			User.update(connected_user.id, :last_update_count => evernoteData[:lastChunk].updateCount, :last_full_sync => Time.at(evernoteData[:lastChunk].currentTime/1000))
 		end
-		redirect_to root_url unless @rake_task
+		# redirect_to root_url unless @rake_task
+		"success"
 	end
 
 	def trashRootBranch(notableTrashed)

@@ -21,4 +21,19 @@
 			App.Action.orchestrator.triggerSaving()
 			false
 
+		$(document).ready ->
+			Wiring.Temporary.sync_flow()
+
+	Wiring.Temporary =
+		sync_flow: ->
+			$('.sync_now_test').on 'click', ->
+				App.Action.orchestrator.triggerSaving()
+				$.get "/sync", (data) ->
+					App.Note.noteController.reset()
+					console.log "sync successfull", data
+			# old_url = App.Note.allNotesByDepth.url
+			# App.Note.allNotesByDepth.url = "/sync"
+				
+				
+				
 )

@@ -5,7 +5,7 @@
 		</a>
 		<ul class="dropdown-menu">
 		<% if current_user.token_credentials? %>
-			<li><%= link_to("Sync Now", sync_path) %></li>
+			<li><a href="#" class="sync_now_test">Sync Now</a></li>
 		<% else %>
 			<li><%= link_to("Connect to Evernote", start_path) %></li>
 		<% end %>
