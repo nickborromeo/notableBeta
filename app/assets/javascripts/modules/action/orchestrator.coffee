@@ -45,7 +45,7 @@
 		queueDestroy: (action) ->
 			@destroyQueue.push action.branch
 		triggerAction: (actionType, branch, attributes, options = {}) ->
-			@clearSavingQueueTimeout()
+			@restartSavingQueueTimeout()
 			action = Action.buildAction.apply(@, arguments)
 			@queueDestroy action if action.destroy
 			@processAction action
@@ -61,11 +61,13 @@
 			action.branch.set action.attributes if action.attributes?
 			Action.transporter.addToStorage(action) unless action.options.noLocalStorage
 			action.specificActions()
-			@startSavingQueueTimeout()
 		validate: (branch, attributes, options) ->
 			return false if (val = branch.validation attributes)?
 			true
 
+		restartSavingQueueTimeout: ->
+			@clearSavingQueueTimeout()
+			@startSavingQueueTimeout()
 		clearSavingQueueTimeout: ->
 			clearTimeout @savingQueueTimeout
 		startSavingQueueTimeout: ->
