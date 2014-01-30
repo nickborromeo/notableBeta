@@ -98,8 +98,10 @@
 			if liClass is "note" or liClass is "trunk"
 				@$('li.'+liClass).removeClass('selected')
 				$(e.currentTarget).addClass('selected')
+				alert	("These notes are just placeholders.")
 			else if liClass is "tag" or liClass is "tag selected"
 				@$(e.currentTarget).toggleClass('selected')
+				alert	("These tags are just a placeholders.")
 		checkForEnter: (e) ->
 			@createTrunk() if e.which == 13
 		createTrunk: ->

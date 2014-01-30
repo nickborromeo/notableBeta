@@ -27,13 +27,13 @@ module NotebooksHelper
     note6 = { "guid"=> SecureRandom.uuid, "subtitle"=>"", "fresh"=>true, "notebook_id"=>notebook_id,
       "title"=>"<b>Level 2</b> - This is where it starts to get interesting ...", "rank"=>2, "depth"=>1, "collapsed"=>false, "parent_id"=>"root" }
     note7 = { "guid"=> SecureRandom.uuid, "subtitle"=>"", "fresh"=>true, "notebook_id"=>notebook_id,
-      "title"=>"Try expanding/collapsing a note by clicking on the bulletpoint to the left of \"Level 2\"", "rank"=>1, "depth"=>2, "collapsed"=>false, "parent_id"=>"root" }
+      "title"=>"Try expanding/collapsing a note by clicking on the blue bulletpoint in the next note.", "rank"=>1, "depth"=>2, "collapsed"=>false, "parent_id"=>"root" }
     note8 = { "guid"=> SecureRandom.uuid, "subtitle"=>"", "fresh"=>true, "notebook_id"=>notebook_id,
-      "title"=>"To zoom in, double-click on the bulletpoint", "rank"=>2, "depth"=>2, "collapsed"=>false, "parent_id"=>"root" }
+      "title"=>"To zoom in, double-click on the bulletpoint", "rank"=>2, "depth"=>2, "collapsed"=>true, "parent_id"=>"root" }
     note9 = { "guid"=> SecureRandom.uuid, "subtitle"=>"", "fresh"=>true, "notebook_id"=>notebook_id,
-      "title"=>"To zoom back out, click on the notebook title where it says \"Notable Tutorial\"", "rank"=>3, "depth"=>2, "collapsed"=>false, "parent_id"=>"root" }
+      "title"=>"To zoom back out, click on the notebook title where it says \"Notable Tutorial\"", "rank"=>1, "depth"=>3, "collapsed"=>false, "parent_id"=>"root" }
     note10 = { "guid"=> SecureRandom.uuid, "subtitle"=>"", "fresh"=>true, "notebook_id"=>notebook_id,
-      "title"=>"Finally, to move notes around, drag the bulletpoint to where you want the note to go", "rank"=>4, "depth"=>2, "collapsed"=>false, "parent_id"=>"root" }
+      "title"=>"Finally, to move notes around, drag the bulletpoint to where you want the note to go", "rank"=>3, "depth"=>2, "collapsed"=>false, "parent_id"=>"root" }
     note11 = { "guid"=> SecureRandom.uuid, "subtitle"=>"", "fresh"=>true, "notebook_id"=>notebook_id,
       "title"=>"<b>Level 3</b> - To make learning faster, there are keyboard shortcuts for just about every action within Notable.", "rank"=>3, "depth"=>1, "collapsed"=>false, "parent_id"=>"root" }
     note12 = { "guid"=> SecureRandom.uuid, "subtitle"=>"", "fresh"=>true, "notebook_id"=>notebook_id,
@@ -136,7 +136,7 @@ module NotebooksHelper
     @default8 = Note.new(note8)
     @default8.save
 
-    note9["parent_id"] = @default6.guid
+    note9["parent_id"] = @default8.guid
     @default9 = Note.new(note9)
     @default9.save
 

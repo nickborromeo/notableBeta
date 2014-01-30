@@ -54,10 +54,10 @@
 			padding: 10px 0;
 			outline: none;
 			-webkit-font-smoothing: antialiased;
-			&::-webkit-input-placeholder { font-style: italic; letter-spacing: 0; }
-			&:-moz-placeholder { font-style: italic; letter-spacing: 0; }
-			&::-moz-placeholder { font-style: italic; letter-spacing: 0; }
-			&:-ms-input-placeholder { font-style: italic; letter-spacing: 0; }
+			&::-webkit-input-placeholder { font-style: italic; letter-spacing: 0; font-size: 0.9em; }
+			&:-moz-placeholder { font-style: italic; letter-spacing: 0; font-size: 0.9em; }
+			&::-moz-placeholder { font-style: italic; letter-spacing: 0; font-size: 0.9em; }
+			&:-ms-input-placeholder { font-style: italic; letter-spacing: 0; font-size: 0.9em; }
 		}
 		.new-trunk-btn {
 			display: inline-block;
