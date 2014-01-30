@@ -12,18 +12,31 @@ class EvernoteController < ApplicationController
 	end
 
 	def connect
+		puts "-----------Part Alpha---------------->>>"
+		puts "evernote key:"
+		puts ENV[EVERNOTE_KEY]
+		puts "evernote secret:"
+		puts ENV[EVERNOTE_SECRET]
+		puts "evernote server:"
+		puts ENV[EVERNOTE_SERVER]
 		begin #sending client credentials in order to obtain temporary credentials
 			consumer = OAuth::Consumer.new(ENV['EVERNOTE_KEY'], ENV['EVERNOTE_SECRET'],{
 				:site => ENV['EVERNOTE_SERVER'],
 				:request_token_path => "/oauth",
 				:access_token_path => "/oauth",
 				:authorize_path => "/OAuth.action"})
+			puts "consumer:"
+			puts consumer
+			puts "-----------Part Beta---------------->>>"
 			session[:request_token] = consumer.get_request_token(:oauth_callback => finish_url)
+			puts "-----------Part Gamma---------------->>>"
 			redirect_to session[:request_token].authorize_url
 		rescue => e
+			puts "-----------Part Delta---------------->>>"
 			@last_error = "Error obtaining temporary credentials: #{e.message}"
 			puts @last_error
 		end
+		puts "-----------Part Epsilon---------------->>>"
 	end
 
 	def finish
@@ -38,10 +51,8 @@ class EvernoteController < ApplicationController
 				puts "token_credentials:------------------->>>>"
 				puts token_credentials
 				User.update(connected_user.id, {:token_credentials => token_credentials})
-
 				#use token credentials to access the Evernote API
 				@client ||= EvernoteOAuth::Client.new(token: token_credentials)
-
 				puts "-----------Part Three---------------->>>"
 				@user ||= evernote_user token_credentials
 				puts "User:--------------------------->>>"
