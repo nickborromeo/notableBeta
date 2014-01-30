@@ -29,26 +29,35 @@ class EvernoteController < ApplicationController
 	def finish
 		if params['oauth_verifier']
 			oauth_verifier = params['oauth_verifier']
-
+			puts "-----------Part One---------------->>>"
 			begin
+				puts "-----------Part Two---------------->>>"
 				#sending temporary credentials to gain token credentials
 				access_token = session[:request_token].get_access_token(:oauth_verifier => oauth_verifier)
 				token_credentials = access_token.token
+				puts "token_credentials:------------------->>>>"
+				puts token_credentials
 				User.update(connected_user.id, {:token_credentials => token_credentials})
 
 				#use token credentials to access the Evernote API
 				@client ||= EvernoteOAuth::Client.new(token: token_credentials)
 
+				puts "-----------Part Three---------------->>>"
 				@user ||= evernote_user token_credentials
+				puts "User:--------------------------->>>"
+				puts @user
 				@notebooks ||= evernote_notebooks token_credentials
 				@note_count = total_note_count(token_credentials)
-				puts "------- Flash notification here ----------"
-				redirect_to root_url
+				puts "------- Success flash notification here ----------"
 			rescue => e
 				puts e.message
+				puts "-----------Part Four---------------->>>"
 			end
+			puts "-----------Part Five---------------->>>"
+			redirect_to root_url
 
 		else
+			puts "-----------Part Six---------------->>>"
 			puts "Content owner did not authorize the temporary credentials"
 			redirect_to root_url
 		end
