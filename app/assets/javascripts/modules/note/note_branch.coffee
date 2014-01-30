@@ -172,7 +172,7 @@
 			@clearTimeoutAndSave()
 			@timeoutAndSaveID = setTimeout =>
 				Note.eventManager.trigger "timeoutUpdate:#{@get('guid')}"
-			, 3000
+			, 1000
 
 		clearTimeoutAndSave: =>
 			if @timeoutAndSaveID? then clearTimeout @timeoutAndSaveID

@@ -71,7 +71,7 @@
 		clearSavingQueueTimeout: ->
 			clearTimeout @savingQueueTimeout
 		startSavingQueueTimeout: ->
-			@savingQueueTimeout = setTimeout @syncWithLocal.bind(@), 5000
+			@savingQueueTimeout = setTimeout @syncWithLocal.bind(@), 4000
 
 		syncWithLocal: ->
 			Action.transporter.testServerConnection()
