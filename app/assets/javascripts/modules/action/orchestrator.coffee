@@ -61,6 +61,7 @@
 			action.branch.set action.attributes if action.attributes?
 			Action.transporter.addToStorage(action) unless action.options.noLocalStorage
 			action.specificActions()
+			@startSavingQueueTimeout()
 		validate: (branch, attributes, options) ->
 			return false if (val = branch.validation attributes)?
 			true
