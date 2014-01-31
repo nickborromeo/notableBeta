@@ -25,7 +25,6 @@ $modview-W: 37px * $noModviewIcons;
 		height: inherit;
 		margin-top: 0px;
 		padding: 0;
-		direction: rtl;
 		width: 115px;
 		text-align: left;
 		@include transition(width 0.5s ease);
@@ -44,6 +43,13 @@ $modview-W: 37px * $noModviewIcons;
 				display: inline-block;
 				color: $gray;
 				font-size: 32px;
+				
+				&.icon-modview-icons-02, &.icon-modview-icons-03 {
+					&:hover {
+						color: $gray;
+						cursor: default;
+					}
+				}
 			}
 		}
 	}
@@ -52,6 +58,7 @@ $modview-W: 37px * $noModviewIcons;
 		float: right;
 		text-align: right;
 		overflow: hidden;
+		direction: rtl;
 	}
 	
 	// .modview-btn {

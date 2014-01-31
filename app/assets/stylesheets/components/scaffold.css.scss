@@ -360,7 +360,7 @@ footer {
 	}
 	.container {
 		max-width: $screen-md;
-		margin-top: 50px;
+		margin-top: 55px;
 		.alert {
 			padding-bottom: 0.42em;
 			width: 48em;
@@ -368,7 +368,11 @@ footer {
 			left: 8.72em;
 		}
 	}
-
+	
+	#content-region {
+		margin-top: 7px;
+	}
+	
 	nav {
 		height: 45px;
 		.navbar-search {
