@@ -29,11 +29,7 @@
 			$('.sync_now_test').on 'click', ->
 				App.Action.orchestrator.triggerSaving()
 				$.get "/sync", (data) ->
-					App.Note.noteController.reset()
-					console.log "sync successfull", data
-			# old_url = App.Note.allNotesByDepth.url
-			# App.Note.allNotesByDepth.url = "/sync"
-				
-				
+					App.Note.noteController.reset ->
+						App.Notify.alert 'evernoteSync', 'success' # maybe a bit short?				
 				
 )
