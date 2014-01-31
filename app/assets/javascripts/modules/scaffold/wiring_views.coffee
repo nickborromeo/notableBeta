@@ -22,9 +22,9 @@
 			false
 
 		$(document).ready ->
-			Wiring.Temporary.sync_flow()
+			Wiring.Evernote.sync_flow()
 
-	Wiring.Temporary =
+	Wiring.Evernote =
 		sync_flow: ->
 			$('.sync_now_test').on 'click', ->
 				App.Action.orchestrator.triggerSaving()
