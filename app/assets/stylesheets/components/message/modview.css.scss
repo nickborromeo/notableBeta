@@ -1,4 +1,5 @@
 @import "../variables";
+@import "compass/css3";
 
 // ----------------------------------------------------
 // ----------------MOBILE FIRST CSS -------------------
@@ -13,36 +14,49 @@
 // ----------------------------------------------------
 // ---------------TABLET MEDIA QUERIES ----------------
 // ----------------------------------------------------
+
+$noModviewIcons: 10;
+$modview-W: 37px * $noModviewIcons;
+
 @media (min-width: $screen-sm) {
 	#modview-region {
+		//border-left: 2px solid rgba(61, 61, 61, 0.1);
 		display: inline-block;
 		height: inherit;
-		padding: 0.7% 0 0 1.7%;
-		.outline_icon {
-			&:hover { background-position: -2px -93px; }
-			&:active { background-position: -29px -93px; }
-			&.selected:hover { background-position: -206px -61px; }
-		}
-		.mindmap_icon {
-			&:hover { background-position: -125px -61px; }
-			&:active { background-position: -152px -61px; }
-			&.selected:hover { background-position: -98px -61px; }
-		}
-		.grid_icon {
-			&:hover { background-position: -110px -93px; }
-			&:active { background-position: -137px -93px; }
-			&.selected:hover { background-position: -83px -93px; }
+		margin-top: 4px;
+		padding: 0;
+		text-align: right;
+		direction: rtl;
+		width: 115px;
+		overflow: hidden;
+		float: right;
+		@include transition(width 0.5s ease);
+		//&:hover { width: $modview-W; }
+		.inner {
+			width: $modview-W;
+			span {
+				display: inline-block;
+				text-align: center;
+				&:hover i { color: $notableYellow; cursor: pointer; }
+				&:active i { color: $notableOrange; }
+				&.selected i { color: $notableBlue; }
+				i {
+					display: inline-block;
+					color: $gray;
+					font-size: 32px;
+				}
+			}
 		}
 	}
-	.modview-btn {
-		margin-right: 5px;
-		-webkit-transform: scale(1.2);
-		-moz-transform: scale(1.2);
-		-ms-transform: scale(1.2);
-		-o-transform: scale(1.2);
-		transform: scale(1.2);
-		&:hover { cursor: pointer; }
-	}
+	// .modview-btn {
+	// 	margin-right: 5px;
+	// 	-webkit-transform: scale(1.2);
+	// 	-moz-transform: scale(1.2);
+	// 	-ms-transform: scale(1.2);
+	// 	-o-transform: scale(1.2);
+	// 	transform: scale(1.2);
+	// 	&:hover { cursor: pointer; }
+	// }
 
 }
 
@@ -51,16 +65,16 @@
 // ----------------------------------------------------
 @media (min-width: $screen-md) {
 	#modview-region {
-		padding: 0.6% 0 0 3.3%;
+		padding: 0;
 	}
-	.modview-btn {
-		margin-right: 10px;
-		-webkit-transform: scale(1.4);
-		-moz-transform: scale(1.4);
-		-ms-transform: scale(1.4);
-		-o-transform: scale(1.4);
-		transform: scale(1.4);
-	}
+	// .modview-btn {
+	// 	margin-right: 10px;
+	// 	-webkit-transform: scale(1.4);
+	// 	-moz-transform: scale(1.4);
+	// 	-ms-transform: scale(1.4);
+	// 	-o-transform: scale(1.4);
+	// 	transform: scale(1.4);
+	// }
 
 }
 
