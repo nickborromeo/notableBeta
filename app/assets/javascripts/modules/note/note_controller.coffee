@@ -78,6 +78,14 @@
 			@treeView = new App.Helper.ProgressView()
 			App.contentRegion.currentView.treeRegion.show @treeView
 
+
+		showEvernoteView: ->
+			App.contentRegion.currentView.treeRegion.close()
+			collection = App.Note.notebookSelection = new App.Note.EvernoteBooks
+			collection.fetch()
+			@treeView = new App.Note.EvernoteView(collection: collection)
+			App.contentRegion.currentView.treeRegion.show @treeView
+
 		# Crown
 		showCrownView: ->
 				@crownView = new App.Note.CrownView(model: App.Note.activeBranch)

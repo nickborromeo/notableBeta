@@ -20,13 +20,13 @@
 
 		fetch: ->
 			console.log "fetching list of notebook, ", arguments, @url
-			$.get(@url, (data) ->
+			$.get @url, (data) ->
 				console.log 'returned', data
 				# Here we will instantiate Note.Checkbox
 				# and show the EvernoteBooks view
 		sync: ->
 			console.log "syncing", arguments, @url
-			$.post('/sync', @getSelected(), (data) ->
+			$.post '/sync', @getSelected(), (data) ->
 				console.log 'returned', data
 				App.Note.noteController.reset ->
 					App.Notify.alert 'evernoteSync', 'success' # maybe a bit short?				
