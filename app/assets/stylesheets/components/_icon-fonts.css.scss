@@ -19,11 +19,13 @@
 	text-transform: none;
 	line-height: 1;
 
-	/* Better Font Rendering =========== */
+// ---------Better Font Rendering ---------
 	-webkit-font-smoothing: antialiased;
 	-moz-osx-font-smoothing: grayscale;
 }
 
+
+//------------Feats--------------
 .icon-icons-08:before {
 	content: "\e600";
 }
@@ -48,6 +50,11 @@
 .icon-feats-tag:before {//1
 	content: "\e608";
 }
+.icon-feats-delete:before {//11
+	content: "\e610";
+}
+
+//-----------Emoticons--------------
 .icon-emoticons-08:before {
 	content: "\e609";
 }
@@ -129,42 +136,43 @@
 .icon-icons-10:before {
 	content: "\e611";
 }
-.icon-modview-icons-12:before {
+
+//--------- Message Region ------------
+.icon-newnote:before { //12
 	content: "\e622";
 }
-.icon-modview-icons-11:before {
+.icon-sidebar:before { //11
 	content: "\e623";
 }
-.icon-modview-icons-10:before {
+
+//-----------Modviews------------------
+.icon-modview-card:before { //10
 	content: "\e624";
 }
-.icon-modview-icons-09:before {
+.icon-modview-flashcard:before { //09
 	content: "\e625";
 }
-.icon-modview-icons-08:before {
+.icon-modview-science:before { //08
 	content: "\e626";
 }
-.icon-modview-icons-07:before {
+.icon-modview-splitpane:before { //07
 	content: "\e627";
 }
-.icon-modview-icons-06:before {
+.icon-modview-code:before { //06
 	content: "\e628";
 }
-.icon-modview-icons-05:before {
+.icon-modview-math:before { //05
 	content: "\e629";
 }
-.icon-modview-icons-04:before {
+.icon-modview-cornell:before { //04
 	content: "\e62a";
 }
-.icon-modview-icons-03:before {
+.icon-modview-grid:before { //03
 	content: "\e62b";
 }
-.icon-modview-icons-02:before {
+.icon-modview-mindmap:before { //02
 	content: "\e62c";
 }
-.icon-modview-icons-01:before {
+.icon-modview-outline:before { //01
 	content: "\e62d";
-}
-.icon-feats-delete:before {//11
-	content: "\e610";
 }
