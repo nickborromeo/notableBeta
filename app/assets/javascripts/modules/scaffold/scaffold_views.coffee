@@ -13,9 +13,9 @@
 		events: ->
 			"click .sidebar-toggle": "shiftNavbar"
 			"click .new-note": "createNote"
-			"click .outline_icon": "applyModview"
-			"click .mindmap_icon": "applyModview"
-			"click .grid_icon": "applyModview"
+			"click .modview-btn": "applyModview"
+			"click .mindmap": "futureModview"
+			"click .grid": "futureModview"
 
 		createNote: ->
 			if App.Note.activeTree.models.length is 0
@@ -46,15 +46,15 @@
 			App.Notify.alert 'newNote','success'
 			# mixpanel.track("New Note")
 		applyModview: (e) ->
-			
 			type = App.Helpers.ieShim.classList(e.currentTarget)[1]
-			console.log "classList", type, e.currentTarget.className
 			$(".modview-btn").removeClass("selected")
 			$(".#{type}").addClass("selected")
+		futureModview: ->
+			alert("These Views are not yet operational.")
 		shiftNavbar: (e) ->
 			$(".navbar-header").toggleClass("navbar-shift")
 			$(".navbar-right").toggleClass("navbar-shift")
-			type = App.Helpers.ieShim.classList(e.currentTarget)[1]
+			type = App.Helpers.ieShim.classList(e.currentTarget)[0]
 			$(".#{type}").toggleClass("selected")
 
 	class Scaffold.ContentView extends Marionette.Layout
