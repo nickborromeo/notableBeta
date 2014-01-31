@@ -14,11 +14,11 @@ class EvernoteController < ApplicationController
 	def connect
 		puts "-----------Part Alpha---------------->>>"
 		puts "evernote key:"
-		puts ENV[EVERNOTE_KEY]
+		puts ENV['EVERNOTE_KEY']
 		puts "evernote secret:"
-		puts ENV[EVERNOTE_SECRET]
+		puts ENV['EVERNOTE_SECRET']
 		puts "evernote server:"
-		puts ENV[EVERNOTE_SERVER]
+		puts ENV['EVERNOTE_SERVER']
 		begin #sending client credentials in order to obtain temporary credentials
 			consumer = OAuth::Consumer.new(ENV['EVERNOTE_KEY'], ENV['EVERNOTE_SECRET'],{
 				:site => ENV['EVERNOTE_SERVER'],
