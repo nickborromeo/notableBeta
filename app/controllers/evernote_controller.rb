@@ -12,63 +12,40 @@ class EvernoteController < ApplicationController
 	end
 
 	def connect
-		puts "-----------Part Alpha---------------->>>"
-		puts "evernote key:"
-		puts ENV['EVERNOTE_KEY']
-		puts "evernote secret:"
-		puts ENV['EVERNOTE_SECRET']
-		puts "evernote server:"
-		puts ENV['EVERNOTE_SERVER']
 		begin #sending client credentials in order to obtain temporary credentials
 			consumer = OAuth::Consumer.new(ENV['EVERNOTE_KEY'], ENV['EVERNOTE_SECRET'],{
 				:site => ENV['EVERNOTE_SERVER'],
 				:request_token_path => "/oauth",
 				:access_token_path => "/oauth",
 				:authorize_path => "/OAuth.action"})
-			puts "consumer:"
-			puts consumer
-			puts "-----------Part Beta---------------->>>"
 			session[:request_token] = consumer.get_request_token(:oauth_callback => finish_url)
-			puts "-----------Part Gamma---------------->>>"
 			redirect_to session[:request_token].authorize_url
 		rescue => e
-			puts "-----------Part Delta---------------->>>"
 			@last_error = "Error obtaining temporary credentials: #{e.message}"
 			puts @last_error
 		end
-		puts "-----------Part Epsilon---------------->>>"
 	end
 
 	def finish
 		if params['oauth_verifier']
 			oauth_verifier = params['oauth_verifier']
-			puts "-----------Part One---------------->>>"
 			begin
-				puts "-----------Part Two---------------->>>"
 				#sending temporary credentials to gain token credentials
 				access_token = session[:request_token].get_access_token(:oauth_verifier => oauth_verifier)
 				token_credentials = access_token.token
-				puts "token_credentials:------------------->>>>"
-				puts token_credentials
 				User.update(connected_user.id, {:token_credentials => token_credentials})
 				#use token credentials to access the Evernote API
 				@client ||= EvernoteOAuth::Client.new(token: token_credentials)
-				puts "-----------Part Three---------------->>>"
 				@user ||= evernote_user token_credentials
-				puts "User:--------------------------->>>"
-				puts @user
 				@notebooks ||= evernote_notebooks token_credentials
 				@note_count = total_note_count(token_credentials)
 				puts "------- Success flash notification here ----------"
 			rescue => e
 				puts e.message
-				puts "-----------Part Four---------------->>>"
 			end
-			puts "-----------Part Five---------------->>>"
 			redirect_to root_url
 
 		else
-			puts "-----------Part Six---------------->>>"
 			puts "Content owner did not authorize the temporary credentials"
 			redirect_to root_url
 		end
