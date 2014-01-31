@@ -1,5 +1,7 @@
 @import "../variables";
 @import "compass/css3";
+$hiddenModviews: 10;
+$revealedWidth: 37px * $hiddenModviews;
 
 // ----------------------------------------------------
 // ----------------MOBILE FIRST CSS -------------------
@@ -15,24 +17,20 @@
 // ---------------TABLET MEDIA QUERIES ----------------
 // ----------------------------------------------------
 
-$noModviewIcons: 10;
-$modview-W: 37px * $noModviewIcons;
 
 @media (min-width: $screen-sm) {
 	#modview-region, .message-template {
-		//border-left: 2px solid rgba(61, 61, 61, 0.1);
+		// border-left: 2px solid rgba(61, 61, 61, 0.1);
 		display: inline-block;
 		height: inherit;
 		margin-top: 0px;
 		padding: 0;
-		width: 115px;
-		text-align: left;
+		// padding: 0.7% 0 0 1.7%;
 		@include transition(width 0.5s ease);
-		//&:hover { width: $modview-W; }
-		.inner {
-			width: $modview-W;
-		}
-		
+		// &:hover {
+		//  #hidden-modviews { width: $revealedWidth; }
+		// }
+
 		span {
 			display: inline-block;
 			text-align: center;
@@ -43,7 +41,6 @@ $modview-W: 37px * $noModviewIcons;
 				display: inline-block;
 				color: $gray;
 				font-size: 32px;
-				
 				&.icon-modview-icons-02, &.icon-modview-icons-03 {
 					&:hover {
 						color: $gray;
@@ -53,14 +50,12 @@ $modview-W: 37px * $noModviewIcons;
 			}
 		}
 	}
-	
 	#modview-region {
 		float: right;
 		text-align: right;
 		overflow: hidden;
-		direction: rtl;
 	}
-	
+
 	// .modview-btn {
 	// 	margin-right: 5px;
 	// 	-webkit-transform: scale(1.2);
