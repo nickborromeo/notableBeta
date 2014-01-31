@@ -57,7 +57,6 @@ class EvernoteController < ApplicationController
   end
 
 	def part3
-		puts "TESSSSSSSSSSSSSST"
 		@@evernoteData = requestEvernoteData
 		puts evernoteData
 		render json: evernoteData[:notebooks]
@@ -90,6 +89,9 @@ class EvernoteController < ApplicationController
 		puts "IN NEWSYNC"
 		puts evernoteData
 		puts "oops"
+		puts params
+		puts params[:post]
+		puts "yay"
 		return
 
 		notableTrashed = Note.getTrashed

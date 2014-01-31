@@ -26,8 +26,7 @@
 				# and show the EvernoteBooks view
 		sync: ->
 			console.log "syncing", arguments, @url
-			# $.post '/sync', @getSelected(), (data) ->
-			$.get '/sync', (data) ->
+			$.post '/sync', notebooks: @getSelected(), (data) ->
 				console.log 'returned', data
 				App.Note.noteController.reset ->
 					App.Notify.alert 'evernoteSync', 'success' # maybe a bit short?				
