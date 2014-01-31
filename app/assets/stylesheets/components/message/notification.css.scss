@@ -4,9 +4,9 @@ $successNotifyBorder: rgba(88, 199, 71, 0.8);
 $successNotifyBackground: #dff0d8;
 $successNotifyText: $notableGreen;
 
-$warningNotifyBorder: #faebcc;
-$warningNotifyBackground: #fcf8e3;
-$warningNotifyText: #c09853;
+$warningNotifyBorder: #DDB673;
+$warningNotifyBackground: #FCF8E3;
+$warningNotifyText: #C09853;
 
 $dangerNotifyBorder: rgba(237, 24, 85, 0.8);
 $dangerNotifyBackground: #f2dede;
@@ -21,11 +21,11 @@ $dangerNotifyText: $notableRed;
 }
 .notify {
 	padding: 0.5em 1em;
-	z-index: 1140;
+	z-index: 840;
 	position: static;
 	width: 100%;
 	margin-bottom: 0;
-	margin-left: 20px;
+	// margin-left: 20px;
 	border: none;
 	a:hover { cursor: pointer; }
 }
@@ -76,8 +76,9 @@ $dangerNotifyText: $notableRed;
 	.notify {
 		padding:  0.42em 1.0em 0.42em 1.2em;
 		position: absolute;
-		left: -2em;
+		left: -1.8em;
 		border-radius: 4px;
+		margin-top: 2px;
 	}
 	.save-notification {
 		position: fixed;
@@ -97,6 +98,7 @@ $dangerNotifyText: $notableRed;
 	.notify {
 		left: -3.5em;
 		width: 48em;
+		margin-top: 0;
 	}
 }
 // ----------------------------------------------------

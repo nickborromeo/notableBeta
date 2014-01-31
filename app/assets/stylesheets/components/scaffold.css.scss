@@ -300,31 +300,10 @@ footer {
 
 	}
 
-	.message-template {	display: block;}
 	#message-center {
+		.message-template { display: block;}
 		height: 3em;
 		padding-top: 2px;
-		#message-center {
-			&.row {
-				margin-left: 0; margin-right: 0;
-				padding: 0 2px 10px 0px;
-			}
-			padding-top: 2px;
-			.message-template {
-				display: inline-block;
-				span {
-					display: inline-block;
-					text-align: center;
-					&:hover i { color: $notableYellow; cursor: pointer; }
-					&:active i { color: $notableOrange; }
-					i {
-						display: inline-block;
-						color: $gray;
-						font-size: 38px !important;
-					}
-				}
-			}
-		}
 	}
 
 	#footer-in { margin: 3% 0; }
@@ -359,7 +338,7 @@ footer {
 	}
 	.container {
 		max-width: $screen-md;
-		margin-top: 55px;
+		margin-top: 60px;
 		.alert {
 			padding-bottom: 0.42em;
 			width: 48em;
@@ -409,8 +388,7 @@ footer {
 	}
 
 	#message-center {
-		padding-top: 4px;
-		margin-top: 0.6em;
+		padding-top: 5px;
 		.message-template {
 			.sprite {
 				-webkit-transform: scale(1.1);

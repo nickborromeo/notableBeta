@@ -49,11 +49,14 @@ $revealedWidth: 37px * $hiddenModviews;
 // --------------LAPTOP MEDIA QUERIES -----------------
 // ----------------------------------------------------
 @media (min-width: $screen-md) {
+	#modview-region, .message-template {
+		margin-top: -1px;
+	}
 	.message-template {
-		span i { font-size: 34px; }
+		span i { font-size: 35px; }
 	}
 	#modview-region {
-		span i { font-size: 36px; }
+		span i { font-size: 37px; }
 	}
 
 }
