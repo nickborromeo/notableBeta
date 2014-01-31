@@ -20,6 +20,8 @@
 			"click .cancel": "cancelTask"
 		initialize: ->
 			Helper.eventManager.on "progress:#{@percent}", @markProgress, @
+			$("#message-region").hide()
+			App.Notebook.Breadcrumbs.remove()
 
 		markProgress: (percent) ->
 			@ui.progressBar.css("width: #{percent}")
@@ -33,6 +35,6 @@
 			App.Orchestrator.current_action stop @ now
 
 	# Initializers -------------------------
-	App.Helper.on "start", ->
+	# App.Helper.on "start", ->
 		progressView = new App.Helper.ProgressView
 		App.contentRegion.show progressView
