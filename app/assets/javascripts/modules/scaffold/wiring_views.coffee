@@ -28,6 +28,7 @@
 		sync_flow: ->
 			$('.sync_now_test').on 'click', ->
 				App.Action.orchestrator.triggerSaving()
+				# App.Note.noteController.showProgressView()
 				$.get "/sync", (data) ->
 					App.Note.noteController.reset ->
 						App.Notify.alert 'evernoteSync', 'success' # maybe a bit short?				

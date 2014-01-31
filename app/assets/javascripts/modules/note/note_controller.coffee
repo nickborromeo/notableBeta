@@ -73,6 +73,10 @@
 			App.contentRegion.currentView.treeRegion.close()
 			@treeView = new App.Note.TreeView(collection: tree)
 			App.contentRegion.currentView.treeRegion.show @treeView
+		showProgressView: (tree) ->
+			App.contentRegion.currentView.treeRegion.close()
+			@treeView = new App.Helper.ProgressView()
+			App.contentRegion.currentView.treeRegion.show @treeView
 
 		# Crown
 		showCrownView: ->
@@ -111,6 +115,7 @@
 				@clearCrownView()
 				@showContentView App.Note.filteredTree
 				@showNotebookTitleView()
+
 		clearZoom: ->
 			App.Note.initializedTree.then =>
 				Backbone.history.navigate '#'
