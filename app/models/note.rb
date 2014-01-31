@@ -224,6 +224,9 @@ class Note < ActiveRecord::Base
 		notes = []
 		indentation = 0
 		rec = -> (content) do
+			# idea : this part can be refactored,
+			# last 'else if' and 'else' would be superfluous
+			return notes if content.index('<li>').nil?
 			if not (test = content.index('<ul>')).nil? and test.zero?
 				indentation +=1
 				rec.call content.slice content.index('<li>'), content.size

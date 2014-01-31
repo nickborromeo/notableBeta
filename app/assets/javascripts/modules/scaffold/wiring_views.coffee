@@ -21,4 +21,15 @@
 			App.Action.orchestrator.triggerSaving()
 			false
 
+		$(document).ready ->
+			Wiring.Evernote.sync_flow()
+
+	Wiring.Evernote =
+		sync_flow: ->
+			$('.sync_now_test').on 'click', ->
+				App.Action.orchestrator.triggerSaving()
+				$.get "/sync", (data) ->
+					App.Note.noteController.reset ->
+						App.Notify.alert 'evernoteSync', 'success' # maybe a bit short?				
+				
 )
