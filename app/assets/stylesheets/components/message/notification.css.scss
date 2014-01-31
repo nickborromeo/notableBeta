@@ -42,17 +42,14 @@ $dangerNotifyText: $notableRed;
 .success-notification{
 	background-color: $successNotifyBackground;
 	color: $successNotifyText;
-	border: 1px solid $successNotifyBorder;
 }
 .warning-notification{
 	background-color: $warningNotifyBackground;
 	color: $warningNotifyText;
-	border: 1px solid $warningNotifyBorder;
 }
 .danger-notification{
 	background-color: $dangerNotifyBackground;
 	color: $dangerNotifyText;
-	border: 1px solid $dangerNotifyBorder;
 }
 .save-notification{
 	color: $grayDark;
@@ -80,6 +77,10 @@ $dangerNotifyText: $notableRed;
 		border-radius: 4px;
 		margin-top: 2px;
 	}
+	.success-notification{ border: 1px solid $successNotifyBorder; }
+	.warning-notification{ border: 1px solid $warningNotifyBorder; }
+	.danger-notification{ border: 1px solid $dangerNotifyBorder; }
+
 	.save-notification {
 		position: fixed;
 		left: 60.5%;
