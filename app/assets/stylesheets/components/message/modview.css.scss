@@ -19,35 +19,41 @@ $noModviewIcons: 10;
 $modview-W: 37px * $noModviewIcons;
 
 @media (min-width: $screen-sm) {
-	#modview-region {
+	#modview-region, .message-template {
 		//border-left: 2px solid rgba(61, 61, 61, 0.1);
 		display: inline-block;
 		height: inherit;
-		margin-top: 4px;
+		margin-top: 0px;
 		padding: 0;
-		text-align: right;
 		direction: rtl;
 		width: 115px;
-		overflow: hidden;
-		float: right;
+		text-align: left;
 		@include transition(width 0.5s ease);
 		//&:hover { width: $modview-W; }
 		.inner {
 			width: $modview-W;
-			span {
+		}
+		
+		span {
+			display: inline-block;
+			text-align: center;
+			&:hover i { color: $notableYellow; cursor: pointer; }
+			&:active i { color: $notableOrange; }
+			&.selected i { color: $notableBlue; }
+			i {
 				display: inline-block;
-				text-align: center;
-				&:hover i { color: $notableYellow; cursor: pointer; }
-				&:active i { color: $notableOrange; }
-				&.selected i { color: $notableBlue; }
-				i {
-					display: inline-block;
-					color: $gray;
-					font-size: 32px;
-				}
+				color: $gray;
+				font-size: 32px;
 			}
 		}
 	}
+	
+	#modview-region {
+		float: right;
+		text-align: right;
+		overflow: hidden;
+	}
+	
 	// .modview-btn {
 	// 	margin-right: 5px;
 	// 	-webkit-transform: scale(1.2);
@@ -57,7 +63,6 @@ $modview-W: 37px * $noModviewIcons;
 	// 	transform: scale(1.2);
 	// 	&:hover { cursor: pointer; }
 	// }
-
 }
 
 // ----------------------------------------------------
