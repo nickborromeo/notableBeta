@@ -1,5 +1,46 @@
 @Notable.module("Note", (Note, App, Backbone, Marionette, $, _) ->
 
+# TEMPORARY BLOCK
+
+
+	class Note.Checkbox extends Backbone.Model
+		defaults:
+			selected: false
+
+		isSelected = ->
+			@get 'selected'
+
+	class Note.EvernoteBooks extends Backbone.Collection
+		url: '/fetchNotebooks'
+		model: Note.Checkbox
+
+		getSelected: ->
+			@filter (notebook) ->
+				notebook.isSelected()
+
+		fetch: ->
+			console.log "fetching list of notebook, ", arguments, @url
+			$.get(@url, (data) ->
+				console.log 'returned', data
+				# Here we will instantiate Note.Checkbox
+				# and show the EvernoteBooks view
+		sync: ->
+			console.log "syncing", arguments, @url
+			$.post('/sync', @getSelected(), (data) ->
+				console.log 'returned', data
+				App.Note.noteController.reset ->
+					App.Notify.alert 'evernoteSync', 'success' # maybe a bit short?				
+
+	class Note.EvernoteView extends Marionette.CollectionView
+		id: "tree"
+		itemView: Note.CheckboxView
+
+	class Note.CheckboxView extends Marionette.ItemView
+		template: "note/checkbox"
+		className: "test1234"
+
+## END
+
 	class Note.BranchView extends Marionette.CompositeView
 		template: "note/branchModel"
 		className: "branch-template"
