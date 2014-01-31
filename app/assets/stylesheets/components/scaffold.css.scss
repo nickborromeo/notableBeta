@@ -305,14 +305,13 @@ footer {
 		height: 3em;
 		padding-top: 2px;
 		#message-center {
-			&.row { 
+			&.row {
 				margin-left: 0; margin-right: 0;
 				padding: 0 2px 10px 0px;
 			}
 			padding-top: 2px;
 			.message-template {
 				display: inline-block;
-				padding: 0;
 				span {
 					display: inline-block;
 					text-align: center;
@@ -368,11 +367,7 @@ footer {
 			left: 8.72em;
 		}
 	}
-	
-	#content-region {
-		margin-top: 7px;
-	}
-	
+
 	nav {
 		height: 45px;
 		.navbar-search {
@@ -415,8 +410,8 @@ footer {
 
 	#message-center {
 		padding-top: 4px;
+		margin-top: 0.6em;
 		.message-template {
-			padding: 0;
 			.sprite {
 				-webkit-transform: scale(1.1);
 				-moz-transform: scale(1.1);
