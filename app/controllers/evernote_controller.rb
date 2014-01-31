@@ -56,37 +56,65 @@ class EvernoteController < ApplicationController
     notableData
   end
 
-  def sync
-    notableTrashed = Note.getTrashed
-    puts notableTrashed.each do |t| puts t.guid; puts t.title; puts t.eng end
-    syncState = getSyncState
-    puts "serverLastFUllSync: #{syncState.fullSyncBefore}"
-    fullSyncBefore = Time.at(syncState.fullSyncBefore/1000)
-    evernoteData = if connected_user.last_full_sync.nil? or fullSyncBefore > connected_user.last_full_sync
-                     fullSync syncState
-                   else
-                     incrementalSync syncState
-                   end
-    # User.update connected_user.id, :lastUpdateCount => evernoteData[:lastChunk].updateCount, :lastSyncTime => evernoteData[:lastChunk].time
-    changedBranches = processExpungedAndDeletion evernoteData if not evernoteData.nil?
-    deliverNotebook # Here because Notebooks must have a defined eng before comiledRoot is called
-    trashNotebooks
-    notableData = findNotes
-    puts notableData
-    changedBranches = resolveConflicts notableData, notableTrashed, changedBranches if not evernoteData.nil?
-    receiveRootBranches changedBranches
-    begin
-      deliverRootBranch(notableData)
-      trashRootBranch(notableTrashed)
-    rescue => e
-      puts e.message
-    end
-    if not evernoteData.nil?
-      User.update(connected_user.id, :last_update_count => evernoteData[:lastChunk].updateCount, :last_full_sync => Time.at(evernoteData[:lastChunk].currentTime/1000))
-    end
-    # redirect_to root_url unless @rake_task
-    "success"
-  end
+	def part3
+		puts "TESSSSSSSSSSSSSST"
+		@@evernoteData = requestEvernoteData
+		puts evernoteData
+		render json: evernoteData[:notebooks]
+	end
+
+	def evernoteData
+		@@evernoteData # ||= requestEvernoteData
+	end
+	def requestEvernoteData
+		syncState = getSyncState
+		fullSyncBefore = Time.at(syncState.fullSyncBefore/1000)
+		puts "serverLastFUllSync: #{syncState.fullSyncBefore}"
+		if connected_user.last_full_sync.nil? or fullSyncBefore > connected_user.last_full_sync
+			fullSync syncState
+		else
+			incrementalSync syncState
+		end
+	end
+
+	def compileRootsByNotebooks
+		notebooks = connected_user.getNotebooks()
+		notableData = []
+		notebooks.each do |n|
+			notableData.concat Note.compileRoot n.id
+		end
+		notableData
+	end
+
+	def sync
+		puts "IN NEWSYNC"
+		puts evernoteData
+		puts "oops"
+		return
+
+		notableTrashed = Note.getTrashed
+		puts notableTrashed.each do |t| puts t.guid; puts t.title; puts t.eng end
+		# User.update connected_user.id, :lastUpdateCount => evernoteData[:lastChunk].updateCount, :lastSyncTime => evernoteData[:lastChunk].time
+		changedBranches = processExpungedAndDeletion evernoteData if not evernoteData.nil?
+		deliverNotebook # Here because Notebooks must have a defined eng before comiledRoot is called
+		trashNotebooks
+		notableData = compileRootsByNotebooks
+		puts notableData
+		changedBranches = resolveConflicts notableData, notableTrashed, changedBranches if not evernoteData.nil?
+		receiveRootBranches changedBranches
+		begin
+			deliverRootBranch(notableData)
+			trashRootBranch(notableTrashed)
+		rescue => e
+			puts e.message
+		end
+		if not evernoteData.nil?
+			User.update(connected_user.id, :last_update_count => evernoteData[:lastChunk].updateCount, :last_full_sync => Time.at(evernoteData[:lastChunk].currentTime/1000))
+		end
+		# redirect_to root_url unless @rake_task
+
+		"success"
+	end
 
   def trashRootBranch(notableTrashed)
     notableTrashed.each do |t|
@@ -173,26 +201,6 @@ class EvernoteController < ApplicationController
     fullSync syncState
   end
 
-  def fullSync (syncState)
-    currentUSN = connected_user.last_update_count
-    notes, deletedNotebooks, deletedNotes = [],[],[]
-    return unless currentUSN < syncState.updateCount
-    lastChunk = getSyncChunk(currentUSN, 100)
-    rec = -> (syncChunk) do
-      puts "chunkHigh : #{syncChunk.chunkHighUSN}, updateCount: #{syncChunk.updateCount}"
-      notes.concat syncChunk.notes
-      deletedNotes.concat syncChunk.expungedNotes if not syncChunk.expungedNotes.nil?
-      deletedNotebooks.concat syncChunk.expungedNotebooks if not syncChunk.expungedNotebooks.nil?
-      return unless syncChunk.chunkHighUSN < syncChunk.updateCount
-      rec.call lastChunk = getSyncChunk(syncChunk.chunkHighUSN, 100)
-    end
-    rec.call lastChunk
-    { :notes => notes,
-      :deletedNotes => deletedNotes,
-      :deletedNotebooks => deletedNotebooks,
-      :lastChunk => lastChunk }
-  end
-
   def getSyncChunk(afterUSN, maxEntries)
     syncFilter =  Evernote::EDAM::NoteStore::SyncChunkFilter.new({
       :includeNotes => true,
@@ -202,6 +210,28 @@ class EvernoteController < ApplicationController
     })
     note_store.getFilteredSyncChunk(connected_user.token_credentials, afterUSN, maxEntries, syncFilter)
   end
+
+	def fullSync (syncState)
+		currentUSN = connected_user.last_update_count
+		notes, notebooks, deletedNotebooks, deletedNotes = [],[],[],[]
+		return unless currentUSN < syncState.updateCount
+		lastChunk = getSyncChunk(currentUSN, 100)
+		rec = -> (syncChunk) do
+			puts "chunkHigh : #{syncChunk.chunkHighUSN}, updateCount: #{syncChunk.updateCount}"
+			notes.concat syncChunk.notes
+			notebooks.concat syncChunk.notebooks
+			deletedNotes.concat syncChunk.expungedNotes if not syncChunk.expungedNotes.nil?
+			deletedNotebooks.concat syncChunk.expungedNotebooks if not syncChunk.expungedNotebooks.nil?
+			return unless syncChunk.chunkHighUSN < syncChunk.updateCount
+			rec.call lastChunk = getSyncChunk(syncChunk.chunkHighUSN, 100)
+		end
+		rec.call lastChunk
+		{ :notes => notes,
+			:notebooks => notebooks,
+			:deletedNotes => deletedNotes,
+			:deletedNotebooks => deletedNotebooks,
+			:lastChunk => lastChunk }
+	end
 
   def deliverNotebook
     last_sync = connected_user.last_full_sync
