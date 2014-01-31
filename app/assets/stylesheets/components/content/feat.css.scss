@@ -10,6 +10,16 @@
 .bullet {
 }
 
+.progress-bar {
+	text-align: center;
+	.progress-text {
+		margin-top: 3em auto 1em auto;
+		font-style: italics;
+		font-size: 12px;
+	}
+	.progress { margin: 3em; }
+}
+
 // ----------------------------------------------------
 // ---------------TABLET MEDIA QUERIES ----------------
 // ----------------------------------------------------
@@ -35,6 +45,10 @@
 		}
 	}
 
+	.progress-bar {
+		.progress-text { margin-top: 5em auto 1em auto; }
+	}
+
 	.bullet {
 	}
 
@@ -55,6 +69,10 @@
 			}
 
 		}
+	}
+
+	.progress-bar {
+		.progress-text { margin-top: 7em auto 1em auto; }
 	}
 
 	.bullet {
