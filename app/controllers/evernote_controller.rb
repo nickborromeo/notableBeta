@@ -244,7 +244,7 @@ class EvernoteController < ApplicationController
 				## Parent Notebook GUID doesn't correspond to an actual notebook
 				puts "Error: identifier: #{enfe.identifier}, key: #{enfe.key}"
 			end
-		end	
+		end
 	end
 
 	def deliverRootBranch(noteData)
@@ -266,7 +266,7 @@ class EvernoteController < ApplicationController
 			# if parent_notebook && parent_notebook.guid
 			# 	emnl_note.notebookGuid = parent_notebook.guid
 			# end
-			
+
 			## Attempt to create note in Evernote account
 			begin
 				if last_sync < note[:created_at]
@@ -322,7 +322,7 @@ class EvernoteController < ApplicationController
 	def client
 		@client ||= EvernoteOAuth::Client.new(token: connected_user.token_credentials)
 	end
-	
+
 	def evernote_user (token)
 		user_store.getUser(token)
 	end
