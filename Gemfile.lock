@@ -94,6 +94,7 @@ GEM
       treetop (~> 1.4.8)
     mime-types (1.25)
     multi_json (1.8.0)
+    newrelic_rpm (3.7.1.188)
     oauth (0.4.7)
     orm_adapter (0.4.0)
     pg (0.16.0)
@@ -180,6 +181,7 @@ DEPENDENCIES
   handlebars_assets
   jasminerice!
   jquery-rails
+  newrelic_rpm
   pg
   pg_search
   quiet_assets
