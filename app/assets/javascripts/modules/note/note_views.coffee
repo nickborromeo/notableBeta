@@ -24,7 +24,7 @@
 			_(checkboxSelected).each (notebook) ->
 				selected.push
 					name: notebook.get('name')
-					guid: notebook.get('guid')
+					eng: notebook.get('guid')
 			selected
 
 		fetch: ->
@@ -32,8 +32,10 @@
 			$.get @url, (data) =>
 				console.log 'returned', data
 				_(data).each (notebook) =>
-					checkbox = new Note.Checkbox notebook
-					@add checkbox
+					unless App.Notebook.forest.findWhere(eng: notebook.guid)?
+						checkbox = new Note.Checkbox notebook
+						@add checkbox
+				@sync() if @isEmpty()
 				# Here we will instantiate Note.Checkbox
 				# and show the EvernoteBooks view
 		sync: ->
