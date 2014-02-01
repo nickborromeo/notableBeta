@@ -18,8 +18,14 @@
 		model: Note.Checkbox
 
 		getSelected: ->
-			@filter (notebook) ->
+			checkboxSelected = @filter (notebook) ->
 				notebook.isSelected()
+			selected = []
+			_(checkboxSelected).each (notebook) ->
+				selected.push
+					name: notebook.get('name')
+					guid: notebook.get('guid')
+			selected
 
 		fetch: ->
 			console.log "fetching list of notebook, ", arguments, @url
@@ -31,8 +37,9 @@
 				# Here we will instantiate Note.Checkbox
 				# and show the EvernoteBooks view
 		sync: ->
-			console.log "syncing", arguments, @getSelected()
 			selectedNotebooks = @getSelected()
+			console.log "syncing", arguments, selectedNotebooks
+			# $.post '/sync', notebooks: selectedNotebooks, (data) ->
 			$.post '/sync', notebooks: selectedNotebooks, (data) ->
 				console.log 'returned', data
 				App.Note.noteController.reset ->
