@@ -86,14 +86,7 @@ class EvernoteController < ApplicationController
 	end
 
 	def sync
-		puts "IN NEWSYNC"
-		puts evernoteData
-		puts "oops"
-		puts params
-		puts params[:post]
-		puts "yay"
-		return
-
+		Notebook.createNotebooks params[:notebooks], connected_user
 		notableTrashed = Note.getTrashed
 		puts notableTrashed.each do |t| puts t.guid; puts t.title; puts t.eng end
 		# User.update connected_user.id, :lastUpdateCount => evernoteData[:lastChunk].updateCount, :lastSyncTime => evernoteData[:lastChunk].time
@@ -176,28 +169,33 @@ class EvernoteController < ApplicationController
     end
   end
 
-  def filterByNotebooks (branchData)
-    notebooks = connected_user.getNotebooks()
-    branchData.delete_if do |b|
-      delete = true
-      notebooks.each do |n|
-        if n.eng == b[:notebook_eng]
-          b[:notebook_id] = n.id
-          delete = false
-        end
-      end
-      delete
-    end
-  end
+	def filterByNotebooks (branchData)
+		notebooks = connected_user.getNotebooks()
+		branchData.delete_if do |b|
+			delete = true
+			notebooks.each do |n|
+				if n.eng == b[:notebook_eng] # the received note is in a notebook to sync
+					b[:notebook_id] = n.id
+					delete = false
+				end
+			end
+			delete
+		end
+	end
 
-  def receiveRootBranches (branches)
-    branchData = []
-    branches.each do |b|
-      content = note_store.getNoteContent(b.guid)
-      branchData.push :eng => b.guid, :title => b.title, :content => content, :notebook_eng => b.notebookGuid
-    end
-    Note.receiveBranches filterByNotebooks branchData
-  end
+	def receiveRootBranches (branches)
+		branchData = []
+		branches.each do |b|
+			begin
+				content = note_store.getNoteContent(b.guid)
+			rescue Evernote::EDAM::Error::EDAMSystemException => e
+				puts e # Need to dig in that Notebook.name error
+				throw e
+			end
+			branchData.push :eng => b.guid, :title => b.title, :content => content, :notebook_eng => b.notebookGuid
+		end
+		Note.receiveBranches filterByNotebooks branchData
+	end
 
   def incrementalSync (syncState)
     fullSync syncState
@@ -235,97 +233,97 @@ class EvernoteController < ApplicationController
 			:lastChunk => lastChunk }
 	end
 
-  def deliverNotebook
-    last_sync = connected_user.last_full_sync
-    notebooks = notebooksToSync
-    notebooks.each do |notebook|
-      enml_notebook = Evernote::EDAM::Type::Notebook.new
-      enml_notebook.name = notebook.title
-      enml_notebook.guid = notebook.eng
-      begin
-        if last_sync < notebook.created_at
-          new_notebook = note_store.createNotebook(connected_user.token_credentials, enml_notebook)
-          Notebook.update(notebook.id, :eng => new_notebook.guid)
-        else
-          puts "NotebookGUID"
-          puts enml_notebook.guid
-          # if notable and evernote are not sync (time) a created note might be considered an update
-          begin
-            new_notebook = note_store.updateNotebook(connected_user.token_credentials, enml_notebook)
-          rescue Evernote::EDAM::Error::EDAMNotFoundException => eue
-            puts "EDAMNotFoundException. Identifier: #{eue.identifier}"
-            if eue.identifier == 'Notebook.guid'
-              new_notebook = note_store.createNotebook(connected_user.token_credentials, enml_notebook)
-              Notebook.update(notebook.id, :eng => new_notebook.guid)
-            else
-              throw eue
-            end
-          end
-        end
-      rescue Evernote::EDAM::Error::EDAMUserException => eue
-        ## Something was wrong with the note data
-        ## See EDAMErrorCode enumeration for error code explanation
-        ## http://dev.evernote.com/documentation/reference/Errors.html#Enum_EDAMErrorCode
-        puts "EDAMUserException: #{eue.errorCode}"
-        puts "EDAMUserException: #{eue.parameter}"
-      rescue Evernote::EDAM::Error::EDAMNotFoundException => enfe
-        ## Parent Notebook GUID doesn't correspond to an actual notebook
-        puts "Error: identifier: #{enfe.identifier}, key: #{enfe.key}"
-      end
-    end
-  end
+	def deliverNotebook
+		last_sync = connected_user.last_full_sync
+		notebooks = notebooksToSync
+		notebooks.each do |notebook|
+			enml_notebook = Evernote::EDAM::Type::Notebook.new
+			enml_notebook.name = notebook.title
+			enml_notebook.guid = notebook.eng
+			begin
+				if last_sync.nil? or last_sync < notebook.created_at
+					new_notebook = note_store.createNotebook(connected_user.token_credentials, enml_notebook)
+					Notebook.update(notebook.id, :eng => new_notebook.guid)
+				else
+					puts "NotebookGUID"
+					puts enml_notebook.guid
+					# if notable and evernote are not sync (time) a created note might be considered an update
+					begin
+						new_notebook = note_store.updateNotebook(connected_user.token_credentials, enml_notebook)
+					rescue Evernote::EDAM::Error::EDAMNotFoundException => eue
+						puts "EDAMNotFoundException. Identifier: #{eue.identifier}"
+						if eue.identifier == 'Notebook.guid'
+							new_notebook = note_store.createNotebook(connected_user.token_credentials, enml_notebook)
+							Notebook.update(notebook.id, :eng => new_notebook.guid)
+						else
+							throw eue
+						end
+					end
+				end
+			rescue Evernote::EDAM::Error::EDAMUserException => eue
+				## Something was wrong with the note data
+				## See EDAMErrorCode enumeration for error code explanation
+				## http://dev.evernote.com/documentation/reference/Errors.html#Enum_EDAMErrorCode
+				puts "EDAMUserException: #{eue.errorCode}"
+				puts "EDAMUserException: #{eue.parameter}"
+			rescue Evernote::EDAM::Error::EDAMNotFoundException => enfe
+				## Parent Notebook GUID doesn't correspond to an actual notebook
+				puts "Error: identifier: #{enfe.identifier}, key: #{enfe.key}"
+			end
+		end
+	end
 
-  def deliverRootBranch(noteData)
-    last_sync = connected_user.last_full_sync
-    notebook = getDefaultNotebook
-    noteData.each do |note|
-      note_content = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>"
-      note_content += "<!DOCTYPE en-note SYSTEM \"http://xml.evernote.com/pub/enml2.dtd\">"
-      note_content += "<en-note>#{note[:content]}</en-note>"
+	def deliverRootBranch(noteData)
+		last_sync = connected_user.last_full_sync
+		notebook = getDefaultNotebook
+		noteData.each do |note|
+			note_content = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>"
+			note_content += "<!DOCTYPE en-note SYSTEM \"http://xml.evernote.com/pub/enml2.dtd\">"
+			note_content += "<en-note>#{note[:content]}</en-note>"
 
-      ## Create note object
-      enml_note = Evernote::EDAM::Type::Note.new
-      enml_note.title = note[:title]
-      enml_note.content = note_content
-      enml_note.guid = note[:guid]
-      enml_note.notebookGuid = note[:notebook_eng]
-      # puts note[:notebookGuid]
-      ## parent_notebook is optional; if omitted, default notebook is used
-      # if parent_notebook && parent_notebook.guid
-      #   emnl_note.notebookGuid = parent_notebook.guid
-      # end
+			## Create note object
+			enml_note = Evernote::EDAM::Type::Note.new
+			enml_note.title = note[:title]
+			enml_note.content = note_content
+			enml_note.guid = note[:guid]
+			enml_note.notebookGuid = note[:notebook_eng]
+			# puts note[:notebookGuid]
+			## parent_notebook is optional; if omitted, default notebook is used
+			# if parent_notebook && parent_notebook.guid
+			# 	emnl_note.notebookGuid = parent_notebook.guid
+			# end
 
-      ## Attempt to create note in Evernote account
-      begin
-        if last_sync < note[:created_at]
-          new_note = note_store.createNote(connected_user.token_credentials, enml_note)
-        else
-          puts enml_note.guid
-          # if notable and evernote are not sync (time) a created note might be considered an update
-          begin
-            new_note = note_store.updateNote(connected_user.token_credentials, enml_note)
-          rescue Evernote::EDAM::Error::EDAMUserException => eue
-            if eue.parameter == 'Note.guid'
-              new_note = note_store.createNote(connected_user.token_credentials, enml_note)
-            else
-              throw eue
-            end
-          end
-        end
-      rescue Evernote::EDAM::Error::EDAMUserException => eue
-        ## Something was wrong with the note data
-        ## See EDAMErrorCode enumeration for error code explanation
-        ## http://dev.evernote.com/documentation/reference/Errors.html#Enum_EDAMErrorCode
-        puts "EDAMUserException: #{eue.errorCode}"
-        puts "EDAMUserException: #{eue.parameter}"
-      rescue Evernote::EDAM::Error::EDAMNotFoundException => enfe
-        ## Parent Notebook GUID doesn't correspond to an actual notebook
-        puts "Error: identifier: #{enfe.identifier}, key: #{enfe.key}"
-      end
-      Note.update(note[:id], :eng => new_note.guid)
-    end
-    Note.update_all("fresh = false")
-  end
+			## Attempt to create note in Evernote account
+			begin
+				if last_sync.nil? or Last_sync < note[:created_at]
+					new_note = note_store.createNote(connected_user.token_credentials, enml_note)
+				else
+					puts enml_note.guid
+					# if notable and evernote are not sync (time) a created note might be considered an update
+					begin
+						new_note = note_store.updateNote(connected_user.token_credentials, enml_note)
+					rescue Evernote::EDAM::Error::EDAMUserException => eue
+						if eue.parameter == 'Note.guid'
+							new_note = note_store.createNote(connected_user.token_credentials, enml_note)
+						else
+							throw eue
+						end
+					end
+				end
+			rescue Evernote::EDAM::Error::EDAMUserException => eue
+				## Something was wrong with the note data
+				## See EDAMErrorCode enumeration for error code explanation
+				## http://dev.evernote.com/documentation/reference/Errors.html#Enum_EDAMErrorCode
+				puts "EDAMUserException: #{eue.errorCode}"
+				puts "EDAMUserException: #{eue.parameter}"
+			rescue Evernote::EDAM::Error::EDAMNotFoundException => enfe
+				## Parent Notebook GUID doesn't correspond to an actual notebook
+				puts "Error: identifier: #{enfe.identifier}, key: #{enfe.key}"
+			end
+			Note.update(note[:id], :eng => new_note.guid)
+		end
+		Note.update_all("fresh = false")
+	end
 
   def getSyncState
     state = note_store.getSyncState(connected_user.token_credentials)
