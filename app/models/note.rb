@@ -50,8 +50,6 @@ class Note < ActiveRecord::Base
 				content += "</ul></li>"
 			end
 			content += "</ul>"
-			puts "SENT CONTENT"
-			puts content
 			evernoteData.push(:title => r[:root].title,
 												:content => content,
 												:guid => r[:root].eng,
@@ -130,7 +128,6 @@ class Note < ActiveRecord::Base
 	end
 
 	def self.createBranch (data, rank)
-		puts "ARe you coming her?"
 		branch = {
 			:parent_id => 'root',
 			:title => data[:title],
@@ -188,8 +185,6 @@ class Note < ActiveRecord::Base
 			content = content.gsub /<(\/)?ul>/, '' # stip out all uls
 			content = '<ul>' + content + '</ul>'
 		end
-		puts "CONTENT"
-		puts content
 		content
 	end
 

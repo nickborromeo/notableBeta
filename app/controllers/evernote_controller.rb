@@ -58,7 +58,6 @@ class EvernoteController < ApplicationController
 
 	def part3
 		@@evernoteData = requestEvernoteData
-		puts evernoteData
 		render json: evernoteData[:notebooks]
 	end
 
@@ -88,13 +87,11 @@ class EvernoteController < ApplicationController
 	def syncing
 		Notebook.createNotebooks params[:notebooks], connected_user if not params[:notebooks].nil?
 		notableTrashed = Note.getTrashed
-		puts notableTrashed.each do |t| puts t.guid; puts t.title; puts t.eng end
 		# User.update connected_user.id, :lastUpdateCount => evernoteData[:lastChunk].updateCount, :lastSyncTime => evernoteData[:lastChunk].time
 		changedBranches = processExpungedAndDeletion evernoteData if not evernoteData.nil?
 		deliverNotebook # Here because Notebooks must have a defined eng before comiledRoot is called
 		trashNotebooks
 		notableData = compileRootsByNotebooks
-		puts notableData
 		changedBranches = resolveConflicts notableData, notableTrashed, changedBranches if not evernoteData.nil?
 		receiveRootBranches changedBranches
 		begin
@@ -156,25 +153,23 @@ class EvernoteController < ApplicationController
     processExpungedNotes evernoteData
   end
 
-  def processExpungedNotes (evernoteData)
-    filterNils(evernoteData[:notes]).delete_if do |n|
-      if not n.deleted.nil?
-        evernoteData[:deletedNotes].push n.guid
-        true
-      end
-    end
-    evernoteData[:deletedNotes].each do |eng|
-      Note.deleteByEng eng
-    end
-    evernoteData[:notes]
-  end
-  def processExpungedNotebooks(evernoteData)
-    puts "DELETED NOTEBOOKS"
-    puts evernoteData[:deletedNotebooks]
-    evernoteData[:deletedNotebooks].each do |eng|
-      Notebook.deleteByEng eng
-    end
-  end
+	def processExpungedNotes (evernoteData)
+		filterNils(evernoteData[:notes]).delete_if do |n|
+			if not n.deleted.nil?
+				evernoteData[:deletedNotes].push n.guid
+				true
+			end
+		end
+		evernoteData[:deletedNotes].each do |eng|
+			Note.deleteByEng eng
+		end
+		evernoteData[:notes]
+	end
+	def processExpungedNotebooks(evernoteData)
+		evernoteData[:deletedNotebooks].each do |eng|
+			Notebook.deleteByEng eng
+		end
+	end
 
 	def filterByNotebooks (branchData)
 		notebooks = connected_user.getNotebooks()
@@ -204,10 +199,7 @@ class EvernoteController < ApplicationController
 				break
 				# throw e
 			end
-			puts "Branch: #{b.title}"
-			puts "Content: #{content}"
 			title = Notebook.where("eng = '#{b.notebookGuid}'").first.title if not Notebook.where("eng = '#{b.notebookGuid}'").first.nil?
-			puts "Notebook: #{title}"
 			branchData.push({ :eng => b.guid, :title => b.title, :content => content, :notebook_eng => b.notebookGuid})
 		end
 		Note.receiveBranches filterByNotebooks branchData
@@ -303,11 +295,6 @@ class EvernoteController < ApplicationController
 			enml_note.content = note_content
 			enml_note.guid = note[:guid]
 			enml_note.notebookGuid = note[:notebook_eng]
-			# puts note[:notebookGuid]
-			## parent_notebook is optional; if omitted, default notebook is used
-			# if parent_notebook && parent_notebook.guid
-			# 	emnl_note.notebookGuid = parent_notebook.guid
-			# end
 
 			## Attempt to create note in Evernote account
 			begin
