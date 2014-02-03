@@ -39,7 +39,6 @@
 		connectionAttempt: "Trying to reconnect in X seconds."
 		connectionFound: "We're back online!"
 		# Notebook
-		needsName: "Give your notebook a name first."
 		needsNotebook: "Your account needs to have at least one notebook."
 		newNotebook: "A new notebook has been created!"
 		deleteNotebook: "Notebook deleted. <a class='clickCallback'> undo </a>"

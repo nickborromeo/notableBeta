@@ -122,7 +122,9 @@
 						@$('#new-trunk').val('')
 						trunk.trigger "created"
 			else
-				App.Notify.alert 'needsName', 'warning'
+				$("#new-trunk").fadeOut().fadeIn().fadeOut().fadeIn(400, ->
+					$("#new-trunk").focus()
+				)
 
 	class Scaffold.LinksView extends Marionette.Layout
 		template: "scaffold/links"
