@@ -311,7 +311,7 @@ class EvernoteController < ApplicationController
 
 			## Attempt to create note in Evernote account
 			begin
-				if last_sync.nil? or Last_sync < note[:created_at]
+				if last_sync.nil? or last_sync < note[:created_at]
 					new_note = note_store.createNote(connected_user.token_credentials, enml_note)
 				else
 					puts enml_note.guid
@@ -338,7 +338,7 @@ class EvernoteController < ApplicationController
 			end
 			Note.update(note[:id], :eng => new_note.guid)
 		end
-		Note.update_all("fresh = false") # Fix me! I have to be related to the current account!
+		Note.select('"notebooks"."user_id", "notes".*').where('"notebooks"."user_id"=#{connected_user.id}').joins(:notebook).update_all("fresh=false")
 	end
 
   def getSyncState
