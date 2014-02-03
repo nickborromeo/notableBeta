@@ -32,7 +32,8 @@
 			<a class='clickCallback' href='sync'>Learn More</a>"
 		evernoteSync: "Your Notable account has been synced to Evernote.
 			<a class='clickCallback' href='sync'>Learn More</a>"
-		evernoteRateLimit: "All your notes couldn't be fetch. Please try again later to finish the process"
+		evernoteRateLimit: "Evernote usage has been temporarily exceeded. Please try again
+			in five minutea."
 		evernoteError: "There was an error connecting your Notable account to Evernote.
 			<a class='clickCallback' href='sync'>Learn More</a>"
 		# Internet
