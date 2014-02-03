@@ -6,7 +6,7 @@ class NotebooksController < ApplicationController
     unless current_user.active_notebook?
       view_context.make_default_notebook
     end
-    @notebooks = Notebook.where("user_id = " + params[:user_id])
+    @notebooks = Notebook.where("user_id = " + params[:user_id] + " AND trashed = false")
     respond_with(@notebooks)
   end
 
@@ -47,11 +47,12 @@ class NotebooksController < ApplicationController
   # DELETE /notebooks/1.json
   def destroy
     @notebook = Notebook.find(params[:id])
-		if @notebook.eng?
-			@notebook.update_attributes(:trashed => true)
-		else
-			@notebook.destroy
-		end
+		# if @notebook.eng?
+		# 	@notebook.update_attributes(:trashed => true)
+		# else
+		# 	@notebook.destroy
+		# end
+		@notebook.destroy
     respond_with(@notebook) do |format|
       format.html { redirect_to notebooks_url }
       format.json { head :no_content }
