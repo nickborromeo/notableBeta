@@ -85,7 +85,7 @@ class EvernoteController < ApplicationController
 		notableData
 	end
 
-	def sync
+	def syncing
 		Notebook.createNotebooks params[:notebooks], connected_user
 		notableTrashed = Note.getTrashed
 		puts notableTrashed.each do |t| puts t.guid; puts t.title; puts t.eng end
@@ -110,28 +110,34 @@ class EvernoteController < ApplicationController
 
 		"success"
 	end
+	def sync
+		begin 
+			syncing
+		rescue Evernote::EDAM::Error::EDAMSystemException => e
+			puts e
+		end
+	end
 
-  def trashRootBranch(notableTrashed)
-    notableTrashed.each do |t|
-      note_store.deleteNote(connected_user.token_credentials, t.eng) if not t.eng.nil?
-      Note.deleteBranch t
-    end
-  end
-  def trashNotebooks
-    notebooksTrashed = Notebook.getTrashed
-    puts "ERROR"
-    notebooksTrashed.each do |t|
-      begin
-        note_store.expungeNotebook(connected_user.token_credentials, t.eng) if not t.eng.nil?
-      rescue Evernote::EDAM::Error::EDAMUserException => e # Will always fail
-        # Because our key does not have privilege to expunge notebooks
-        puts "EDAMUserException: #{e.errorCode}"
-        puts "EDAMUserException: #{e.parameter}"
-        dontDestroy = true
-      end
-      t.destroy unless dontDestroy
-    end
-  end
+	def trashRootBranch(notableTrashed)
+		notableTrashed.each do |t|
+			note_store.deleteNote(connected_user.token_credentials, t.eng) if not t.eng.nil?
+			Note.deleteBranch t
+		end
+	end
+	def trashNotebooks
+		notebooksTrashed = Notebook.getTrashed
+		notebooksTrashed.each do |t|
+			begin
+				note_store.expungeNotebook(connected_user.token_credentials, t.eng) if not t.eng.nil?
+			rescue Evernote::EDAM::Error::EDAMUserException => e # Will always fail
+				# Because our key does not have privilege to expunge notebooks
+				puts "EDAMUserException: #{e.errorCode}"
+				puts "EDAMUserException: #{e.parameter}"
+				dontDestroy = true
+			end
+			t.destroy unless dontDestroy
+		end
+	end
 
   def resolveConflicts (notableData, notableTrashed, evernoteData)
     evernoteData.delete_if do |n|
@@ -190,9 +196,18 @@ class EvernoteController < ApplicationController
 				content = note_store.getNoteContent(b.guid)
 			rescue Evernote::EDAM::Error::EDAMSystemException => e
 				puts e # Need to dig in that Notebook.name error
-				throw e
+				puts "Error code: #{e.errorCode}"
+				puts "Rate Limite Duration: #{e.rateLimitDuration}"
+				puts "ERROR Branch: #{b.title}, #{b.updateSequenceNum}"
+				@reachedLimitOn ||= b.updateSequenceNum
+				break
+				# throw e
 			end
-			branchData.push :eng => b.guid, :title => b.title, :content => content, :notebook_eng => b.notebookGuid
+			puts "Branch: #{b.title}"
+			puts "Content: #{content}"
+			title = Notebook.where("eng = '#{b.notebookGuid}'").first.title if not Notebook.where("eng = '#{b.notebookGuid}'").first.nil?
+			puts "Notebook: #{title}"
+			branchData.push({ :eng => b.guid, :title => b.title, :content => content, :notebook_eng => b.notebookGuid})
 		end
 		Note.receiveBranches filterByNotebooks branchData
 	end
