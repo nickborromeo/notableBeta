@@ -13,7 +13,15 @@
 				current = _.first rest
 				return unless current?
 				if (preceding.get('parent_id') is current.get('parent_id'))
-					throw "rank is broken for #{current.get('guid')}" unless current.get('rank') - 1 is preceding.get('rank')
+					isRankValid = current.get('rank') - 1 is preceding.get('rank')
+					unless isRankValid and preceding.get('rank') is current.get('rank')
+						if current.get('title') is ""
+							current.destroy()
+							isRankValid = true
+						else if preceding.get('title') is ""
+							preceding.destroy()
+							isRankValid = true
+					throw "rank is broken for #{current.get('guid')}" unless isRankValid 
 					throw "depth is broken for #{current.get('guid')}" unless current.get('depth') is preceding.get('depth')
 				else
 					throw "first descendant has not rank 1 for #{current.get('guid')}" unless current.get('rank') is 1
