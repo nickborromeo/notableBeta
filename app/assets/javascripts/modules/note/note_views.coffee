@@ -45,7 +45,11 @@
 			$.post '/sync', notebooks: selectedNotebooks, (data) ->
 				console.log 'returned', data
 				App.Note.noteController.reset ->
-					App.Notify.alert 'evernoteSync', 'success' # maybe a bit short?				
+					if data.code is 1
+						App.Notify.alert 'evernoteSync', 'success' # maybe a bit short?
+					else
+						App.Notify.alert 'evernoteRateLimit', 'warning' # maybe a bit short?
+					App.Notebook.forest.fetch data: user_id: App.User.activeUser.id
 
 
 	class Note.CheckboxView extends Marionette.ItemView
