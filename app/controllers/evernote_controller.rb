@@ -86,7 +86,7 @@ class EvernoteController < ApplicationController
 	end
 
 	def syncing
-		Notebook.createNotebooks params[:notebooks], connected_user
+		Notebook.createNotebooks params[:notebooks], connected_user if not params[:notebooks].nil?
 		notableTrashed = Note.getTrashed
 		puts notableTrashed.each do |t| puts t.guid; puts t.title; puts t.eng end
 		# User.update connected_user.id, :lastUpdateCount => evernoteData[:lastChunk].updateCount, :lastSyncTime => evernoteData[:lastChunk].time
@@ -104,7 +104,8 @@ class EvernoteController < ApplicationController
 			puts e.message
 		end
 		if not evernoteData.nil?
-			User.update(connected_user.id, :last_update_count => evernoteData[:lastChunk].updateCount, :last_full_sync => Time.at(evernoteData[:lastChunk].currentTime/1000))
+			last_update_count = @rateLimitReachedOn || evernoteData[:lastChunk].updateCount
+			User.update(connected_user.id, :last_update_count => last_update_count, :last_full_sync => Time.at(evernoteData[:lastChunk].currentTime/1000))
 		end
 		# redirect_to root_url unless @rake_task
 
@@ -199,7 +200,7 @@ class EvernoteController < ApplicationController
 				puts "Error code: #{e.errorCode}"
 				puts "Rate Limite Duration: #{e.rateLimitDuration}"
 				puts "ERROR Branch: #{b.title}, #{b.updateSequenceNum}"
-				@reachedLimitOn ||= b.updateSequenceNum
+				@rateLimitReachedOn ||= b.updateSequenceNum
 				break
 				# throw e
 			end
@@ -337,7 +338,7 @@ class EvernoteController < ApplicationController
 			end
 			Note.update(note[:id], :eng => new_note.guid)
 		end
-		Note.update_all("fresh = false")
+		Note.update_all("fresh = false") # Fix me! I have to be related to the current account!
 	end
 
   def getSyncState
