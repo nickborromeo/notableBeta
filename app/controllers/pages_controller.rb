@@ -12,6 +12,9 @@ class PagesController < ApplicationController
   def jobs
   end
 
+  def learn
+  end
+
   def privacy
   end
 

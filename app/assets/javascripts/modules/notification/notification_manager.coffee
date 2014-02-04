@@ -29,13 +29,13 @@
 		newNote: "New note has been added."
 		# Evernote
 		evernoteConnect: "Successfully connected your Notable account to Evernote!
-			<a href='sync'>Learn More</a>"
+			<a href='learn'>Learn More</a>"
 		evernoteSync: "Your Notable account has been synced to Evernote.
-			<a href='sync'>Learn More</a>"
+			<a href='learn'>Learn More</a>"
 		evernoteError: "There was an error connecting your Notable account to Evernote.
-			<a href='sync'>Learn More</a>"
+			<a href='learn'>Learn More</a>"
 		evernoteRateLimit: "Evernote usage has been temporarily exceeded.
-			<a href='sync'>Learn More</a>"
+			<a href='learn'>Learn More</a>"
 		# Internet
 		connectionLost: "Connection has been lost."
 		connectionAttempt: "Trying to reconnect in 10 seconds."
