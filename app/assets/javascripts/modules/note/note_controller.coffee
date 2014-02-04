@@ -78,13 +78,14 @@
 			@treeView = new App.Helper.ProgressView()
 			App.contentRegion.currentView.treeRegion.show @treeView
 
-
 		showEvernoteView: ->
 			App.contentRegion.currentView.treeRegion.close()
-			collection = App.Note.notebookSelection = new App.Note.EvernoteBooks
+			collection = App.Feat.everNotebooks = new App.Feat.EverNotebooks
 			collection.fetch()
-			@treeView = new App.Note.EvernoteView(collection: collection)
+			@treeView = new App.Feat.EverNotebookView()
 			App.contentRegion.currentView.treeRegion.show @treeView
+			checkboxThing = new App.Feat.CheckboxesView(collection: collection)
+			@treeView.checkboxRegion.show checkboxThing
 
 		# Crown
 		showCrownView: ->
