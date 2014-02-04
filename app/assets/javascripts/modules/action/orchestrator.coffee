@@ -26,7 +26,7 @@
 
 	Action.deleteBranch = (branch, attributes, options = {}) ->
 		addToHistory:	-> unless options.isUndo then App.Action.manager.addHistory 'deleteBranch', branch
-		triggerNotification: -> unless options.isUndo then App.Notify.alert 'deleted', 'warning'
+		triggerNotification: -> unless options.isUndo then App.Notify.alert 'deleteNote', 'warning'
 		destroy: true
 
 	Action.createBranch = (branch, attributes, options = {}) ->

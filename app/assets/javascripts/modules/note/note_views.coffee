@@ -46,9 +46,9 @@
 				console.log 'returned', data
 				App.Note.noteController.reset ->
 					if data.code is 1
-						App.Notify.alert 'evernoteSync', 'success' # maybe a bit short?
+						App.Notify.alert 'evernoteSync', 'success', {destructTime: 9000}
 					else
-						App.Notify.alert 'evernoteRateLimit', 'warning' # maybe a bit short?
+						App.Notify.alert 'evernoteRateLimit', 'warning', {selfDestruct: false, retryTime: 5}
 					App.Notebook.forest.fetch data: user_id: App.User.activeUser.id
 
 

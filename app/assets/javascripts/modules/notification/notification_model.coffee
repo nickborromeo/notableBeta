@@ -6,7 +6,7 @@
 	class Notify.Alert extends Backbone.Model
 		defaults:
 			notificationType: 'save-notification'
-			notification: ''
+			notificationMessage: ''
 			selfDestruct: true
 			destructTime: Notify._alertTimeOut
 
