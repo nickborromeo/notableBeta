@@ -7,7 +7,8 @@
 	class Notify.AlertView extends Marionette.ItemView
 		template: 'notification/alert'
 		events:
-			'click .clickCallback': 'clickCallback'
+			'click .undo-note-delete': 'undoNoteDelete'
+			'click .undo-notebook-delete': 'undoNotebookDelete'
 			'click .closeAlert': 'closeAlert'
 
 		initialize: ->
@@ -16,11 +17,14 @@
 					@model.collection.remove @model
 				), @model.get('destructTime')
 
-		clickCallback: (event) =>
+		undoNoteDelete: (event) =>
 			event.stopPropagation()
 			event.preventDefault()
-			@model.clickCallback()
-
+			App.Action.manager.undo()
+		undoNotebookDelete: (event) =>
+			event.stopPropagation()
+			event.preventDefault()
+			console.log "Undo notebook deletion"
 		closeAlert: (event) =>
 			event.stopPropagation()
 			@model.collection.remove @model

@@ -1,4 +1,4 @@
-@Notable.module("Notify", (Notify, App, Backbone, Marionette, $, _) ->
+@Notable.module "Notify", (Notify, App, Backbone, Marionette, $, _) ->
 
 	class Notify.Alerts extends Backbone.Collection
 		model: Notify.Alert
@@ -8,14 +8,4 @@
 			notificationType: 'save-notification'
 			notificationMessage: ''
 			selfDestruct: true
-			destructTime: Notify._alertTimeOut
-
-		initialize: (options) ->
-			if options.clickCallback?
-				@clickCallback = options.clickCallback
-
-		clickCallback: ->
-			console.log 'nothing to do'
-			# This is a placeholder callback so that views don't break
-
-)
+			destructTime: 7000
