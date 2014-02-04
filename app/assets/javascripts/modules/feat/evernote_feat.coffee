@@ -24,6 +24,7 @@
 
 		fetch: ->
 			console.log "fetching list of notebook, ", arguments, @url
+			@hideControls()
 			$.get @url, (data) =>
 				console.log 'returned', data
 				_(data).each (notebook) =>
@@ -45,6 +46,11 @@
 					else
 						App.Notify.alert 'evernoteRateLimit', 'warning', {selfDestruct: false, retryTime: 5}
 					App.Notebook.forest.fetch data: user_id: App.User.activeUser.id
+
+		hideControls: ->
+			$("#modview-region").hide()
+			$(".message-template").hide()
+			$("#notebook-title").css("opacity", "0")
 
 	class Feat.CheckboxView extends Marionette.ItemView
 		template: "feat/checkbox"
@@ -69,10 +75,10 @@
 			checkboxRegion: "#checkbox-region"
 
 		events:
-			"click .yes": "continueSyncing"
-			"click .no":	"stopSyncing"
+			"click .continue": "continueSync"
+			"click .cancel": "cancelSync"
 
-		continueSyncing: ->
+		continueSync: ->
 			App.Feat.everNotebooks.sync()
-		stopSyncing: ->
+		cancelSync: ->
 			App.Note.noteController.reset()

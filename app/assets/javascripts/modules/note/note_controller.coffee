@@ -23,6 +23,7 @@
 				Note.syncingCompleted.then => @buildTree()
 		reset: (callback = ->) ->
 			@tree._reset()
+			@showControls()
 			@allNotesByDepth._reset()
 			@allNotesByDepth.fetch
 				data: notebook_id: App.Notebook.activeTrunk.id
@@ -50,12 +51,14 @@
 			App.Note.initializedTree.resolve()
 			@showLinksFooter()
 
-
+		showControls: ->
+			$("#modview-region").show()
+			$(".message-template").show()
+			$("#notebook-title").css("opacity", "1")
 		showLinksFooter: ->
 			if _.isUndefined(App.linksRegion.currentView)
 				linksView = new App.Scaffold.LinksView
 				App.linksRegion.show linksView
-
 		# Export Feat
 		showExportView: (model, paragraph) ->
 			App.contentRegion.currentView.treeRegion.close()

@@ -3,7 +3,7 @@
 // ----------------------------------------------------
 // ----------------MOBILE FIRST CSS -------------------
 // ----------------------------------------------------
-#tree, #progress-center {
+#tree, #progress-center, #ever-notebook {
 	background: $white;
 	border: 1px solid $grayUltraLight;
 	border-radius: 2px;
@@ -24,6 +24,21 @@
 		.progress-text { font-style: italic; }
 		.progress { margin: 1.8em 0; }
 	}
+}
+
+#ever-notebook {
+	padding: 5%;
+	font-size: 1.1em;
+	.en-checkboxes { margin: 2% 3%; }
+	button {
+		margin-right: 2em;
+		display: inline-block;
+		&.cancel {
+			display: block;
+   		width: 100%;
+		}
+	}
+
 }
 
 
@@ -49,10 +64,17 @@
 		}
 	}
 
-	#progress-center {
+	#progress-center, #ever-notebook {
 		margin: 0 2.4% 2.4% 2.4%;
 		min-height: 700px;
 		.progress { margin: 1.8em 3em; }
+	}
+
+	#ever-notebook {
+		button.cancel {
+			display: inline;
+			width: inherit;
+		}
 	}
 
 }
@@ -70,7 +92,7 @@
 		}
 	}
 
-	#progress-center {
+	#progress-center, #ever-notebook {
 		margin: 0 2% 2% 2%;
 		min-height: 750px;
 	}
@@ -81,7 +103,7 @@
 // ---------------DESKTOP MEDIA QUERIES ---------------
 // ----------------------------------------------------
 @media (min-width: $screen-lg) {
-	#tree {
+	#tree, #progress-center, #ever-notebook {
 		min-height: 800px;
 	}
 }
