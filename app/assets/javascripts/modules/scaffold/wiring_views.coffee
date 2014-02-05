@@ -20,15 +20,4 @@
 			e.preventDefault()
 			App.Action.orchestrator.triggerSaving()
 			false
-
-		$(document).ready ->
-			Wiring.Evernote.sync_flow()
-
-		Wiring.Evernote =
-			sync_flow: ->
-				$('.sync_now_test').on 'click', ->
-					App.Action.orchestrator.triggerSaving ->
-						App.Note.noteController.showEvernoteView()
-
-
 )

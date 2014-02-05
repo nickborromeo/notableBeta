@@ -4,12 +4,23 @@
 
 	Helper.Controller = Marionette.Controller.extend
 		initialize: (options) ->
+			@eventManager = Helper.eventManager
 			@progressView = new App.Helper.ProgressView
+			@initEvernote()
 			@setEvents()
 		setEvents: ->
-			Helper.eventManager.on "showProgress", @showProgress, @
-			Helper.eventManager.on "pushProgress", @progressView.pushProgress, @progressView
-			Helper.eventManager.on "intervalProgress", @progressView.intervalProgress, @progressView
+			@eventManager.on "showProgress", @showProgress, @
+			@eventManager.on "pushProgress", @progressView.pushProgress, @progressView
+			@eventManager.on "intervalProgress", @progressView.intervalProgress, @progressView
+
+		evernoteInitFunctions:
+			sync_flow: ->
+				$('.sync_now_test').on 'click', ->
+					App.Action.orchestrator.triggerSaving ->
+						App.Note.noteController.showEvernoteView()
+		initEvernote: ->
+			_(@evernoteInitFunctions).each (fn) ->
+				fn()			
 
 		showProgress: ->
 			App.contentRegion.currentView.treeRegion.close()
