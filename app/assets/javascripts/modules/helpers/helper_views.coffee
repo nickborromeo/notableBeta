@@ -1,5 +1,22 @@
 @Notable.module "Helper", (Helper, App, Backbone, Marionette, $, _) ->
 
+	Helper.eventManager = _.extend {}, Backbone.Events
+
+	Helper.Controller = Marionette.Controller.extend
+		initialize: (options) ->
+			@progressView = new App.Helper.ProgressView
+			@setEvents()
+		setEvents: ->
+			Helper.eventManager.on "showProgress", @showProgress, @
+			Helper.eventManager.on "pushProgress", @progressView.pushProgress, @progressView
+			Helper.eventManager.on "intervalProgress", @progressView.intervalProgress, @progressView
+
+		showProgress: ->
+			App.contentRegion.currentView.treeRegion.close()
+			App.contentRegion.currentView.crownRegion.close()
+			@progressView.reset()
+			App.contentRegion.currentView.treeRegion.show @progressView
+
 	progressMessages =
 		default: "Loading, please wait ..."
 		enNotebooks: "Loading notebooks ..."
@@ -23,6 +40,8 @@
 			# $("#message-region").hide()
 			# App.Notebook.Breadcrumbs.remove()
 
+		reset: ->
+			$(".progress-bar").css("width", 49)
 		markProgress: (percent) ->
 			@ui.progressBar.css("width: #{percent}")
 		completeProgress: (view) ->
@@ -30,11 +49,24 @@
 				App.contentRegion.show view
 			else
 				App.Note.tree.reset()
+		pushProgress: ->
+			cp = $(".progress-bar").css("width")
+			return @clearProgress() unless cp?
+			cp = parseInt cp.slice(0,cp.length-2)
+			if cp < 250 then cp += 47 else @clearProgress()
+			$(".progress-bar").css("width", cp)
+		intervalProgress: ->
+			console.log "came here interval"
+			@interval = setInterval =>
+				@pushProgress()
+				console.log "inside the thing"
+			, 1500
+		clearProgress: ->
+			clearInterval(@interval) if @interval?
 
 		cancelTask: ->
 			# App.Orchestrator.current_action stop @ now
 
 	# Initializers -------------------------
-	# App.Helper.on "start", ->
-		# progressView = new App.Helper.ProgressView
-		# App.contentRegion.show progressView
+	Helper.addInitializer ->
+		Helper.controller = new Helper.Controller()

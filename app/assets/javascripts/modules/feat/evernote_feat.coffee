@@ -3,8 +3,7 @@
 	class Feat.EverNotebook extends Backbone.Model
 		defaults:
 			selected: false
-		initialize: ->
-			console.log "init arg", arguments
+
 		isSelected: ->
 			@get 'selected'
 
@@ -23,23 +22,18 @@
 			selected
 
 		fetch: ->
-			console.log "fetching list of notebook, ", arguments, @url
 			@hideControls()
 			$.get @url, (data) =>
-				console.log 'returned', data
 				_(data).each (notebook) =>
 					unless App.Notebook.forest.findWhere(eng: notebook.guid)?
 						checkbox = new Feat.EverNotebook notebook
 						@add checkbox
 				@sync() if @isEmpty()
-				# Here we will instantiate Note.Checkbox
-				# and show the EvernoteBooks view
 		sync: ->
 			selectedNotebooks = @getSelected()
-			console.log "syncing", arguments, selectedNotebooks
-			# $.post '/sync', notebooks: selectedNotebooks, (data) ->
+			App.Helper.eventManager.trigger "showProgress"
+			App.Helper.eventManager.trigger "intervalProgress"
 			$.post '/sync', notebooks: selectedNotebooks, (data) ->
-				console.log 'returned', data
 				App.Note.noteController.reset ->
 					if data.code is 1
 						App.Notify.alert 'evernoteSync', 'success', {destructTime: 9000}

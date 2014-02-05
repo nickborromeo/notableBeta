@@ -14,19 +14,9 @@
 			"click .sidebar-toggle": "shiftNavbar"
 			"click .new-note": "createNote"
 			"click .modview-btn": "applyModview"
-			"click .mindmap": "showProgress"
-			"click .grid": "pushProgress"
+			"click .mindmap": "futureModview"
+			"click .grid": "futureModview"
 
-		showProgress: ->
-			App.contentRegion.currentView.treeRegion.close()
-			App.contentRegion.currentView.crownRegion.close()
-			progressView = new App.Helper.ProgressView
-			App.contentRegion.currentView.treeRegion.show progressView
-		pushProgress: ->
-			cp = $(".progress-bar").css("width")
-			cp = parseInt cp.slice(0,cp.length-2)
-			if cp < 250 then cp += 47
-			$(".progress-bar").css("width", cp)
 		createNote: ->
 			if App.Note.activeTree.models.length is 0
 				if App.Note.activeBranch is 'root'
