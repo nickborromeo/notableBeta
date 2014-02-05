@@ -54,7 +54,7 @@
 				App.Notify.alert.apply(App.Notify.alert, @notificationToTrigger[0])
 				@storage.swapToSync()
 				@syncActions()
-				App.Note.eventManager.trigger 'syncingDone'
+			App.Note.eventManager.trigger 'syncingDone'
 			App.Note.syncingCompleted.resolve()
 		syncActions: ->
 			deleteGuids = @storage.collectDeletes()

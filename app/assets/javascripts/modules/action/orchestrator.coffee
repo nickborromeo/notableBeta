@@ -86,6 +86,10 @@
 			App.Note.noteController.reset()
 			Action.transporter.storage.clear()
 			App.Notify.alert 'brokenTree', 'danger'
-		acceptChanges:  ->
-			Action.transporter.processToServer @callback
+			@callback = undefined
+		acceptChanges: ->
+			if Action.transporter.storage.hasChangesToSync()
+				Action.transporter.processToServer @callback
+			else
+				@callback() if @callback?
 			@callback = undefined
