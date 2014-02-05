@@ -27,8 +27,8 @@
 		Wiring.Evernote =
 			sync_flow: ->
 				$('.sync_now_test').on 'click', ->
-					App.Action.orchestrator.triggerSaving()
-					App.Note.noteController.showEvernoteView()
+					App.Action.orchestrator.triggerSaving ->
+						App.Note.noteController.showEvernoteView()
 
 
 )
