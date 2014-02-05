@@ -14,7 +14,7 @@
 		showProgress: ->
 			App.contentRegion.currentView.treeRegion.close()
 			App.contentRegion.currentView.crownRegion.close()
-			@progressView.reset()
+			@progressView.resetProgress()
 			App.contentRegion.currentView.treeRegion.show @progressView
 
 	progressMessages =
@@ -29,43 +29,32 @@
 		template: "helper/progress"
 		id: "progress-center"
 		tagName: "section"
-		ui:
-			progressText: ".progress-text"
-			progressBar: ".progress>.bar"
 
-		events: ->
-			"click .cancel": "cancelTask"
-		initialize: ->
-			# Helper.eventManager.on "progress:#{@percent}", @markProgress, @
-			# $("#message-region").hide()
-			# App.Notebook.Breadcrumbs.remove()
-
-		reset: ->
-			$(".progress-bar").css("width", 49)
+		resetProgress: ->
+			@markProgress(36)
 		markProgress: (percent) ->
-			@ui.progressBar.css("width: #{percent}")
-		completeProgress: (view) ->
-			if view?
-				App.contentRegion.show view
-			else
-				App.Note.tree.reset()
+			$(".progress-bar").css("width", "#{percent}%")
 		pushProgress: ->
-			cp = $(".progress-bar").css("width")
-			return @clearProgress() unless cp?
-			cp = parseInt cp.slice(0,cp.length-2)
-			if cp < 250 then cp += 47 else @clearProgress()
-			$(".progress-bar").css("width", cp)
+			return @stopProgress() unless $(".progress")?
+			percent = @calculateProgress()
+			if percent < 70
+				percent += 21
+			else if percent < 100
+				percent += 8
+			else
+			  @stopProgress()
+			@markProgress(percent)
+		calculateProgress: ->
+			op = $(".progress").css("width")
+			ip = $(".progress-bar").css("width")
+			width = parseInt(ip.slice(0,ip.length-2))/parseInt(op.slice(0,op.length-2))
+			Math.round(width*100)
 		intervalProgress: ->
-			console.log "came here interval"
 			@interval = setInterval =>
 				@pushProgress()
-				console.log "inside the thing"
-			, 1500
-		clearProgress: ->
+			, 1600
+		stopProgress: ->
 			clearInterval(@interval) if @interval?
-
-		cancelTask: ->
-			# App.Orchestrator.current_action stop @ now
 
 	# Initializers -------------------------
 	Helper.addInitializer ->
