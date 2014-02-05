@@ -28,3 +28,14 @@ typescript
 
 # Ignore application configuration
 /config/application.yml
+
+# Mike
+.gitignore_global
+app/assets/javascripts/modules/helpers/method_combinators.coffee
+app/assets/javascripts/modules/note/note_router.coffee
+index.html
+log.test
+logs
+orchestrator_dump.txt
+test-app/
+timing.js
