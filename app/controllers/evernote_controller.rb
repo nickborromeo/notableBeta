@@ -95,7 +95,7 @@ class EvernoteController < ApplicationController
       User.update(connected_user.id, :last_update_count => last_update_count, :last_full_sync => Time.at(evernoteData[:lastChunk].currentTime/1000))
     end
     # redirect_to root_url unless @rake_task
-    render :json => {:message => "Rate limit exceeded", :code => 0} unless @rateLimitReachedOn.nil?
+    render :json => {:message => "Rate limit exceeded", :code => 0, :retryTime => @rateLimitDuration} unless @rateLimitReachedOn.nil?
     render :json => {:message => "success", :code => 1} if @rateLimitReachedOn.nil?
   end
   def sync
@@ -186,6 +186,7 @@ class EvernoteController < ApplicationController
         puts "Rate Limite Duration: #{e.rateLimitDuration}"
         puts "ERROR Branch: #{b.title}, #{b.updateSequenceNum}"
         @rateLimitReachedOn ||= b.updateSequenceNum
+        @rateLimitDuration = e.rateLimitDuration
         break
         # throw e
       end

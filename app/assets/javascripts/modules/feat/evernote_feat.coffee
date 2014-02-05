@@ -24,8 +24,8 @@
 		fetch: ->
 			@hideControls()
 			$.get @url, (data) =>
-				_(data).each (notebook) =>
-					unless App.Notebook.forest.findWhere(eng: notebook.guid)?
+				_(data).each (notebook) =>					
+					if notebook? and not App.Notebook.forest.findWhere(eng: notebook.guid)?
 						checkbox = new Feat.EverNotebook notebook
 						@add checkbox
 				@sync() if @isEmpty()
@@ -38,7 +38,7 @@
 					if data.code is 1
 						App.Notify.alert 'evernoteSync', 'success', {destructTime: 9000}
 					else
-						App.Notify.alert 'evernoteRateLimit', 'warning', {selfDestruct: false, retryTime: 5}
+						App.Notify.alert 'evernoteRateLimit', 'warning', {selfDestruct: false, retryTime: data.retryTime}
 					App.Notebook.forest.fetch data: user_id: App.User.activeUser.id
 
 		hideControls: ->
