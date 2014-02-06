@@ -74,10 +74,8 @@
 			if cp < 250 then cp += 47 else @clearProgress()
 			$(".progress-bar").css("width", cp)
 		intervalProgress: ->
-			console.log "came here interval"
 			@interval = setInterval =>
 				@pushProgress()
-				console.log "inside the thing"
 			, 1500
 		clearProgress: ->
 			clearInterval(@interval) if @interval?

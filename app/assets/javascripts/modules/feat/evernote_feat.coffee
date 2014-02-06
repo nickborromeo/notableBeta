@@ -54,7 +54,6 @@
 			"click": "select"
 
 		select: ->
-			console.log "clicked #{@model.get('name')}", arguments
 			selected = @$(".notebook_selection")[0].checked
 			@model.set 'selected', selected
 

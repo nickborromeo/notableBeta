@@ -58,7 +58,7 @@ class EvernoteController < ApplicationController
   def requestEvernoteData
     syncState = getSyncState
     fullSyncBefore = Time.at(syncState.fullSyncBefore/1000)
-    puts "serverLastFUllSync: #{syncState.fullSyncBefore}"
+    # puts "serverLastFUllSync: #{syncState.fullSyncBefore}"
     if connected_user.last_full_sync.nil? or fullSyncBefore > connected_user.last_full_sync
       fullSync syncState
     else
@@ -216,7 +216,7 @@ class EvernoteController < ApplicationController
     return unless currentUSN < syncState.updateCount
     lastChunk = getSyncChunk(currentUSN, 100)
     rec = -> (syncChunk) do
-      puts "chunkHigh : #{syncChunk.chunkHighUSN}, updateCount: #{syncChunk.updateCount}"
+      # puts "chunkHigh : #{syncChunk.chunkHighUSN}, updateCount: #{syncChunk.updateCount}"
       notes.concat syncChunk.notes
       notebooks.concat syncChunk.notebooks
       deletedNotes.concat syncChunk.expungedNotes if not syncChunk.expungedNotes.nil?
@@ -244,8 +244,8 @@ class EvernoteController < ApplicationController
           new_notebook = note_store.createNotebook(connected_user.token_credentials, enml_notebook)
           Notebook.update(notebook.id, :eng => new_notebook.guid)
         else
-          puts "NotebookGUID"
-          puts enml_notebook.guid
+          # puts "NotebookGUID"
+          # puts enml_notebook.guid
           # if notable and evernote are not sync (time) a created note might be considered an update
           begin
             new_notebook = note_store.updateNotebook(connected_user.token_credentials, enml_notebook)
@@ -292,7 +292,7 @@ class EvernoteController < ApplicationController
         if last_sync.nil? or last_sync < note[:created_at]
           new_note = note_store.createNote(connected_user.token_credentials, enml_note)
         else
-          puts enml_note.guid
+          # puts enml_note.guid
           # if notable and evernote are not sync (time) a created note might be considered an update
           begin
             new_note = note_store.updateNote(connected_user.token_credentials, enml_note)
