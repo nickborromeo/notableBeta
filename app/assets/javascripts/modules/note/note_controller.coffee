@@ -83,6 +83,8 @@
 
 		showEvernoteView: ->
 			App.contentRegion.currentView.treeRegion.close()
+			@clearCrownView()
+			@showNotebookTitleView()
 			collection = App.Feat.everNotebooks = new App.Feat.EverNotebooks
 			collection.fetch()
 			@treeView = new App.Feat.EverNotebookView()
