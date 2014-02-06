@@ -15,10 +15,10 @@
 			"mouseout .branch": @toggleDestroyFeat "none"
 			"keydown > .branch > .note-content": @model.timeoutAndSave
 			"click >.branch>.collapsable": "toggleCollapse"
-			"dblclick >.branch>.move": "zoomIn"
+			"dblclick >.branch>.bullet": "zoomIn"
 
-			"dragstart .move": @triggerDragEvent "startMove"
-			"dragend .move": @triggerDragEvent "endMove"
+			"dragstart .bullet": @triggerDragEvent "startMove"
+			"dragend .bullet": @triggerDragEvent "endMove"
 			"drop .dropTarget": @triggerDragEvent "dropMove"
 			"dragenter .dropTarget": @triggerDragEvent "enterMove"
 			"dragleave .dropTarget": @triggerDragEvent "leaveMove"
@@ -41,7 +41,7 @@
 			@renderCollapsed()
 		renderCollapsed: ->
 			if descendants = @collection.models.length isnt 0
-				@$(">.branch>.move").addClass("collapsable")
+				@$(">.branch>.bullet").addClass("collapsable")
 			if @model.get('collapsed') then @collapse() else @expand()
 		appendHtml:(collectionView, itemView, i) ->
 			@$('.descendants:first').append(itemView.el)
@@ -156,18 +156,18 @@
 				@ui.descendants.slideToggle("fast")
 				@ui.descendants.addClass('collapsed')
 				@$(@ui.descendants).removeAttr('style')
-				@$(">.branch>.move").addClass("is-collapsed")
+				@$(">.branch>.bullet").addClass("is-collapsed")
 		expand: ->
 			App.Action.orchestrator.triggerAction('basicAction', @model, collapsed: false) if @model.get('collapsed')
 			if @collapsable() and @isCollapsed()
 				@ui.descendants.slideToggle("fast")
 				@ui.descendants.removeClass('collapsed')
 				@$(@ui.descendants).removeAttr('style')
-				@$(">.branch>.move").removeClass("is-collapsed")
+				@$(">.branch>.bullet").removeClass("is-collapsed")
 				@render()
 		isCollapsed: ->
-			# "is-collapsed" in @$(">.branch>.move")[0].classList
-			"is-collapsed" in App.Helpers.ieShim.classList(@$(">.branch>.move")[0])
+			# "is-collapsed" in @$(">.branch>.bullet")[0].classList
+			"is-collapsed" in App.Helpers.ieShim.classList(@$(">.branch>.bullet")[0])
 		collapsable: ->
 			@collection.length isnt 0
 		toggleDestroyFeat: (toggleType) ->
