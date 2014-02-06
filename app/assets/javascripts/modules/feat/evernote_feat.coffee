@@ -8,7 +8,7 @@
 			@get 'selected'
 
 	class Feat.EverNotebooks extends Backbone.Collection
-		url: '/fetchNotebooks'
+		url: '/sync'
 		model: Feat.EverNotebook
 
 		getSelected: ->
@@ -33,7 +33,7 @@
 			selectedNotebooks = @getSelected()
 			App.Helper.eventManager.trigger "showProgress"
 			App.Helper.eventManager.trigger "intervalProgress"
-			$.post '/sync', notebooks: selectedNotebooks, (data) ->
+			$.post @url, notebooks: selectedNotebooks, (data) ->
 				App.Note.noteController.reset ->
 					if data.code is 1
 						App.Notify.alert 'evernoteSync', 'success', {destructTime: 9000}

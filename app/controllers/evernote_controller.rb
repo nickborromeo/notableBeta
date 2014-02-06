@@ -47,7 +47,7 @@ class EvernoteController < ApplicationController
     end
   end
 
-  def part3
+  def fetchNotebooks
     @@evernoteData = requestEvernoteData
     render json: evernoteData[:notebooks]
   end

@@ -11,10 +11,9 @@ Notable::Application.routes.draw do
 	end
 
   get "connect" => "evernote#connect"
-  # get "sync" => "evernote#sync"
+  get "sync" => "evernote#fetchNotebooks"
   post "sync" => "evernote#sync"
   get "finish" => "evernote#finish"
-  get "fetchNotebooks" => "evernote#part3"
 
   get "search" => "notes#search"
 
