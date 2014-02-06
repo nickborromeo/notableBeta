@@ -53,7 +53,7 @@
 		markProgress: (percent) ->
 			$(".progress-bar").css("width", "#{percent}%")
 		pushProgress: ->
-			return @stopProgress() unless $(".progress")?
+			return @stopProgress() unless $(".progress").css("width")?
 			percent = @calculateProgress()
 			if percent < 70
 				percent += 21
