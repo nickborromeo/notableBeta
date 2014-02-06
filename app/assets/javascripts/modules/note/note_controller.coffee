@@ -85,11 +85,11 @@
 			App.contentRegion.currentView.treeRegion.close()
 			@clearCrownView()
 			@showNotebookTitleView()
-			collection = App.Feat.everNotebooks = new App.Feat.EverNotebooks
+			collection = App.Evernote.notebooks = new App.Evernote.Notebooks
 			collection.fetch()
-			@treeView = new App.Feat.EverNotebookView()
+			@treeView = new App.Evernote.NotebookView()
 			App.contentRegion.currentView.treeRegion.show @treeView
-			checkboxThing = new App.Feat.CheckboxesView(collection: collection)
+			checkboxThing = new App.Evernote.CheckboxesView(collection: collection)
 			@treeView.checkboxRegion.show checkboxThing
 
 		# Crown

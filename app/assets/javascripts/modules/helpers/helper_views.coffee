@@ -6,28 +6,11 @@
 		initialize: (options) ->
 			@eventManager = Helper.eventManager
 			@progressView = new App.Helper.ProgressView
-			@initEvernote()
 			@setEvents()
 		setEvents: ->
 			@eventManager.on "showProgress", @showProgress, @
 			@eventManager.on "pushProgress", @progressView.pushProgress, @progressView
 			@eventManager.on "intervalProgress", @progressView.intervalProgress, @progressView
-
-		evernoteInitFunctions:
-			sync_flow: ->
-				$('.sync-action').on 'click', (e) ->
-					e.preventDefault()
-					App.Action.orchestrator.triggerSaving ->
-						App.Note.noteController.showEvernoteView()
-			connect_flow: ->
-				$('.connect-evernote-action').on 'click', (e) ->
-					e.preventDefault()
-					App.Action.orchestrator.triggerSaving ->
-						window.location.href = 'connect'
-
-		initEvernote: ->
-			_(@evernoteInitFunctions).each (fn) ->
-				fn()			
 
 		showProgress: ->
 			App.contentRegion.currentView.treeRegion.close()
