@@ -12,7 +12,7 @@
 			do rec = (preceding = @first(), rest = @rest()) =>
 				current = _.first rest
 				return unless current?
-				if (preceding.get('parent_id') is current.get('parent_id'))
+				if preceding.get('parent_id') is current.get('parent_id')
 					isRankValid = current.get('rank') - 1 is preceding.get('rank')
 					if preceding.get('rank') is current.get('rank')
 						if current.get('title') is ""
