@@ -31,7 +31,7 @@ class EvernoteController < ApplicationController
         token_credentials = access_token.token
         User.update(connected_user.id, {:token_credentials => token_credentials})
         #use token credentials to access the Evernote API
-        @client ||= EvernoteOAuth::Client.new(token: token_credentials)
+        @client ||= EvernoteOAuth::Client.new(token: token_credentials, sandbox: false)
         @user ||= evernote_user token_credentials
         @notebooks ||= evernote_notebooks token_credentials
         @note_count = total_note_count(token_credentials)
@@ -340,7 +340,7 @@ class EvernoteController < ApplicationController
     @user_store ||= client.user_store
   end
   def client
-    @client ||= EvernoteOAuth::Client.new(token: connected_user.token_credentials)
+    @client ||= EvernoteOAuth::Client.new(token: connected_user.token_credentials, sandbox: false)
   end
 
   def evernote_user (token)
