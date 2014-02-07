@@ -79,7 +79,7 @@ $sidr-font-family: 'lucida grande',tahoma,verdana,arial,sans-serif;
 				@include single-box-shadow($black, 0, 0, 15px, 3px, inset);
 			}
 			&.selected {
-				color: $notableBlue;
+				color: #49A4FF;
 				&:active { color: $notableBlue; }
 			}
 			&:last-child { border-bottom: none; }
