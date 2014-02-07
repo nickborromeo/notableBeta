@@ -63,7 +63,7 @@
 	border-top: 3px dashed #AAAEAE;
 }
 
-@media (max-width: 450px) {
+@media (max-width: $screen-xs) {
 	#tree .branch .note-content {
 		width: 94%;
 	}

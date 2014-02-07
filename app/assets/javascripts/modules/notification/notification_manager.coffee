@@ -69,7 +69,7 @@
 	_customMessage = (retryTime, message) ->
 		switch message
 			when "connectionAttempt" then "Trying to reconnect in #{retryTime} seconds."
-			when "evernoteRateLimit" then "Evernote usage has been temporarily exceeded. Please try again in #{Math.floor(retryTime/60)+1} minutes."
+			when "evernoteRateLimit" then "Evernote usage has been temporarily exceeded. Please try again in #{Math.floor(retryTime/60)+1} minutes. <a href='learn#limits'>Learn More</a>"
 			else "Try again in #{retryTime} minutes."
 
 	# Save notification region

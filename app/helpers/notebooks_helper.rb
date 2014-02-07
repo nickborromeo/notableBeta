@@ -27,7 +27,7 @@ module NotebooksHelper
     note6 = { "guid"=> SecureRandom.uuid, "subtitle"=>"", "fresh"=>true, "notebook_id"=>notebook_id,
       "title"=>"<b>Level 2</b> - This is where it starts to get interesting ...", "rank"=>2, "depth"=>1, "collapsed"=>false, "parent_id"=>"root" }
     note7 = { "guid"=> SecureRandom.uuid, "subtitle"=>"", "fresh"=>true, "notebook_id"=>notebook_id,
-      "title"=>"Try expanding/collapsing a note by clicking on the blue bulletpoint in the next note.", "rank"=>1, "depth"=>2, "collapsed"=>false, "parent_id"=>"root" }
+      "title"=>"Try expanding/collapsing a note by clicking on the gray bulletpoint in the next note.", "rank"=>1, "depth"=>2, "collapsed"=>false, "parent_id"=>"root" }
     note8 = { "guid"=> SecureRandom.uuid, "subtitle"=>"", "fresh"=>true, "notebook_id"=>notebook_id,
       "title"=>"To zoom in, double-click on the bulletpoint", "rank"=>2, "depth"=>2, "collapsed"=>true, "parent_id"=>"root" }
     note9 = { "guid"=> SecureRandom.uuid, "subtitle"=>"", "fresh"=>true, "notebook_id"=>notebook_id,
