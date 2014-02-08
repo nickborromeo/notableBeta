@@ -17,6 +17,7 @@
 //= require lib/marionette
 //= require lib/sidr
 //= require lib/hotkeys
+//= require lib/idle
 //= require handlebars
 //= require bootstrap
 //
