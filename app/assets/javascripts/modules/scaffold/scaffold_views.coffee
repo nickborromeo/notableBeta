@@ -31,8 +31,6 @@
 				"background-image": "none"
 				"border-color": "#FDFDFD"
 				"box-shadow": "none"
-				"-webkit-box-shadow": "none"
-				"-moz-box-shadow": "none"
 			)
 		createNote: ->
 			if App.Note.activeTree.models.length is 0
