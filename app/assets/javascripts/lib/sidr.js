@@ -4,7 +4,7 @@
  * Licensed under the MIT license.
  */
 
-;(function( $ ){
+(function( $ ){
 
   var sidrMoving = false,
       sidrOpened = false;

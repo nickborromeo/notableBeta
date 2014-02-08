@@ -16,7 +16,7 @@
 //= require lib/backbone
 //= require lib/marionette
 //= require lib/sidr
-//= require lib/jquery.hotkeys
+//= require lib/hotkeys
 //= require handlebars
 //= require bootstrap
 //
