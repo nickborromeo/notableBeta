@@ -15,23 +15,8 @@
 			"click .new-note": "createNote"
 			"click .modview-btn": "applyModview"
 			"click .mindmap": "futureModview"
-			"click .grid": "focusMode"
+			"click .grid": "futureModview"
 
-		focusMode: ->
-			$("#modview-region, #links, .uv-icon").fadeOut()
-			$("#message-center .message-template").fadeOut()
-			$(".navbar-nav, .navbar-search").addClass("hidden")
-			$("#crown, #tree").css("border-color", "#FDFDFD")
-			$("body, .container, nav").css("background", "#FDFDFD")
-			$("body").css("background-image", "none")
-			$("nav .navbar-header, .icon-feats-delete").fadeOut()
-			$(".feats").css("color", "#FDFDFD")
-			$("#content-template .breadcrumb>li.root-breadcrumb a").css("color", "#FDFDFD")
-			$("#content-template").css(
-				"background-image": "none"
-				"border-color": "#FDFDFD"
-				"box-shadow": "none"
-			)
 		createNote: ->
 			if App.Note.activeTree.models.length is 0
 				if App.Note.activeBranch is 'root'
