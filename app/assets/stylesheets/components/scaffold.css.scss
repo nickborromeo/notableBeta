@@ -274,6 +274,7 @@ footer {
 				-moz-transform: rotate(90deg); /* Mozilla */
 				-webkit-transform: rotate(90deg); /* Safari and Chrome */
 				transform: rotate(90deg);
+				top: 0;
 			}
 			&:hover {
 				border-color: $notableYellow;
@@ -366,6 +367,7 @@ footer {
 			padding: 5.5px 6.5px;
 			width: 30.5px;
 			height: 30.5px;
+			.glyphicon-play { top: 1px; }
 		}
 		.sign-in {
 			padding: 0.9em 1.5em;
