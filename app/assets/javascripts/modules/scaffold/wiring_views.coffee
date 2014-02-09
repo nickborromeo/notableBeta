@@ -22,24 +22,10 @@
 			App.Action.orchestrator.triggerSaving()
 			return false
 
-		$(".container").idle (->
-			App.Helper.eventManager.trigger "hideChrome"
-		), ->
-			App.Helper.eventManager.trigger "showChrome"
+		unless Modernizr.touch
+			$(".container").idle (->
+				App.Helper.eventManager.trigger "hideChrome"
+			), ->
+				App.Helper.eventManager.trigger "showChrome"
 
-		# chromeHidden = false; idleTimer = false
-		# $(document).mousemove ->
-		# 	if idleTimer
-		# 		clearTimeout idleTimer
-		# 		idleTimer = 0
-		# 	if chromeHidden
-		# 		$(".container").mouseover ->
-		# 			App.Helper.eventManager.trigger "showChrome"
-		# 			chromeHidden = false
-		# 	idleTimer = setTimeout ->
-		# 		App.Helper.eventManager.trigger "hideChrome"
-		# 		chromeHidden = true
-		# 		return false
-		# 	, 3000
-		# 	return false
 )
