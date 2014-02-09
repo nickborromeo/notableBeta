@@ -22,6 +22,8 @@
 			App.Action.orchestrator.triggerSaving()
 			return false
 
+		if Modernizr.touch then alert "touch-enabled" else alert "laptop"
+
 		unless Modernizr.touch
 			$(".container").idle (->
 				App.Helper.eventManager.trigger "hideChrome"
