@@ -44,11 +44,9 @@
 				"box-shadow": "2px 2px 6px 0 rgba(0, 0, 0, 0.15)"
 			)
 		hideChrome: ->
-			$("#modview-region, #links, .uv-icon").fadeOut('slow')
-			$("#message-center .message-template").fadeOut('slow')
-			$("nav .navbar-header, .icon-feats-delete").fadeOut('slow')
-			$(".navbar-nav, .navbar-search").addClass("hidden")
-			$("#crown, #tree").css("border-color", "#FDFDFD")
+			$("#modview-region, #links, .uv-icon").fadeOut(1000)
+			$("#message-center .message-template").fadeOut(1000)
+			$("nav .navbar-header, .icon-feats-delete").fadeOut(1000)
 			$("body, nav").css("background", "#FDFDFD")
 			$("body").css("background-image", "none")
 			$(".feats, #content-template h3").css("color", "#FDFDFD")
@@ -58,6 +56,10 @@
 				"border-color": "#FDFDFD"
 				"box-shadow": "none"
 			)
+			window.setTimeout @delayedHiding, 500
+		delayedHiding: ->
+			$(".navbar-nav, .navbar-search").addClass("hidden")
+			$("#crown, #tree").css("border-color", "#FDFDFD")
 
 	progressMessages =
 		default: "Loading, please wait ..."

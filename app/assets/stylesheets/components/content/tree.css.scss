@@ -55,6 +55,10 @@
 		position: relative;
 		border-radius: 7px;
 		border: 1px solid $gray;
+		-webkit-transition-property: all;
+		-webkit-transition-duration: 1.0s;
+		transition-property: all;
+		transition-duration: 1.0s;
 		#tree {
 			padding: 2% 3.7%;
 			margin: 0 2.4% 2.4% 2.4%;

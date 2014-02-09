@@ -15,6 +15,10 @@ body {
 	color: $black;
 	margin: 0 auto;
 	padding: 0;
+	-webkit-transition-property: all;
+	-webkit-transition-duration: 1.0s;
+	transition-property: all;
+	transition-duration: 1.0s;
 	-webkit-font-smoothing: antialiased;
 	-moz-font-smoothing: antialiased;
 	-ms-font-smoothing: antialiased;
@@ -70,6 +74,10 @@ label {
 /* --------------HEADER REGION ------------------ */
 nav {
 	height: 35px;
+	-webkit-transition-property: all;
+	-webkit-transition-duration: 1.0s;
+	transition-property: all;
+	transition-duration: 1.0s;
 	background-color: $grayUltraLight; /* Old browsers */
 	background: -moz-linear-gradient(top, #FDFDFD 0%, #cccccc 100%); /* FF3.6+ */
 	background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#FDFDFD), color-stop(100%,#cccccc)); /* Chrome,Safari4+ */

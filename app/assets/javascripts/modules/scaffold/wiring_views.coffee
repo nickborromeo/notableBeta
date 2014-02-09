@@ -22,7 +22,7 @@
 			App.Action.orchestrator.triggerSaving()
 			return false
 
-		onMainPage = $("#content-region").length > 0
+		onMainPage = $("#content-region").length
 		if not Modernizr.touch and onMainPage
 			$(".container").idle (->
 				App.Helper.eventManager.trigger "hideChrome"
