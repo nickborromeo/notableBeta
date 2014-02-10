@@ -15,7 +15,7 @@
 	width: 9px;
 	z-index: 101;
 	@include box-sizing(border-box);
-  &.is-collapsed { background: $gray; }
+  &.is-collapsed { background: $grayDark; }
 	position: absolute;
 	top: 0.25em;
 	left: 0;

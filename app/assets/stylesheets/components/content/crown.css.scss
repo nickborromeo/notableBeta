@@ -74,7 +74,7 @@
 			transition-property: all;
 			transition-duration: 1.2s;
 			transition-timing-function: ease-in-out;
-			transition-delay: 0.5s;
+			transition-delay: 0.8s;
 			&:hover { text-align: left;	}
 			.chain-breadcrumb {	display: inline-block; }
 			> li.root-breadcrumb a { color: $grayDark; }
