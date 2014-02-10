@@ -23,10 +23,11 @@
 
 .branch {
 	position: relative;
-	font-size: 12px;
 	line-height: 1.2em;
 	margin-top: 14px;
 	font-family: Tahoma, 'Lucida Grande', 'Lucida Sans Unicode', Arial, sans-serif;
+	font-size: 12px;
+	&.root { font-size: 1.05em; }
 	.note-content {
 		margin-left: 1.4em;
 		width: 97%;
