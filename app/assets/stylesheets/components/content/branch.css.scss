@@ -13,7 +13,7 @@
 	outline: none;
 	height: 9px;
 	width: 9px;
-	z-index: 101;
+	z-index: 21;
 	@include box-sizing(border-box);
   &.is-collapsed { background: $grayDark; }
 	position: absolute;
@@ -23,6 +23,7 @@
 
 .branch {
 	position: relative;
+	outline: 1px solid red;
 	font-size: 12px;
 	line-height: 1.2em;
 	margin-top: 14px;
@@ -32,6 +33,7 @@
 		width: 97%;
 		display: inline-block;
 		outline: none;
+		z-index: 9;
 	}
 }
 
@@ -43,14 +45,28 @@
 	-webkit-user-select: none;
 	user-select: none;
 }
-.dropTarget {
+.dropTop {
+	position: absolute;
+	top: 0;
 	height: 10px;
 	width:100%;
 	display: inline-block;
-	// outline: 1px solid green;
+}
+.dropBottom {
 	position: absolute;
-	top: 0;
-	left: 0;
+	bottom: 0;
+	outline: 1px solid blue;
+	height: 10px;
+	width:100%;
+	display: inline-block;
+}
+.dropTarget {
+	position: relative;
+	height: 100%;
+	width: 100%;
+	outline: 1px solid green;
+	&.dropBefore { bottom: 10px; }
+	// &.dropAfter { bottom: 0; }
 }
 .dropTarget.over {
 	border-top: 3px dashed #AAAEAE;

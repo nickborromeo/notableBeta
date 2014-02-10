@@ -35,7 +35,7 @@ label {
 		margin: 0;
 		padding: 0.7em 1.2em 0.7em 1.4em;
 		border: none;
-		z-index: 740;
+		z-index: 74;
 		.close {
 			position: relative;
 			bottom: 0.05em;
@@ -84,12 +84,9 @@ nav {
 	background: -webkit-linear-gradient(top, #FDFDFD 0%,#cccccc 100%); /* Chrome10+,Safari5.1+ */
 	background: -ms-linear-gradient(top, #FDFDFD 0%,#cccccc 100%); /* IE10+ */
 	background: linear-gradient(to bottom, #FDFDFD 0%,#cccccc 100%); /* W3C */
-	.btn-info {
-		background-color: $notableBlue;
-	}
-	.navbar-header {
-		padding: 5px 15px;
-	}
+	&.navbar-fixed-top { z-index: 89; }
+	.btn-info { background-color: $notableBlue; }
+	.navbar-header { padding: 5px 15px; }
 	.logo {
 		color: $notableBlue;
 		.logo-icon {
