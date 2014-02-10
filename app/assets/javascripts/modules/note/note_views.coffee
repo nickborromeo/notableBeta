@@ -11,8 +11,8 @@
 			"paste >.branch>.note-content": "pasteContent"
 
 			"click .destroy": @triggerEvent "deleteNote"
-			"mouseover .branch": @toggleDestroyFeat "block"
-			"mouseout .branch": @toggleDestroyFeat "none"
+			# "mouseover .branch": @toggleDestroyFeat "block"
+			# "mouseout .branch": @toggleDestroyFeat "none"
 			"keydown > .branch > .note-content": @model.timeoutAndSave
 			"click >.branch>.collapsable": "toggleCollapse"
 			"dblclick >.branch>.bullet": "zoomIn"
@@ -42,7 +42,7 @@
 		renderCollapsed: ->
 			if descendants = @collection.models.length isnt 0
 				@$(">.branch>.bullet").addClass("collapsable")
-			if @model.get('collapsed') then @collapse() else @expand()
+			if @model.get('collapsed') then @collapse(true) else @expand()
 		appendHtml:(collectionView, itemView, i) ->
 			@$('.descendants:first').append(itemView.el)
 			if i is @collection.length - 1
@@ -147,33 +147,25 @@
 
 		toggleCollapse: ->
 			if @model.get('collapsed') then @expand() else @collapse()
-		collapse: ->
-			return if @collection.length is 0
-			if @collapsable() and not @isCollapsed()
-				setTimeout =>
-					App.Action.orchestrator.triggerAction('basicAction', @model, collapsed: true) if not @model.get('collapsed')
-				, 500
-				@ui.descendants.slideToggle("fast")
-				@ui.descendants.addClass('collapsed')
-				@$(@ui.descendants).removeAttr('style')
-				@$(">.branch>.bullet").addClass("is-collapsed")
 		expand: ->
-			App.Action.orchestrator.triggerAction('basicAction', @model, collapsed: false) if @model.get('collapsed')
 			if @collapsable() and @isCollapsed()
-				@ui.descendants.slideToggle("fast")
-				@ui.descendants.removeClass('collapsed')
-				@$(@ui.descendants).removeAttr('style')
+				App.Action.orchestrator.triggerAction('basicAction', @model, collapsed: false) if @model.get('collapsed')
+				@ui.descendants.slideDown('fast')
 				@$(">.branch>.bullet").removeClass("is-collapsed")
-				@render()
-		isCollapsed: ->
-			# "is-collapsed" in @$(">.branch>.bullet")[0].classList
-			"is-collapsed" in App.Helpers.ieShim.classList(@$(">.branch>.bullet")[0])
+		collapse: (onLoad=false) ->
+			if @collapsable() and not @isCollapsed()
+				App.Action.orchestrator.triggerAction('basicAction', @model, collapsed: true) if not @model.get('collapsed')
+				@ui.descendants.slideUp('fast')
+				@$(">.branch>.bullet").addClass("is-collapsed")
+				if onLoad then @ui.descendants.hide()
 		collapsable: ->
 			@collection.length isnt 0
-		toggleDestroyFeat: (toggleType) ->
-			(e) ->
-				e.stopPropagation()
-				$("div[data-guid=#{@model.get 'guid'}] .trash_icon:first").css("display", toggleType)
+		isCollapsed: ->
+			"is-collapsed" in App.Helpers.ieShim.classList(@$(">.branch>.bullet")[0])
+		# toggleDestroyFeat: (toggleType) ->
+		# 	(e) ->
+		# 		e.stopPropagation()
+		# 		$("div[data-guid=#{@model.get 'guid'}] .trash_icon:first").css("display", toggleType)
 
 		createNote: (e) ->
 			e.preventDefault()

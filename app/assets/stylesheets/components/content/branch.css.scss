@@ -35,14 +35,7 @@
 	}
 }
 
-.descendants {
-	margin-left: 1.8em;
-	-webkit-transition-property: all;
-	-webkit-transition-duration: 4s;
-	transition-property: all;
-	transition-duration: 4s;
-	&.collapsed { display: none; }
-}
+.descendants { margin-left: 1.8em; }
 
 // Prevent the text contents of draggable elements from being selectable.
 [draggable] {
