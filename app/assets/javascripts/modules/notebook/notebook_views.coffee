@@ -36,6 +36,9 @@
 		createTrunk: ->
 			@selectTrunk()
 			App.Notify.alert 'newNotebook', 'success', {destructTime: 5000}
+			window.setTimeout ->
+				App.Helper.eventManager.trigger "closeSidr"
+			, 500
 		createFirstNote: ->
 			if App.Note.tree.isEmpty()
 				newNote = new App.Note.Branch

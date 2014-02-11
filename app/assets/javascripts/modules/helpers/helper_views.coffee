@@ -12,8 +12,12 @@
 			@eventManager.on "showProgress", @showProgress, @
 			@eventManager.on "pushProgress", @progressView.pushProgress, @progressView
 			@eventManager.on "intervalProgress", @progressView.intervalProgress, @progressView
+			# Focused typing mode events
 			@eventManager.on "showChrome", @showChrome, @
 			@eventManager.on "hideChrome", @hideChrome, @
+			# Sidebar events
+			@eventManager.on "openSidr", @openSidebar, @
+			@eventManager.on "closeSidr", @closeSidebar, @
 
 		showProgress: ->
 			App.contentRegion.currentView.treeRegion.close()
@@ -69,6 +73,16 @@
 			$(".feats").css("color", "#FDFDFD")
 			$(".icon-feats-delete").hide()
 			$("#crown, #tree").css("border-color", "#FDFDFD")
+		openSidebar: ->
+			$.sidr('open', 'left-sidr-center')
+			$(".navbar-header").addClass("navbar-shift")
+			$(".navbar-right").addClass("navbar-shift")
+			$(".sidebar-toggle").addClass("selected")
+		closeSidebar: ->
+			$.sidr('close', 'left-sidr-center')
+			$(".navbar-header").removeClass("navbar-shift")
+			$(".navbar-right").removeClass("navbar-shift")
+			$(".sidebar-toggle").removeClass("selected")
 
 	progressMessages =
 		default: "Loading, please wait ..."

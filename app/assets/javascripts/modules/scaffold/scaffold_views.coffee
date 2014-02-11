@@ -54,8 +54,7 @@
 		shiftNavbar: (e) ->
 			$(".navbar-header").toggleClass("navbar-shift")
 			$(".navbar-right").toggleClass("navbar-shift")
-			type = App.Helpers.ieShim.classList(e.currentTarget)[0]
-			$(".#{type}").toggleClass("selected")
+			$(".sidebar-toggle").toggleClass("selected")
 
 	class Scaffold.ContentView extends Marionette.Layout
 		template: "scaffold/content"

@@ -76,6 +76,9 @@
 			@.$el.on 'keydown', null, 'ctrl+i meta+i', @applyStyling.bind @, 'italic'
 			@.$el.on 'keydown', null, 'ctrl+u meta+u', @applyStyling.bind @, 'underline'
 			@.$el.on 'keydown', null, 'ctrl+k meta+k', @applyStyling.bind @, 'strikeThrough'
+			# App level keyboard shortcuts
+			@.$el.on 'keydown', null, 'ctrl+shift+right meta+shift+right', @openSidebar
+			@.$el.on 'keydown', null, 'ctrl+shift+left meta+shift+left', @closeSidebar
 
 		onClose: ->
 			@.$el.off()
@@ -109,8 +112,6 @@
 			e.preventDefault()
 			e.stopPropagation()
 			behaviorFn.apply(@, Note.sliceArgs arguments)
-		# remainder
-		local: ->
 		triggerDragEvent: (event) -> (e) =>
 			@updateNote()
 			e.dataTransfer = e.originalEvent.dataTransfer;
@@ -252,6 +253,14 @@
 			sel = window.getSelection()
 			title = @getNoteTitle()
 			@cursorApi[testPositionFunction](sel, title)
+
+		openSidebar: ->
+			App.Helper.eventManager.trigger "openSidr"
+			App.Helper.eventManager.trigger "showChrome"
+			App.Helper.controller.userIdle = true # so user will never go into focused typing mode when siebar is open
+		closeSidebar: ->
+			App.Helper.eventManager.trigger "closeSidr"
+			App.Helper.controller.userIdle = false
 
 	class Note.TreeView extends Marionette.CollectionView
 		id: "tree"
