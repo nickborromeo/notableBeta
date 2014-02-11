@@ -38,7 +38,7 @@
   };
   // Set outside so they can be overridden globally before being called on an item
   $.fn.idle.defaults = {
-    after: 30000,
-    interval: 100
+    after: 59500,
+    interval: 500
   };
 }(jQuery));

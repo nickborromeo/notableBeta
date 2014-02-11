@@ -51,11 +51,6 @@
 			if @model.isARoot(true) and @model.get('rank') isnt 1
 				@$(">.branch>.dropBefore").remove()
 
-		getNoteContent: ->
-			if @ui.noteContent.length is 0 or !@ui.noteContent.focus?
-				@ui.noteContent = @.$('.note-content:first')
-			@ui.noteContent
-
 		bindKeyboardShortcuts: ->
 			@.$el.on 'keydown', null, 'return', @createNote.bind @
 			@.$el.on 'keydown', null, 'ctrl+shift+backspace meta+shift+backspace', @triggerShortcut 'deleteNote'
@@ -193,11 +188,13 @@
 
 		pasteContent: (e) ->
 			e.preventDefault()
+			textBefore = @textBeforeCursor()
+			window.getSelection().collapseToEnd()
 			textAfter = @textAfterCursor()
 			pasteText = e.originalEvent.clipboardData.getData("Text")
 			splitText = @splitPaste pasteText
 			return App.Notify.alert 'exceedPasting', 'warning' if splitText.length > 100
-			@getNoteContent().html((text = @textBeforeCursor() + _.first splitText))
+			@getNoteContent().html(textBefore + _.first splitText)
 			@updateNote()
 			@pasteNewNote _.rest(splitText), textAfter
 		splitPaste: (text) ->
@@ -224,10 +221,14 @@
 		getNoteTitle: ->
 			title = @getNoteContent().html().trim()
 			Note.trimEmptyTags title
+		getNoteContent: ->
+			if @ui.noteContent.length is 0 or !@ui.noteContent.focus?
+				@ui.noteContent = @.$('.note-content:first')
+			@ui.noteContent
+
 		setNoteTitle: (title, forceUpdate = false) ->
 			@getNoteContent().html title
 			@updateNote forceUpdate
-
 		setCursor: (position = false) ->
 			(noteContent = @getNoteContent()).focus()
 			@cursorApi.setCursor noteContent, position
