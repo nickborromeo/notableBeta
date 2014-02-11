@@ -46,22 +46,23 @@
 			)
 			@userIdle = false
 		hideChrome: ->
-			$("#modview-region, #links, nav .navbar-header").fadeOut(1000)
-			$("#message-center .message-template").css("opacity", "0")
-			$(".uv-icon, .icon-feats-delete").fadeOut(600)
-			$("body, nav").css("background", "#FDFDFD")
-			$("#crown, #tree").css("border-color", "#FDFDFD")
-			$("body").css("background-image", "none")
-			$(".feats, #content-template h3").css("color", "#FDFDFD")
-			$("#content-template").css(
-				"background-image": "none"
-				"border-color": "#FDFDFD"
-				"box-shadow": "none"
-			)
-			window.setTimeout ->
-				$(".navbar-nav, .navbar-search").addClass("hidden")
-				$("#content-template .breadcrumb>li.root-breadcrumb a").css("color", "#FDFDFD")
-			, 500
+			unless @userIdle
+				$("#modview-region, #links, nav .navbar-header").fadeOut(1000)
+				$("#message-center .message-template").css("opacity", "0")
+				$(".uv-icon, .icon-feats-delete").fadeOut(600)
+				$("body, nav").css("background", "#FDFDFD")
+				$("#crown, #tree").css("border-color", "#FDFDFD")
+				$("body").css("background-image", "none")
+				$(".feats, #content-template h3").css("color", "#FDFDFD")
+				$("#content-template").css(
+					"background-image": "none"
+					"border-color": "#FDFDFD"
+					"box-shadow": "none"
+				)
+				window.setTimeout ->
+					$(".navbar-nav, .navbar-search").addClass("hidden")
+					$("#content-template .breadcrumb>li.root-breadcrumb a").css("color", "#FDFDFD")
+				, 500
 			@userIdle = true
 		quickHideChrome: ->
 			$("#content-template .breadcrumb>li.root-breadcrumb a").css("color", "#FDFDFD")
