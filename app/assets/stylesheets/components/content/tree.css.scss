@@ -65,6 +65,10 @@
 			min-height: 700px;
 			border-top-right-radius: 0;
 			border-top-left-radius: 0;
+			-webkit-transition-property: border-color;
+			-webkit-transition-duration: 1.0s;
+			transition-property: border-color;
+			transition-duration: 1.0s;
 			h4 { margin-top: 16px; }
 		}
 	}

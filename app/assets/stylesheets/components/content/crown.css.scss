@@ -118,6 +118,10 @@
 		border-top-right-radius: 2px;
 		border-top-left-radius: 2px;
 		border-bottom: none;
+		-webkit-transition-property: border-color;
+		-webkit-transition-duration: 1.0s;
+		transition-property: border-color;
+		transition-duration: 1.0s;
 		.note-content {
 			outline: none;
 			padding-right: 5px;

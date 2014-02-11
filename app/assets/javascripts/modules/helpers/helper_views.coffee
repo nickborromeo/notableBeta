@@ -7,6 +7,7 @@
 			@eventManager = Helper.eventManager
 			@progressView = new App.Helper.ProgressView
 			@setEvents()
+			@userIdle = false
 		setEvents: ->
 			@eventManager.on "showProgress", @showProgress, @
 			@eventManager.on "pushProgress", @progressView.pushProgress, @progressView
@@ -21,9 +22,9 @@
 			App.contentRegion.currentView.treeRegion.show @progressView
 
 		showChrome: ->
-			$("#modview-region, #links, .uv-icon").show()
-			$("#message-center .message-template").show()
-			$("nav .navbar-header, .icon-feats-delete").show()
+			$("#modview-region, #links, nav .navbar-header").show()
+			$(".uv-icon, .icon-feats-delete").show()
+			$("#message-center .message-template").css("opacity", "1")
 			$(".navbar-nav, .navbar-search").removeClass("hidden")
 			$("#crown, #tree").css("border-color", "#EAEAEA")
 			$("body, nav").css("background-color", "#EAEAEA")
@@ -43,22 +44,29 @@
 				"border-color": "#C1C1C1"
 				"box-shadow": "2px 2px 6px 0 rgba(0, 0, 0, 0.15)"
 			)
+			@userIdle = false
 		hideChrome: ->
-			$("#modview-region, #links, .uv-icon").fadeOut(1000)
-			$("#message-center .message-template").fadeOut(1000)
-			$("nav .navbar-header, .icon-feats-delete").fadeOut(1000)
+			$("#modview-region, #links, nav .navbar-header").fadeOut(1000)
+			$("#message-center .message-template").css("opacity", "0")
+			$(".uv-icon, .icon-feats-delete").fadeOut(600)
 			$("body, nav").css("background", "#FDFDFD")
+			$("#crown, #tree").css("border-color", "#FDFDFD")
 			$("body").css("background-image", "none")
 			$(".feats, #content-template h3").css("color", "#FDFDFD")
-			$("#content-template .breadcrumb>li.root-breadcrumb a").css("color", "#FDFDFD")
 			$("#content-template").css(
 				"background-image": "none"
 				"border-color": "#FDFDFD"
 				"box-shadow": "none"
 			)
-			window.setTimeout @delayedHiding, 500
-		delayedHiding: ->
-			$(".navbar-nav, .navbar-search").addClass("hidden")
+			window.setTimeout ->
+				$(".navbar-nav, .navbar-search").addClass("hidden")
+				$("#content-template .breadcrumb>li.root-breadcrumb a").css("color", "#FDFDFD")
+			, 500
+			@userIdle = true
+		quickHideChrome: ->
+			$("#content-template .breadcrumb>li.root-breadcrumb a").css("color", "#FDFDFD")
+			$(".feats").css("color", "#FDFDFD")
+			$(".icon-feats-delete").hide()
 			$("#crown, #tree").css("border-color", "#FDFDFD")
 
 	progressMessages =

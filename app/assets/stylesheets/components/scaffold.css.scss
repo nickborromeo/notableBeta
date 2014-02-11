@@ -15,9 +15,9 @@ body {
 	color: $black;
 	margin: 0 auto;
 	padding: 0;
-	-webkit-transition-property: all;
+	-webkit-transition-property: background;
 	-webkit-transition-duration: 1.0s;
-	transition-property: all;
+	transition-property: background;
 	transition-duration: 1.0s;
 	-webkit-font-smoothing: antialiased;
 	-moz-font-smoothing: antialiased;
@@ -308,7 +308,13 @@ footer {
 	}
 
 	#message-center {
-		.message-template { display: block;}
+		.message-template {
+			display: block;
+			-webkit-transition-property: opacity;
+			-webkit-transition-duration: 1.0s;
+			transition-property: opacity;
+			transition-duration: 1.0s;
+		}
 		height: 3em;
 		padding-top: 2px;
 	}
