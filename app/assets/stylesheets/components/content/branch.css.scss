@@ -17,26 +17,23 @@
 	@include box-sizing(border-box);
   &.is-collapsed { background: $grayDark; }
 	position: absolute;
-	top: 0.25em;
+	top: 0.65em;
 	left: 0;
 }
 
 .branch {
 	position: relative;
-	outline: 1px solid red;
 	font-size: 12px;
 	line-height: 1.2em;
-	margin-top: 14px;
+	padding: 5px 0;
 	font-family: Tahoma, 'Lucida Grande', 'Lucida Sans Unicode', Arial, sans-serif;
 	.note-content {
 		margin-left: 1.4em;
 		width: 97%;
 		display: inline-block;
-		// outline: none;
-		// z-index: 9;
-		outline: 1px solid yellow;
+		outline: none;
+		z-index: 14;
 		position: relative;
-		top: 10px;
 	}
 }
 
@@ -50,47 +47,15 @@
 }
 .dropTarget {
 	position: absolute;
-	height: 10px;
+	height: 5px;
 	width: 100%;
 	display: inline-block;
-	&.dropBefore {
-		top: 0;
-		outline: 1px solid green;
-	}
-	&.dropAfter {
-		bottom: -20px;
-		outline: 1px solid blue;
-	}
+	z-index: 8;
+	&.dropBefore { top: 0; }
 }
 .dropTarget.over {
 	border-top: 3px dashed #AAAEAE;
 }
-
-
-/* .dropTop {
-	position: absolute;
-	top: 0;
-	height: 10px;
-	width:100%;
-	outline: 1px solid green;
-	display: inline-block;
-}
-.dropBottom {
-	position: absolute;
-	bottom: 0;
-	outline: 1px solid blue;
-	height: 10px;
-	width:100%;
-	display: inline-block;
-}
-.dropTarget {
-	position: relative;
-	height: 100%;
-	width: 100%;
-	&.dropBefore { bottom: 10px; }
-	&.dropAfter { bottom: 0; }
-}
- */
 
 @media (max-width: $screen-xs) {
 	#tree .branch .note-content {
@@ -105,18 +70,15 @@
 	.bullet {
 		height: 11px;
 		width: 11px;
-		top: 0.15em;
 		left: 0.2em;
 	}
 	.branch {
 		font-size: 14px;
 		font-family: 'Lucida Grande', 'Lucida Sans Unicode', Tahoma, Arial, sans-serif;
 		letter-spacing: -0.1px;
-		margin-top: 10px;
 		.note-content {
 			width: 95%;
 			margin-left: 1.6em;
-			// height: 14px;
 		}
 	}
 	.descendants {
@@ -132,7 +94,7 @@
 	.bullet {
 		height: 12px;
 		width: 12px;
-		top: 1.05em;
+		top: 0.75em;
 		left: 0;
 	}
 	.branch {
