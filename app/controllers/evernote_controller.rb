@@ -35,7 +35,7 @@ class EvernoteController < ApplicationController
         @user ||= evernote_user token_credentials
         @notebooks ||= evernote_notebooks token_credentials
         @note_count = total_note_count(token_credentials)
-        puts "------- Success flash notification here ----------"
+        flash[:notice] = %Q[Successfully connected your Notable account to Evernote! <a href='learn'>Learn More</a>].html_safe
       rescue => e
         puts e.message
       end
