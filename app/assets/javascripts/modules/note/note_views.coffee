@@ -188,11 +188,13 @@
 
 		pasteContent: (e) ->
 			e.preventDefault()
-			textAfter = @cleanAfterText(@textAfterCursor())
+			textBefore = @textBeforeCursor()
+			window.getSelection().collapseToEnd()
+			textAfter = @textAfterCursor()
 			pasteText = e.originalEvent.clipboardData.getData("Text")
 			splitText = @splitPaste pasteText
 			return App.Notify.alert 'exceedPasting', 'warning' if splitText.length > 100
-			@getNoteContent().html(@textBeforeCursor() + _.first splitText)
+			@getNoteContent().html(textBefore + _.first splitText)
 			@updateNote()
 			@pasteNewNote _.rest(splitText), textAfter
 		splitPaste: (text) ->
@@ -224,10 +226,6 @@
 				@ui.noteContent = @.$('.note-content:first')
 			@ui.noteContent
 
-		cleanAfterText: (fullText) ->
-			selection = window.getSelection()
-			selectedTextLength = selection.focusOffset - selection.anchorOffset
-			fullText.slice(selectedTextLength, fullText.length);
 		setNoteTitle: (title, forceUpdate = false) ->
 			@getNoteContent().html title
 			@updateNote forceUpdate
