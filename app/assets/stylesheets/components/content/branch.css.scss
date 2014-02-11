@@ -26,12 +26,14 @@
 	font-size: 12px;
 	line-height: 1.2em;
 	padding: 5px 0;
+	outline: 1px solid blue;
 	font-family: Tahoma, 'Lucida Grande', 'Lucida Sans Unicode', Arial, sans-serif;
 	.note-content {
 		margin-left: 1.4em;
 		width: 97%;
 		display: inline-block;
-		outline: none;
+		// outline: none;
+		outline: 1px solid red;
 		z-index: 14;
 		position: relative;
 	}
@@ -49,7 +51,7 @@
 	position: absolute;
 	height: 5px;
 	width: 100%;
-	display: inline-block;
+	outline: 1px solid green;
 	z-index: 8;
 	&.dropBefore { top: 0; }
 }
