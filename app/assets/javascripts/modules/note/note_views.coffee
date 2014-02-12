@@ -151,9 +151,14 @@
 		collapse: (onLoad=false) ->
 			if @collapsable() and not @isCollapsed()
 				App.Action.orchestrator.triggerAction('basicAction', @model, collapsed: true) if not @model.get('collapsed')
-				@ui.descendants.slideUp('fast')
-				@$(">.branch>.bullet").addClass("is-collapsed")
-				if onLoad then @ui.descendants.hide()
+				if onLoad
+					@ui.descendants.hide()
+					@$(">.branch>.bullet").addClass("is-collapsed")
+				else
+					@ui.descendants.slideUp('fast')
+					window.setTimeout =>
+						@$(">.branch>.bullet").addClass("is-collapsed")
+					, 100
 		collapsable: ->
 			@collection.length isnt 0
 		isCollapsed: ->
