@@ -34,11 +34,14 @@
 			Note.eventManager.on "timeoutUpdate:#{@model.get('guid')}", @updateNote, @
 			Note.eventManager.on "expand:#{@model.get('guid')}", @expand, @
 			@cursorApi = App.Helpers.CursorPositionAPI
+		addRootStyling: ->
+			@$(">.branch").first().addClass('root') if @model.isARoot true
 		onRender: ->
 			@getNoteContent()
 			@trimExtraDropTarget()
 			App.Note.eventManager.trigger "setCursor:#{@model.get('guid')}"
 			@renderCollapsed()
+			@addRootStyling()
 		renderCollapsed: ->
 			if descendants = @collection.models.length isnt 0
 				@$(">.branch>.bullet").addClass("collapsable")
