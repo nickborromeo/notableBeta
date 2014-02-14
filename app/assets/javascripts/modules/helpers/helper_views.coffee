@@ -39,7 +39,7 @@
 				"background": "linear-gradient(to bottom, #fdfdfd 0%, #cccccc 100%)"
 			)
 			$("#content-template").css(
-				"background-image": "url(/assets/cardboard_@2X.png)"
+				"background-image": "url(/assets/cardboard.png)"
 				"border-color": "#C1C1C1"
 				"box-shadow": "2px 2px 6px 0 rgba(0, 0, 0, 0.15)"
 			)

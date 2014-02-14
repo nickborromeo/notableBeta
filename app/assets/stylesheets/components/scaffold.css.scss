@@ -398,22 +398,7 @@ footer {
 		nav .navbar-nav > li > a { padding: 4.5px 6px 6px 7.5px; }
 	}
 
-	#message-center {
-		padding-top: 5px;
-		.message-template {
-			.sprite {
-				-webkit-transform: scale(1.1);
-				-moz-transform: scale(1.1);
-				-ms-transform: scale(1.1);
-				-o-transform: scale(1.1);
-				transform: scale(1.1);
-				margin-right: 3px;
-			}
-			.sprite.expand_icon {
-				margin-right: 4px;
-			}
-		}
-	}
+	#message-center { padding-top: 5px; }
 
 	footer {
 		&#footer-in { margin: 2% 0; }

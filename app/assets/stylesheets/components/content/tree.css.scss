@@ -51,7 +51,7 @@
 @media (min-width: $screen-sm) {
 	#content-template {
 		display: block;
-		background-image: asset-url('cardboard_@2X.png', image);
+		background-image: asset-url('cardboard.png', image);
 		position: relative;
 		border-radius: 7px;
 		border: 1px solid $gray;
