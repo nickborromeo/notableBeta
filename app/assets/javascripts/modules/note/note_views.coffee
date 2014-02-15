@@ -70,6 +70,7 @@
 			@.$el.on 'keydown', null, 'right', @arrowRightJumpLine.bind @
 			@.$el.on 'keydown', null, 'left', @arrowLeftJumpLine.bind @
 			@.$el.on 'keydown', null, 'backspace', @mergeWithPreceding.bind @
+			@.$el.on 'keydown', null, 'del', @mergeWithFollowing.bind @
 			@.$el.on 'keydown', null, 'ctrl+up', @triggerLocalShortcut @collapse.bind @
 			@.$el.on 'keydown', null, 'ctrl+down', @triggerLocalShortcut @expand.bind @
 			@.$el.on 'keydown', null, 'ctrl+s meta+s', @triggerSaving.bind @
@@ -132,6 +133,12 @@
 			e.stopPropagation()
 			if @testCursorPosition "isEmptyBeforeCursor"
 				@triggerShortcut('mergeWithPreceding')(e)
+		mergeWithFollowing: (e) ->
+			return true if document.getSelection().isCollapsed is false
+			e.stopPropagation()
+			if @testCursorPosition "isEmptyAfterCursor"
+				@triggerShortcut('mergeWithFollowing')(e)
+
 		arrowRightJumpLine: (e) ->
 			e.stopPropagation()
 			if @testCursorPosition "isEmptyAfterCursor"
@@ -379,10 +386,17 @@
 
 		mergeWithPreceding: (note) ->
 			[preceding, title] = @collection.mergeWithPreceding note
-			return false unless preceding
+			return false if preceding is false
 			previousTitle = preceding.get('title')
 			Note.eventManager.trigger "setTitle:#{preceding.get('guid')}", title, true
 			Note.eventManager.trigger "setCursor:#{preceding.get('guid')}", previousTitle
+		mergeWithFollowing: (note) ->
+			title = @collection.mergeWithFollowing note
+			return false if title is false
+			previousTitle = note.get('title')
+			Note.eventManager.trigger "setTitle:#{note.get('guid')}", title, true
+			Note.eventManager.trigger "setCursor:#{note.get('guid')}", previousTitle
+
 		zoomOut: ->
 			if App.Note.activeBranch  isnt "root" and App.Note.activeBranch.get('parent_id') isnt "root"
 				@zoomIn

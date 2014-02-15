@@ -374,6 +374,16 @@
 			return false unless preceding?
 			title = preceding.get('title') + noteTitle
 			[preceding, title]
+		mergeWithFollowing: (note) ->
+			following = @findFollowingNote note
+			return false if following.hasDescendants()
+			if note.get('title').length isnt 0
+				return false if following.get('depth') < note.get('depth')
+			followingTitle = following.get('title')
+			return false unless following?
+			@deleteNote following, false, 'mergeWithPreceding'
+			title = note.get('title') + followingTitle
+			title
 		comparator: (note) ->
 			note.get 'rank'
 
