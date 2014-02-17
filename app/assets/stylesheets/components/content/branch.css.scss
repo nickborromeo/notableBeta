@@ -4,6 +4,7 @@
 // ----------------------------------------------------
 // ----------------MOBILE FIRST CSS -------------------
 // ----------------------------------------------------
+
 .bullet {
 	border: 2px solid $black;
 	border-radius: 100%;
@@ -20,7 +21,6 @@
 	top: 0.65em;
 	left: 0;
 }
-
 .branch {
 	position: relative;
 	line-height: 1.2em;
@@ -37,7 +37,6 @@
 		position: relative;
 	}
 }
-
 .descendants { margin-left: 1.8em; }
 
 // Prevent the text contents of draggable elements from being selectable.
@@ -71,6 +70,7 @@
 		height: 11px;
 		width: 11px;
 		left: 0.2em;
+		top: 0.55em;
 	}
 	.branch {
 		font-size: 13px;
@@ -81,6 +81,7 @@
 			margin-left: 1.6em;
 		}
 	}
+	.branch.root>.bullet { top: 0.6em; }
 	.descendants {
 		margin-left: 2.1em;
 	}
@@ -94,7 +95,7 @@
 	.bullet {
 		height: 12px;
 		width: 12px;
-		top: 0.75em;
+		top: 0.5em;
 		left: 0;
 	}
 	.branch {
@@ -102,7 +103,7 @@
 		letter-spacing: -0.3px;
 		.note-content { margin-left: 1.4em; }
 	}
-
+	.branch.root>.bullet { top: 0.55em; }
 }
 
 // ----------------------------------------------------
