@@ -363,12 +363,10 @@
 			(@dropMoveGeneral @setDropAfter.bind @).call(this, dragged, dropAfter)
 
 		mergeWithPreceding: (note) ->
-			return false if note.hasDescendants()
-			if note.get('title').length isnt 0
-				preceding = @findPreviousNote note
+			preceding = @findPreviousNote note
+			@mergeDescendants(note, preceding) if note.hasDescendants()
+			if note.get('title').length isnt 0 # Backspace on empty note deletes it in any case
 				return false if preceding.get('depth') > note.get('depth')
-			else
-				preceding = @findPreviousNote note
 			noteTitle = note.get('title')
 			@deleteNote note, false, 'mergeWithPreceding'
 			return false unless preceding?
@@ -376,7 +374,7 @@
 			[preceding, title]
 		mergeWithFollowing: (note) ->
 			following = @findFollowingNote note
-			return false if following.hasDescendants()
+			@mergeDescendants(following, note) if following.hasDescendants()
 			if note.get('title').length isnt 0
 				return false if following.get('depth') < note.get('depth')
 			followingTitle = following.get('title')
@@ -384,6 +382,16 @@
 			@deleteNote following, false, 'mergeWithPreceding'
 			title = note.get('title') + followingTitle
 			title
+		mergeDescendants: (mergingBranch, mergedBranch) ->
+			t = []
+			# Store the descendants in temporary reference array
+			# Since the collection,s going to change in @tabNote
+			# Can't iterate over it directly
+			mergingBranch.descendants.each (descendant) =>
+				t.push descendant
+			_.each t, (descendant) =>
+				descendant.set 'rank', 2
+				@tabNote descendant, mergedBranch
 		comparator: (note) ->
 			note.get 'rank'
 
