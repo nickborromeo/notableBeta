@@ -377,8 +377,9 @@
 			[noteToDelete[1], title, precedingTitle]
 		mergeWithFollowing: (note) ->
 			following = @findFollowingNote note
-			return false if following.get('depth') > note.get('depth') and following.hasDescendants()
-			if note.get('title').length isnt 0
+			followingHasDescendants = following.hasDescendants()
+			return false if following.get('depth') > note.get('depth') and followingHasDescendants
+			if following.get('title').length isnt 0 or followingHasDescendants
 				return false if following.get('depth') < note.get('depth')
 			return false unless following?
 			noteTitle = note.get('title')
