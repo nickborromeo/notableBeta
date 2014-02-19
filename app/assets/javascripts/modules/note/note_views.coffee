@@ -385,9 +385,8 @@
 			App.Helpers.ieShim.classList(e.currentTarget)[1]
 
 		mergeWithPreceding: (note) ->
-			[preceding, title] = @collection.mergeWithPreceding note
+			[preceding, title, previousTitle] = @collection.mergeWithPreceding note
 			return false if preceding is false
-			previousTitle = preceding.get('title')
 			Note.eventManager.trigger "setTitle:#{preceding.get('guid')}", title, true
 			Note.eventManager.trigger "setCursor:#{preceding.get('guid')}", previousTitle
 		mergeWithFollowing: (note) ->
