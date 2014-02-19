@@ -390,11 +390,10 @@
 			Note.eventManager.trigger "setTitle:#{preceding.get('guid')}", title, true
 			Note.eventManager.trigger "setCursor:#{preceding.get('guid')}", previousTitle
 		mergeWithFollowing: (note) ->
-			title = @collection.mergeWithFollowing note
-			return false if title is false
-			previousTitle = note.get('title')
-			Note.eventManager.trigger "setTitle:#{note.get('guid')}", title, true
-			Note.eventManager.trigger "setCursor:#{note.get('guid')}", previousTitle
+			[following, title, previousTitle] = @collection.mergeWithFollowing note
+			return false if following is false
+			Note.eventManager.trigger "setTitle:#{following.get('guid')}", title, true
+			Note.eventManager.trigger "setCursor:#{following.get('guid')}", previousTitle
 
 		zoomOut: ->
 			if App.Note.activeBranch  isnt "root" and App.Note.activeBranch.get('parent_id') isnt "root"
