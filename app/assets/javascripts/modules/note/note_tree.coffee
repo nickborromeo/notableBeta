@@ -365,14 +365,15 @@
 		mergeWithPreceding: (note) ->
 			preceding = @findPreviousNote note
 			return false if preceding.get('depth') < note.get('depth') and note.hasDescendants()
+			noteToDelete = if note.hasDescendants() then [preceding, note] else [note, preceding]
 			if note.get('title').length isnt 0 # Backspace on empty note deletes it in any case
 				return false if preceding.get('depth') > note.get('depth')
 			noteTitle = note.get('title')
 			precedingTitle = preceding.get('title')
-			@deleteNote preceding, false, 'mergeWithPreceding'
+			@deleteNote noteToDelete[0], false, 'mergeWithPreceding'
 			return false unless preceding?
 			title = precedingTitle + noteTitle
-			[note, title, precedingTitle]
+			[noteToDelete[1], title, precedingTitle]
 		mergeWithFollowing: (note) ->
 			following = @findFollowingNote note
 			return false if following.get('depth') > note.get('depth') and following.hasDescendants()
