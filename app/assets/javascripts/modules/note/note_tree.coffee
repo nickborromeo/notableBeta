@@ -364,9 +364,10 @@
 
 		mergeWithPreceding: (note) ->
 			preceding = @findPreviousNote note
-			return false if preceding.get('depth') < note.get('depth') and note.hasDescendants()
-			noteToDelete = if note.hasDescendants() then [preceding, note] else [note, preceding]
-			if note.get('title').length isnt 0 # Backspace on empty note deletes it in any case
+			noteHasDescendants = note.hasDescendants()
+			return false if preceding.get('depth') < note.get('depth') and noteHasDescendants
+			noteToDelete = if noteHasDescendants then [preceding, note] else [note, preceding]
+			if note.get('title').length isnt 0 or noteHasDescendants # Backspace on empty note deletes it in most case
 				return false if preceding.get('depth') > note.get('depth')
 			noteTitle = note.get('title')
 			precedingTitle = preceding.get('title')
