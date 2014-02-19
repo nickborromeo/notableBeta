@@ -364,6 +364,7 @@
 
 		mergeWithPreceding: (note) ->
 			preceding = @findPreviousNote note
+			return false if preceding.get('depth') < note.get('depth') and note.hasDescendants()
 			if note.get('title').length isnt 0 # Backspace on empty note deletes it in any case
 				return false if preceding.get('depth') > note.get('depth')
 			noteTitle = note.get('title')
@@ -374,6 +375,7 @@
 			[note, title, precedingTitle]
 		mergeWithFollowing: (note) ->
 			following = @findFollowingNote note
+			return false if following.get('depth') > note.get('depth') and following.hasDescendants()
 			if note.get('title').length isnt 0
 				return false if following.get('depth') < note.get('depth')
 			return false unless following?
