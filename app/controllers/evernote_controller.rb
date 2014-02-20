@@ -33,7 +33,8 @@ class EvernoteController < ApplicationController
         #use token credentials to access the Evernote API
         puts "sandbox use 1"+ENV['SANDBOX_USE']
         @client ||= EvernoteOAuth::Client.new(token: token_credentials, sandbox: ENV['SANDBOX_USE'])
-        puts "client"+@client
+        puts "client1"
+        puts @client
         @user ||= evernote_user token_credentials
         @notebooks ||= evernote_notebooks token_credentials
         @note_count = total_note_count(token_credentials)
@@ -344,7 +345,8 @@ class EvernoteController < ApplicationController
   def client
     puts "sandbox use 2"+ENV['SANDBOX_USE']
     @client ||= EvernoteOAuth::Client.new(token: connected_user.token_credentials, sandbox: ENV['SANDBOX_USE'])
-    puts "client"+@client
+    puts "client2"
+    puts @client
   end
 
   def evernote_user (token)
