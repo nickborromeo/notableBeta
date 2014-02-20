@@ -10,7 +10,10 @@
 			"blur >.branch>.note-content": "updateNote"
 			"paste >.branch>.note-content": "pasteContent"
 
+
 			"click .destroy": @triggerEvent "deleteNote"
+			"mouseover .titleLink": @makeClickable
+			"mouseout .titleLink": @makeEditable
 			# "mouseover .branch": @toggleDestroyFeat "block"
 			# "mouseout .branch": @toggleDestroyFeat "none"
 			"keydown > .branch > .note-content": @model.timeoutAndSave
@@ -84,8 +87,6 @@
 			# App level keyboard shortcuts
 			@.$el.on 'keydown', null, 'ctrl+shift+right meta+shift+right', @openSidebar
 			@.$el.on 'keydown', null, 'ctrl+shift+left meta+shift+left', @closeSidebar
-			# Text triggered events
-			@.$el.on 'keydown', null, '/blue/', @triggerLocalShortcut @rando
 
 		onClose: ->
 			@.$el.off()
@@ -245,33 +246,31 @@
 				@ui.noteContent = @.$('.note-content:first')
 			@ui.noteContent
 
+		link = /((\b((https?:\/\/)|(www\.))[-A-Z0-9+&@#\/%?=~_|!:,.;]+[\w\/])|([.\w]{3,100}\.(biz|co|com|edu|gov|io|net|org)\b))/ig
 		checkForLinks: ->
 			cursorPosition = @textBeforeCursor()
 			content = @getNoteContent()
-			link = /((\b((https?:\/\/)|(www\.))[-A-Z0-9+&@#\/%?=~_|!:,.;]+[\w\/])|([.\w]{3,100}\.(biz|co|com|edu|gov|io|net|org)\b))/ig
-			string1 = ""
-			console.log content
-			_.each content[0].childNodes, (child) ->
+			title = ""
+			_.each content[0].childNodes, (child) =>
 				if child.nodeName is "#text"
 					text = child.textContent
-					if text.match link
-						newTitle = text.replace(link, "<a href='$1'>$1</a>")
-						console.log "newTitle", newTitle
-						string1 = string1+newTitle
-					else
-						string1 = string1+text
+					if text.match link then title += @linkify(text) else title += text
 				else if child.nodeName is "A"
 					text = child.innerText
-					if text.match link
-						string1 = string1+child.outerHTML
-					else
-						string1 = string1+text
+					if text.match link then title += child.outerHTML else title += text
 				else
-					string1 = string1+child.outerHTML
-			console.log "stringouter", string1
-			content.html(string1)
-			@setCursor cursorPosition
-
+					title = title+child.outerHTML
+			content.html(title)
+			# @setCursor cursorPosition
+		makeClickable: (e) ->
+			e.target.contentEditable = false
+		makeEditable: (e) ->
+			$(e.target).removeAttr("contentEditable")
+		linkify: (text)->
+			if text.match /\b(http)/
+				text.replace(link, "<a href='$1' target='_blank' class='titleLink'>$1</a>")
+			else
+				text.replace(link, "<a href='http://$1' target='_blank' class='titleLink'>$1</a>")
 		setNoteTitle: (title, forceUpdate = false) ->
 			@getNoteContent().html title
 			@updateNote forceUpdate
