@@ -85,8 +85,8 @@
 			@.$el.on 'keydown', null, 'ctrl+u meta+u', @applyStyling.bind @, 'underline'
 			@.$el.on 'keydown', null, 'ctrl+k meta+k', @applyStyling.bind @, 'strikeThrough'
 			# App level keyboard shortcuts
-			@.$el.on 'keydown', null, 'ctrl+shift+right meta+shift+right', @openSidebar
-			@.$el.on 'keydown', null, 'ctrl+shift+left meta+shift+left', @closeSidebar
+			@.$el.on 'keydown', null, 'alt+shift+right', @openSidebar
+			@.$el.on 'keydown', null, 'alt+shift+left', @closeSidebar
 
 		onClose: ->
 			@.$el.off()
