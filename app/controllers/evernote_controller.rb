@@ -31,10 +31,7 @@ class EvernoteController < ApplicationController
         token_credentials = access_token.token
         User.update(connected_user.id, {:token_credentials => token_credentials})
         #use token credentials to access the Evernote API
-        puts "sandbox use 1"+ENV['SANDBOX_USE']
         @client ||= EvernoteOAuth::Client.new(token: token_credentials, sandbox: ENV['SANDBOX_USE'])
-        puts "client1"
-        puts @client
         @user ||= evernote_user token_credentials
         @notebooks ||= evernote_notebooks token_credentials
         @note_count = total_note_count(token_credentials)
@@ -58,6 +55,7 @@ class EvernoteController < ApplicationController
   def evernoteData
     @@evernoteData # ||= requestEvernoteData
   end
+
   def requestEvernoteData
     syncState = getSyncState
     fullSyncBefore = Time.at(syncState.fullSyncBefore/1000)
@@ -77,6 +75,7 @@ class EvernoteController < ApplicationController
     end
     notableData
   end
+
   def syncing
     Notebook.createNotebooks params[:notebooks], connected_user if not params[:notebooks].nil?
     notableTrashed = Note.getTrashed
@@ -101,6 +100,7 @@ class EvernoteController < ApplicationController
     render :json => {:message => "Rate limit exceeded", :code => 0, :retryTime => @rateLimitDuration} unless @rateLimitReachedOn.nil?
     render :json => {:message => "success", :code => 1} if @rateLimitReachedOn.nil?
   end
+
   def sync
     begin
       syncing
@@ -115,6 +115,7 @@ class EvernoteController < ApplicationController
       Note.deleteBranch t
     end
   end
+
   def trashNotebooks
     notebooksTrashed = Notebook.getTrashed
     notebooksTrashed.each do |t|
@@ -158,6 +159,7 @@ class EvernoteController < ApplicationController
     end
     evernoteData[:notes]
   end
+
   def processExpungedNotebooks(evernoteData)
     evernoteData[:deletedNotebooks].each do |eng|
       Notebook.deleteByEng eng
@@ -334,38 +336,37 @@ class EvernoteController < ApplicationController
   def notebooksToSync
     @notebooks ||= connected_user.getNotebooks
   end
+
   private
-  def note_store
-    @note_store ||= client.note_store
-  end
-
-  def user_store
-    @user_store ||= client.user_store
-  end
-  def client
-    puts "sandbox use 2"+ENV['SANDBOX_USE']
-    @client ||= EvernoteOAuth::Client.new(token: connected_user.token_credentials, sandbox: ENV['SANDBOX_USE'])
-    puts "client2"
-    puts @client
-  end
-
-  def evernote_user (token)
-    user_store.getUser(token)
-  end
-
-  def evernote_notebooks (token)
-    note_store.listNotebooks(token)
-  end
-
-  def total_note_count(token_credentials)
-    filter = Evernote::EDAM::NoteStore::NoteFilter.new
-    counts = note_store.findNoteCounts(token_credentials, filter, false)
-    @notebooks.inject(0) do |total_count, notebook|
-      total_count + (counts.notebookCounts[notebook.guid] || 0)
+    def note_store
+      @note_store ||= client.note_store
     end
-  end
 
-  private
+    def user_store
+      @user_store ||= client.user_store
+    end
+
+    def client
+      puts "sandbox use 2"+ENV['SANDBOX_USE']
+      @client ||= EvernoteOAuth::Client.new(token: connected_user.token_credentials, sandbox: ENV['SANDBOX_USE'])
+    end
+
+    def evernote_user (token)
+      user_store.getUser(token)
+    end
+
+    def evernote_notebooks (token)
+      note_store.listNotebooks(token)
+    end
+
+    def total_note_count(token_credentials)
+      filter = Evernote::EDAM::NoteStore::NoteFilter.new
+      counts = note_store.findNoteCounts(token_credentials, filter, false)
+      @notebooks.inject(0) do |total_count, notebook|
+        total_count + (counts.notebookCounts[notebook.guid] || 0)
+      end
+    end
+
     def prepare_rake (user = nil, rake_task = false)
       @current_user = user
       @rake_task = rake_task # hack
