@@ -379,14 +379,15 @@
 			following = @findFollowingNote note
 			followingHasDescendants = following.hasDescendants()
 			return false if following.get('depth') > note.get('depth') and followingHasDescendants
+			noteToDelete = if followingHasDescendants then [note, following] else [following, note]
 			if following.get('title').length isnt 0 or followingHasDescendants
 				return false if following.get('depth') < note.get('depth')
 			return false unless following?
 			noteTitle = note.get('title')
 			followingTitle = following.get('title')
-			@deleteNote note, false, 'mergeWithPreceding'
+			@deleteNote noteToDelete[0], false, 'mergeWithPreceding'
 			title = noteTitle + followingTitle
-			[following, title, noteTitle]
+			[noteToDelete[1], title, noteTitle]
 		mergeDescendants: (mergingBranch, mergedBranch) ->
 			t = []
 			# Store the descendants in temporary reference array
