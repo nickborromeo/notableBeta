@@ -363,27 +363,41 @@
 			(@dropMoveGeneral @setDropAfter.bind @).call(this, dragged, dropAfter)
 
 		mergeWithPreceding: (note) ->
-			return false if note.hasDescendants()
-			if note.get('title').length isnt 0
-				preceding = @findPreviousNote note
+			preceding = @findPreviousNote note
+			noteHasDescendants = note.hasDescendants()
+			return false if preceding.get('depth') < note.get('depth') and noteHasDescendants
+			noteToDelete = if noteHasDescendants then [preceding, note] else [note, preceding]
+			if note.get('title').length isnt 0 or noteHasDescendants # Backspace on empty note deletes it in most case
 				return false if preceding.get('depth') > note.get('depth')
-			else
-				preceding = @findPreviousNote note
 			noteTitle = note.get('title')
-			@deleteNote note, false, 'mergeWithPreceding'
+			precedingTitle = preceding.get('title')
+			@deleteNote noteToDelete[0], false, 'mergeWithPreceding'
 			return false unless preceding?
-			title = preceding.get('title') + noteTitle
-			[preceding, title]
+			title = precedingTitle + noteTitle
+			[noteToDelete[1], title, precedingTitle]
 		mergeWithFollowing: (note) ->
 			following = @findFollowingNote note
-			return false if following.hasDescendants()
-			if note.get('title').length isnt 0
+			followingHasDescendants = following.hasDescendants()
+			return false if following.get('depth') > note.get('depth') and followingHasDescendants
+			noteToDelete = if followingHasDescendants then [note, following] else [following, note]
+			if following.get('title').length isnt 0 or followingHasDescendants
 				return false if following.get('depth') < note.get('depth')
-			followingTitle = following.get('title')
 			return false unless following?
-			@deleteNote following, false, 'mergeWithPreceding'
-			title = note.get('title') + followingTitle
-			title
+			noteTitle = note.get('title')
+			followingTitle = following.get('title')
+			@deleteNote noteToDelete[0], false, 'mergeWithPreceding'
+			title = noteTitle + followingTitle
+			[noteToDelete[1], title, noteTitle]
+		mergeDescendants: (mergingBranch, mergedBranch) ->
+			t = []
+			# Store the descendants in temporary reference array
+			# Since the collection,s going to change in @tabNote
+			# Can't iterate over it directly
+			mergingBranch.descendants.each (descendant) =>
+				t.push descendant
+			_.each t, (descendant) =>
+				descendant.set 'rank', 2
+				@tabNote descendant, mergedBranch
 		comparator: (note) ->
 			note.get 'rank'
 

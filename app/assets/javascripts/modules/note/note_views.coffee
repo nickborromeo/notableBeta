@@ -411,17 +411,15 @@
 			App.Helpers.ieShim.classList(e.currentTarget)[1]
 
 		mergeWithPreceding: (note) ->
-			[preceding, title] = @collection.mergeWithPreceding note
+			[preceding, title, previousTitle] = @collection.mergeWithPreceding note
 			return false if preceding is false
-			previousTitle = preceding.get('title')
 			Note.eventManager.trigger "setTitle:#{preceding.get('guid')}", title, true
 			Note.eventManager.trigger "setCursor:#{preceding.get('guid')}", previousTitle
 		mergeWithFollowing: (note) ->
-			title = @collection.mergeWithFollowing note
-			return false if title is false
-			previousTitle = note.get('title')
-			Note.eventManager.trigger "setTitle:#{note.get('guid')}", title, true
-			Note.eventManager.trigger "setCursor:#{note.get('guid')}", previousTitle
+			[following, title, previousTitle] = @collection.mergeWithFollowing note
+			return false if following is false
+			Note.eventManager.trigger "setTitle:#{following.get('guid')}", title, true
+			Note.eventManager.trigger "setCursor:#{following.get('guid')}", previousTitle
 
 		zoomOut: ->
 			if App.Note.activeBranch  isnt "root" and App.Note.activeBranch.get('parent_id') isnt "root"
