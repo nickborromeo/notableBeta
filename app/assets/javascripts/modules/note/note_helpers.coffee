@@ -31,7 +31,8 @@
 	Note.decreaseDepthOfNote = (magnitude = 1) ->
 		(note) -> note.decreaseDepth(magnitude)
 
-	Note.matchTag = /<\/?[a-z]+>/g
+	# Note.matchTag = /<\/?[a-z]+>/g
+	Note.matchTag = /<.+>/g
 	Note.matchTagsEndOfString = /^(<\/?[a-z]+>)+$/
 	Note.matchHtmlEntities = /&[a-z]{2,4};/g
 	Note.matchEmptyTag = /<[a-z]+><\/[a-z]+>/g

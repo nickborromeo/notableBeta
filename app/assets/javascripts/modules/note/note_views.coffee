@@ -32,20 +32,15 @@
 			Note.eventManager.on "render:#{@model.get('guid')}", @render, @
 			Note.eventManager.on "setTitle:#{@model.get('guid')}", @setNoteTitle, @
 			Note.eventManager.on "timeoutUpdate:#{@model.get('guid')}", @updateNote, @
+			Note.eventManager.on "timeoutUpdate:#{@model.get('guid')}", @checkForLinks, @
 			Note.eventManager.on "expand:#{@model.get('guid')}", @expand, @
 			@cursorApi = App.Helpers.CursorPositionAPI
-		addRootStyling: ->
-			@$(">.branch").first().addClass('root') if @model.isARoot true
 		onRender: ->
 			@getNoteContent()
 			@trimExtraDropTarget()
 			App.Note.eventManager.trigger "setCursor:#{@model.get('guid')}"
 			@renderCollapsed()
 			@addRootStyling()
-		renderCollapsed: ->
-			if descendants = @collection.models.length isnt 0
-				@$(">.branch>.bullet").addClass("collapsable")
-			if @model.get('collapsed') then @collapse(true) else @expand()
 		appendHtml:(collectionView, itemView, i) ->
 			@$('.descendants:first').append(itemView.el)
 			if i is @collection.length - 1
@@ -53,6 +48,12 @@
 		trimExtraDropTarget: ->
 			if @model.isARoot(true) and @model.get('rank') isnt 1
 				@$(">.branch>.dropBefore").remove()
+		renderCollapsed: ->
+			if descendants = @collection.models.length isnt 0
+				@$(">.branch>.bullet").addClass("collapsable")
+			if @model.get('collapsed') then @collapse(true) else @expand()
+		addRootStyling: ->
+			@$(">.branch").first().addClass('root') if @model.isARoot true
 
 		bindKeyboardShortcuts: ->
 			@.$el.on 'keydown', null, 'return', @createNote.bind @
@@ -71,8 +72,8 @@
 			@.$el.on 'keydown', null, 'left', @arrowLeftJumpLine.bind @
 			@.$el.on 'keydown', null, 'backspace', @mergeWithPreceding.bind @
 			@.$el.on 'keydown', null, 'del', @mergeWithFollowing.bind @
-			@.$el.on 'keydown', null, 'ctrl+up', @triggerLocalShortcut @collapse.bind @
-			@.$el.on 'keydown', null, 'ctrl+down', @triggerLocalShortcut @expand.bind @
+			@.$el.on 'keydown', null, 'ctrl+up', @triggerLocalShortcut @collapse
+			@.$el.on 'keydown', null, 'ctrl+down', @triggerLocalShortcut @expand
 			@.$el.on 'keydown', null, 'ctrl+s meta+s', @triggerSaving.bind @
 			# @.$el.on 'keydown', null, 'ctrl+y meta+y', @triggerRedoEvent
 			@.$el.on 'keydown', null, 'ctrl+z meta+z', @triggerUndoEvent
@@ -83,6 +84,8 @@
 			# App level keyboard shortcuts
 			@.$el.on 'keydown', null, 'ctrl+shift+right meta+shift+right', @openSidebar
 			@.$el.on 'keydown', null, 'ctrl+shift+left meta+shift+left', @closeSidebar
+			# Text triggered events
+			@.$el.on 'keydown', null, '/blue/', @triggerLocalShortcut @rando
 
 		onClose: ->
 			@.$el.off()
@@ -242,6 +245,33 @@
 				@ui.noteContent = @.$('.note-content:first')
 			@ui.noteContent
 
+		checkForLinks: ->
+			cursorPosition = @textBeforeCursor()
+			content = @getNoteContent()
+			link = /((\b((https?:\/\/)|(www\.))[-A-Z0-9+&@#\/%?=~_|!:,.;]+[\w\/])|([.\w]{3,100}\.(biz|co|com|edu|gov|io|net|org)\b))/ig
+			string1 = ""
+			console.log content
+			_.each content[0].childNodes, (child) ->
+				if child.nodeName is "#text"
+					text = child.textContent
+					if text.match link
+						newTitle = text.replace(link, "<a href='$1'>$1</a>")
+						console.log "newTitle", newTitle
+						string1 = string1+newTitle
+					else
+						string1 = string1+text
+				else if child.nodeName is "A"
+					text = child.innerText
+					if text.match link
+						string1 = string1+child.outerHTML
+					else
+						string1 = string1+text
+				else
+					string1 = string1+child.outerHTML
+			console.log "stringouter", string1
+			content.html(string1)
+			@setCursor cursorPosition
+
 		setNoteTitle: (title, forceUpdate = false) ->
 			@getNoteContent().html title
 			@updateNote forceUpdate
@@ -298,13 +328,9 @@
 			# if @collection.length is 0 then @collection.create()
 			# @render if render
 		dispatchFunction: (functionName, model) ->
-			# This line is for you Gavin.
-			# I pass in the model as well, and any other arguments we would like
-			# Note.eventManager.trigger "change:" + functionName, Note.sliceArgs arguments
-			# Small hack here,
-			# This line is to prevent the position of the cursor to be chained further down
-			# in the function stack
-			args = Note.sliceArgs(arguments)[0...-1] if _.last(arguments).cursorPosition? 
+			# Hack to prevent the position of the cursor to be chained further
+			# down in the function stack
+			args = Note.sliceArgs(arguments)[0...-1] if _.last(arguments).cursorPosition?
 			if @[functionName]?
 				@[functionName].apply(@, Note.sliceArgs arguments)
 			else
