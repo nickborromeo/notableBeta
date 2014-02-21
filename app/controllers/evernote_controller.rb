@@ -343,10 +343,6 @@ class EvernoteController < ApplicationController
     @notebooks ||= connected_user.getNotebooks
   end
 
-Evernote::EDAM::Error::EDAMSystemException (authenticationToken):
-2014-02-21T00:11:13.096707+00:00 app[web.1]:   app/controllers/evernote_controller.rb:342:in note_store
-
-
   private
     def note_store
       begin
