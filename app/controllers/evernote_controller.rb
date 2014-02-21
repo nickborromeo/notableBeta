@@ -345,18 +345,12 @@ class EvernoteController < ApplicationController
 
   private
     def note_store
-      begin
-        puts "1"
-        evernote_client = client
-        puts "2"
-        puts evernote_client
-        puts evernote_client.note_store
-        @note_store ||= evernote_client.note_store
-      rescue Errno::EHOSTUNREACH
-        puts "Error: Host unreachable"
-      rescue
-        puts "Other error"
-      end
+      puts "1"
+      evernote_client = client
+      puts "2"
+      puts evernote_client
+      puts evernote_client.note_store.to_s
+      @note_store ||= evernote_client.note_store
     end
 
     def user_store
@@ -366,7 +360,11 @@ class EvernoteController < ApplicationController
     def client
       puts "sandbox use inner"+ENV['SANDBOX_USE']
       puts !!ENV['SANDBOX_USE'] == ENV['SANDBOX_USE']
-      @client ||= EvernoteOAuth::Client.new(token: connected_user.token_credentials, sandbox: ENV['SANDBOX_USE'])
+      puts "connected_user.token_credentials"
+      puts connected_user.token_credentials
+      puts "current_user.token_credentials"
+      puts current_user.token_credentials
+      @client ||= EvernoteOAuth::Client.new(token: current_user.token_credentials, sandbox: ENV['SANDBOX_USE'])
     end
 
     def evernote_user (token)
