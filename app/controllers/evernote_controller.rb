@@ -19,6 +19,8 @@ class EvernoteController < ApplicationController
     rescue => e
       @last_error = "Error obtaining temporary credentials: #{e.message}"
       puts @last_error
+      redirect_to root_url
+      flash[:danger] = "There was a problem connecting to Evernote."
     end
   end
 
@@ -44,6 +46,7 @@ class EvernoteController < ApplicationController
     else
       puts "Content owner did not authorize the temporary credentials"
       redirect_to root_url
+      flash[:danger] = "There was a problem connecting to Evernote."
     end
   end
 
@@ -327,19 +330,37 @@ class EvernoteController < ApplicationController
   def getSyncState
     state = note_store.getSyncState(connected_user.token_credentials)
   end
+
   def getFullSyncBefore
     getSyncState.fullSyncBefore
   end
+
   def getDefaultNotebook
     note_store.getDefaultNotebook
   end
+
   def notebooksToSync
     @notebooks ||= connected_user.getNotebooks
   end
 
+Evernote::EDAM::Error::EDAMSystemException (authenticationToken):
+2014-02-21T00:11:13.096707+00:00 app[web.1]:   app/controllers/evernote_controller.rb:342:in note_store
+
+
   private
     def note_store
-      @note_store ||= client.note_store
+      begin
+        puts "1"
+        evernote_client = client
+        puts "2"
+        puts evernote_client
+        puts evernote_client.note_store
+        @note_store ||= evernote_client.note_store
+      rescue Errno::EHOSTUNREACH
+        puts "Error: Host unreachable"
+      rescue
+        puts "Other error"
+      end
     end
 
     def user_store
@@ -347,7 +368,8 @@ class EvernoteController < ApplicationController
     end
 
     def client
-      puts "sandbox use 2"+ENV['SANDBOX_USE']
+      puts "sandbox use inner"+ENV['SANDBOX_USE']
+      puts !!ENV['SANDBOX_USE'] == ENV['SANDBOX_USE']
       @client ||= EvernoteOAuth::Client.new(token: connected_user.token_credentials, sandbox: ENV['SANDBOX_USE'])
     end
 
