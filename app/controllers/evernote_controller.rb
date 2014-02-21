@@ -345,12 +345,7 @@ class EvernoteController < ApplicationController
 
   private
     def note_store
-      puts "1"
-      evernote_client = client
-      puts "2"
-      puts evernote_client
-      puts evernote_client.note_store.to_s
-      @note_store ||= evernote_client.note_store
+      @note_store ||= client.note_store
     end
 
     def user_store
@@ -358,12 +353,6 @@ class EvernoteController < ApplicationController
     end
 
     def client
-      puts "sandbox use inner"+ENV['SANDBOX_USE']
-      puts !!ENV['SANDBOX_USE'] == ENV['SANDBOX_USE']
-      puts "connected_user.token_credentials"
-      puts connected_user.token_credentials
-      puts "current_user.token_credentials"
-      puts current_user.token_credentials
       if Rails.env.production?
         @client ||= EvernoteOAuth::Client.new(token: current_user.token_credentials, sandbox: false)
       else
