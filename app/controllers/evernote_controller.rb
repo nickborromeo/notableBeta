@@ -364,7 +364,11 @@ class EvernoteController < ApplicationController
       puts connected_user.token_credentials
       puts "current_user.token_credentials"
       puts current_user.token_credentials
-      @client ||= EvernoteOAuth::Client.new(token: current_user.token_credentials, sandbox: false)
+      if Rails.env.production?
+        @client ||= EvernoteOAuth::Client.new(token: current_user.token_credentials, sandbox: false)
+      else
+        @client ||= EvernoteOAuth::Client.new(token: current_user.token_credentials, sandbox: true)
+      end
     end
 
     def evernote_user (token)
