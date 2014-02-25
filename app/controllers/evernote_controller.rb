@@ -324,6 +324,10 @@ class EvernoteController < ApplicationController
       end
       Note.update(note[:id], :eng => new_note.guid)
     end
+    puts "connected_user------------------"
+    puts connected_user.to_s
+    puts "connected_user.id"
+    puts connected_user.id
     Note.select('"notebooks"."user_id", "notes".*').where('"notebooks"."user_id"=#{connected_user.id}').joins(:notebook).update_all("fresh=false")
   end
 
