@@ -10,7 +10,6 @@
 			"blur >.branch>.note-content": "updateNote"
 			"paste >.branch>.note-content": "pasteContent"
 
-
 			"click .destroy": @triggerEvent "deleteNote"
 			"mouseover .titleLink": @makeClickable
 			"mouseout .titleLink": @makeEditable
@@ -26,6 +25,8 @@
 			"dragenter .dropTarget": @triggerDragEvent "enterMove"
 			"dragleave .dropTarget": @triggerDragEvent "leaveMove"
 			"dragover .dropTarget": @triggerDragEvent "overMove"
+
+			"click span.tutorial": "runTest"
 
 		initialize: ->
 			@collection = @model.descendants
@@ -57,6 +58,9 @@
 			if @model.get('collapsed') then @collapse(true) else @expand()
 		addRootStyling: ->
 			@$(">.branch").first().addClass('root') if @model.isARoot true
+
+		runTest: ->
+			bootbox.alert "<iframe width='560' height='315' frameborder='0' src='http://www.youtube.com/embed/9KKMhBiwH2g' allowfullscreen></iframe>"
 
 		bindKeyboardShortcuts: ->
 			@.$el.on 'keydown', null, 'return', @createNote.bind @

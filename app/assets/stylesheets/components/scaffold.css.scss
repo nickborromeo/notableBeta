@@ -69,6 +69,12 @@ label {
 		padding: 0 4em;
 	}
 
+	.tutorial {
+		text-decoration: underline;
+		color: #428bca;
+		cursor: pointer;
+		&:hover {color: #2a6496;}
+	}
 }
 
 /* --------------HEADER REGION ------------------ */

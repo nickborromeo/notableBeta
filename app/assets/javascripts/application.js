@@ -19,6 +19,7 @@
 //= require lib/hotkeys
 //= require lib/modernizr
 //= require lib/idle
+//= require lib/bootbox
 //= require handlebars
 //= require bootstrap
 //
