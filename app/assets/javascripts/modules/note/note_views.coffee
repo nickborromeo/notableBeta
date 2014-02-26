@@ -249,13 +249,13 @@
 			[window.getSelection(), @getNoteTitle()]
 		getNoteTitle: ->
 			title = @getNoteContent().html().trim()
-			Note.trimEmptyTags title
+			App.Helpers.tagRegex.trimEmptyTags title
 		getNoteContent: ->
 			if @ui.noteContent.length is 0 or !@ui.noteContent.focus?
 				@ui.noteContent = @.$('.note-content:first')
 			@ui.noteContent
 
-		link = /((\b((https?:\/\/)|(www\.))[-A-Z0-9+&@#\/%?=~_|!:,.;]+[\w\/])|([.\w]{3,100}\.(biz|co|com|edu|gov|io|net|org)\b))/ig
+		link: /((\b((https?:\/\/)|(www\.))[-A-Z0-9+&@#\/%?=~_|!:,.;]+[\w\/])|([.\w]{3,100}\.(biz|co|com|edu|gov|io|net|org)\b))/ig
 		checkForLinks: ->
 			cursorPosition = @textBeforeCursor()
 			content = @getNoteContent()
@@ -263,10 +263,10 @@
 			_.each content[0].childNodes, (child) =>
 				if child.nodeName is "#text"
 					text = child.textContent
-					if text.match link then title += @linkify(text) else title += text
+					if text.match @link then title += @linkify(text) else title += text
 				else if child.nodeName is "A"
 					text = child.innerText
-					if text.match link then title += child.outerHTML else title += text
+					if text.match @link then title += child.outerHTML else title += text
 				else
 					title = title+child.outerHTML
 			content.html(title)
@@ -277,9 +277,9 @@
 			$(e.target).removeAttr("contentEditable")
 		linkify: (text)->
 			if text.match /\b(http)/
-				text.replace(link, "<a href='$1' target='_blank' class='titleLink'>$1</a>")
+				text.replace(@link, "<a href='$1' target='_blank' class='titleLink'>$1</a>")
 			else
-				text.replace(link, "<a href='http://$1' target='_blank' class='titleLink'>$1</a>")
+				text.replace(@link, "<a href='http://$1' target='_blank' class='titleLink'>$1</a>")
 		setNoteTitle: (title, forceUpdate = false) ->
 			@getNoteContent().html title
 			@updateNote forceUpdate
@@ -499,7 +499,7 @@
 			noteTitle
 		getNoteTitle: ->
 			title = @ui.noteContent.html().trim()
-			Note.trimEmptyTags title
+			App.Helpers.tagRegex.trimEmptyTags title
 		setNoteTitle: (title, forceUpdate = false) ->
 			@ui.noteContent.html title
 			@updateNote forceUpdate
