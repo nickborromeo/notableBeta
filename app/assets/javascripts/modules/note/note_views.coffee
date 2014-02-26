@@ -60,7 +60,7 @@
 			@$(">.branch").first().addClass('root') if @model.isARoot true
 
 		runTest: ->
-			bootbox.alert "<iframe width='560' height='315' frameborder='0' src='http://www.youtube.com/embed/9KKMhBiwH2g' allowfullscreen></iframe>"
+			bootbox.dialog "<iframe width='560' height='315' frameborder='0' src='http://www.youtube.com/embed/9KKMhBiwH2g' allowfullscreen></iframe>"
 
 		bindKeyboardShortcuts: ->
 			@.$el.on 'keydown', null, 'return', @createNote.bind @
