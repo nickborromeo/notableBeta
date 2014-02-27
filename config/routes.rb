@@ -1,10 +1,8 @@
 Notable::Application.routes.draw do
-  get "custom_thing" => "upgrade#danger"
-  delete "ultra" => "upgrade#ultra"
-
   devise_for :users, :module => "users", :path => ''
 
   resources :notes
+  # resources :evernote
   resources :notebooks
 
 	devise_scope :user do
