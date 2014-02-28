@@ -67,19 +67,27 @@
 		removeTrunk: (e) ->
 			e.stopPropagation()
 			if Notebook.forest.length > 1
-				options =
-					success: (model, response, opts) =>
-						if model is App.Notebook.activeTrunk
-							App.Notebook.activeTrunk = App.Notebook.forest.first()
-							App.Note.eventManager.trigger "activeTrunk:changed"
-							$(".trunk").removeClass("selected")
-							$("#forest li:first-child").addClass("selected")
-					error: (model, response, opts) =>
-						console.log reponse.message
-				@model.destroy(options)
-				App.Notify.alert 'deleteNotebook', 'warning'
+				if @confirmIntention()
+					@destroyNotebook()
 			else
 				App.Notify.alert 'needsNotebook', 'danger'
+		confirmIntention: ->
+			if App.Note.activeTree.length >= 3
+				confirm "Are you sure you want to remove this notebook?"
+			else
+				return true
+		destroyNotebook: ->
+			options =
+				success: (model, response, opts) =>
+					if model is App.Notebook.activeTrunk
+						App.Notebook.activeTrunk = App.Notebook.forest.first()
+						App.Note.eventManager.trigger "activeTrunk:changed"
+						$(".trunk").removeClass("selected")
+						$("#forest li:first-child").addClass("selected")
+				error: (model, response, opts) =>
+					console.log reponse.message
+			@model.destroy(options)
+			App.Notify.alert 'deleteNotebook', 'warning'
 
 	class Notebook.ForestView extends Marionette.CollectionView
 		id: "forest"
