@@ -26,7 +26,7 @@
 			"dragleave .dropTarget": @triggerDragEvent "leaveMove"
 			"dragover .dropTarget": @triggerDragEvent "overMove"
 
-			"click span.tutorial": "runTest"
+			"click .tutorial": "showVideo"
 
 		initialize: ->
 			@collection = @model.descendants
@@ -59,8 +59,9 @@
 		addRootStyling: ->
 			@$(">.branch").first().addClass('root') if @model.isARoot true
 
-		runTest: ->
+		showVideo: (e) ->
 			bootbox.dialog "<iframe width='560' height='315' frameborder='0' src='http://www.youtube.com/embed/B1Iwz2x0Gow' allowfullscreen></iframe>"
+			e.stopPropagation()
 
 		bindKeyboardShortcuts: ->
 			@.$el.on 'keydown', null, 'return', @createNote.bind @

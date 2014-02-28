@@ -46,7 +46,6 @@
 			@allNotesByDepth.validateTree()
 			@allNotesByDepth.each (note) =>
 				@tree.add(note)
-			@showContentView(@tree)
 			Note.eventManager.trigger("setCursor:#{@tree.first().get('guid')}") if @tree.length isnt 0
 			App.Note.initializedTree.resolve()
 			@showLinksFooter()
@@ -130,6 +129,7 @@
 				@showContentView App.Note.filteredTree
 				@showNotebookTitleView()
 
+		# This runs when you zoom out, but ALSO WHEN YOU INITIALIZE the page
 		clearZoom: ->
 			App.Note.initializedTree.then =>
 				Backbone.history.navigate '#'
