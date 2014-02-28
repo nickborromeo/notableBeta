@@ -1,6 +1,6 @@
 class Users::RegistrationsController < Devise::RegistrationsController
   respond_to :json
-  before_filter :admin_user,     only: [:destroy, :index]
+  before_filter :admin_user,     only: [:index]
 
   def index
     @users = User.order("email")
