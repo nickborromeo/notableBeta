@@ -3,9 +3,9 @@ class EvernoteController < ApplicationController
   include Evernote
   before_filter :prepare_rake
 
-  def connected_user
-    @current_user ||= current_user
-  end
+  #-----------------------------------------#
+  #           Connect to Evernote           #
+  #-----------------------------------------#
 
   def connect
     begin #sending client credentials in order to obtain temporary credentials
@@ -33,10 +33,17 @@ class EvernoteController < ApplicationController
         token_credentials = access_token.token
         User.update(connected_user.id, {:token_credentials => token_credentials})
         #use token credentials to access the Evernote API
-        @client ||= EvernoteOAuth::Client.new(token: token_credentials, sandbox: ENV['SANDBOX_USE'])
+        if Rails.env.production?
+          @client ||= EvernoteOAuth::Client.new(token: token_credentials, sandbox: false)
+        else
+          @client ||= EvernoteOAuth::Client.new(token: token_credentials, sandbox: true)
+        end
         @user ||= evernote_user token_credentials
+        puts "---------------@user------------"
+        puts @user.to_s
         @notebooks ||= evernote_notebooks token_credentials
-        @note_count = total_note_count(token_credentials)
+        puts "---------------@notebook------------"
+        puts @notebooks.to_s
         flash[:notice] = %Q[Successfully connected your Notable account to Evernote! <a href='learn'>Learn More</a>].html_safe
       rescue => e
         puts e.message
@@ -50,21 +57,31 @@ class EvernoteController < ApplicationController
     end
   end
 
+  #----------------------------------------#
+  #            Sync to Evernote            #
+  #----------------------------------------#
+
+  def connected_user
+    @current_user ||= current_user
+  end
+
   def fetchNotebooks
     @@evernoteData = requestEvernoteData
     render json: evernoteData[:notebooks]
   end
 
   def evernoteData
+    puts "evernoteData gets run------"
     @@evernoteData # ||= requestEvernoteData
   end
 
   def requestEvernoteData
     syncState = getSyncState
     fullSyncBefore = Time.at(syncState.fullSyncBefore/1000)
-    # puts "serverLastFUllSync: #{syncState.fullSyncBefore}"
+    # if the user has never synced with Evernote before
+    #   or if the last time Evernote was updated was later then the last time the user synced with Evernote
     if connected_user.last_full_sync.nil? or fullSyncBefore > connected_user.last_full_sync
-      fullSync syncState
+      fullSync syncState #then go ahead and sync
     else
       incrementalSync syncState
     end
@@ -227,8 +244,8 @@ class EvernoteController < ApplicationController
       # puts "chunkHigh : #{syncChunk.chunkHighUSN}, updateCount: #{syncChunk.updateCount}"
       notes.concat syncChunk.notes
       notebooks.concat syncChunk.notebooks
-      deletedNotes.concat syncChunk.expungedNotes if not syncChunk.expungedNotes.nil?
-      deletedNotebooks.concat syncChunk.expungedNotebooks if not syncChunk.expungedNotebooks.nil?
+      deletedNotes.concat syncChunk.expungedNotes unless syncChunk.expungedNotes.nil?
+      deletedNotebooks.concat syncChunk.expungedNotebooks unless syncChunk.expungedNotebooks.nil?
       return unless syncChunk.chunkHighUSN < syncChunk.updateCount
       rec.call lastChunk = getSyncChunk(syncChunk.chunkHighUSN, 100)
     end
