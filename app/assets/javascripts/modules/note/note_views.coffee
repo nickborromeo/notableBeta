@@ -338,10 +338,12 @@
 				@[functionName].apply(@, Note.sliceArgs arguments)
 			else
 				@collection[functionName].apply(@collection, args)
-				@render() # Will probably need to do something about rerendering all the time
 				position = _.last(arguments).cursorPosition || ""
 				Note.eventManager.trigger "setCursor:#{arguments[1].get 'guid'}", position
 			Note.eventManager.trigger "actionFinished", functionName, arguments[1]
+		renderBranch: (branch) ->
+			return @render() if branch.get('parent_id') is 'root'
+			Note.eventManager.trigger "render:#{branch.get('parent_id')}"
 		createNote: (createdFrom) ->
 			[newNote, createdFromNewTitle, setFocusIn] =
 				@collection.createNote.apply(@collection, arguments)
