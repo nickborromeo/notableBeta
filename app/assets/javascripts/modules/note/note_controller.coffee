@@ -15,6 +15,7 @@
 		initialize: (options) ->
 			@allNotesByDepth = new App.Note.Collection()
 			@tree = new App.Note.Tree()
+			@treeView = new App.Note.TreeView(collection: @tree)
 			@setGlobals()
 			@setEvents()
 		start: ->
@@ -73,8 +74,7 @@
 			@showContentView(App.Note.activeTree)
 			@showCrownView()
 		showContentView: (tree) ->
-			App.contentRegion.currentView.treeRegion.close()
-			@treeView = new App.Note.TreeView(collection: tree)
+			@treeView.collection = tree
 			App.contentRegion.currentView.treeRegion.show @treeView
 		showProgressView: (tree) ->
 			App.contentRegion.currentView.treeRegion.close()
