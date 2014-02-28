@@ -221,6 +221,7 @@
 			@getNoteContent().html(textBefore + _.first splitText)
 			@updateNote()
 			@pasteNewNote _.rest(splitText), textAfter
+			Note.eventManager.trigger "change", "renderBranch", @model
 		splitPaste: (text) ->
 			reg = /\n/
 			splitText = text.split(reg)
@@ -231,7 +232,7 @@
 			currentBranch = @model
 			do rec = (text = _.first(splitPaste), splitPaste = _.rest(splitPaste)) =>
 				return if not text?
-				[currentBranch, _1, focusHash] = Note.tree.createNote(currentBranch, currentBranch.get('title'), text)
+				[currentBranch, _1, focusHash] = Note.tree.createNote(currentBranch, currentBranch.get('title'), text, silent:true)
 				Note.eventManager.trigger "setTitle:#{currentBranch.get('guid')}", text
 				rec _.first(splitPaste), _.rest(splitPaste)
 			@pasteLast currentBranch, textAfter
@@ -319,10 +320,12 @@
 			@listenTo @collection, "destroy", @addDefaultNote
 			Note.eventManager.on 'createNote', @createNote, this
 			Note.eventManager.on 'change', @dispatchFunction, this
+			Note.eventManager.on 'renderTreeView', @render, this
 			@drag = undefined
 		onBeforeClose: ->
 			Note.eventManager.off 'createNote', @createNote, this
 			Note.eventManager.off 'change', @dispatchFunction, this
+			Note.eventManager.off 'renderTreeView', @render, this
 			@drag = undefined
 
 		onBeforeRender: ->

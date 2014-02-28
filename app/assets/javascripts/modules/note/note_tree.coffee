@@ -47,10 +47,11 @@
 			@add branch if branch
 
 		# Manage note insertion in the nested structure
-		add: (note, options) ->
+		add: (note, options = {}) ->
 			collectionToAddTo = @getCollection note.get 'parent_id'
+			# options = _.extend({}, options, silent: true)
 			Backbone.Collection.prototype.add.call(collectionToAddTo, note, options)
-		insertInTree: (note, options) ->
+		insertInTree: (note, options = {}) ->
 			@add note, options
 			newCollection = @getCollection note.get 'parent_id'
 			if note.get('rank') < newCollection.length
@@ -60,18 +61,18 @@
 				depthDifference = note.get('depth') - firstDescendantDepth + 1
 				if depthDifference isnt 0
 					note.increaseDescendantsDepth depthDifference
-			newCollection.sort()
+			newCollection.sort() unless options.silent is true
 		removeFromCollection: (collection, note) ->
 			collection.remove note
 			@decreaseRankOfFollowing note
 
-		createNote: (noteCreatedFrom, textBefore, textAfter) ->
+		createNote: (noteCreatedFrom, textBefore, textAfter, options = {}) ->
 			textAfter = Note.prependStyling(textAfter)
 			hashMap = @dispatchCreation.apply @, arguments
 			newNote = new Note.Branch
 			newNoteAttributes = Note.Branch.generateAttributes hashMap.createBeforeNote, hashMap.newNoteTitle
 			if hashMap.rankAdjustment then newNoteAttributes.rank += 1
-			App.Action.orchestrator.triggerAction 'createBranch', newNote, newNoteAttributes
+			App.Action.orchestrator.triggerAction 'createBranch', newNote, newNoteAttributes, options
 			hashMap.setFocusIn ||= newNote
 			[newNote, hashMap.oldNoteNewTitle, hashMap.setFocusIn]
 		dispatchCreation: (noteCreatedFrom, textBefore, textAfter) ->
