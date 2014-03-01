@@ -34,11 +34,9 @@
 		addToHistory: -> unless options.isUndo then App.Action.manager.addHistory 'createBranch', branch
 		specificActions: ->
 			App.Note.tree.insertInTree branch
-			console.log "$('new-note').addClass('root')" if attributes.depth == 0
 
 	Action.updateBranch = (branch, attributes, options = {}) ->
 		addToHistory: -> App.Action.manager.addHistory 'updateBranch', branch, options.isUndo
-		specificActions: ->	console.log "$('new-note').addClass('root')" if attributes.depth == 0
 
 	class Action.Orchestrator
 

@@ -71,7 +71,11 @@
 					@destroyNotebook()
 			else
 				App.Notify.alert 'needsNotebook', 'danger'
+				App.Helper.eventManager.trigger "closeSidr"
 		confirmIntention: ->
+			# notebookId = @model.attributes.id
+			# Not perfect since user can delete a notebook which is not the active one
+			#   and the if statement will allow it to go through immediately
 			if App.Note.activeTree.length >= 3
 				confirm "Are you sure you want to remove this notebook?"
 			else
