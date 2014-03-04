@@ -222,6 +222,7 @@
 			@getNoteContent().html(textBefore + _.first splitText)
 			@updateNote()
 			@pasteNewNote _.rest(splitText), textAfter
+			Note.eventManager.trigger "change", "renderBranch", @model
 		splitPaste: (text) ->
 			reg = /\n/
 			splitText = text.split(reg)
@@ -232,7 +233,7 @@
 			currentBranch = @model
 			do rec = (text = _.first(splitPaste), splitPaste = _.rest(splitPaste)) =>
 				return if not text?
-				[currentBranch, _1, focusHash] = Note.tree.createNote(currentBranch, currentBranch.get('title'), text)
+				[currentBranch, _1, focusHash] = Note.tree.createNote(currentBranch, currentBranch.get('title'), text, silent:true)
 				Note.eventManager.trigger "setTitle:#{currentBranch.get('guid')}", text
 				rec _.first(splitPaste), _.rest(splitPaste)
 			@pasteLast currentBranch, textAfter
@@ -320,10 +321,12 @@
 			@listenTo @collection, "destroy", @addDefaultNote
 			Note.eventManager.on 'createNote', @createNote, this
 			Note.eventManager.on 'change', @dispatchFunction, this
+			Note.eventManager.on 'renderTreeView', @render, this
 			@drag = undefined
 		onBeforeClose: ->
 			Note.eventManager.off 'createNote', @createNote, this
 			Note.eventManager.off 'change', @dispatchFunction, this
+			Note.eventManager.off 'renderTreeView', @render, this
 			@drag = undefined
 
 		onBeforeRender: ->
@@ -339,10 +342,12 @@
 				@[functionName].apply(@, Note.sliceArgs arguments)
 			else
 				@collection[functionName].apply(@collection, args)
-				@render() # Will probably need to do something about rerendering all the time
 				position = _.last(arguments).cursorPosition || ""
 				Note.eventManager.trigger "setCursor:#{arguments[1].get 'guid'}", position
 			Note.eventManager.trigger "actionFinished", functionName, arguments[1]
+		renderBranch: (branch) ->
+			return @render() if branch.get('parent_id') is 'root'
+			Note.eventManager.trigger "render:#{branch.get('parent_id')}"
 		createNote: (createdFrom) ->
 			[newNote, createdFromNewTitle, setFocusIn] =
 				@collection.createNote.apply(@collection, arguments)
