@@ -15,7 +15,6 @@
 		initialize: (options) ->
 			@allNotesByDepth = new App.Note.Collection()
 			@tree = new App.Note.Tree()
-			@treeView = new App.Note.TreeView(collection: @tree)
 			@setGlobals()
 			@setEvents()
 		start: ->
