@@ -100,17 +100,18 @@
 			Note.eventManager.off "render:#{@model.get('guid')}",  @render, @
 			Note.eventManager.off "setTitle:#{@model.get('guid')}", @setNoteTitle, @
 			Note.eventManager.off "timeoutUpdate:#{@model.get('guid')}", @updateNote, @
+			Note.eventManager.off "timeoutUpdate:#{@model.get('guid')}", @checkForLinks, @
 			Note.eventManager.off "expand:#{@model.get('guid')}", @expand, @
 
 		applyStyling: (style, e) ->
 			e.preventDefault()
 			e.stopPropagation()
 			document.execCommand(style)
-		triggerRedoEvent: (e) =>
+		triggerRedoEvent: (e) ->
 			e.preventDefault()
 			e.stopPropagation()
 			App.Action.manager.redo()
-		triggerUndoEvent: (e) =>
+		triggerUndoEvent: (e) ->
 			e.preventDefault()
 			e.stopPropagation()
 			App.Action.manager.undo()
@@ -223,6 +224,8 @@
 			@updateNote()
 			@pasteNewNote _.rest(splitText), textAfter
 			Note.eventManager.trigger "change", "renderBranch", @model
+			@$('.note-content:first').focus()
+			Note.eventManager.trigger "setCursor:#{@model.get('guid')}", textBefore
 		splitPaste: (text) ->
 			reg = /\n/
 			splitText = text.split(reg)
