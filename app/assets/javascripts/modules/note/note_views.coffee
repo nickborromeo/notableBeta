@@ -421,12 +421,12 @@
 
 		mergeWithPreceding: (note) ->
 			[preceding, title, previousTitle] = @collection.mergeWithPreceding note
-			return false if preceding is false
+			return false unless preceding?
 			Note.eventManager.trigger "setTitle:#{preceding.get('guid')}", title, true
 			Note.eventManager.trigger "setCursor:#{preceding.get('guid')}", previousTitle
 		mergeWithFollowing: (note) ->
 			[following, title, previousTitle] = @collection.mergeWithFollowing note
-			return false if following is false
+			return false unless following?
 			Note.eventManager.trigger "setTitle:#{following.get('guid')}", title, true
 			Note.eventManager.trigger "setCursor:#{following.get('guid')}", previousTitle
 
