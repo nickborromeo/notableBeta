@@ -260,15 +260,11 @@
 		checkForLinks: ->
 			cursorPosition = @textBeforeCursor()
 			content = @getNoteContent()
-			title = ""
-			_.each content[0].childNodes, (child) =>
-				if child.nodeName is "#text" or child.nodeName is "A"
-					text = child.textContent
-					title += text
-				else
-					title = title+child.outerHTML
-			content.html(@linkify title)
-			Note.eventManager.trigger "setCursor:#{@model.get('guid')}", cursorPosition if cursorPosition
+			title = content.text()
+			if (linkified = @linkify(title)) isnt content.html()
+				# title = content.text(title).html() # escape html entities before linkifying
+				content.html(@linkify title)
+				Note.eventManager.trigger "setCursor:#{@model.get('guid')}", cursorPosition if cursorPosition
 		makeClickable: (e) ->
 			e.target.contentEditable = false
 		makeEditable: (e) ->
