@@ -2,7 +2,6 @@ Notable::Application.routes.draw do
   devise_for :users, :module => "users", :path => ''
 
   resources :notes
-  # resources :evernote
   resources :notebooks
 
 	devise_scope :user do
@@ -14,7 +13,7 @@ Notable::Application.routes.draw do
   get "finish" => "evernote#finish"
   get "search" => "notes#search"
 
-  get "sync" => "evernote#prepare_sync_data"
+  get "sync" => "evernote#begin_sync_data"
   post "sync" => "evernote#send_sync_data"
 
   UpgradeController.action_methods.each do |action|
