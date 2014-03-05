@@ -36,7 +36,6 @@
 			Note.eventManager.on "render:#{@model.get('guid')}", @render, @
 			Note.eventManager.on "setTitle:#{@model.get('guid')}", @setNoteTitle, @
 			Note.eventManager.on "timeoutUpdate:#{@model.get('guid')}", @updateNote, @
-			Note.eventManager.on "timeoutUpdate:#{@Model.get('guid')}", @checkForLinks, @
 			Note.eventManager.on "expand:#{@model.get('guid')}", @expand, @
 			@cursorApi = App.Helpers.CursorPositionAPI
 		onRender: ->
@@ -204,6 +203,7 @@
 			@updateNote()
 			App.Action.orchestrator.triggerSaving()
 		updateNote: (forceUpdate = false) ->
+			@checkForLinks()
 			noteTitle = @getNoteTitle()
 			noteSubtitle = "" #@getNoteSubtitle()
 			if @model.get('title') isnt noteTitle or forceUpdate is true
