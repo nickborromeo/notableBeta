@@ -1,25 +1,26 @@
 @Notable.module "Evernote", (Evernote, App, Backbone, Marionette, $, _) ->
+	Evernote.startWithParent = false
 
 	Evernote.Controller = Marionette.Controller.extend
-		initialize: (options) ->
-			@initEvernote()
+		initialize: ->
 
-		evernoteInitFunctions:
+		evernoteEventListeners:
 			sync_flow: ->
-				$('.sync-action').on 'click', (e) ->
+				$('.sync-with-evernote').on 'click', (e) ->
 					e.preventDefault()
 					App.Action.orchestrator.triggerSaving ->
 						App.Note.noteController.showEvernoteView()
 			connect_flow: ->
-				$('.connect-evernote-action').on 'click', (e) ->
+				$('.connect-to-evernote').on 'click', (e) ->
 					e.preventDefault()
 					App.Action.orchestrator.triggerSaving ->
 						window.location.href = 'connect'
 
-		initEvernote: ->
-			_(@evernoteInitFunctions).each (fn) ->
-				fn()			
+		start: ->
+			_(@evernoteEventListeners).each (listener) ->
+				listener()
 
 	# Initializers -------------------------
 	Evernote.addInitializer ->
-		Evernote.controller = new Evernote.Controller()
+		Evernote.evernoteController = new Evernote.Controller()
+		Evernote.evernoteController.start()

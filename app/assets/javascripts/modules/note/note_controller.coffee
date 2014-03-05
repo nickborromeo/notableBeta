@@ -88,8 +88,8 @@
 			collection.fetch()
 			@treeView = new App.Evernote.NotebookView()
 			App.contentRegion.currentView.treeRegion.show @treeView
-			checkboxThing = new App.Evernote.CheckboxesView(collection: collection)
-			@treeView.checkboxRegion.show checkboxThing
+			notebookOptions = new App.Evernote.CheckboxesView(collection: collection)
+			@treeView.checkboxRegion.show notebookOptions
 
 		# Crown
 		showCrownView: ->
