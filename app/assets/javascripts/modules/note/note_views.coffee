@@ -214,7 +214,8 @@
 
 		pasteContent: (e) ->
 			e.preventDefault()
-			window.getSelection().collapseToEnd()
+			window.getSelection().deleteFromDocument()
+			textBefore = @textBeforeCursor()
 			textAfter = @textAfterCursor()
 			pasteText = e.originalEvent.clipboardData.getData("Text")
 			splitText = @splitPaste pasteText
