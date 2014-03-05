@@ -36,7 +36,7 @@
 			Note.eventManager.on "render:#{@model.get('guid')}", @render, @
 			Note.eventManager.on "setTitle:#{@model.get('guid')}", @setNoteTitle, @
 			Note.eventManager.on "timeoutUpdate:#{@model.get('guid')}", @updateNote, @
-			Note.eventManager.on "timeoutUpdate:#{@model.get('guid')}", @checkForLinks, @
+			Note.eventManager.on "timeoutUpdate:#{@Model.get('guid')}", @checkForLinks, @
 			Note.eventManager.on "expand:#{@model.get('guid')}", @expand, @
 			@cursorApi = App.Helpers.CursorPositionAPI
 		onRender: ->
@@ -261,16 +261,14 @@
 			content = @getNoteContent()
 			title = ""
 			_.each content[0].childNodes, (child) =>
-				if child.nodeName is "#text"
+				if child.nodeName is "#text" or child.nodeName is "A"
 					text = child.textContent
-					if text.match @link then title += @linkify(text) else title += text
-				else if child.nodeName is "A"
-					text = child.innerText
-					if text.match @link then title += child.outerHTML else title += text
+					title += text
+					console.log text, child
 				else
 					title = title+child.outerHTML
-			content.html(title)
-			# @setCursor cursorPosition
+			content.html(@linkify title)
+			Note.eventManager.trigger "setCursor:#{@model.get('guid')}", cursorPosition
 		makeClickable: (e) ->
 			e.target.contentEditable = false
 		makeEditable: (e) ->
