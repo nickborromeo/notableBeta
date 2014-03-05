@@ -33,7 +33,8 @@
 		# compound: -> unless options.isUndo then App.Action.manager.addHistory "compoundAction", {actions:2}
 		addToHistory: -> unless options.isUndo then App.Action.manager.addHistory 'createBranch', branch
 		specificActions: ->
-			App.Note.tree.insertInTree branch
+			App.Note.tree.insertInTree branch, options
+			console.log "$('new-note').addClass('root')" if attributes.depth == 0
 
 	Action.updateBranch = (branch, attributes, options = {}) ->
 		addToHistory: -> App.Action.manager.addHistory 'updateBranch', branch, options.isUndo
@@ -61,7 +62,7 @@
 			action.triggerNotification()
 			action.branch.set action.attributes if action.attributes?
 			Action.transporter.addToStorage(action) unless action.options.noLocalStorage
-			action.specificActions()
+			action.specificActions(action.options)
 		validate: (branch, attributes, options) ->
 			return false if (val = branch.validation attributes)?
 			true

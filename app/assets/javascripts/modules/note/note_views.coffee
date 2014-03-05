@@ -36,7 +36,6 @@
 			Note.eventManager.on "render:#{@model.get('guid')}", @render, @
 			Note.eventManager.on "setTitle:#{@model.get('guid')}", @setNoteTitle, @
 			Note.eventManager.on "timeoutUpdate:#{@model.get('guid')}", @updateNote, @
-			Note.eventManager.on "timeoutUpdate:#{@model.get('guid')}", @checkForLinks, @
 			Note.eventManager.on "expand:#{@model.get('guid')}", @expand, @
 			@cursorApi = App.Helpers.CursorPositionAPI
 		onRender: ->
@@ -100,17 +99,18 @@
 			Note.eventManager.off "render:#{@model.get('guid')}",  @render, @
 			Note.eventManager.off "setTitle:#{@model.get('guid')}", @setNoteTitle, @
 			Note.eventManager.off "timeoutUpdate:#{@model.get('guid')}", @updateNote, @
+			Note.eventManager.off "timeoutUpdate:#{@model.get('guid')}", @checkForLinks, @
 			Note.eventManager.off "expand:#{@model.get('guid')}", @expand, @
 
 		applyStyling: (style, e) ->
 			e.preventDefault()
 			e.stopPropagation()
 			document.execCommand(style)
-		triggerRedoEvent: (e) =>
+		triggerRedoEvent: (e) ->
 			e.preventDefault()
 			e.stopPropagation()
 			App.Action.manager.redo()
-		triggerUndoEvent: (e) =>
+		triggerUndoEvent: (e) ->
 			e.preventDefault()
 			e.stopPropagation()
 			App.Action.manager.undo()
@@ -203,6 +203,7 @@
 			@updateNote()
 			App.Action.orchestrator.triggerSaving()
 		updateNote: (forceUpdate = false) ->
+			@checkForLinks()
 			noteTitle = @getNoteTitle()
 			noteSubtitle = "" #@getNoteSubtitle()
 			if @model.get('title') isnt noteTitle or forceUpdate is true
@@ -213,15 +214,18 @@
 
 		pasteContent: (e) ->
 			e.preventDefault()
+			window.getSelection().deleteFromDocument()
 			textBefore = @textBeforeCursor()
-			window.getSelection().collapseToEnd()
 			textAfter = @textAfterCursor()
 			pasteText = e.originalEvent.clipboardData.getData("Text")
 			splitText = @splitPaste pasteText
 			return App.Notify.alert 'exceedPasting', 'warning' if splitText.length > 100
 			@getNoteContent().html(textBefore + _.first splitText)
 			@updateNote()
-			@pasteNewNote _.rest(splitText), textAfter
+			[branchToFocus, cursorPosition] = @pasteNewNote _.rest(splitText), textAfter
+			Note.eventManager.trigger "change", "renderBranch", @model
+			Note.eventManager.trigger "setCursor:#{branchToFocus.get('guid')}", cursorPosition
+			# Note.eventManager.trigger "setCursor:#{@model.get('guid')}", textBefore
 		splitPaste: (text) ->
 			reg = /\n/
 			splitText = text.split(reg)
@@ -232,50 +236,49 @@
 			currentBranch = @model
 			do rec = (text = _.first(splitPaste), splitPaste = _.rest(splitPaste)) =>
 				return if not text?
-				[currentBranch, _1, focusHash] = Note.tree.createNote(currentBranch, currentBranch.get('title'), text)
-				Note.eventManager.trigger "setTitle:#{currentBranch.get('guid')}", text
+				[currentBranch, _1, focusHash] = Note.tree.createNote(currentBranch, currentBranch.get('title'), text, silent:true)
 				rec _.first(splitPaste), _.rest(splitPaste)
 			@pasteLast currentBranch, textAfter
 		pasteLast: (branch, textAfter) ->
 			text = branch.get('title')
-			Note.eventManager.trigger "setTitle:#{branch.get('guid')}", text + textAfter
-			Note.eventManager.trigger "setCursor:#{branch.get('guid')}", text
+			branch.set('title', text + textAfter)
+			[branch, text]
 
 		getSelectionAndTitle: ->
 			[window.getSelection(), @getNoteTitle()]
 		getNoteTitle: ->
 			title = @getNoteContent().html().trim()
-			Note.trimEmptyTags title
+			App.Helpers.tagRegex.trimEmptyTags title
 		getNoteContent: ->
 			if @ui.noteContent.length is 0 or !@ui.noteContent.focus?
 				@ui.noteContent = @.$('.note-content:first')
 			@ui.noteContent
 
-		link = /((\b((https?:\/\/)|(www\.))[-A-Z0-9+&@#\/%?=~_|!:,.;]+[\w\/])|([.\w]{3,100}\.(biz|co|com|edu|gov|io|net|org)\b))/ig
+		link: /((\b((https?:\/\/)|(www\.))[-A-Z0-9+&@#\/%?=~_|!:,.;]+[\w\/])|([.\w]{3,100}\.(biz|co|com|edu|gov|io|net|org)\b))/ig
+
+		# Known bug : links in a multi-line paste are not recognize immediately
 		checkForLinks: ->
 			cursorPosition = @textBeforeCursor()
 			content = @getNoteContent()
 			title = ""
 			_.each content[0].childNodes, (child) =>
-				if child.nodeName is "#text"
+				if child.nodeName is "#text" or child.nodeName is "A"
 					text = child.textContent
-					if text.match link then title += @linkify(text) else title += text
-				else if child.nodeName is "A"
-					text = child.innerText
-					if text.match link then title += child.outerHTML else title += text
+					title += text
+					console.log text, child
 				else
 					title = title+child.outerHTML
-			content.html(title)
-			# @setCursor cursorPosition
+			content.html(@linkify title)
+			Note.eventManager.trigger "setCursor:#{@model.get('guid')}", cursorPosition if cursorPosition
 		makeClickable: (e) ->
 			e.target.contentEditable = false
 		makeEditable: (e) ->
 			$(e.target).removeAttr("contentEditable")
 		linkify: (text)->
 			if text.match /\b(http)/
-				text.replace(link, "<a href='$1' target='_blank' class='titleLink'>$1</a>")
+				text.replace(@link, "<a href='$1' target='_blank' class='titleLink'>$1</a>")
 			else
-				text.replace(link, "<a href='http://$1' target='_blank' class='titleLink'>$1</a>")
+				text.replace(@link, "<a href='http://$1' target='_blank' class='titleLink'>$1</a>")
 		setNoteTitle: (title, forceUpdate = false) ->
 			@getNoteContent().html title
 			@updateNote forceUpdate
@@ -320,10 +323,12 @@
 			@listenTo @collection, "destroy", @addDefaultNote
 			Note.eventManager.on 'createNote', @createNote, this
 			Note.eventManager.on 'change', @dispatchFunction, this
+			Note.eventManager.on 'renderTreeView', @render, this
 			@drag = undefined
 		onBeforeClose: ->
 			Note.eventManager.off 'createNote', @createNote, this
 			Note.eventManager.off 'change', @dispatchFunction, this
+			Note.eventManager.off 'renderTreeView', @render, this
 			@drag = undefined
 
 		onBeforeRender: ->
@@ -339,10 +344,12 @@
 				@[functionName].apply(@, Note.sliceArgs arguments)
 			else
 				@collection[functionName].apply(@collection, args)
-				@render() # Will probably need to do something about rerendering all the time
 				position = _.last(arguments).cursorPosition || ""
 				Note.eventManager.trigger "setCursor:#{arguments[1].get 'guid'}", position
 			Note.eventManager.trigger "actionFinished", functionName, arguments[1]
+		renderBranch: (branch) ->
+			return @render() if branch.get('parent_id') is 'root'
+			Note.eventManager.trigger "render:#{branch.get('parent_id')}"
 		createNote: (createdFrom) ->
 			[newNote, createdFromNewTitle, setFocusIn] =
 				@collection.createNote.apply(@collection, arguments)
@@ -416,12 +423,12 @@
 
 		mergeWithPreceding: (note) ->
 			[preceding, title, previousTitle] = @collection.mergeWithPreceding note
-			return false if preceding is false
+			return false unless preceding?
 			Note.eventManager.trigger "setTitle:#{preceding.get('guid')}", title, true
 			Note.eventManager.trigger "setCursor:#{preceding.get('guid')}", previousTitle
 		mergeWithFollowing: (note) ->
 			[following, title, previousTitle] = @collection.mergeWithFollowing note
-			return false if following is false
+			return false unless following?
 			Note.eventManager.trigger "setTitle:#{following.get('guid')}", title, true
 			Note.eventManager.trigger "setCursor:#{following.get('guid')}", previousTitle
 
@@ -491,7 +498,7 @@
 			noteTitle
 		getNoteTitle: ->
 			title = @ui.noteContent.html().trim()
-			Note.trimEmptyTags title
+			App.Helpers.tagRegex.trimEmptyTags title
 		setNoteTitle: (title, forceUpdate = false) ->
 			@ui.noteContent.html title
 			@updateNote forceUpdate

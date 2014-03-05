@@ -47,10 +47,11 @@
 			@add branch if branch
 
 		# Manage note insertion in the nested structure
-		add: (note, options) ->
+		add: (note, options = {}) ->
 			collectionToAddTo = @getCollection note.get 'parent_id'
+			# options = _.extend({}, options, silent: true)
 			Backbone.Collection.prototype.add.call(collectionToAddTo, note, options)
-		insertInTree: (note, options) ->
+		insertInTree: (note, options = {}) ->
 			@add note, options
 			newCollection = @getCollection note.get 'parent_id'
 			if note.get('rank') < newCollection.length
@@ -60,18 +61,18 @@
 				depthDifference = note.get('depth') - firstDescendantDepth + 1
 				if depthDifference isnt 0
 					note.increaseDescendantsDepth depthDifference
-			newCollection.sort()
+			newCollection.sort() unless options.silent is true
 		removeFromCollection: (collection, note) ->
 			collection.remove note
 			@decreaseRankOfFollowing note
 
-		createNote: (noteCreatedFrom, textBefore, textAfter) ->
+		createNote: (noteCreatedFrom, textBefore, textAfter, options = {}) ->
 			textAfter = Note.prependStyling(textAfter)
 			hashMap = @dispatchCreation.apply @, arguments
 			newNote = new Note.Branch
 			newNoteAttributes = Note.Branch.generateAttributes hashMap.createBeforeNote, hashMap.newNoteTitle
 			if hashMap.rankAdjustment then newNoteAttributes.rank += 1
-			App.Action.orchestrator.triggerAction 'createBranch', newNote, newNoteAttributes
+			App.Action.orchestrator.triggerAction 'createBranch', newNote, newNoteAttributes, options
 			hashMap.setFocusIn ||= newNote
 			[newNote, hashMap.oldNoteNewTitle, hashMap.setFocusIn]
 		dispatchCreation: (noteCreatedFrom, textBefore, textAfter) ->
@@ -364,6 +365,7 @@
 
 		mergeWithPreceding: (note) ->
 			preceding = @findPreviousNote note
+			return false unless preceding?
 			noteHasDescendants = note.hasDescendants()
 			return false if preceding.get('depth') < note.get('depth') and noteHasDescendants
 			noteToDelete = if noteHasDescendants then [preceding, note] else [note, preceding]
@@ -372,17 +374,16 @@
 			noteTitle = note.get('title')
 			precedingTitle = preceding.get('title')
 			@deleteNote noteToDelete[0], false, 'mergeWithPreceding'
-			return false unless preceding?
 			title = precedingTitle + noteTitle
 			[noteToDelete[1], title, precedingTitle]
 		mergeWithFollowing: (note) ->
 			following = @findFollowingNote note
+			return false unless following?
 			followingHasDescendants = following.hasDescendants()
 			return false if following.get('depth') > note.get('depth') and followingHasDescendants
 			noteToDelete = if followingHasDescendants then [note, following] else [following, note]
 			if following.get('title').length isnt 0 or followingHasDescendants
 				return false if following.get('depth') < note.get('depth')
-			return false unless following?
 			noteTitle = note.get('title')
 			followingTitle = following.get('title')
 			@deleteNote noteToDelete[0], false, 'mergeWithPreceding'

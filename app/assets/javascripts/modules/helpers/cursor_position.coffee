@@ -48,7 +48,7 @@
 			[n, offset]
 
 		buildTextBefore: (parent, sel) ->
-			# The two last param or extra param to comply with IE
+			# The two last param are extra param to comply with IE
 			it = document.createNodeIterator parent, NodeFilter.SHOW_TEXT, null, false
 			text = ""
 			# Firefox uses isEqualNode instead of isSameNode
@@ -64,13 +64,14 @@
 			text
 		getContentEditable: (sel) ->
 			do findContentEditable = (node = sel.anchorNode) ->
+				return node unless node?
 				if node.contentEditable is "true"
 					node
 				else
 					findContentEditable node.parentNode
 		collectMatches: (text) ->
 			matches = Helpers.collectAllMatches text
-			matches = matches.concat Helpers.collectAllMatches text, App.Note.matchHtmlEntities, 1
+			matches = matches.concat Helpers.collectAllMatches text, Helpers.tagRegex.matchHtmlEntities, 1
 			matches = matches.sort (a,b) -> a.index - b.index
 		increaseOffsetAdjustment: ->
 			args = App.Note.concatWithArgs arguments, @addAdjustment
@@ -82,7 +83,7 @@
 			adjustment = matches.reduce adjustmentOperator(previousOffset), 0
 			previousOffset + adjustment
 		adjustAnchorOffset: (sel, title) ->
-			parent = @getContentEditable sel
+			return false unless (parent = @getContentEditable sel)?
 			matches = @collectMatches parent.innerHTML
 			textBefore = @buildTextBefore parent, sel
 			@adjustOffset matches, textBefore.length
@@ -93,19 +94,21 @@
 			acc - match.adjustment
 
 		textBeforeCursor: (sel, title) ->
+			return false unless sel.baseNode?
 			offset = @adjustAnchorOffset(sel, title)
 			textBefore = title.slice(0,offset)
 		textAfterCursor: (sel, title) ->
+			return false unless sel.baseNode?
 			offset = @adjustAnchorOffset(sel, title)
 			textAfter = title.slice offset
-			textAfter = "" if App.Note.matchTagsEndOfString.test(textAfter)
+			textAfter = "" if Helpers.tagRegex.matchTagsEndOfString.test(textAfter)
 			textAfter
 		isEmptyAfterCursor: ->
 			@textAfterCursor.apply(this, arguments).length is 0
 		isEmptyBeforeCursor: ->
 			@textBeforeCursor.apply(this, arguments).length is 0
 
-	Helpers.collectAllMatches = (title, regex = App.Note.matchTag, adjustment = 0) ->
+	Helpers.collectAllMatches = (title, regex = Helpers.tagRegex.matchTag, adjustment = 0) ->
 		matches = []
 		while match = regex.exec title
 			matches.push
@@ -114,3 +117,11 @@
 				input: match.input
 				adjustment: match[0].length - adjustment
 		matches
+
+	Helpers.tagRegex =
+		matchTag: /<(.+?)>/g
+		matchTagsEndOfString: /^(<\/?[a-z]+>)+$/
+		matchHtmlEntities: /&[a-z]{2,4};/g
+		matchEmptyTag: /<[a-z]+><\/[a-z]+>/g
+		trimEmptyTags: (text) ->
+			text.replace(Helpers.matchEmptyTag, "")

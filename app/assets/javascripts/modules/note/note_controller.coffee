@@ -45,7 +45,7 @@
 		buildTree: ->
 			@allNotesByDepth.validateTree()
 			@allNotesByDepth.each (note) =>
-				@tree.add(note)
+				@tree.add(note, silent:true)
 			Note.eventManager.trigger("setCursor:#{@tree.first().get('guid')}") if @tree.length isnt 0
 			App.Note.initializedTree.resolve()
 			@showLinksFooter()
@@ -73,9 +73,9 @@
 			@showCrownView()
 		showContentView: (tree) ->
 			App.contentRegion.currentView.treeRegion.close()
-			@treeView = new App.Note.TreeView(collection: tree)
+			@treeView = new App.Note.TreeView collection: tree
 			App.contentRegion.currentView.treeRegion.show @treeView
-		showProgressView: (tree) ->
+		showProgressView: () ->
 			App.contentRegion.currentView.treeRegion.close()
 			@treeView = new App.Helper.ProgressView()
 			App.contentRegion.currentView.treeRegion.show @treeView
