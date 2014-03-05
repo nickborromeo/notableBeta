@@ -214,7 +214,6 @@
 
 		pasteContent: (e) ->
 			e.preventDefault()
-			textBefore = @textBeforeCursor()
 			window.getSelection().collapseToEnd()
 			textAfter = @textAfterCursor()
 			pasteText = e.originalEvent.clipboardData.getData("Text")
@@ -222,10 +221,10 @@
 			return App.Notify.alert 'exceedPasting', 'warning' if splitText.length > 100
 			@getNoteContent().html(textBefore + _.first splitText)
 			@updateNote()
-			@pasteNewNote _.rest(splitText), textAfter
+			[branchToFocus, cursorPosition] = @pasteNewNote _.rest(splitText), textAfter
 			Note.eventManager.trigger "change", "renderBranch", @model
-			@$('.note-content:first').focus()
-			Note.eventManager.trigger "setCursor:#{@model.get('guid')}", textBefore
+			Note.eventManager.trigger "setCursor:#{branchToFocus.get('guid')}", cursorPosition
+			# Note.eventManager.trigger "setCursor:#{@model.get('guid')}", textBefore
 		splitPaste: (text) ->
 			reg = /\n/
 			splitText = text.split(reg)
@@ -237,13 +236,12 @@
 			do rec = (text = _.first(splitPaste), splitPaste = _.rest(splitPaste)) =>
 				return if not text?
 				[currentBranch, _1, focusHash] = Note.tree.createNote(currentBranch, currentBranch.get('title'), text, silent:true)
-				Note.eventManager.trigger "setTitle:#{currentBranch.get('guid')}", text
 				rec _.first(splitPaste), _.rest(splitPaste)
 			@pasteLast currentBranch, textAfter
 		pasteLast: (branch, textAfter) ->
 			text = branch.get('title')
-			Note.eventManager.trigger "setTitle:#{branch.get('guid')}", text + textAfter
-			Note.eventManager.trigger "setCursor:#{branch.get('guid')}", text
+			branch.set('title', text + textAfter)
+			[branch, text]
 
 		getSelectionAndTitle: ->
 			[window.getSelection(), @getNoteTitle()]
