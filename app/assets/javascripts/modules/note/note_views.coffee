@@ -265,7 +265,6 @@
 				if child.nodeName is "#text" or child.nodeName is "A"
 					text = child.textContent
 					title += text
-					console.log text, child
 				else
 					title = title+child.outerHTML
 			content.html(@linkify title)
