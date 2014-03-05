@@ -24,15 +24,15 @@
 		fetch: ->
 			@hideControls()
 			$.get @url, (data) =>
-				_(data).each (notebook) =>					
+				_(data).each (notebook) =>
 					if notebook? and not App.Notebook.forest.findWhere(eng: notebook.guid)?
 						checkbox = new Evernote.Notebook notebook
 						@add checkbox
 				@sync() if @isEmpty()
 		sync: ->
 			selectedNotebooks = @getSelected()
-			App.Helper.eventManager.trigger "showProgress"
-			App.Helper.eventManager.trigger "intervalProgress"
+			console.log "selectedNotebooks", selectedNotebooks
+			@showProgressView(selectedNotebooks)
 			$.post @url, notebooks: selectedNotebooks, (data) ->
 				App.Note.noteController.reset ->
 					if data.code is 1
@@ -41,6 +41,12 @@
 						App.Notify.alert 'evernoteRateLimit', 'warning', {selfDestruct: false, retryTime: data.retryTime}
 					App.Notebook.forest.fetch data: user_id: App.User.activeUser.id
 
+		showProgressView: (selectedNotebooks) ->
+			App.Helper.eventManager.trigger "showProgress"
+			if selectedNotebooks.length > 14
+				App.Helper.eventManager.trigger "intervalProgress"
+			else
+				App.Helper.eventManager.trigger "intervalProgressLong"
 		hideControls: ->
 			$("#modview-region").hide()
 			$(".message-template").hide()

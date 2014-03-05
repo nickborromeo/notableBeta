@@ -12,6 +12,8 @@
 			@eventManager.on "showProgress", @showProgress, @
 			@eventManager.on "pushProgress", @progressView.pushProgress, @progressView
 			@eventManager.on "intervalProgress", @progressView.intervalProgress, @progressView
+			@eventManager.on "intervalProgressLong", @progressView.intervalProgressLong, @progressView
+
 			# Focused typing mode events
 			@eventManager.on "showChrome", @showChrome, @
 			@eventManager.on "hideChrome", @hideChrome, @
@@ -111,6 +113,18 @@
 			else
 			  @stopProgress()
 			@markProgress(percent)
+		pushProgressLong: ->
+			return @stopProgress() unless $(".progress").css("width")?
+			percent = @calculateProgress()
+			if percent < 50
+				percent += 14
+			if percent < 70
+				percent += 10
+			else if percent < 100
+				percent += 7
+			else
+			  @stopProgress()
+			@markProgress(percent)
 		calculateProgress: ->
 			op = $(".progress").css("width")
 			ip = $(".progress-bar").css("width")
@@ -120,6 +134,11 @@
 			@interval = setInterval =>
 				@pushProgress()
 			, 1600
+		intervalProgressLong: ->
+			@markProgress(22)
+			@interval = setInterval =>
+				@pushProgressLong()
+			, 2800
 		stopProgress: ->
 			clearInterval(@interval) if @interval?
 
