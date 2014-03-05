@@ -23,6 +23,7 @@
 		# App.module("Tag").start()
 
 	App.on "initialize:after", ->
+		App.module("Evernote").start()
 		App.module("Wiring").start()
 		if Backbone.history
 			Backbone.history.start()
