@@ -268,7 +268,7 @@
 				else
 					title = title+child.outerHTML
 			content.html(@linkify title)
-			Note.eventManager.trigger "setCursor:#{@model.get('guid')}", cursorPosition
+			Note.eventManager.trigger "setCursor:#{@model.get('guid')}", cursorPosition if cursorPosition
 		makeClickable: (e) ->
 			e.target.contentEditable = false
 		makeEditable: (e) ->

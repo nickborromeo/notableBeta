@@ -64,6 +64,7 @@
 			text
 		getContentEditable: (sel) ->
 			do findContentEditable = (node = sel.anchorNode) ->
+				return node unless node?
 				if node.contentEditable is "true"
 					node
 				else
@@ -82,7 +83,7 @@
 			adjustment = matches.reduce adjustmentOperator(previousOffset), 0
 			previousOffset + adjustment
 		adjustAnchorOffset: (sel, title) ->
-			parent = @getContentEditable sel
+			return false unless (parent = @getContentEditable sel)?
 			matches = @collectMatches parent.innerHTML
 			textBefore = @buildTextBefore parent, sel
 			@adjustOffset matches, textBefore.length
@@ -93,9 +94,11 @@
 			acc - match.adjustment
 
 		textBeforeCursor: (sel, title) ->
+			return false unless sel.baseNode?
 			offset = @adjustAnchorOffset(sel, title)
 			textBefore = title.slice(0,offset)
 		textAfterCursor: (sel, title) ->
+			return false unless sel.baseNode?
 			offset = @adjustAnchorOffset(sel, title)
 			textAfter = title.slice offset
 			textAfter = "" if Helpers.tagRegex.matchTagsEndOfString.test(textAfter)
