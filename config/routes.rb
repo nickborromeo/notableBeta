@@ -14,7 +14,7 @@ Notable::Application.routes.draw do
   get "search" => "notes#search"
 
   get "sync" => "evernote#begin_sync_data"
-  post "sync" => "evernote#send_sync_data"
+  post "sync" => "evernote#receive_sync_data"
 
   UpgradeController.action_methods.each do |action|
     get "/#{action}", to: "upgrade##{action}", as: "#{action}_page"
