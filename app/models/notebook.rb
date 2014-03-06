@@ -13,16 +13,27 @@ class Notebook < ActiveRecord::Base
 		notebook.destroy
 	end
 
-	# listOfNotebooks => array received from backbone
+	# notebooks => array received from backbone
 	# [{0: {name: "[NAME]", eng: "[EVERNOTE_GUID]"}, {1: ...
-	def self.createNotebooks (listOfNotebooks, connected_user) 
-		listOfNotebooks.each do |key, n| # n => notebook
-			if Notebook.where("eng='#{n[:eng]}'").empty?
-				fields = {guid: n[:eng], eng: n[:eng], title: n[:name], modview: "outline", user_id: connected_user.id}
-				notebook = Notebook.new fields
-				notebook.save
+	def self.createTrunks (notebooks, user)
+		notebooks.each do |key, notebook|
+			if Notebook.where("eng='#{notebook[:eng]}'").empty?
+				fields = {
+					title: notebook[:name],
+					modview: "outline",
+					user_id: user.id
+					guid: notebook[:eng],
+					eng: notebook[:eng],
+					trashed: false
+				}
+				trunk = Notebook.new fields
+				trunk.save
+			else
+				puts "Error: Notebook already exists"
 			end
+
 		end
 	end
+
 
 end

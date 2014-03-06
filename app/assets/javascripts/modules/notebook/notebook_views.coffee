@@ -89,8 +89,11 @@
 						$(".trunk").removeClass("selected")
 						$("#forest li:first-child").addClass("selected")
 				error: (model, response, opts) =>
-					console.log reponse.message
+					console.log response.message
 			@model.destroy(options)
+			# if model has eng, then we need to mark as trashed, rather than
+			# destroying it because we must also delete the evernote notebook
+			# when we sync
 			App.Notify.alert 'deleteNotebook', 'warning'
 
 	class Notebook.ForestView extends Marionette.CollectionView

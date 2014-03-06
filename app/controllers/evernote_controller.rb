@@ -64,7 +64,7 @@ class EvernoteController < ApplicationController
 
   def begin_sync_data
     notebooks = determine_sync_status
-    notebooks ? prompt_user_to_select(notebooks) : recieve_sync_data
+    notebooks ? prompt_user_to_select(notebooks) : receive_sync_data
   end
 
   def determine_sync_status
@@ -111,8 +111,8 @@ class EvernoteController < ApplicationController
 
   def receive_sync_data
     prepare_sync_request
-    evernoteData = sync_account(@@sync_type)
-    conflicts = parse_incoming_data(evernoteData)
+    @evernoteData = sync_account(@@sync_type)
+    conflicts = parse_incoming_data
     resolve_data(conflicts)
     send_sync_data
   end
@@ -123,9 +123,14 @@ class EvernoteController < ApplicationController
   end
 
   def gather_notable_data
-    notableTrashed = Note.getTrashed
-    extantTrunks = Note.all except for notableTrashed
-    @requestedTrunks.push extantTrunks
+    puts "-------------------------"
+    existingNotebooks = connected_user.getNotebooks
+    existingNotebooks.each { |nb| puts nb.title }
+    puts "-------------------------"
+    notebooksStillInUse = Notebook.stillInUse
+    notebooksStillInUse.each { |nb| puts nb.title }
+    # trunksRequested = []
+    # @requestedTrunks.push trunksRequested
   end
 
   def gather_evernote_data
@@ -229,7 +234,7 @@ class EvernoteController < ApplicationController
       changedBranches = processExpungedAndDeletion evernoteData
     end
 
-    deliverNotebook # Here because Notebooks must have a defined eng before comiledRoot is called
+    deliverNotebook # Here because Notebooks must have a defined eng before compiledRoot is called
     trashNotebooks
     notableData = compileRootsByNotebooks
     if not evernoteData.nil?
@@ -248,7 +253,7 @@ class EvernoteController < ApplicationController
     if not evernoteData.nil?
       User.update(
         connected_user.id,
-        :last_update_count => @rateLimitUSN || evernoteData[:lastChunk].updateCount
+        :last_update_count => @rateLimitUSN || evernoteData[:lastChunk].updateCount,
         :last_full_sync => Time.at(evernoteData[:lastChunk].currentTime/1000)
       )
     end
@@ -383,21 +388,30 @@ class EvernoteController < ApplicationController
   def receiveRootBranches (branches)
     puts "O"
     branchData = []
+    # these are notable branches that have been compiled on Notable's side
+    # we need them so that we can update existing branches
     branches.each do |b|
       begin
         content = note_store.getNoteContent(b.guid)
       rescue Evernote::EDAM::Error::EDAMSystemException => e
         puts e # Need to dig in that Notebook.name error
         puts "Error code: #{e.errorCode}"
-        puts "Rate Limite Duration: #{e.rateLimitDuration}"
+        puts "Rate Limit Duration: #{e.rateLimitDuration}"
         puts "ERROR Branch: #{b.title}, #{b.updateSequenceNum}"
         @rateLimitUSN ||= b.updateSequenceNum
         @rateLimitDuration = e.rateLimitDuration
         break
         # throw e
       end
-      title = Notebook.where("eng = '#{b.notebookGuid}'").first.title if not Notebook.where("eng = '#{b.notebookGuid}'").first.nil?
-      branchData.push({ :eng => b.guid, :title => b.title, :content => content, :notebook_eng => b.notebookGuid})
+      if not Notebook.where("eng = '#{b.notebookGuid}'").first.nil?
+        title = Notebook.where("eng = '#{b.notebookGuid}'").first.title
+      end
+      branchData.push({
+        :eng => b.guid,
+        :title => b.title,
+        :content => content,
+        :notebook_eng => b.notebookGuid
+      })
     end
     Note.receiveBranches filterByNotebooks branchData
   end
