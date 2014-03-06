@@ -81,7 +81,18 @@
 			@adjustOffset.apply this, args
 		adjustOffset: (matches, previousOffset, adjustmentOperator = @addAdjustment) ->
 			adjustment = matches.reduce adjustmentOperator(previousOffset), 0
-			previousOffset + adjustment
+			previousOffset + adjustment + @checkForLinks(adjustment, matches[0].input)
+
+		# This is necessary because html entities in links counts twice and makes the adjust offset off
+		# Basically, it retrieves all the links containing an ampersand
+		# it counts the number of ampersand (if some links have more than one)
+		# and returns an adjustment to make based on the sign of the adjustment
+		checkForLinks: (adjustment, title) ->
+			matches = title.match(/<a href=\".*?(&amp;).*?>/g)
+			count = 0
+			_(matches).each (link) ->
+				count += link.match(/&amp;/g).length
+			count * if adjustment > 0 then -4 else 4
 		adjustAnchorOffset: (sel, title) ->
 			return false unless (parent = @getContentEditable sel)?
 			matches = @collectMatches parent.innerHTML
