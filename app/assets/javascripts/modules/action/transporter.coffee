@@ -88,11 +88,11 @@
 		successNotification: (callback) ->
 			# gets rid of branches that got deleted but never actually got saved to server
 			@removed = _.filter @removed, (branch) -> branch.id?
-			# numberOfChanges = @removed.length + @storage.collectChanges().length
-			numberOfChanges = @removed.length + App.Note.allNotesByDepth.models.length
+			numberOfChanges = @removed.length + @storage.collectChanges().length
 			showNotification = =>
 				i = 0
-				=>
+				return =>
+					console.log i, numberOfChanges
 					if ++i is numberOfChanges
 						App.Notify.alert.apply(App.Notify.alert, @notificationToTrigger[1])
 						callback() if callback?
@@ -100,11 +100,12 @@
 		processToServer: (callback) ->
 			options = @successNotification callback
 			changeGuids = @storage.collectChanges()
-			App.Note.allNotesByDepth.each (branch) ->	branch.save null, options
-			# _.each changeGuids, (guid) =>
-			# 	branch = App.Note.allNotesByDepth.findWhere(guid: guid);
-			# 	branch.save null, options
-			#  (branch) ->	branch.save null, options
+			_.each changeGuids, (guid) =>
+				branch = App.Note.allNotesByDepth.findWhere(guid: guid);
+				if branch?
+					branch.save null, options
+				else
+					options.success()
 			_.each @removed, (branch) -> branch.destroy(options)
 			@storage.clearSyncing()
 			@removed = []
