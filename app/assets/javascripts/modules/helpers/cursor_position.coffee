@@ -72,6 +72,7 @@
 		collectMatches: (text) ->
 			matches = Helpers.collectAllMatches text
 			matches = matches.concat Helpers.collectAllMatches text, Helpers.tagRegex.matchHtmlEntities, 1
+			matches = matches.concat @checkForLinks text
 			matches = matches.sort (a,b) -> a.index - b.index
 		increaseOffsetAdjustment: ->
 			args = App.Note.concatWithArgs arguments, @addAdjustment
@@ -81,18 +82,24 @@
 			@adjustOffset.apply this, args
 		adjustOffset: (matches, previousOffset, adjustmentOperator = @addAdjustment) ->
 			adjustment = matches.reduce adjustmentOperator(previousOffset), 0
-			previousOffset + adjustment + @checkForLinks(adjustment, matches[0].input)
+			previousOffset + adjustment
 
-		# This is necessary because html entities in links counts twice and makes the adjust offset off
+		# This is necessary because html entities in links counts twice and makes the adjusted offset off
 		# Basically, it retrieves all the links containing an ampersand
-		# it counts the number of ampersand (if some links have more than one)
-		# and returns an adjustment to make based on the sign of the adjustment
-		checkForLinks: (adjustment, title) ->
-			matches = title.match(/<a href=\".*?(&amp;).*?>/g)
-			count = 0
-			_(matches).each (link) ->
-				count += link.match(/&amp;/g).length
-			count * if adjustment > 0 then -4 else 4
+		# It then finds the index of the &amp; in the link (not in the href, but between both <a></a>)
+		# and it sets the adjustment to be negative since we want to substract those matches
+		checkForLinks: (title) ->
+			matchLink = /(<a href=\"(.*?(&amp;).*?)>)(.*?)<\/a>/g
+			matchAmp = /&amp;/g
+			matches = []
+			while link = matchLink.exec title
+				while amp = matchAmp.exec _(link).last()
+					matches.push
+						match: link[0]
+						index: link.index + amp.index + link[1].length
+						input: link.input
+						adjustment: -1 * amp[0].length + 1
+			matches
 		adjustAnchorOffset: (sel, title) ->
 			return false unless (parent = @getContentEditable sel)?
 			matches = @collectMatches parent.innerHTML
