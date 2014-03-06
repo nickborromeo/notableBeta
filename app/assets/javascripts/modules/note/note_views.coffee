@@ -214,7 +214,7 @@
 
 		pasteContent: (e) ->
 			e.preventDefault()
-			window.getSelection().deleteFromDocument()
+			sel.deleteFromDocument() if (sel = window.getSelection().isCollapsed) is false
 			textBefore = @textBeforeCursor()
 			textAfter = @textAfterCursor()
 			pasteText = e.originalEvent.clipboardData.getData("Text")
