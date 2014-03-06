@@ -92,7 +92,6 @@
 			showNotification = =>
 				i = 0
 				return =>
-					console.log i, numberOfChanges
 					if ++i is numberOfChanges
 						App.Notify.alert.apply(App.Notify.alert, @notificationToTrigger[1])
 						callback() if callback?
