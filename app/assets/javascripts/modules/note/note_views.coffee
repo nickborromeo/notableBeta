@@ -203,10 +203,10 @@
 			@updateNote()
 			App.Action.orchestrator.triggerSaving()
 		updateNote: (forceUpdate = false) ->
-			@checkForLinks()
 			noteTitle = @getNoteTitle()
 			noteSubtitle = "" #@getNoteSubtitle()
 			if @model.get('title') isnt noteTitle or forceUpdate is true
+				@checkForLinks()
 				App.Action.orchestrator.triggerAction 'updateBranch', @model,
 					title: noteTitle
 					subtitle: noteSubtitle
@@ -261,7 +261,8 @@
 			cursorPosition = @textBeforeCursor()
 			content = @getNoteContent()
 			title = content.text()
-			insertLinksBound = @insertLinks.bind(@, @getMatchingLinks title) # creates a unary function which expects only a title
+			return false unless (link = @getMatchingLinks title)?
+			insertLinksBound = @insertLinks.bind(@, link) # creates a unary function which expects only a title
 			title = insertLinksBound @escapeHtmlEntities @replaceLinks title # it allows for this nice flow of chained modifications
 			content.html(title)
 			Note.eventManager.trigger "setCursor:#{@model.get('guid')}", cursorPosition if cursorPosition
