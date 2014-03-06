@@ -10,7 +10,7 @@ class User < ActiveRecord::Base
 
 
 	def getNotebooks
-		Notebook.where("user_id =#{self.id}")
+		Notebook.where("user_id=#{self.id} AND trashed=false")
 	end
 
 end
