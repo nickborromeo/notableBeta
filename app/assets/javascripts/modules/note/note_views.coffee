@@ -261,19 +261,39 @@
 			cursorPosition = @textBeforeCursor()
 			content = @getNoteContent()
 			title = content.text()
-			if (linkified = @linkify(title)) isnt content.html()
-				# title = content.text(title).html() # escape html entities before linkifying
-				content.html(@linkify title)
-				Note.eventManager.trigger "setCursor:#{@model.get('guid')}", cursorPosition if cursorPosition
-		makeClickable: (e) ->
-			e.target.contentEditable = false
-		makeEditable: (e) ->
-			$(e.target).removeAttr("contentEditable")
+			insertLinksBound = @insertLinks.bind(@, @getMatchingLinks title) # creates a unary function which expects only a title
+			title = insertLinksBound @escapeHtmlEntities @replaceLinks title # it allows for this nice flow of chained modifications
+			content.html(title)
+			Note.eventManager.trigger "setCursor:#{@model.get('guid')}", cursorPosition if cursorPosition
+
+		# Returns an array of all the links in the title
+		getMatchingLinks: (title) ->
+			title.match(@link)
+
+		# Replace links with a given low-chance of conflicting text
+		# this will allow us to escape html entities safely
+		# while still having clear delimiations of where links should go
+		linkReplacementText: "${{replace_link}}"
+		replaceLinks: (title) ->
+			title.replace(this.link, @linkReplacementText)
+		escapeHtmlEntities: (title) ->
+			@getNoteContent().text(title).html()
+
+		# Finally replaces replacement texts with their links
+		insertLinks: (links, title) ->
+			_(links).each (link) =>
+				title = title.replace @linkReplacementText, @linkify(link)
+			title
 		linkify: (text)->
 			if text.match /\b(http)/
 				text.replace(@link, "<a href='$1' target='_blank' class='titleLink'>$1</a>")
 			else
 				text.replace(@link, "<a href='http://$1' target='_blank' class='titleLink'>$1</a>")
+
+		makeClickable: (e) ->
+			e.target.contentEditable = false
+		makeEditable: (e) ->
+			$(e.target).removeAttr("contentEditable")
 		setNoteTitle: (title, forceUpdate = false) ->
 			@getNoteContent().html title
 			@updateNote forceUpdate
