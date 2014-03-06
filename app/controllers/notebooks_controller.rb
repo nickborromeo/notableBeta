@@ -52,7 +52,8 @@ class NotebooksController < ApplicationController
 		# else
 		# 	@notebook.destroy
 		# end
-		@notebook.destroy
+		# @notebook.destroy
+    @notebook.update_attributes(:trashed => true)
     respond_with(@notebook) do |format|
       format.html { redirect_to notebooks_url }
       format.json { head :no_content }
