@@ -74,15 +74,6 @@
 			matches = matches.concat Helpers.collectAllMatches text, Helpers.tagRegex.matchHtmlEntities, 1
 			matches = matches.concat @checkForLinks text
 			matches = matches.sort (a,b) -> a.index - b.index
-		increaseOffsetAdjustment: ->
-			args = App.Note.concatWithArgs arguments, @addAdjustment
-			@adjustOffset.apply this, args
-		decreaseOffsetAdjustment: ->
-			args = App.Note.concatWithArgs arguments, @substractAdjustment
-			@adjustOffset.apply this, args
-		adjustOffset: (matches, previousOffset, adjustmentOperator = @addAdjustment) ->
-			adjustment = matches.reduce adjustmentOperator(previousOffset), 0
-			previousOffset + adjustment
 
 		# This is necessary because html entities in links counts twice and makes the adjusted offset off
 		# Basically, it retrieves all the links containing an ampersand
@@ -100,16 +91,26 @@
 						input: link.input
 						adjustment: -1 * amp[0].length + 1
 			matches
+
 		adjustAnchorOffset: (sel, title) ->
 			return false unless (parent = @getContentEditable sel)?
 			matches = @collectMatches parent.innerHTML
 			textBefore = @buildTextBefore parent, sel
 			@adjustOffset matches, textBefore.length
+		increaseOffsetAdjustment: ->
+			args = App.Note.concatWithArgs arguments, @addAdjustment
+			@adjustOffset.apply this, args
+		decreaseOffsetAdjustment: ->
+			args = App.Note.concatWithArgs arguments, @substractAdjustment
+			@adjustOffset.apply this, args
 		addAdjustment: (previousOffset) -> (acc, match) ->
 			if (acc + previousOffset > match.index) then acc + match.adjustment
 			else acc
 		substractAdjustment: (previousOffset) -> (acc, match) ->
 			acc - match.adjustment
+		adjustOffset: (matches, previousOffset, adjustmentOperator = @addAdjustment) ->
+			adjustment = matches.reduce adjustmentOperator(previousOffset), 0
+			previousOffset + adjustment
 
 		textBeforeCursor: (sel, title) ->
 			return false unless sel.baseNode?
