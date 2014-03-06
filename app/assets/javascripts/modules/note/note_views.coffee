@@ -206,7 +206,7 @@
 			noteTitle = @getNoteTitle()
 			noteSubtitle = "" #@getNoteSubtitle()
 			if @model.get('title') isnt noteTitle or forceUpdate is true
-				@checkForLinks()
+				noteTitle = @checkForLinks()
 				App.Action.orchestrator.triggerAction 'updateBranch', @model,
 					title: noteTitle
 					subtitle: noteSubtitle
@@ -220,8 +220,7 @@
 			pasteText = e.originalEvent.clipboardData.getData("Text")
 			splitText = @splitPaste pasteText
 			return App.Notify.alert 'exceedPasting', 'warning' if splitText.length > 100
-			@getNoteContent().html(textBefore + _.first splitText)
-			@updateNote()
+			Note.eventManager.trigger "setTitle:#{@model.get('guid')}", textBefore + _.first(splitText), true
 			[branchToFocus, cursorPosition] = @pasteNewNote _.rest(splitText), textAfter
 			Note.eventManager.trigger "change", "renderBranch", @model
 			Note.eventManager.trigger "setCursor:#{branchToFocus.get('guid')}", cursorPosition
@@ -261,11 +260,12 @@
 			cursorPosition = @textBeforeCursor()
 			content = @getNoteContent()
 			title = content.text()
-			return false unless (link = @getMatchingLinks title)?
+			return content.html() unless (link = @getMatchingLinks title)?
 			insertLinksBound = @insertLinks.bind(@, link) # creates a unary function which expects only a title
 			title = insertLinksBound @escapeHtmlEntities @replaceLinks title # it allows for this nice flow of chained modifications
 			content.html(title)
 			Note.eventManager.trigger "setCursor:#{@model.get('guid')}", cursorPosition if cursorPosition
+			title
 
 		# Returns an array of all the links in the title
 		getMatchingLinks: (title) ->
