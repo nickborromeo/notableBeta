@@ -65,5 +65,15 @@ class NotebooksController < ApplicationController
     @notebook.update_attributes(:trashed => false)
     respond_with @notebook
   end
+  def emptyTrash
+    @notebooks = Notebook.where("trashed=true AND user_id=#{params[:user_id]}")
+    @notebooks.each do |notebook|
+      notebook.destroy
+    end
+    respond_with(@notebooks) do |format|
+      format.html { redirect_to notebooks_url }
+      format.json { head :no_content }
+    end
+  end
   
 end

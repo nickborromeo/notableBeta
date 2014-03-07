@@ -16,7 +16,8 @@ Notable::Application.routes.draw do
   get "sync" => "evernote#begin_sync_data"
   post "sync" => "evernote#receive_sync_data"
 
-  get "notebookUndoDelete/:id" => "notebooks#undoDelete"
+  get "notebooks/undoDelete/:id" => "notebooks#undoDelete"
+  get "notebooks/emptyTrash/:user_id" => "notebooks#emptyTrash"
 
   UpgradeController.action_methods.each do |action|
     get "/#{action}", to: "upgrade##{action}", as: "#{action}_page"

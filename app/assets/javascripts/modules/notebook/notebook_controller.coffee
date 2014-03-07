@@ -20,6 +20,7 @@
 						@showNotebookView(@forest)
 						trunk.trigger 'select'
 						Notebook.initializedTrunk.resolve()
+						@emptyNotebookTrash()
 		reset: ->
 		setGlobals: ->
 			Notebook.initializedTrunk = $.Deferred();
@@ -35,8 +36,10 @@
 			App.sidebarRegion.currentView.notebookRegion.show @forestView
 
 		undoNotebookDeletion: ->
-			$.get "/notebookUndoDelete/#{Notebook.config.lastNotebookDeleted}.json", (notebook) =>
+			$.get "notebooks/undoDelete/#{Notebook.config.lastNotebookDeleted}.json", (notebook) =>
 				@forest.add notebook
+		emptyNotebookTrash: ->
+			$.get "notebooks/emptyTrash/#{App.User.activeUser.id}.json"
 
 	# Initializers -------------------------
 	Notebook.addInitializer ->
