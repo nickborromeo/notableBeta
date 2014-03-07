@@ -52,8 +52,8 @@
 			@changes[guid]?
 
 		swapToSync: ->
-			@syncChanges = @changes
-			@syncDeletes = @deletes
+			_.extend @syncChanges, @changes
+			_.extend @syncDeletes, @deletes
 			window.localStorage.setItem @syncChangesKey, JSON.stringify(@syncChanges)
 			window.localStorage.setItem @syncDeletesKey, JSON.stringify(@syncDeletes)
 			@clear(false)

@@ -94,6 +94,8 @@
 				return =>
 					if ++i is numberOfChanges
 						App.Notify.alert.apply(App.Notify.alert, @notificationToTrigger[1])
+						@storage.clearSyncing()
+						@removed = []
 						callback() if callback?
 			options = success: showNotification()
 		processToServer: (callback) ->
@@ -106,5 +108,3 @@
 				else
 					options.success()
 			_.each @removed, (branch) -> branch.destroy(options)
-			@storage.clearSyncing()
-			@removed = []
