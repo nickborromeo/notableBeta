@@ -28,11 +28,14 @@
 				selectTrunkCb = =>
 					App.Notebook.activeTrunk = @model
 					App.Note.eventManager.trigger "activeTrunk:changed"
+					@zoomIn()
 				if App.Action.transporter.storage.hasChangesToSync()
 					App.Note.initializedTree.then ->
 						App.Action.orchestrator.triggerSaving(selectTrunkCb)
 				else
 					selectTrunkCb()
+		zoomIn: ->
+			
 		createTrunk: ->
 			@selectTrunk()
 			App.Notify.alert 'newNotebook', 'success', {destructTime: 5000}

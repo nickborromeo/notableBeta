@@ -142,6 +142,7 @@
 				@showNotebookTitleView()
 				if Note.tree.first()?
 					Note.eventManager.trigger "setCursor:#{Note.tree.first().get('guid')}"
+				App.Note.eventManager.trigger "notebook:clearZoom"
 		zoomIn: (guid) ->
 			App.Note.initializedTree.then =>
 				App.Note.activeTree = App.Note.tree.getCollection guid
@@ -153,7 +154,7 @@
 					Note.eventManager.trigger "setCursor:#{Note.activeTree.first().get('guid')}"
 				else
 					Note.eventManager.trigger "setCursor:#{Note.activeBranch.get('guid')}"
-
+				App.Note.eventManager.trigger "notebook:zoomIn", App.Note.activeBranch.id
 		changeActiveTrunk: ->
 			@showContentView(new Backbone.Collection)
 			if Note.activeBranch is "root"
