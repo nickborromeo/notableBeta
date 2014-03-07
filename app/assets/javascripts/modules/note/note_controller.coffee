@@ -19,6 +19,7 @@
 			@setEvents()
 		start: ->
 			App.Notebook.initializedTrunk.then =>
+				@showNotebookTitleView()
 				App.Action.transporter.testServerConnection()
 				Note.syncingCompleted.then => @buildTree()
 		reset: (callback = ->) ->
@@ -46,6 +47,7 @@
 			@allNotesByDepth.validateTree()
 			@allNotesByDepth.each (note) =>
 				@tree.add(note, silent:true)
+			@showContentView(@tree)
 			Note.eventManager.trigger("setCursor:#{@tree.first().get('guid')}") if @tree.length isnt 0
 			App.Note.initializedTree.resolve()
 			@showLinksFooter()
@@ -132,6 +134,7 @@
 		# This runs when you zoom out, but ALSO WHEN YOU INITIALIZE the page
 		clearZoom: ->
 			App.Note.initializedTree.then =>
+				return false if App.Note.activeBranch is 'root'
 				Backbone.history.navigate '#'
 				App.Note.activeTree = App.Note.tree
 				@clearCrownView()
@@ -152,6 +155,7 @@
 					Note.eventManager.trigger "setCursor:#{Note.activeBranch.get('guid')}"
 
 		changeActiveTrunk: ->
+			@showContentView(new Backbone.Collection)
 			if Note.activeBranch is "root"
 				@showNotebookTitleView()
 			else
