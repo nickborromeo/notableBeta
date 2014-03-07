@@ -25,12 +25,18 @@
 			Notebook.initializedTrunk = $.Deferred();
 			Notebook.activeTrunk = @activeTrunk
 			Notebook.forest = @forest
+			Notebook.config = {}
 		setEvents: ->
+			App.Note.eventManager.on "undoNotebookDeletion", @undoNotebookDeletion, @
 
 		showNotebookView: (forest) ->
 			App.sidebarRegion.currentView.notebookRegion.close()
 			@forestView = new App.Notebook.ForestView(collection: forest)
 			App.sidebarRegion.currentView.notebookRegion.show @forestView
+
+		undoNotebookDeletion: ->
+			$.get "/notebookUndoDelete/#{Notebook.config.lastNotebookDeleted}.json", (notebook) =>
+				@forest.add notebook
 
 	# Initializers -------------------------
 	Notebook.addInitializer ->

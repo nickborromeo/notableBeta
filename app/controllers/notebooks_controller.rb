@@ -60,4 +60,10 @@ class NotebooksController < ApplicationController
     end
   end
 
+  def undoDelete
+    @notebook = Notebook.find(params[:id])
+    @notebook.update_attributes(:trashed => false)
+    respond_with @notebook
+  end
+  
 end

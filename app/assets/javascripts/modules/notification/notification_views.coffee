@@ -1,7 +1,7 @@
 @Notable.module("Notify", (Notify, App, Backbone, Marionette, $, _) ->
 	class Notify.SaveView extends Marionette.ItemView
 		template: 'notification/save'
-		onRender: =>
+		onRender: ->
 			@$el.fadeIn(Notify._fadeOutTime + 100)
 
 	class Notify.AlertView extends Marionette.ItemView
@@ -17,19 +17,20 @@
 					@model.collection.remove @model
 				), @model.get('destructTime')
 
-		undoNoteDelete: (event) =>
+		undoNoteDelete: (event) ->
 			event.stopPropagation()
 			event.preventDefault()
 			App.Action.manager.undo()
-		undoNotebookDelete: (event) =>
+		undoNotebookDelete: (event) ->
 			event.stopPropagation()
 			event.preventDefault()
-			console.log "Undo notebook deletion"
-		closeAlert: (event) =>
+			App.Note.eventManager.trigger "undoNotebookDeletion"
+			@closeAlert event
+		closeAlert: (event) ->
 			event.stopPropagation()
 			@model.collection.remove @model
 
-		remove: =>
+		remove: ->
 			clearTimeout @timeoutID
 			@$el.fadeOut Notify._fadeOutTime, =>
 				@$el.remove()

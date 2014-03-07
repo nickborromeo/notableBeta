@@ -90,11 +90,12 @@
 						$("#forest li:first-child").addClass("selected")
 				error: (model, response, opts) =>
 					console.log response.message
+			Notebook.config.lastNotebookDeleted = @model.get('id')
 			@model.destroy(options)
 			# if model has eng, then we need to mark as trashed, rather than
 			# destroying it because we must also delete the evernote notebook
 			# when we sync
-			App.Notify.alert 'deleteNotebook', 'warning'
+			App.Notify.alert 'deleteNotebook', 'warning', selfDestruct: false
 
 	class Notebook.ForestView extends Marionette.CollectionView
 		id: "forest"
