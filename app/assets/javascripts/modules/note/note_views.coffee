@@ -255,8 +255,7 @@
 			@ui.noteContent
 
 		link: /((\b((https?:\/\/)|(www\.))[-A-Z0-9+&@#\/%?=~_|!:,.;]+[\w\/])|([.\w]{3,100}\.(biz|co|com|edu|gov|io|net|org)\b))/ig
-
-		# Known bug : links in a multi-line paste are not recognize immediately
+		# Known bug : links in a multi-line paste are not recognized immediately
 		checkForLinks: ->
 			cursorPosition = @textBeforeCursor()
 			content = @getNoteContent()
@@ -279,6 +278,7 @@
 				text.replace(@link, "<a href='$1' target='_blank' class='titleLink'>$1</a>")
 			else
 				text.replace(@link, "<a href='http://$1' target='_blank' class='titleLink'>$1</a>")
+
 		setNoteTitle: (title, forceUpdate = false) ->
 			@getNoteContent().html title
 			@updateNote forceUpdate

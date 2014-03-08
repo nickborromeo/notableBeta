@@ -21,7 +21,7 @@ class Notebook < ActiveRecord::Base
 				fields = {
 					title: notebook[:name],
 					modview: "outline",
-					user_id: user.id
+					user_id: user.id,
 					guid: notebook[:eng],
 					eng: notebook[:eng],
 					trashed: false
