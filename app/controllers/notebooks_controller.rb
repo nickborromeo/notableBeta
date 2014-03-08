@@ -52,11 +52,28 @@ class NotebooksController < ApplicationController
 		# else
 		# 	@notebook.destroy
 		# end
-		@notebook.destroy
+		# @notebook.destroy
+    @notebook.update_attributes(:trashed => true)
     respond_with(@notebook) do |format|
       format.html { redirect_to notebooks_url }
       format.json { head :no_content }
     end
   end
 
+  def undoDelete
+    @notebook = Notebook.find(params[:id])
+    @notebook.update_attributes(:trashed => false)
+    respond_with @notebook
+  end
+  def emptyTrash
+    @notebooks = Notebook.where("trashed=true AND user_id=#{params[:user_id]}")
+    @notebooks.each do |notebook|
+      notebook.destroy
+    end
+    respond_with(@notebooks) do |format|
+      format.html { redirect_to notebooks_url }
+      format.json { head :no_content }
+    end
+  end
+  
 end

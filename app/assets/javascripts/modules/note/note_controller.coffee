@@ -19,6 +19,7 @@
 			@setEvents()
 		start: ->
 			App.Notebook.initializedTrunk.then =>
+				@showNotebookTitleView()
 				App.Action.transporter.testServerConnection()
 				Note.syncingCompleted.then => @buildTree()
 		reset: (callback = ->) ->
@@ -46,7 +47,9 @@
 			@allNotesByDepth.validateTree()
 			@allNotesByDepth.each (note) =>
 				@tree.add(note, silent:true)
+			@showContentView(@tree)
 			Note.eventManager.trigger("setCursor:#{@tree.first().get('guid')}") if @tree.length isnt 0
+			Note.eventManager.trigger "notebook:applyZoom"
 			App.Note.initializedTree.resolve()
 			@showLinksFooter()
 
@@ -100,6 +103,7 @@
 				@crownView.close()
 				delete @crownView
 			App.Note.activeBranch = "root"
+			App.Note.activeTree = App.Note.tree
 
 		# Breadcrumbs
 		showBreadcrumbView: ->
@@ -129,11 +133,12 @@
 				@showContentView App.Note.filteredTree
 				@showNotebookTitleView()
 
-		# This runs when you zoom out, but ALSO WHEN YOU INITIALIZE the page
 		clearZoom: ->
 			App.Note.initializedTree.then =>
+				return false if App.Note.activeBranch is 'root'
+				 # triggered first to keep previous active branch (reset in @clearCrownView)
+				App.Note.eventManager.trigger "notebook:clearZoom"
 				Backbone.history.navigate '#'
-				App.Note.activeTree = App.Note.tree
 				@clearCrownView()
 				@showContentView App.Note.tree
 				@showNotebookTitleView()
@@ -150,8 +155,9 @@
 					Note.eventManager.trigger "setCursor:#{Note.activeTree.first().get('guid')}"
 				else
 					Note.eventManager.trigger "setCursor:#{Note.activeBranch.get('guid')}"
-
+				App.Note.eventManager.trigger "notebook:zoomIn", App.Note.activeBranch.get('guid')
 		changeActiveTrunk: ->
+			@showContentView(new Backbone.Collection)
 			if Note.activeBranch is "root"
 				@showNotebookTitleView()
 			else
