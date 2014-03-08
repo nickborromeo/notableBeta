@@ -86,9 +86,7 @@ class EvernoteController < ApplicationController
     oldestChange = start_point
     begin
       lastChunk, oldestChange, newestChange = get_notebook_chunk(oldestChange)
-      puts "oldestChange: #{oldestChange}, newestChange: #{newestChange}"
       notebooks.concat lastChunk.notebooks
-      puts "notebooks: #{notebooks}"
     end while oldestChange < newestChange
     notebooks
   end
@@ -111,6 +109,7 @@ class EvernoteController < ApplicationController
 
   def receive_sync_data
     prepare_sync_request
+    puts "requestedTrunks: #{@requestedTrunks}"
     @evernoteData = sync_account(@@sync_type)
     conflicts = parse_incoming_data
     resolve_data(conflicts)
@@ -118,24 +117,20 @@ class EvernoteController < ApplicationController
   end
 
   def prepare_sync_request
-    gather_notable_data # all notebooks except those that are trashed
-    gather_evernote_data # all notebooks that were just selected by the user
-  end
-
-  def gather_notable_data
-    puts "-------------------------"
-    existingNotebooks = connected_user.getNotebooks
-    existingNotebooks.each { |nb| puts nb.title }
-    puts "-------------------------"
-    notebooksStillInUse = Notebook.stillInUse
-    notebooksStillInUse.each { |nb| puts nb.title }
-    # trunksRequested = []
-    # @requestedTrunks.push trunksRequested
-  end
-
-  def gather_evernote_data
-    Notebook.createNotebooks params[:notebooks], connected_user if params[:notebooks]
-    @requestedTrunks.push newTrunks
+    @requestedTrunks = []
+    # Gather all Notable notebooks except those that are trashed
+    existingTrunks = connected_user.getNotebooks
+    existingTrunks.each { |n| @requestedTrunks.push n.eng if n.eng }
+    # Gather all Evernote notebooks that were just selected by the user
+    newTrunks = params[:notebooks]
+    if newTrunks
+      Notebook.createTrunks newTrunks, connected_user
+      newTrunks.each do |key, notebook|
+        puts "key: #{key}"
+        puts "------------"
+        @requestedTrunks.push notebook[:eng]
+      end
+    end
   end
 
   def sync_account(type)
