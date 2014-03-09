@@ -245,11 +245,11 @@
 		getPrecedingTarget: ->
 			@jumpTarget("jumpUp").bind @
 
-		getJumpPositionTarget: (getJumpTarget, initDepth, descendantList, target) ->
-			do rec = (depth = initDepth - 1, target) ->
-				return getJumpTarget(initDepth, target.descendants.models) || target if target?
-				return false if depth is 0
-				rec depth - 1, getJumpTarget depth, descendantList
+		getJumpPositionTarget: (getJumpTarget, depth, descendantList, target) ->
+			unless target? and target.get('depth') >= depth - 1
+				target = getJumpTarget depth - 1, descendantList
+			return false unless target?
+			getJumpTarget(depth, target.descendants.models) || Note.buildBranchLike rank: 0, depth: depth, parent_id: target.get 'guid'
 		makeDescendant: (preceding, depth, jumpTarget) ->
 			return jumpTarget if depth - 1 < jumpTarget.get('depth')
 			Note.buildBranchLike rank: 0, depth: jumpTarget.get('depth') + 1, parent_id: jumpTarget.get('guid') || preceding.get('guid')
@@ -264,16 +264,17 @@
 
 		findPrecedingBranch: (branch, precedingBranch) ->
 			return precedingBranch if precedingBranch? or branch.isFirstRoot(true)
-			ancestorBranch = @findNote branch.get('parent_id')
-			precedingBranch = @findPrecedingInCollection ancestorBranch
-			@findPrecedingBranch(ancestorBranch, precedingBranch)
+			branch = @findNote(parent_id) if (parent_id = branch.get('parent_id')) isnt 'root'
+			precedingBranch = @findPrecedingInCollection branch
+			@findPrecedingBranch(branch, precedingBranch)
 		getJumpPositionUpTarget: (branch) ->
-			return false if not precedingBranch = @findPrecedingBranch branch
-			preceding = precedingBranch.descendants.last()
-			return Note.buildBranchLike(rank: 0, depth: precedingBranch.get('depth') + 1, parent_id: precedingBranch.get('guid')) if not preceding?
-			jumpTarget = @getJumpPositionTarget @getPrecedingTarget(), branch.get('depth'), preceding.getCompleteDescendantList()
-			@makeDescendant(preceding, branch.get('depth'),
-					jumpTarget || Note.buildBranchLike rank: preceding.get('rank'), depth: preceding.get('depth'), parent_id: preceding.get('parent_id'))
+			targetDepth = branch.get('depth')
+			do rec = (branch = branch, jumpTarget = false) =>
+				return jumpTarget if jumpTarget
+				return false if not precedingBranch = @findPrecedingBranch branch
+				descendantList = precedingBranch.getCompleteDescendantList()
+				rec precedingBranch, @getJumpPositionTarget @getPrecedingTarget(), targetDepth, descendantList, precedingBranch
+			
 		jumpUp: (branch) ->
 			return false if not target = @getJumpPositionUpTarget branch
 			target
