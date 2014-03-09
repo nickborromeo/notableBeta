@@ -32,11 +32,14 @@
 			@collection = @model.descendants
 			@bindKeyboardShortcuts()
 			@listenTo @collection, "sort", @render
+			@listenTo @model, "expand", @expand
+			@listenTo @model, "collapse", @collapse
 			Note.eventManager.on "setCursor:#{@model.get('guid')}", @setCursor, @
 			Note.eventManager.on "render:#{@model.get('guid')}", @render, @
 			Note.eventManager.on "setTitle:#{@model.get('guid')}", @setNoteTitle, @
 			Note.eventManager.on "timeoutUpdate:#{@model.get('guid')}", @updateNote, @
 			Note.eventManager.on "expand:#{@model.get('guid')}", @expand, @
+			Note.eventManager.on "collapse:#{@model.get('guid')}", @collapse, @
 			@cursorApi = App.Helpers.CursorPositionAPI
 		onRender: ->
 			@getNoteContent()
@@ -101,7 +104,7 @@
 			Note.eventManager.off "timeoutUpdate:#{@model.get('guid')}", @updateNote, @
 			Note.eventManager.off "timeoutUpdate:#{@model.get('guid')}", @checkForLinks, @
 			Note.eventManager.off "expand:#{@model.get('guid')}", @expand, @
-
+			Note.eventManager.off "collapse:#{@model.get('guid')}", @collapse, @
 		applyStyling: (style, e) ->
 			e.preventDefault()
 			e.stopPropagation()
@@ -167,7 +170,7 @@
 				App.Action.orchestrator.triggerAction('basicAction', @model, collapsed: false) if @model.get('collapsed')
 				@ui.descendants.slideDown('fast')
 				@$(">.branch>.bullet").removeClass("is-collapsed")
-		collapse: (onLoad=false) ->
+		collapse: (onLoad = false) ->
 			if @collapsable() and not @isCollapsed()
 				App.Action.orchestrator.triggerAction('basicAction', @model, collapsed: true) if not @model.get('collapsed')
 				if onLoad
