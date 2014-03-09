@@ -293,11 +293,12 @@
 				note
 
 		getJumpPositionDownTarget: (branch, followingBranch) ->
-			following = followingBranch.descendants.first()
-			return Note.buildBranchLike(rank: 1, depth: followingBranch.get('depth') + 1, parent_id: followingBranch.get('guid')) if not following?
-			jumpTarget = @getJumpPositionTarget @getFollowingTarget(), branch.get('depth'), following.getCompleteDescendantList()
-			@makeDescendant(following, branch.get('depth'),
-					jumpTarget || Note.buildBranchLike rank: following.get('rank'), depth: following.get('depth'), parent_id: following.get('parent_id'))
+			targetDepth = branch.get('depth')
+			do rec = (branch = branch, jumpTarget = false) =>
+				return jumpTarget if jumpTarget
+				return false if not followingBranch = @findFollowingNote branch, false
+				descendantList = followingBranch.getCompleteDescendantList()
+				rec followingBranch, @getJumpPositionTarget @getFollowingTarget(), targetDepth, descendantList, followingBranch
 		jumpDown: (branch, followingBranch) ->
 			return false if not target = @getJumpPositionDownTarget branch, followingBranch
 			target
