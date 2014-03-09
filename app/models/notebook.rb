@@ -13,8 +13,9 @@ class Notebook < ActiveRecord::Base
 		notebook.destroy
 	end
 
-	# notebooks => array received from backbone
-	# [{0: {name: "[NAME]", eng: "[EVERNOTE_GUID]"}, {1: ...
+	# notebooks => array received from evernote through user selection
+	# [{0: {name: "[NAME]", eng: "[EVERNOTE_GUID]"}, {1: {name:
+  # "[NAME OF SECOND NOTEBOOK]", eng: "[GUID OF SECOND NOTEBOOK]"} ...
 	def self.createTrunks (notebooks, user)
 		notebooks.each do |key, notebook|
 			if Notebook.where("eng='#{notebook[:eng]}'").empty?

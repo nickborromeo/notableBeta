@@ -38,8 +38,6 @@ class EvernoteController < ApplicationController
         else
           @client ||= EvernoteOAuth::Client.new(token: token_credentials, sandbox: true)
         end
-        @user ||= evernote_user token_credentials
-        @notebooks ||= evernote_notebooks token_credentials
         flash[:notice] = %Q[Successfully connected your Notable account to Evernote! <a href='learn'>Learn More</a>].html_safe
       rescue => e
         puts e.message
@@ -71,13 +69,12 @@ class EvernoteController < ApplicationController
     last_time_notable_was_synced = connected_user.last_full_sync
     cutoff_point = Time.at(sync_state.fullSyncBefore/1000)
     if last_time_notable_was_synced.nil?
-      @@sync_type = "full"
+      sync_notebooks("full")
     elsif last_time_notable_was_synced < cutoff_point
-      @@sync_type = "full"
+      sync_notebooks("full")
     elsif evernote_has_new_updates?
-      @@sync_type = "incremental"
+      sync_notebooks("incremental")
     end
-    sync_notebooks(@@sync_type)
   end
 
   def sync_notebooks(type)
@@ -92,7 +89,6 @@ class EvernoteController < ApplicationController
   end
 
   def get_notebook_chunk(start_point)
-    credentials = connected_user.token_credentials
     afterUSN = start_point
     maxEntries = 50
     syncFilter =  Evernote::EDAM::NoteStore::SyncChunkFilter.new({
@@ -106,70 +102,59 @@ class EvernoteController < ApplicationController
   # PART 2 OF 4
   # Grab the selected notebook(s) and their associated data from Evernote
   # and reconcile that information with Notable's information
+  # @evernoteData hash format => {noteGuid: content, title, notebookGuid, USN}
 
   def receive_sync_data
     prepare_sync_request
-    puts "requestedTrunks: #{@requestedTrunks}"
-    @evernoteData = sync_account(@@sync_type)
+    sync_notes if @requestedTrunks
     conflicts = parse_incoming_data
     resolve_data(conflicts)
     send_sync_data
   end
 
   def prepare_sync_request
-    @requestedTrunks = []
-    # Gather all Notable notebooks except those that are trashed
-    existingTrunks = connected_user.getNotebooks
-    existingTrunks.each { |n| @requestedTrunks.push n.eng if n.eng }
-    # Gather all Evernote notebooks that were just selected by the user
-    newTrunks = params[:notebooks]
-    if newTrunks
-      Notebook.createTrunks newTrunks, connected_user
-      newTrunks.each do |key, notebook|
-        puts "key: #{key}"
-        puts "------------"
-        @requestedTrunks.push notebook[:eng]
-      end
-    end
+    gather_notable_trunks # with an eng, except those that are trashed
+    gather_evernote_notebooks # that were just selected by the user
+    filter_for_active_trunks if @requestedTrunks
   end
 
-  def sync_account(type)
-    notes, deletedNotes, notebooks, deletedNotebooks, resources = [],[],[],[],[]
-    start_point = (type == "full" ? 0 : connected_user.last_update_count)
-    lastChunk, oldestChange, newestChange = get_account_chunk(start_point)
-
-    while oldestChange < newestChange do
-      notes.concat lastChunk.notes
-      deletedNotes.concat lastChunk.expungedNotes unless lastChunk.expungedNotes.nil?
-      notebooks.concat lastChunk.notebooks
-      deletedNotebooks.concat lastChunk.expungedNotebooks unless lastChunk.expungedNotebooks.nil?
-      resources.concat lastChunk.resources
-      lastChunk, oldestChange, newestChange = get_account_chunk(oldestChange)
+  def sync_notes
+    metaData = @requestedTrunks.inject([]) do |metaData, trunk|
+      noteChunk = get_note_chunk(trunk)
+      metaData.concat noteChunk.notes
     end
-
-    return updatesFromEvernote =
-    { :notes => notes,
-      :deletedNotes => deletedNotes,
-      :notebooks => notebooks,
-      :deletedNotebooks => deletedNotebooks,
-      :resources => resources }
+    compile_evernote_data(metaData)
   end
 
-  def get_account_chunk(start_point)
-    # only request certain notebooks
-    credentials = connected_user.token_credentials
-    afterUSN = start_point
-    maxEntries = 100
-    syncFilter =  Evernote::EDAM::NoteStore::SyncChunkFilter.new({
-      :includeNotes => true,
-      :includeNoteAttributes => true,
-      :includeNotebooks => true,
-      :includeTags => true,
-      :includeExpunged => true
+  def get_note_chunk(eng)
+    noteFilter = Evernote::EDAM::NoteStore::NoteFilter.new({notebookGuid: eng})
+    resultSpec = Evernote::EDAM::NoteStore::NotesMetadataResultSpec.new({
+      includeDeleted: false, # double check here
+      includeUpdateSequenceNum: true, # to make sure we grabbed everything
+      includeNotebookGuid: true, # to match up with the right notebook
+      includeTitle: true, # to get all the information
     })
-    lastChunk = note_store.getFilteredSyncChunk(credentials, afterUSN, maxEntries, syncFilter)
-    [lastChunk, lastChunk.chunkHighUSN, lastChunk.updateCount]
+    note_store.findNotesMetadata(credentials, noteFilter, 0, 100, resultSpec)
   end
+
+  def compile_evernote_data(metaData)
+    @evernoteData = Hash.new{|hash, key| hash[key] = Array.new}
+    metaData.each do |note|
+      data = [note.title, note.notebookGuid, note.updateSequenceNum]
+      content = note_store.getNoteContent(credentials, note.guid)
+      noteData = data.unshift content
+      @evernoteData[note.guid] = noteData
+    end
+  end
+
+  def parse_incoming_data
+    return unless @evernoteData
+  end
+
+  def resolve_data(conflicts)
+    return unless conflicts
+  end
+
 
   def Part3
     # PART 3 OF 4
@@ -268,7 +253,7 @@ class EvernoteController < ApplicationController
   def trashRootBranch(notableTrashed)
     puts "G"
     notableTrashed.each do |t|
-      note_store.deleteNote(connected_user.token_credentials, t.eng) if not t.eng.nil?
+      note_store.deleteNote(credentials, t.eng) if not t.eng.nil?
       Note.deleteBranch t
     end
   end
@@ -315,18 +300,18 @@ class EvernoteController < ApplicationController
       enml_notebook.guid = notebook.eng
       begin
         if last_sync.nil? or last_sync < notebook.created_at
-          new_notebook = note_store.createNotebook(connected_user.token_credentials, enml_notebook)
+          new_notebook = note_store.createNotebook(credentials, enml_notebook)
           Notebook.update(notebook.id, :eng => new_notebook.guid)
         else
           # puts "NotebookGUID"
           # puts enml_notebook.guid
           # if notable and evernote are not sync (time) a created note might be considered an update
           begin
-            new_notebook = note_store.updateNotebook(connected_user.token_credentials, enml_notebook)
+            new_notebook = note_store.updateNotebook(credentials, enml_notebook)
           rescue Evernote::EDAM::Error::EDAMNotFoundException => eue
             puts "EDAMNotFoundException. Identifier: #{eue.identifier}"
             if eue.identifier == 'Notebook.guid'
-              new_notebook = note_store.createNotebook(connected_user.token_credentials, enml_notebook)
+              new_notebook = note_store.createNotebook(credentials, enml_notebook)
               Notebook.update(notebook.id, :eng => new_notebook.guid)
             else
               throw eue
@@ -351,7 +336,7 @@ class EvernoteController < ApplicationController
     notebooksTrashed = Notebook.getTrashed
     notebooksTrashed.each do |t|
       begin
-        note_store.expungeNotebook(connected_user.token_credentials, t.eng) if not t.eng.nil?
+        note_store.expungeNotebook(credentials, t.eng) if not t.eng.nil?
       rescue Evernote::EDAM::Error::EDAMUserException => e # Will always fail
         # Because our key does not have privilege to expunge notebooks
         puts "EDAMUserException: #{e.errorCode}"
@@ -445,15 +430,15 @@ class EvernoteController < ApplicationController
       ## Attempt to create note in Evernote account
       begin
         if last_sync.nil? or last_sync < note[:created_at]
-          new_note = note_store.createNote(connected_user.token_credentials, enml_note)
+          new_note = note_store.createNote(credentials, enml_note)
         else
           # puts enml_note.guid
           # if notable and evernote are not sync (time) a created note might be considered an update
           begin
-            new_note = note_store.updateNote(connected_user.token_credentials, enml_note)
+            new_note = note_store.updateNote(credentials, enml_note)
           rescue Evernote::EDAM::Error::EDAMUserException => eue
             if eue.parameter == 'Note.guid'
-              new_note = note_store.createNote(connected_user.token_credentials, enml_note)
+              new_note = note_store.createNote(credentials, enml_note)
             else
               throw eue
             end
@@ -479,6 +464,34 @@ class EvernoteController < ApplicationController
     note_store.getDefaultNotebook
   end
 
+
+  # Helper functions to be moved into a module
+
+  def gather_notable_trunks
+    @requestedTrunks = []
+    existingTrunks = connected_user.getNotebooks
+    existingTrunks.each { |n| @requestedTrunks.push n.eng if n.eng }
+  end
+
+  def gather_evernote_notebooks
+    newTrunks = params[:notebooks]
+    if newTrunks
+      Notebook.createTrunks newTrunks, connected_user
+      newTrunks.each { |key, trunk| @requestedTrunks.push trunk[:eng]}
+    end
+  end
+
+  def filter_for_active_trunks
+    notebookList = note_store.listNotebooks(credentials)
+    activeNotebooks = notebookList.inject([]) { |a, nb| a << nb.guid }
+    @deletedTrunks = @requestedTrunks.inject([]) do |deleted, trunk|
+      unless activeNotebooks.include? trunk
+        @requestedTrunk.delete trunk
+        deleted << trunk
+      end
+    end
+  end
+
   private
 
     def prompt_user_to_select(notebooks)
@@ -489,14 +502,6 @@ class EvernoteController < ApplicationController
       notable_uc = connected_user.last_update_count
       evernote_uc = sync_state.updateCount
       notable_uc < evernote_uc
-    end
-
-    def sync_type
-      @@sync_type ||= "incremental"
-    end
-
-    def evernoteData
-      @@evernoteData
     end
 
     def notebooksToSync
@@ -525,6 +530,10 @@ class EvernoteController < ApplicationController
 
     def connected_user
       @current_user ||= current_user
+    end
+
+    def credentials
+      @credentials ||= connected_user.token_credentials
     end
 
     def evernote_user (token)
