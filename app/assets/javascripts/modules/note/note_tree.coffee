@@ -295,7 +295,6 @@
 
 		manageCollapsedHierarchy:
 			config: hierarchy: {}
-			tree: Note.tree
 			buildConfig: (branch) ->
 				@config.movingBranch = branch
 				@resetHierarchy branch
