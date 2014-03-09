@@ -290,7 +290,36 @@
 				@removeFromCollection previousCollection, note
 				@jumpToTargetUp(note, target)
 				@insertInTree note
-				note
+			@manageCollapsedHierarchy.exec note
+			note
+
+		manageCollapsedHierarchy:
+			config: hierarchy: {}
+			tree: Note.tree
+			buildConfig: (branch) ->
+				@config.movingBranch = branch
+				@resetHierarchy branch
+				return false if branch.isARoot true
+				do rec = (branch = Note.tree.findNote branch.get 'parent_id') =>
+					@config.hierarchy[branch.get('guid')] = branch if branch.get('collapsed') is true
+					@expand branch
+					return false if branch.isARoot true
+					rec Note.tree.findNote branch.get 'parent_id'
+			expand: (branch) ->
+				branch.trigger "expand" if branch.get('collapsed')
+			collapse: (current, toCollapse) ->
+				toCollapse.trigger "collapse" unless current.hasInAncestors toCollapse
+			execConfig: (branch) ->
+				return @resetHierarchy(true) if branch isnt @config.movingBranch
+				@collapse branch, toCollapse for guid, toCollapse of @config.hierarchy
+			exec: (branch) ->
+				@execConfig branch
+				@buildConfig branch
+			resetHierarchy: (branch) ->
+				# Can force reset by passing true instead of a branch
+				return @config.hierarchy = {} if branch is true or @config.movingBranch isnt branch
+				for guid, branch of @config.hierarchy
+					delete @config.hierarchy[guid] unless @config.movingBranch.hasInAncestors branch
 
 		getJumpPositionDownTarget: (branch, followingBranch) ->
 			targetDepth = branch.get('depth')
@@ -314,6 +343,7 @@
 				@removeFromCollection previousBranch, branch
 				@jumpToTargetDown branch, target
 				@insertInTree branch
+			@manageCollapsedHierarchy.exec branch
 			branch
 
 		jumpFocusDown: (note, checkDescendants = true) ->
