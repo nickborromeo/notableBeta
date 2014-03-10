@@ -20,10 +20,10 @@ class Note < ActiveRecord::Base
 
 	def self.compileRoot (notebook_id)
 		compiledRoots = []
-		notebook = Notebook.where("id = #{notebook_id}").first
+		notebook = Notebook.find(notebook_id)
 		roots = Note.where("parent_id ='root' AND notebook_id=#{notebook_id}").order(:rank)
 		roots.each do |root|
-			descendantList = Note.getCompleteDescendantList root
+			descendantList = Note.getAllDescendants root
 			if self.freshBranches?(descendantList) or root.fresh
 				compiledRoots.push(:root => root,
 													 :list => descendantList)
@@ -62,11 +62,11 @@ class Note < ActiveRecord::Base
 		evernoteData
 	end
 
-	def self.getCompleteDescendantList (root)
+	def self.getAllDescendants (root)
 		descendantsList = []
 		rec = -> (current) do
 			descendantsList.push current if current.parent_id != 'root'
-			descendants = Note.getDescendants current
+			descendants = Note.getPartialDescendants current
 			descendants.each do |d|
 				rec.call d
 			end
@@ -75,12 +75,12 @@ class Note < ActiveRecord::Base
 		descendantsList
 	end
 
-	def self.getDescendants (branch)
+	def self.getPartialDescendants (branch)
 		Note.where("parent_id = '#{branch.guid}'").order(:rank)
 	end
 
 	def self.deleteByEng (eng)
-		Note.deleteBranch Note.where("eng = '#{eng}'").first
+		Note.deleteBranch Note.find_by_eng(eng)
 	end
 
 	def self.deleteBranch (branch)
@@ -91,9 +91,9 @@ class Note < ActiveRecord::Base
 	end
 
 	def self.deleteDescendants (branch)
-		descendantList = Note.getCompleteDescendantList branch
-		descendantList.each do |b|
-			Note.find(b[:id]).destroy
+		descendantList = Note.getAllDescendants branch
+		descendantList.each do |branch|
+			Note.find(branch[:id]).destroy
 		end
 	end
 
@@ -106,68 +106,51 @@ class Note < ActiveRecord::Base
 		end
 	end
 
-	def self.receiveBranches (branchData)
-		branchData.each do |data|
-			rank = self.getLastRank data[:notebook_id]
-			branch = Note.where("eng = '#{data[:eng]}'").first
-			if branch.nil?
-				rank += 1
-				self.createBranch data, rank
-			else
-				self.updateBranch data
-			end
-		end
+	def self.getPossibleConflicts(trunks)
+		candidates = Note.where(notebook_id: trunks)
+		# keep candidates that have been updated since the last sync with Evernote
+		candidates.delete_if { |note| note.eng.nil? or note.fresh == false}
+		# keep candidates that were created by Notable rather than Evernote
+		candidates.delete_if { |note| note.guid == note.eng }
+		# the remaining notebooks are candidates for possible conflicts
+		candidates
 	end
 
-	def self.updateBranch (data)
-		branch = Note.where("eng = '#{data[:eng]}'").first
-		data[:content] = self.digestEvernoteContent branch.guid, data[:content], data[:notebook_id]
+	def self.updateBranch (noteGuid, data)
+    branch = Note.find_by_eng(noteGuid)
 		self.deleteDescendants branch
-		Note.update(branch.id, :title => data[:title], :notebook_id => data[:notebook_id])
-		self.createDescendants data
+		Note.update(branch.id, :title => data[:title], :notebook_id => data[:nbguid])
+		self.createDescendants noteGuid, data
 	end
 
-	def self.createBranch (data, rank)
-		branch = {
+	def self.createBranch (noteGuid, data)
+		rank = self.next_available_rank data[:nbguid]
+		noteSettings = {
 			:parent_id => 'root',
 			:title => data[:title],
-			:guid => data[:eng],
-			:eng => data[:eng],
-			:notebook_id => data[:notebook_id],
+			:guid => noteGuid,
+			:eng => noteGuid,
+			:notebook_id => data[:nbguid],
 			:rank => rank,
 			:depth => 0,
 			:fresh => false,
 			:collapsed => false
 		}
-
-		branch = Note.new(branch)
-		branch.save
-		data[:content] = self.digestEvernoteContent branch.guid, data[:content], data[:notebook_id]
-		self.createDescendants data
-		branch
+		branch = Note.create(noteSettings)
+		self.createDescendants noteGuid, data
 	end
 
-	def self.createDescendants (data)
-		descendants = data[:content]
-		descendants.each do |d|
-			descendant = Note.new d
-			descendant.save
-		end
+	def self.createDescendants (noteGuid, data)
+		descendants = self.parseContent noteGuid, data[:content], data[:nbguid]
+		descendants.each { |note| Note.create note }
 	end
 
-	def self.digestEvernoteContent (parent_id, content, notebook_id)
-		self.parseContent parent_id, content, notebook_id
-	end
-
-	# this obscur code retrieve what is between <en-note>...</en-note> and trims the rest		
+	# this obscure code retrieve what is between <en-note>...</en-note> and trims the rest
 	def self.retrieveContentFromEnml (content)
-		if not content.index(/<en-note( .*?)?>/).nil? 
+		if content.index(/<en-note( .*?)?>/)
 			content = content.slice((i1 = content.index($~[0]) + $~[0].size), (content.index('</en-note>') - i1))
 		end
 		content
-	end
-
-	def self.dispatchParsing
 	end
 
 	def self.trimContent (content)
@@ -202,7 +185,6 @@ class Note < ActiveRecord::Base
 	# 	else
 	# 		index = content.size
 	# 	end
-		
 	# 	{:title  => t, :index => index}
 	# end
 
@@ -240,7 +222,7 @@ class Note < ActiveRecord::Base
 		end
 		rec.call content
 
-		preceding = {:depth => 0, :title => "who cares!", :guid => parent_id}
+		preceding = {:depth => 0, :title => "empty note", :guid => parent_id}
 		parents = [{:guid => parent_id, :next_rank => 1}]
 		notes2 = notes
 		notes2.each do |n|
@@ -265,13 +247,10 @@ class Note < ActiveRecord::Base
 		notes
 	end
 
-	def self.getLastRank (notebook_id)
-		lastNote = Note.where("notebook_id=#{notebook_id}").order("depth, rank DESC").first
-		if lastNote.nil?
-			0
-		else
-			lastNote.rank
-		end
+	def self.next_available_rank (notebook_guid)
+		nb = Notebook.find_by_guid(notebook_guid)
+		lastNote = Note.where("notebook_id=#{nb.id}").order("depth, rank DESC").first
+		if lastNote.nil? then 1 else lastNote.rank+1 end
 	end
 
 	def self.setDefaultAttributes (data)

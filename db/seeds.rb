@@ -18,7 +18,7 @@
 
   test_notebook2 = Notebook.create({
     guid: SecureRandom.uuid,
-    title: "Developement Notebook",
+    title: "Development Notebook",
     modview: "mindmap",
     user_id: 1
   })

@@ -8,9 +8,8 @@ class Notebook < ActiveRecord::Base
 	end
 
 	def self.deleteByEng (eng)
-		notebook = Notebook.where("eng = '#{eng}'").first
-		return if notebook.nil?
-		notebook.destroy
+		notebook = Notebook.find_by_eng(eng)
+		notebook.destroy if notebook
 	end
 
 	# notebooks => array received from evernote through user selection
