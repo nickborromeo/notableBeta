@@ -8,13 +8,13 @@ class Notebook < ActiveRecord::Base
 	end
 
 	def self.deleteByEng (eng)
-		notebook = Notebook.where("eng = '#{eng}'").first
-		return if notebook.nil?
-		notebook.destroy
+		notebook = Notebook.find_by_eng(eng)
+		notebook.destroy if notebook
 	end
 
-	# notebooks => array received from backbone
-	# [{0: {name: "[NAME]", eng: "[EVERNOTE_GUID]"}, {1: ...
+	# notebooks => array received from evernote through user selection
+	# [{0: {name: "[NAME]", eng: "[EVERNOTE_GUID]"}, {1: {name:
+  # "[NAME OF SECOND NOTEBOOK]", eng: "[GUID OF SECOND NOTEBOOK]"} ...
 	def self.createTrunks (notebooks, user)
 		notebooks.each do |key, notebook|
 			if Notebook.where("eng='#{notebook[:eng]}'").empty?
