@@ -35,10 +35,12 @@
 			@showProgressView(selectedNotebooks)
 			$.post @url, notebooks: selectedNotebooks, (data) ->
 				App.Note.noteController.reset ->
-					if data.code is 1
-						App.Notify.alert 'evernoteSync', 'success', {destructTime: 9000}
-					else
+					if data.code is 0
 						App.Notify.alert 'evernoteRateLimit', 'warning', {selfDestruct: false, retryTime: data.retryTime}
+					else if data.code is 1
+						App.Notify.alert 'evernoteError', 'warning', {destructTime: 14000}
+					else if data.code is 2
+						App.Notify.alert 'evernoteSync', 'success', {destructTime: 9000}
 					App.Notebook.forest.fetch data: user_id: App.User.activeUser.id
 
 		showProgressView: (selectedNotebooks) ->
@@ -51,4 +53,3 @@
 			$("#modview-region").hide()
 			$(".message-template").hide()
 			$("#notebook-title").css("opacity", "0")
-

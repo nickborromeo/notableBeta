@@ -47,9 +47,8 @@ class EvernoteController < ApplicationController
   #----------------------------------------#
 
   # PART 1 OF 4
-  # Determine sync status of the account to find out how to proceed
-  # Get list of new/modified notebooks from Evernote since last sync
-  # Use that to prompt the user for the notebooks they want to sync
+  # Determine sync status of the account to determine whether to prompt the
+  # user for notebook selection or go straight to receiving new sync data
 
   def begin_sync_data
     notebooks = determine_sync_status
@@ -76,7 +75,7 @@ class EvernoteController < ApplicationController
       lastChunk, oldestChange, newestChange = get_notebook_chunk(oldestChange)
       notebooks.concat lastChunk.notebooks
     end while oldestChange < newestChange
-    notebooks
+    @@lastChunk = lastChunk; return notebooks
   end
 
   def get_notebook_chunk(start_point)
@@ -92,14 +91,11 @@ class EvernoteController < ApplicationController
 
   # PART 2 OF 4
   # Grab the selected notebook(s) and their associated data from Evernote
-  # and reconcile that information with Notable's information
-  # @evernoteData hash format => {noteGuid: content, title, notebookGuid, USN}
 
   def receive_sync_data
     prepare_sync_request
     sync_notes if @requestedTrunks
-    parse_incoming_data
-    send_sync_data
+    process_sync_data
   end
 
   def prepare_sync_request
@@ -110,8 +106,8 @@ class EvernoteController < ApplicationController
 
   def gather_notable_trunks
     @requestedTrunks = []
-    existingTrunks = connected_user.getNotebooks
-    existingTrunks.each { |n| @requestedTrunks.push n.eng if n.eng }
+    @existingTrunks = connected_user.get_used_trunks
+    @existingTrunks.each { |n| @requestedTrunks.push n.eng if n.eng }
   end
 
   def gather_evernote_notebooks
@@ -166,16 +162,17 @@ class EvernoteController < ApplicationController
     end
   end
 
-  def try_getting_note_content(note)
-    begin
-      note_store.getNoteContent(credentials, note.guid)
-    rescue Evernote::EDAM::Error::EDAMSystemException => e
-      puts "Error code: #{e.errorCode}, Rate Limit: #{e.rateLimitDuration}"
-      puts "Problem Branch: #{note.title}, #{note.updateSequenceNum}"
-      @rateLimitUSN ||= note.updateSequenceNum
-      @rateLimitDuration = e.rateLimitDuration
+    def try_getting_note_content(note)
+      begin
+        note_store.getNoteContent(credentials, note.guid)
+      rescue Evernote::EDAM::Error::EDAMSystemException => ese
+        puts "Error code: #{ese.errorCode}, Rate Limit: #{ese.rateLimitDuration}"
+        puts "Problem Branch: #{note.title}, #{note.updateSequenceNum}"
+        @rateLimitUSN ||= note.updateSequenceNum
+        @rateLimitDuration = ese.rateLimitDuration
+        send_back_home(ese)
+      end
     end
-  end
 
   def compile_trashed_data
     metaData = @requestedTrunks.inject([]) do |metaData, trunk|
@@ -188,13 +185,21 @@ class EvernoteController < ApplicationController
     end
   end
 
-  def parse_incoming_data
-    @deletedTrunks.each { |trunk| Notebook.deleteByEng trunk } if @deletedTrunks
-    @deletedBranches.each { |branch| Note.deleteByEng branch } if @deletedBranches
-    process_note_data if @evernoteData
+  # PART 3 OF 4
+  # Reconcile new Evernote information with Notable's information
+
+  def process_sync_data
+    delete_expunged_data
+    parse_note_data if @evernoteData
+    send_sync_data
   end
 
-  def process_note_data
+  def delete_expunged_data
+    @deletedTrunks.each { |trunk| Notebook.deleteByEng trunk } if @deletedTrunks
+    @deletedBranches.each { |branch| Note.deleteByEng branch } if @deletedBranches
+  end
+
+  def parse_note_data
     resolve_data_conflicts
     @evernoteData.each do |noteGuid, data|
       if Note.find_by_eng(noteGuid)
@@ -210,206 +215,225 @@ class EvernoteController < ApplicationController
     @evernoteData.delete_if { |note| candidates.include? note }
   end
 
-  # PART 3 OF 4
-  # Send Notable's "fresh" updates to Evernote
+  # PART 4 OF 4
+  # Send Notable's "fresh" and "trashed" updates to Evernote
+  # and perform final bookkeeping to prepare for next sync
 
   def send_sync_data
-    prepare_fresh_branches
-    send_fresh_branches
+    prepare_sync_response
+    send_sync_response
+    clean_up_bookkeeping
   end
 
-  def prepare_fresh_branches
-    begin
-      send_fresh_branches(notableData)
-      trashRootBranch(notableTrashed)
-    rescue => e
-      puts e.message
+  def prepare_sync_response
+    freshBranches = gather_fresh_branches(@existingTrunks)
+    @freshTrunks = gather_fresh_trunks(freshBranches) if freshBranches
+    @freshRoots = gather_fresh_roots(@freshTrunks) if @freshTrunks
+    @trashedBranches = Note.getTrashed
+  end
+
+  def gather_fresh_branches(usedTrunks)
+    freshBranches = []
+    usedTrunks.each do |trunk|
+      branches = Note.where("notebook_id=#{trunk.id} AND fresh=true AND trashed=false")
+      freshBranches.concat branches
+    end
+    return freshBranches
+  end
+
+  def gather_fresh_trunks(freshBranches)
+    notebook_ids = freshBranches.inject([]) do |notebook_ids, branch|
+      notebook_ids << branch[:notebook_id]
+      notebook_ids
+    end
+    fresh_and_unique_notebook_ids = notebook_ids.uniq; freshTrunks = []
+    fresh_and_unique_notebook_ids.each { |id| freshTrunks << Notebook.find(id) }
+    freshTrunks
+  end
+
+  def gather_fresh_roots(freshTrunks)
+    freshTrunks.inject([]) do |freshRoots, trunk|
+      freshRoots.concat Note.compileRoot trunk
     end
   end
 
-  def send_fresh_branches(noteData)
-    last_sync = connected_user.last_full_sync
-    notebook = note_store.getDefaultNotebook
-    noteData.each do |note|
-      everNote = create_enml_note(note)
-      ## Attempt to create note in Evernote account
-      begin
-        if last_sync.nil? or last_sync < note[:created_at]
-          new_note = note_store.createNote(credentials, everNote)
-        else
-          # puts everNote.guid
-          # if notable and evernote are not sync (time) a created note might be considered an update
-          begin
-            new_note = note_store.updateNote(credentials, everNote)
-          rescue Evernote::EDAM::Error::EDAMUserException => eue
-            if eue.parameter == 'Note.guid'
-              new_note = note_store.createNote(credentials, everNote)
-            else
-              throw eue
-            end
-          end
-        end
-      rescue Evernote::EDAM::Error::EDAMUserException => eue
-        ## Something was wrong with the note data
-        ## See EDAMErrorCode enumeration for error code explanation
-        ## http://dev.evernote.com/documentation/reference/Errors.html#Enum_EDAMErrorCode
-        puts "EDAMUserException: #{eue.errorCode}"
-        puts "EDAMUserException: #{eue.parameter}"
+  def send_sync_response
+    begin
+      send_fresh_trunks if @freshTrunks
+      send_fresh_roots if @freshRoots
+      send_trashed_branches if @trashedBranches
+    rescue => error
+      puts "Send Sync Response error: #{error.message}"
+    end
+  end
+
+  def send_fresh_trunks
+    @freshTrunks.each do |trunk|
+      enml_notebook = create_enml_notebook(trunk)
+      everNotebook = try_sending_nb(enml_notebook, trunk)
+      trunk.update_attributes(eng: everNotebook.guid)
+      update_roots_with_notebook_eng(trunk)
+    end
+  end
+
+    def try_sending_nb(enml_notebook, trunk)
+      begin # create a new notebook if the trunk has never been synced
+        last_sync = connected_user.last_full_sync
+        if last_sync.nil? or last_sync < trunk.created_at
+          everNotebook = try_creating_nb(enml_notebook)
+        else # update the notebook that should already exist in Evernote
+          everNotebook = try_updating_nb(enml_notebook)
+        end ## http://dev.evernote.com/documentation/reference/Errors.html
       rescue Evernote::EDAM::Error::EDAMNotFoundException => enfe
-        ## Parent Notebook GUID doesn't correspond to an actual notebook
-        puts "Error: identifier: #{enfe.identifier}, key: #{enfe.key}"
+        puts "Notebook GUID doesn't correspond to an actual notebook ->"
+        puts "  Error identifier: #{enfe.identifier}, Error key: #{enfe.key}"
+        send_back_home(enfe)
       end
-      Note.update(note[:id], :eng => new_note.guid)
-    end
-    Note.select('"notebooks"."user_id", "notes".*').where('"notebooks"."user_id"=#{connected_user.id}').joins(:notebook).update_all("fresh=false")
-  end
-
-  def create_enml_note(note_attributes)
-    note_content = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>"
-    note_content += "<!DOCTYPE en-note SYSTEM \"http://xml.evernote.com/pub/enml2.dtd\">"
-    note_content += "<en-note>#{note_attributes[:content]}</en-note>"
-
-    enml_note = Evernote::EDAM::Type::Note.new
-    enml_note.title = note_attributes[:title]
-    enml_note.content = note_content
-    enml_note.guid = note_attributes[:guid]
-    enml_note.notebookGuid = note_attributes[:notebook_eng]
-    return enml_note
-  end
-
-  def create_enml_notebook(notebook_attributes)
-    enml_notebook = Evernote::EDAM::Type::Notebook.new
-    enml_notebook.name = notebook_attributes.title
-    enml_notebook.guid = notebook_attributes.eng
-    return enml_notebook
-  end
-
-  def Part4
-    # PART 4 of 4
-    # Perform final bookkeeping to prepare for next sync
-
-    def complete_sync_data_1
-      mark_branches_as_stale
-      record_sync_state
     end
 
-    def mark_branches_as_stale
-    end
-
-    def record_sync_state
-      User.update(
-        connected_user.id,
-        :last_update_count => @rateLimitUSN || evernoteData[:lastChunk].updateCount,
-        :last_full_sync => Time.at(evernoteData[:lastChunk].currentTime/1000)
-      )
-    end
-  end
-
- # ---------------------------
-
-  def syncing
-    puts "F"
-    begin
-      deliverRootBranch(notableData)
-      trashRootBranch(notableTrashed)
-    rescue => e
-      puts e.message
-    end
-
-    if not evernoteData.nil?
-      User.update(
-        connected_user.id,
-        :last_update_count => @rateLimitUSN || evernoteData[:lastChunk].updateCount,
-        :last_full_sync => Time.at(evernoteData[:lastChunk].currentTime/1000)
-      )
-    end
-
-    # redirect_to root_url unless @rake_task
-    if @rateLimitUSN
-      render :json => {
-        :message => "Rate limit exceeded",
-        :code => 0,
-        :retryTime => @rateLimitDuration
-      }
-    else
-      render :json => {:message => "success", :code => 1}
-    end
-  end
-
-  def trashRootBranch(notableTrashed)
-    puts "G"
-    notableTrashed.each do |t|
-      note_store.deleteNote(credentials, t.eng) if not t.eng.nil?
-      Note.deleteBranch t
-    end
-  end
-
-  def deliverNotebook
-    puts "K"
-    last_sync = connected_user.last_full_sync
-    notebooks = notebooksToSync
-    notebooks.each do |notebook|
-      enml_notebook = Evernote::EDAM::Type::Notebook.new
-      enml_notebook.name = notebook.title
-      enml_notebook.guid = notebook.eng
+    def try_creating_nb(enml_notebook)
       begin
-        if last_sync.nil? or last_sync < notebook.created_at
-          new_notebook = note_store.createNotebook(credentials, enml_notebook)
-          Notebook.update(notebook.id, :eng => new_notebook.guid)
-        else
-          # puts "NotebookGUID"
-          # puts enml_notebook.guid
-          # if notable and evernote are not sync (time) a created note might be considered an update
-          begin
-            new_notebook = note_store.updateNotebook(credentials, enml_notebook)
-          rescue Evernote::EDAM::Error::EDAMNotFoundException => eue
-            puts "EDAMNotFoundException. Identifier: #{eue.identifier}"
-            if eue.identifier == 'Notebook.guid'
-              new_notebook = note_store.createNotebook(credentials, enml_notebook)
-              Notebook.update(notebook.id, :eng => new_notebook.guid)
-            else
-              throw eue
-            end
-          end
-        end
+        everNotebook = note_store.createNotebook(credentials, enml_notebook)
       rescue Evernote::EDAM::Error::EDAMUserException => eue
-        ## Something was wrong with the note data
-        ## See EDAMErrorCode enumeration for error code explanation
-        ## http://dev.evernote.com/documentation/reference/Errors.html#Enum_EDAMErrorCode
-        puts "EDAMUserException: #{eue.errorCode}"
-        puts "EDAMUserException: #{eue.parameter}"
-      rescue Evernote::EDAM::Error::EDAMNotFoundException => enfe
-        ## Parent Notebook GUID doesn't correspond to an actual notebook
-        puts "Error: identifier: #{enfe.identifier}, key: #{enfe.key}"
+        puts "EDAMUserException when trying to create a notebook ->"
+        puts "  Exception Code: #{eue.errorCode}, Parameter: #{eue.parameter}"
+        send_back_home(eue)
+      end
+    end
+
+    def try_updating_nb(enml_notebook)
+      begin
+        everNotebook = note_store.updateNotebook(credentials, enml_notebook)
+      rescue Evernote::EDAM::Error::EDAMUserException => eue
+        if eue.parameter == 'Notebook.guid'
+          everNotebook = note_store.createNotebook(credentials, enml_notebook)
+        else
+          puts "EDAMUserException when trying to update a notebook ->"
+          puts "  Exception Code: #{eue.errorCode}, Parameter: #{eue.parameter}"
+          send_back_home(eue)
+        end
+      end
+    end
+
+  def update_roots_with_notebook_eng(trunk)
+    @freshRoots.each do |root|
+      if root[:notebook_id] == trunk.id
+        root[:notebook_eng] = trunk.eng
       end
     end
   end
 
-  def trashNotebooks
-    puts "L"
-    notebooksTrashed = Notebook.getTrashed
-    notebooksTrashed.each do |t|
+  def send_fresh_roots
+    @freshRoots.each do |root|
+      enml_note = create_enml_note(root)
+      everNote = try_sending(enml_note, root)
+      Note.find(root[:id]).update_attributes(fresh: false, eng: everNote.guid)
+    end
+  end
+
+    def try_sending(enml_note, branch)
+      begin # create a new note if the branch has never been synced with Evernote
+        last_sync = connected_user.last_full_sync
+        if last_sync.nil? or last_sync < branch[:created_at]
+          everNote = try_creating(enml_note)
+        else # update the note that should already exist in Evernote
+          everNote = try_updating(enml_note)
+        end ## http://dev.evernote.com/documentation/reference/Errors.html
+      rescue Evernote::EDAM::Error::EDAMNotFoundException => enfe
+        puts "Parent Note GUID doesn't correspond to an actual note ->"
+        puts "  Error identifier: #{enfe.identifier}, Error key: #{enfe.key}"
+        send_back_home(enfe)
+      end
+    end
+
+    def try_creating(enml_note)
       begin
-        note_store.expungeNotebook(credentials, t.eng) if not t.eng.nil?
-      rescue Evernote::EDAM::Error::EDAMUserException => e # Will always fail
-        # Because our key does not have privilege to expunge notebooks
+        everNote = note_store.createNote(credentials, enml_note)
+      rescue Evernote::EDAM::Error::EDAMUserException => eue
+        puts "EDAMUserException when trying to create a note ->"
+        puts "  Exception Code: #{eue.errorCode}, Parameter: #{eue.parameter}"
+        send_back_home(eue)
+      end
+    end
+
+    def try_updating(enml_note)
+      begin
+        everNote = note_store.updateNote(credentials, enml_note)
+      rescue Evernote::EDAM::Error::EDAMUserException => eue
+        if eue.parameter == 'Note.guid'
+          everNote = note_store.createNote(credentials, enml_note)
+        else
+          puts "EDAMUserException when trying to update a note ->"
+          puts "  Exception Code: #{eue.errorCode}, Parameter: #{eue.parameter}"
+          send_back_home(eue)
+        end
+      end
+    end
+
+  def send_trashed_branches
+    puts "send_trashed_branches"
+    @trashedBranches.each do |branch|
+      puts "Part 6"
+      try_deleting(branch)
+      puts "Part 5"
+      Note.deleteBranch branch
+    end
+  end
+
+    def try_deleting(branch)
+      begin
+        note_store.deleteNote(credentials, branch.eng) if branch.eng
+      rescue Evernote::EDAM::Error::EDAMUserException => eue
+        puts "EDAMUserException: #{eue.errorCode}"
+        puts "EDAMUserException: #{eue.parameter}"
+        send_back_home(eue)
+      end
+    end
+
+  def send_trashed_trunks
+    # Not called because it will always fail.  External keys don't have
+    # the privilege to expunge Evernote notebooks
+    @trashedTrunks = connected_user.get_trashed_trunks()
+    @trashedTrunks.each do |trunk|
+      can_be_destroyed = try_expunging(trunk)
+      trunk.destroy if can_be_destroyed
+    end
+  end
+
+    def try_expunging(trunk)
+      begin
+        note_store.expungeNotebook(credentials, trunk.eng) if trunk.eng
+        can_be_destroyed = true
+      rescue Evernote::EDAM::Error::EDAMUserException => e
         puts "EDAMUserException: #{e.errorCode}"
         puts "EDAMUserException: #{e.parameter}"
-        dontDestroy = true
+        can_be_destroyed = false
       end
-      t.destroy unless dontDestroy
+    end
+
+  def clean_up_bookkeeping
+    User.update(
+      connected_user.id,
+      :last_update_count => @rateLimitUSN || @@lastChunk.updateCount,
+      :last_full_sync => Time.at(@@lastChunk.currentTime/1000)
+    )
+    send_back_home
+  end
+
+  def send_back_home(error=nil)
+    if @rateLimitUSN
+      render :json => {:retryTime => @rateLimitUSN,
+                       :message => "Rate limit exceeded", :code => 0}
+    elsif error
+      render :json => {:message => "Syncing error", :code => 1}
+    elsif
+      render :json => {:message => "Success", :code => 2}
     end
   end
 
-  def compileRootsByNotebooks
-    puts "M"
-    notebooks = connected_user.getNotebooks()
-    notableData = []
-    notebooks.each do |n|
-      notableData.concat Note.compileRoot n.id
-    end
-    notableData
-  end
+  #----------------------------------------#
+  #            Helper Functions            #
+  #----------------------------------------#
 
   private
 
@@ -421,10 +445,6 @@ class EvernoteController < ApplicationController
       notable_uc = connected_user.last_update_count
       evernote_uc = sync_state.updateCount
       notable_uc < evernote_uc
-    end
-
-    def notebooksToSync
-      @notebooks ||= connected_user.getNotebooks
     end
 
     def sync_state
@@ -461,6 +481,27 @@ class EvernoteController < ApplicationController
 
     def evernote_notebooks (token)
       note_store.listNotebooks(token)
+    end
+
+    def create_enml_note(branch_attributes)
+      puts "create_enml_note"
+      note_content = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>"
+      note_content += "<!DOCTYPE en-note SYSTEM \"http://xml.evernote.com/pub/enml2.dtd\">"
+      note_content += "<en-note>#{branch_attributes[:content]}</en-note>"
+
+      enml_note = Evernote::EDAM::Type::Note.new
+      enml_note.title = branch_attributes[:title]
+      enml_note.content = note_content
+      enml_note.guid = branch_attributes[:guid]
+      enml_note.notebookGuid = branch_attributes[:notebook_eng]
+      return enml_note
+    end
+
+    def create_enml_notebook(trunk)
+      enml_notebook = Evernote::EDAM::Type::Notebook.new
+      enml_notebook.name = trunk.title
+      enml_notebook.guid = trunk.eng
+      return enml_notebook
     end
 
     def prepare_rake (user = nil, rake_task = false)

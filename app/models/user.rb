@@ -8,9 +8,12 @@ class User < ActiveRecord::Base
   	:active_notebook
 	has_many :notebooks, dependent: :destroy
 
+  def get_used_trunks
+    Notebook.where("user_id=#{self.id} AND trashed=false")
+  end
 
-	def getNotebooks
-		Notebook.where("user_id=#{self.id} AND trashed=false")
-	end
+  def get_trashed_trunks
+    Notebook.where("user_id=#{self.id} AND trashed=true")
+  end
 
 end

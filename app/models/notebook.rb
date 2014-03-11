@@ -3,10 +3,6 @@ class Notebook < ActiveRecord::Base
   has_many :notes, dependent: :destroy
   belongs_to :user
 
-	def self.getTrashed
-		Notebook.where("trashed = true")
-	end
-
 	def self.deleteByEng (eng)
 		notebook = Notebook.find_by_eng(eng)
 		notebook.destroy if notebook
