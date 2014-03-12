@@ -31,7 +31,6 @@
 				@sync() if @isEmpty()
 		sync: ->
 			selectedNotebooks = @getSelected()
-			console.log "selectedNotebooks", selectedNotebooks
 			@showProgressView(selectedNotebooks)
 			$.post @url, notebooks: selectedNotebooks, (data) ->
 				App.Note.noteController.reset ->

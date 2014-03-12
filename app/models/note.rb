@@ -20,47 +20,66 @@ class Note < ActiveRecord::Base
   end
 
   def self.compileRoot (notebook)
-    compiledRoots = []
-    roots = Note.where("parent_id ='root' AND notebook_id=#{notebook.id}").order(:rank)
+    freshRoots = []
+    root_criteria = "parent_id ='root' AND notebook_id=#{notebook.id}"
+    roots = Note.where(root_criteria).order(:rank)
+
     roots.each do |root|
-      descendantList = Note.getAllDescendants root
-      if self.freshBranches?(descendantList) or root.fresh
-        compiledRoots.push(:root => root,
-                           :list => descendantList)
+      descendants = Note.getAllDescendants root
+      if self.freshBranches?(descendants) or root.fresh
+        freshRoots.push(:root => root, :list => descendants)
       end
     end
-    notableData = []
-    compiledRoots.each do |r|
-      currentDepth = 1
-      content = "<ul>"
-      r[:list].each do |branch|
-        content += '</li>' if branch.depth == currentDepth and not content.index('<li>').nil?
-        content += '<ul>' if branch.depth > currentDepth and currentDepth+=1
-        if branch.depth < currentDepth
-          content += '</li>'
-          currentDepth.downto(branch.depth+1).each do |level|
-            content += '</ul></li>'
-          end
-          currentDepth = branch.depth
+    freshRoots = add_markup_to(freshRoots, notebook)
+  end
+
+  def self.add_markup_to(freshRoots, notebook)
+    compiledRoots = []
+    freshRoots.each do |r|
+      content = generate_content(r)
+      compiledRoots.push(
+        :title => r[:root].title,
+        :content => content,
+        :guid => r[:root].eng,
+        :id => r[:root].id,
+        :created_at => r[:root].created_at,
+        :notebook_id => notebook.id,
+        :notebook_eng => notebook.eng, #Will be nil on first sync since the eng
+        :eng => r[:root].eng           #   is still unknown at that time
+      )
+    end
+    compiledRoots.each do |compiledRoot|
+      puts "Title: #{compiledRoot[:title]}"
+      puts "Guid: #{compiledRoot[:guid]}"
+      puts "<><><><><><><><><><><><>"
+    end
+    compiledRoots # this is equivalent to one note in Evernote
+  end
+
+  def self.generate_content(root)
+    currentDepth = 1
+    content = "<ul>"
+    root[:list].each do |branch|
+      if branch.depth == currentDepth and not content.index('<li>').nil?
+        content += '</li>'
+      end
+      content += '<ul>' if branch.depth > currentDepth and currentDepth+=1
+      if branch.depth < currentDepth
+        content += '</li>'
+        currentDepth.downto(branch.depth+1).each do |level|
+          content += '</ul></li>'
         end
-        content += "<li>#{branch.title}"
+        currentDepth = branch.depth
       end
-      content += "</li>" if not content.index('<li>').nil?
-      currentDepth.downto(2).each do |level|
-        content += "</ul></li>"
-      end
-      content += "</ul>"
-      puts "Notebook Eng from compile root: #{notebook.eng}"
-      notableData.push(:title => r[:root].title,
-                        :content => content,
-                        :guid => r[:root].eng,
-                        :id => r[:root].id,
-                        :created_at => r[:root].created_at,
-                        :notebookid => notebook.id,
-                        :notebook_eng => notebook.eng,
-                        :eng => r[:root].eng)
+      content += "<li>#{branch.title}"
     end
-    notableData
+    content += "</li>" if not content.index('<li>').nil?
+    currentDepth.downto(2).each do |level|
+      content += "</ul></li>"
+    end
+    puts "Content for #{root[:root].title}: #{content}</ul>"
+    puts "---------------"
+    content += "</ul>"
   end
 
   def self.getAllDescendants (root)
@@ -118,83 +137,35 @@ class Note < ActiveRecord::Base
   end
 
   def self.updateBranch (noteGuid, data)
+    nb = Notebook.find_by_guid(data[:nbguid])
     branch = Note.find_by_eng(noteGuid)
     self.deleteDescendants branch
-    Note.update(branch.id, :title => data[:title], :notebook_id => data[:nbguid])
-    self.createDescendants noteGuid, data
+    Note.update(branch.id, :title => data[:title], :notebook_id => nb.id)
+    self.createDescendants branch.guid, data[:content], nb.id
   end
 
   def self.createBranch (noteGuid, data)
+    nb = Notebook.find_by_guid(data[:nbguid])
     rank = self.next_available_rank data[:nbguid]
     noteSettings = {
       :parent_id => 'root',
       :title => data[:title],
       :guid => noteGuid,
       :eng => noteGuid,
-      :notebook_id => data[:nbguid],
+      :notebook_id => nb.id,
       :rank => rank,
       :depth => 0,
       :fresh => false,
       :collapsed => false
     }
     branch = Note.create(noteSettings)
-    self.createDescendants noteGuid, data
+    self.createDescendants noteGuid, data[:content], nb.id
   end
 
-  def self.createDescendants (noteGuid, data)
-    descendants = self.parseContent noteGuid, data[:content], data[:nbguid]
+  def self.createDescendants (parent_id, noteContent, notebookId)
+    puts "Before: #{noteContent}"
+    descendants = self.parseContent parent_id, noteContent, notebookId
     descendants.each { |note| Note.create note }
-  end
-
-  # this obscure code retrieve what is between <en-note>...</en-note> and trims the rest
-  def self.retrieveContentFromEnml (content)
-    if content.index(/<en-note( .*?)?>/)
-      content = content.slice((i1 = content.index($~[0]) + $~[0].size), (content.index('</en-note>') - i1))
-    end
-    content
-  end
-
-  def self.trimContent (content)
-    content = self.retrieveContentFromEnml content
-    content = self.transformPlainText content # if content.index('<ul>').nil?
-    content = content.gsub />(\s)+</, '><' # Delete space between <tags>
-    content = content.gsub /<(\/)?(?!ul|li|ol|\/ul|\/ol)(.*?)?(\/)?>/, ''  # strip out any other not li or ul tags
-    # content = content.gsub /<(\/)?(?!ul|li|ol)(.*?)?(\/)?>/, '' # strip out any other not li or ul tags
-    content = content.gsub /<li (.*?)style=('|").*?none.*?('|")(.*?)>/, '' # To strip out hidden li added by mce editor in evernote
-    content = content.gsub /<ol( .*?)?>/, '<ul>' # Strip <li|ul style="".. or w/e could be in the tag as well
-    content = content.gsub /<li( .*?)?>/, '<li>' # Strip <li|ul style="".. or w/e could be in the tag as well
-    content = content.gsub /<ul( .*?)?>/, '<ul>'
-    content = content.gsub /<\/li>/, '' # Strip out closing li
-    if content.match /<ul>(<ul>)+/
-      content = content.gsub /<(\/)?ul>/, '' # stip out all uls
-      content = '<ul>' + content + '</ul>'
-    end
-    content
-  end
-
-  def self.getContentNextLi (content)
-    t = content.slice '<li>'.size, content.index(/<(\/)?(li|ul)>/, 4) - '<li>'.size
-    {:title  => t, :index => $~.begin(0)}
-  end
-
-  # def self.getContentNextLi (content)
-  #   nextTag = content.index(/<(\/)?(li|ul)>/, 4)
-  #   nextTag ||= content.size # Meaning there is only a li tag left open, and no closing tag
-  #   t = content.slice '<li>'.size, nextTag - '<li>'.size
-  #   if not $~.nil?
-  #     index = $~.begin(0)
-  #   else
-  #     index = content.size
-  #   end
-  #   {:title  => t, :index => index}
-  # end
-
-  def self.transformPlainText (content)
-    content = content.gsub '<div></div>', ''
-    content = content.gsub '<div>', '<li>'
-    content = content.gsub '<p>', '<li>'
-    content = '<ul>' + content + '</ul>' if content.index('<ul>').nil? or not content.index('<ul>').zero?
-    content
   end
 
   def self.parseContent (parent_id, content, notebook_id)
@@ -246,6 +217,58 @@ class Note < ActiveRecord::Base
     end
 
     notes
+  end
+
+  # this obscure code retrieve what is between <en-note>...</en-note> and trims the rest
+  def self.retrieveContentFromEnml (content)
+    if content.index(/<en-note( .*?)?>/)
+      content = content.slice((i1 = content.index($~[0]) + $~[0].size), (content.index('</en-note>') - i1))
+    end
+    content
+  end
+
+  def self.trimContent (content)
+    content = self.retrieveContentFromEnml content
+    content = self.transformPlainText content # if content.index('<ul>').nil?
+    content = content.gsub />(\s)+</, '><' # Delete space between <tags>
+    content = content.gsub /<(\/)?(?!ul|li|ol|\/ul|\/ol)(.*?)?(\/)?>/, ''  # strip out any other tags, that are not the allowed li, ul or ol
+    # content = content.gsub /<(\/)?(?!ul|li|ol)(.*?)?(\/)?>/, '' # strip out any other not li or ul tags
+    content = content.gsub /<li (.*?)style=('|").*?none.*?('|")(.*?)>/, '' # To strip out hidden li added by mce editor in evernote
+    content = content.gsub /<ol( .*?)?>/, '<ul>'  # Strip <ol> tag attributes
+    content = content.gsub /<\/ol>/, '</ul>'      # Convert </ol> to </ul> tags
+    content = content.gsub /<li( .*?)?>/, '<li>'  # Strip out <li> tag attributes
+    content = content.gsub /<ul( .*?)?>/, '<ul>'  # Strip our <ul> tag attributes
+    content = content.gsub /<\/li>/, '' # Strip out closing li
+    if content.match /<ul>(<ul>)+/
+      content = content.gsub /<(\/)?ul>/, '' # strip out all uls
+      content = '<ul>' + content + '</ul>'
+    end
+    content
+  end
+
+  def self.getContentNextLi (content)
+    t = content.slice '<li>'.size, content.index(/<(\/)?(li|ul)>/, 4) - '<li>'.size
+    {:title  => t, :index => $~.begin(0)}
+  end
+
+  # def self.getContentNextLi (content)
+  #   nextTag = content.index(/<(\/)?(li|ul)>/, 4)
+  #   nextTag ||= content.size # Meaning there is only a li tag left open, and no closing tag
+  #   t = content.slice '<li>'.size, nextTag - '<li>'.size
+  #   if not $~.nil?
+  #     index = $~.begin(0)
+  #   else
+  #     index = content.size
+  #   end
+  #   {:title  => t, :index => index}
+  # end
+
+  def self.transformPlainText (content)
+    content = content.gsub '<div></div>', ''
+    content = content.gsub '<div>', '<li>'
+    content = content.gsub '<p>', '<li>'
+    content = '<ul>' + content + '</ul>' if content.index('<ul>').nil? or not content.index('<ul>').zero?
+    content
   end
 
   def self.next_available_rank (notebook_guid)
