@@ -214,10 +214,10 @@ class EvernoteController < ApplicationController
     resolve_data_conflicts
     @evernoteData.each do |noteGuid, data|
       puts "---------------"
-      puts "Note Guid: #{noteGuid}"
-      puts data[:title]
-      if Note.find_by_eng(noteGuid)
-        Note.updateBranch(noteGuid, data)
+      puts "Note Title: #{data[:title]}"
+      puts "Note USN: #{data[:usn]}"
+      if note = Note.find_by_eng(noteGuid)
+        Note.updateBranch(noteGuid, data) if data[:usn] > note.usn
       else
         Note.createBranch(noteGuid, data)
       end
@@ -226,6 +226,8 @@ class EvernoteController < ApplicationController
 
   def resolve_data_conflicts
     candidates = Note.getPossibleConflicts(@requestedTrunks)
+    puts "Candidates:"
+    candidates.each { |can| puts "#{can}" }
     @evernoteData.delete_if { |note| candidates.include? note }
   end
 
@@ -345,13 +347,14 @@ class EvernoteController < ApplicationController
   end
 
     def try_sending(enml_note, root)
-      puts "Try Sending Root"
       begin
+        branch = Note.find(root[:id])
         if root[:eng] #  and therefore has been synced before
           everNote = try_updating(enml_note)
+          branch.update_attributes(fresh: false, usn: everNote.updateSequenceNum)
         else
           everNote = try_creating(enml_note)
-          Note.find(root[:id]).update_attributes(fresh: false, eng: everNote.guid)
+          branch.update_attributes(fresh: false, eng: everNote.guid, usn: everNote.updateSequenceNum)
         end ## http://dev.evernote.com/documentation/reference/Errors.html
       rescue Evernote::EDAM::Error::EDAMNotFoundException => enfe
         puts "Parent Note GUID doesn't correspond to an actual note ->"
@@ -360,7 +363,7 @@ class EvernoteController < ApplicationController
     end
 
     def try_creating(enml_note)
-      puts "try creating root"
+      puts "Try creating root"
       begin
         everNote = note_store.createNote(credentials, enml_note)
       rescue Evernote::EDAM::Error::EDAMUserException => eue
@@ -370,11 +373,9 @@ class EvernoteController < ApplicationController
     end
 
     def try_updating(enml_note)
-      puts "try Updating root"
+      puts "Try updating root"
       begin
         everNote = note_store.updateNote(credentials, enml_note)
-        puts "Worked Once"
-        return everNote
       rescue Evernote::EDAM::Error::EDAMUserException => eue
         if eue.parameter == 'Note.guid'
           everNote = try_creating(enml_note)

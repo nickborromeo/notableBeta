@@ -1,7 +1,7 @@
 class Note < ActiveRecord::Base
   require 'securerandom'
   attr_accessible :guid, :eng, :title, :subtitle, :parent_id, :rank, :depth,
-    :collapsed, :fresh, :trashed, :notebook_id
+    :collapsed, :fresh, :trashed, :notebook_id, :usn
   validates_presence_of :guid, :rank, :depth
   belongs_to :notebook
 
@@ -140,7 +140,11 @@ class Note < ActiveRecord::Base
     nb = Notebook.find_by_guid(data[:nbguid])
     branch = Note.find_by_eng(noteGuid)
     self.deleteDescendants branch
-    Note.update(branch.id, :title => data[:title], :notebook_id => nb.id)
+    Note.update(branch.id,
+      :title => data[:title],
+      :notebook_id => nb.id,
+      :usn => data[:usn]
+    )
     self.createDescendants branch.guid, data[:content], nb.id
   end
 
@@ -156,7 +160,8 @@ class Note < ActiveRecord::Base
       :rank => rank,
       :depth => 0,
       :fresh => false,
-      :collapsed => false
+      :collapsed => false,
+      :usn => data[:usn]
     }
     branch = Note.create(noteSettings)
     self.createDescendants noteGuid, data[:content], nb.id

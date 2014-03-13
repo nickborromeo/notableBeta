@@ -11,7 +11,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20140126182304) do
+ActiveRecord::Schema.define(:version => 20140313050310) do
 
   create_table "notebooks", :force => true do |t|
     t.string   "title"
@@ -38,6 +38,7 @@ ActiveRecord::Schema.define(:version => 20140126182304) do
     t.string   "eng"
     t.integer  "notebook_id"
     t.boolean  "trashed",     :default => false
+    t.integer  "usn"
   end
 
   create_table "users", :force => true do |t|
