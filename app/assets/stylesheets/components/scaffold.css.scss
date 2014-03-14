@@ -28,6 +28,10 @@ body {
 label {
 	font: 14px Tahoma, Helvetica, Arial, sans-serif;
 }
+small {
+	font-style: italic;
+	color: $grayDark;
+}
 .container {
 	padding: 0;
 

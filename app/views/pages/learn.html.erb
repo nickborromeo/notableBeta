@@ -2,20 +2,25 @@
 <div class="container" id="static">
 	<h2>Syncing with Evernote</h2>
 
+	<br><h4>Steps to Sync</h4>
+	<ol>
+		<li>"Connect with Evernote" using the link in the dropdown menu (with the triangle)</li>
+		<li>Start syncing by clicking "Sync with Evernote" using the same dropdown menu</li>
+		<li>Select the notebooks you want to retrieve from Evernote and click "Continue". That's it.</li>
+	</ol>
+
+	<p>After authenticating your account, Notable will automatically sync your account with Evernote once a day.  To sync immediately, you can always use the "Sync with Evernote" link in the dropdown menu any time.</p>
+
+	<br><h4>Tips on Usage</h4>
 	<p>Connecting your account to Evernote can be a great way to back-up all your notes. You can also use this service to connect Notable to other third-party apps within the Evernote ecosystem.  This is great because you can use any task management app to handle your todo lists, which lets Notable focus on what it does best, helping you learn faster and understand more.</p>
 
-	<br><h4>Timing</h4>
-	<p>After authenticating your account, Notable will automatically sync your account with Evernote once a day.  You can also force your
-	account to sync immediately by using the "Sync Now" link in the dropdown menu."</p>
-
-	<br><h4>Known Limitiations</h4>
-	<p>Currently, Notable does not support the import of images, sketches, videos or other mutlimedia files.  Although Notable does plan to include these file types in the future, blank notes will show up in their place for now.  This does not mean they have been deleted, but merely that they do not appear in Notable.</p>
-
-	<br><h4>Common Errors</h4>
-	<p>Connecting to Evernote is a relatively new feature with many complications. If you receive any errors, please <%= mail_to "support@getnotable.com", "let us know" %> and we will do our best to fix the issue.  Sometimes, Evernote or Notable servers are just down and the best thing to do is wait for a bit.</p>
+	<br><h4>Known Limitations</h4>
+	<p>Syncing usually takes about 10 seconds per notebook, but may take up to a minute per notebook on slow connections.  If it takes longer than that in total, a problem has likely occurred with the syncing process.  Please refresh the page and <%= mail_to "support@getnotable.com", "notify us" %> of the issue.</p>
+	<p>Please avoid selecting notebooks with images and other attachments, since this is still unsupported.  The content will not be lost, but images and other resources likely will.  Similarly, links and formatting will be preserved when sent from Notable, but not when being received from Evernote. </p>
+	<p>While it is entirely possible to update content on Evernote and see the changes in Notable, the best way to use syncing for now is to consider your Notable notebooks in Evernote as read-only to prevent losing any formatting of your notes.</p>
 
 	<br><h4 id="limits">Rate Limits</h4>
-	<p>Evernote imposes rate limits on third party apps that are syncing too much data at once. This limit is supposed to be a rare occurence, so this is happening to you with any frequency don't hesitate to reach out to the <%= mail_to "support@getnotable.com", "Notable Support Team" %> so we can troubleshoot the issue. For more information on rate limits, please refer <%= link_to("this article", "http://dev.evernote.com/doc/articles/rate_limits.php") %> from Evernote.</p>
+	<p>Evernote imposes rate limits on third party apps that are syncing too much data at once. This limit is supposed to be a rare occurence, so this is happening to you with any frequency don't hesitate to reach out to the  so we can troubleshoot the issue. For more information on rate limits, please refer <%= link_to("this article", "http://dev.evernote.com/doc/articles/rate_limits.php") %> from Evernote.</p>
 
 </div>
 <%= render 'scaffold/footer_in' %>
