@@ -121,20 +121,15 @@ class Note < ActiveRecord::Base
 
   def self.getPossibleConflicts(trunks)
     candidates = []
-    puts "Battle begins!!!!"
     trunks.each do |trunk|
       notebook = Notebook.find_by_eng(trunk)
-      puts notebook.title
       # find candidates that have been updated since the last sync with Evernote
       candidates.concat Note.where(notebook_id: notebook.id, fresh: true)
     end
-    candidates.each { |can| puts "Can 1: #{can.id}" }
     # keep candidates if they have that have never been synced, also limits to only roots
     candidates.delete_if { |note| note.eng.nil?}
-    candidates.each { |can| puts "Can 2: #{can.id}" }
     # keep candidates that were created by Notable rather than Evernote
     candidates.delete_if { |note| note.guid == note.eng }
-    candidates.each { |can| puts "Can 3: #{can.id}" }
     # the remaining notebooks are candidates for possible conflicts
     candidates
   end
@@ -171,13 +166,15 @@ class Note < ActiveRecord::Base
   end
 
   def self.createDescendants (parent_id, noteContent, notebookId)
-    puts "Before: #{noteContent}"
     descendants = self.parseContent parent_id, noteContent, notebookId
     descendants.each { |note| Note.create note }
   end
 
   def self.parseContent (parent_id, content, notebook_id)
+    puts "Content before: #{content}"
     content = self.trimContent content
+    puts "Content after: #{content}"
+    puts "--------------"
     notes = []
     indentation = 0
     rec = -> (content) do

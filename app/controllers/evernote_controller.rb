@@ -237,14 +237,10 @@ class EvernoteController < ApplicationController
       evernoteGuids << candidate.eng
       evernoteGuids
     end
-    candidate_engs.each { |eng| puts "Eng: #{eng}" }
-    @evernoteData.each { |n| puts "Before: #{n}" }
     @evernoteData.delete_if { |note| candidate_engs.include? note }
-    @evernoteData.each { |n| puts "After: #{n}" }
   end
 
   def parse_note_data
-    puts "parse_note_data"
     @evernoteData.each do |noteGuid, data|
       if note = Note.find_by_eng(noteGuid)
         Note.updateBranch(noteGuid, data) if data[:usn] > note.usn
@@ -264,8 +260,6 @@ class EvernoteController < ApplicationController
       end
     end
   end
-
-
 
   # PART 4 OF 4
   # Send Notable's "fresh" and "trashed" updates to Evernote
@@ -516,34 +510,21 @@ class EvernoteController < ApplicationController
       note_store.listNotebooks(token)
     end
 
-    def update_enml_note(branch_attributes)
+    def create_enml_note(attributes)
+      attributes[:content] = deal_with_links(attributes[:content])
+
       note_content = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>"
       note_content += "<!DOCTYPE en-note SYSTEM \"http://xml.evernote.com/pub/enml2.dtd\">"
-      note_content += "<en-note>#{branch_attributes[:content]}</en-note>"
+      note_content += "<en-note>#{attributes[:content]}</en-note>"
 
       enml_note = Evernote::EDAM::Type::Note.new
-      enml_note.title = branch_attributes[:title]
+      enml_note.title = attributes[:title]
       enml_note.content = note_content
-      enml_note.guid = branch_attributes[:guid]
-      enml_note.notebookGuid = branch_attributes[:notebook_eng]
+      enml_note.guid = attributes[:guid]
+      enml_note.notebookGuid = attributes[:notebook_eng]
 
       puts "ENML Title: #{enml_note.title}"
-      puts "ENML Guid: #{enml_note.guid}"
-      return enml_note
-    end
-
-    def create_enml_note(branch_attributes)
-      note_content = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>"
-      note_content += "<!DOCTYPE en-note SYSTEM \"http://xml.evernote.com/pub/enml2.dtd\">"
-      note_content += "<en-note>#{branch_attributes[:content]}</en-note>"
-
-      enml_note = Evernote::EDAM::Type::Note.new
-      enml_note.title = branch_attributes[:title]
-      enml_note.content = note_content
-      enml_note.guid = branch_attributes[:guid]
-      enml_note.notebookGuid = branch_attributes[:notebook_eng]
-
-      puts "ENML Title: #{enml_note.title}"
+      puts "ENML Content: #{enml_note.content}"
       puts "ENML Guid: #{enml_note.guid}"
       return enml_note
     end
@@ -553,6 +534,10 @@ class EvernoteController < ApplicationController
       enml_notebook.name = trunk.title
       enml_notebook.guid = trunk.eng
       return enml_notebook
+    end
+
+    def deal_with_links(content)
+      content = content.gsub /target='_blank' class='titleLink'/, 'shape="rect"'
     end
 
     def prepare_rake (user = nil, rake_task = false)
