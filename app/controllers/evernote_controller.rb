@@ -179,6 +179,12 @@ class EvernoteController < ApplicationController
         usn: note.updateSequenceNum, content: content}
       @evernoteData[note.guid] = data
     end
+    puts "Compile Active Data"
+    @evernoteData.each do |key, value|
+      puts value[:usn]
+      puts value[:title]
+    end
+    puts "----------------"
   end
 
     def try_getting_note_content(note)
@@ -242,6 +248,10 @@ class EvernoteController < ApplicationController
 
   def parse_note_data
     @evernoteData.each do |noteGuid, data|
+      puts "Parse Note Data"
+      puts data[:title]
+      puts data[:content]
+      puts data[:usn]
       if note = Note.find_by_eng(noteGuid)
         Note.updateBranch(noteGuid, data) if data[:usn] > note.usn
       else
