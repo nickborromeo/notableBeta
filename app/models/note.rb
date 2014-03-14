@@ -48,11 +48,6 @@ class Note < ActiveRecord::Base
         :eng => r[:root].eng           #   is still unknown at that time
       )
     end
-    compiledRoots.each do |compiledRoot|
-      puts "Title: #{compiledRoot[:title]}"
-      puts "Guid: #{compiledRoot[:guid]}"
-      puts "<><><><><><><><><><><><>"
-    end
     compiledRoots # this is equivalent to one note in Evernote
   end
 
@@ -77,8 +72,6 @@ class Note < ActiveRecord::Base
     currentDepth.downto(2).each do |level|
       content += "</ul></li>"
     end
-    puts "Content for #{root[:root].title}: #{content}</ul>"
-    puts "---------------"
     content += "</ul>"
   end
 
@@ -127,11 +120,21 @@ class Note < ActiveRecord::Base
   end
 
   def self.getPossibleConflicts(trunks)
-    candidates = Note.where(notebook_id: trunks)
-    # keep candidates that have been updated since the last sync with Evernote
-    candidates.delete_if { |note| note.eng.nil? or note.fresh == false}
+    candidates = []
+    puts "Battle begins!!!!"
+    trunks.each do |trunk|
+      notebook = Notebook.find_by_eng(trunk)
+      puts notebook.title
+      # find candidates that have been updated since the last sync with Evernote
+      candidates.concat Note.where(notebook_id: notebook.id, fresh: true)
+    end
+    candidates.each { |can| puts "Can 1: #{can.id}" }
+    # keep candidates if they have that have never been synced, also limits to only roots
+    candidates.delete_if { |note| note.eng.nil?}
+    candidates.each { |can| puts "Can 2: #{can.id}" }
     # keep candidates that were created by Notable rather than Evernote
     candidates.delete_if { |note| note.guid == note.eng }
+    candidates.each { |can| puts "Can 3: #{can.id}" }
     # the remaining notebooks are candidates for possible conflicts
     candidates
   end
