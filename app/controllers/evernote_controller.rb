@@ -521,7 +521,7 @@ class EvernoteController < ApplicationController
     end
 
     def create_enml_note(attributes)
-      attributes[:content] = deal_with_links(attributes[:content])
+      attributes[:content] = deal_with_tags(attributes[:content])
 
       note_content = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>"
       note_content += "<!DOCTYPE en-note SYSTEM \"http://xml.evernote.com/pub/enml2.dtd\">"
@@ -546,8 +546,9 @@ class EvernoteController < ApplicationController
       return enml_notebook
     end
 
-    def deal_with_links(content)
+    def deal_with_tags(content)
       content = content.gsub /target='_blank' class='titleLink'/, 'shape="rect"'
+      content = content.gsub /<br>/, ' '
     end
 
     def prepare_rake (user = nil, rake_task = false)
