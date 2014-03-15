@@ -171,10 +171,10 @@ class Note < ActiveRecord::Base
   end
 
   def self.parseContent (parent_id, content, notebook_id)
-    puts "Content before: #{content}"
+    puts "Content before parsing: #{content}"
     content = self.trimContent content
-    puts "Content after: #{content}"
-    puts "--------------"
+    puts "Content after parsing: #{content}"
+    puts "-------------------------"
     notes = []
     indentation = 0
     rec = -> (content) do

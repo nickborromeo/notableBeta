@@ -168,8 +168,23 @@ class EvernoteController < ApplicationController
       includeTitle: true, # to get all the information
       includeDeleted: state # for knowing which notes to delete
     })
-    note_store.findNotesMetadata(credentials, noteFilter, 0, 100, resultSpec)
+    begin
+      note_store.findNotesMetadata(credentials, noteFilter, 0, 100, resultSpec)
+    rescue Evernote::EDAM::Error::EDAMNotFoundException => enfe
+      broken_note = Note.find_by_eng(eng)
+      puts "#{broken_note.title} can't be found on Evernote ->"
+      puts "  Error identifier: #{enfe.identifier}, Error key: #{enfe.key}"
+    end
   end
+
+    def try_getting_note_content(note)
+      note_store.getNoteContent(credentials, note.guid)
+    rescue Evernote::EDAM::Error::EDAMSystemException => ese
+      puts "Error code: #{ese.errorCode}, Rate Limit: #{ese.rateLimitDuration}"
+      puts "Problem Branch: #{note.title}, #{note.updateSequenceNum}"
+      @rateLimitUSN ||= note.updateSequenceNum
+      @rateLimitDuration = ese.rateLimitDuration
+    end
 
   def compile_active_data(metaData)
     @evernoteData = Hash.new{|hash, key| hash[key] = Hash.new}
@@ -179,12 +194,10 @@ class EvernoteController < ApplicationController
         usn: note.updateSequenceNum, content: content}
       @evernoteData[note.guid] = data
     end
-    puts "Compile Active Data"
     @evernoteData.each do |key, value|
       puts value[:usn]
       puts value[:title]
     end
-    puts "----------------"
   end
 
     def try_getting_note_content(note)
@@ -248,7 +261,6 @@ class EvernoteController < ApplicationController
 
   def parse_note_data
     @evernoteData.each do |noteGuid, data|
-      puts "Parse Note Data"
       puts data[:title]
       puts data[:content]
       puts data[:usn]
@@ -365,7 +377,6 @@ class EvernoteController < ApplicationController
     end
 
   def populate_roots_with_notebook_eng(trunk)
-    puts "populate_roots_with_notebook_eng"
     @freshRoots.each do |root| # the root is updated when its corresponding
       if root[:notebook_id] == trunk.id # notebook has acquired its eng, and
         root[:notebook_eng] = trunk.eng # is only needed once per notebook
@@ -374,7 +385,6 @@ class EvernoteController < ApplicationController
   end
 
   def send_fresh_roots
-    puts "send_fresh_roots"
     @freshRoots.each do |root|
       enml_note = create_enml_note(root)
       try_sending(enml_note, root)
@@ -458,7 +468,6 @@ class EvernoteController < ApplicationController
   end
 
   def send_back_home(error=nil)
-    puts "Send Back home is run"
     if @rateLimitUSN
       render json: {:retryTime => @rateLimitUSN, :message => "Rate limit", :code => 0}
     elsif error
