@@ -557,6 +557,7 @@ class EvernoteController < ApplicationController
 
     def deal_with_tags(content)
       content = content.gsub /target='_blank' class='titleLink'/, 'shape="rect"'
+      content = content.gsub /class="titleLink"/, 'shape="rect"'
       content = content.gsub /<br>/, ' '
     end
 
