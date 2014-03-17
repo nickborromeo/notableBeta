@@ -468,6 +468,7 @@ class EvernoteController < ApplicationController
   end
 
   def send_back_home(error=nil)
+    puts "Send back home was run with error #{error}"
     if @rateLimitUSN
       render json: {:retryTime => @rateLimitUSN, :message => "Rate limit", :code => 0}
     elsif error
