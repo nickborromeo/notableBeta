@@ -113,11 +113,11 @@
 			previousOffset + adjustment
 
 		textBeforeCursor: (sel, title) ->
-			return false unless sel.baseNode?
+			return false unless sel.anchorNode?
 			offset = @adjustAnchorOffset(sel, title)
 			textBefore = title.slice(0,offset)
 		textAfterCursor: (sel, title) ->
-			return false unless sel.baseNode?
+			return false unless sel.anchorNode?
 			offset = @adjustAnchorOffset(sel, title)
 			textAfter = title.slice offset
 			textAfter = "" if Helpers.tagRegex.matchTagsEndOfString.test(textAfter)
