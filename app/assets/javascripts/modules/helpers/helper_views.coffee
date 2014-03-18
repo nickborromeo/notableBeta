@@ -29,13 +29,13 @@
 
 		showChrome: ->
 			$("#modview-region, #links, nav .navbar-header").show()
-			$(".uv-icon, .icon-feats-delete").show()
+			$(".uv-icon, .icon-leaves-delete").show()
 			$("#message-center .message-template").css("opacity", "1")
 			$(".navbar-nav, .navbar-search").removeClass("hidden")
 			$("#crown, #tree").css("border-color", "#EAEAEA")
 			$("body, nav").css("background-color", "#EAEAEA")
 			$("body").css("background-image", "url(/assets/satinweave.png)")
-			$(".feats").css("color", "#3D3D3D")
+			$(".leaves").css("color", "#3D3D3D")
 			$("#content-template h3").css("color", "#989898")
 			$("#content-template .breadcrumb>li.root-breadcrumb a").css("color", "#989898")
 			$("nav").css(
@@ -55,11 +55,11 @@
 			unless @userIdle
 				$("#modview-region, #links, nav .navbar-header").fadeOut(1000)
 				$("#message-center .message-template").css("opacity", "0")
-				$(".uv-icon, .icon-feats-delete").fadeOut(600)
+				$(".uv-icon, .icon-leaves-delete").fadeOut(600)
 				$("body, nav").css("background", "#FDFDFD")
 				$("#crown, #tree").css("border-color", "#FDFDFD")
 				$("body").css("background-image", "none")
-				$(".feats, #content-template h3").css("color", "#FDFDFD")
+				$(".leaves, #content-template h3").css("color", "#FDFDFD")
 				$("#content-template").css(
 					"background-image": "none"
 					"border-color": "#FDFDFD"
@@ -72,8 +72,8 @@
 			@userIdle = true
 		quickHideChrome: ->
 			$("#content-template .breadcrumb>li.root-breadcrumb a").css("color", "#FDFDFD")
-			$(".feats").css("color", "#FDFDFD")
-			$(".icon-feats-delete").hide()
+			$(".leaves").css("color", "#FDFDFD")
+			$(".icon-leaves-delete").hide()
 			$("#crown, #tree").css("border-color", "#FDFDFD")
 		openSidebar: ->
 			$.sidr('open', 'left-sidr-center')

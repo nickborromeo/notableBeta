@@ -61,11 +61,11 @@
 			if _.isUndefined(App.linksRegion.currentView)
 				linksView = new App.Scaffold.LinksView
 				App.linksRegion.show linksView
-		# Export Feat
+		# Export Leaf
 		showExportView: (model, paragraph) ->
 			App.contentRegion.currentView.treeRegion.close()
 			App.contentRegion.currentView.crownRegion.close()
-			@exportView = new App.Feat.ExportView
+			@exportView = new App.Leaf.ExportView
 				model: model
 				collection: Note.activeTree
 				inParagraph: paragraph

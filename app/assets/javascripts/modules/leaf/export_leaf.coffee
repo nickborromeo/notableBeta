@@ -1,5 +1,5 @@
-@Notable.module "Feat", (Feat, App, Backbone, Marionette, $, _) ->
-	class Feat.ExportView extends Marionette.ItemView
+@Notable.module "Leaf", (Leaf, App, Backbone, Marionette, $, _) ->
+	class Leaf.ExportView extends Marionette.ItemView
 		id: "tree"
 		template: "note/exportModel"
 
@@ -7,14 +7,14 @@
 			"click .glyphicon-remove": "clearExport"
 
 		initialize: (options) ->
-			@model = new Feat.ExportModel tree: @collection, inParagraph: options.inParagraph, title: options.title
+			@model = new Leaf.ExportModel tree: @collection, inParagraph: options.inParagraph, title: options.title
 			if options.inParagraph then App.Notify.alert 'exportParagraph', 'success'
 			else App.Notify.alert 'exportPlain', 'success'
 
 		clearExport: ->
 			App.Note.eventManager.trigger "clear:export"
 
-	class Feat.ExportModel extends Backbone.Model
+	class Leaf.ExportModel extends Backbone.Model
 		urlRoot : '/sync'
 
 		initialize: ->

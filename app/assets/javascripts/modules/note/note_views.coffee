@@ -13,8 +13,8 @@
 			"click .destroy": @triggerEvent "deleteNote"
 			"mouseover .titleLink": @makeClickable
 			"mouseout .titleLink": @makeEditable
-			# "mouseover .branch": @toggleDestroyFeat "block"
-			# "mouseout .branch": @toggleDestroyFeat "none"
+			# "mouseover .branch": @toggleDestroyLeaf "block"
+			# "mouseout .branch": @toggleDestroyLeaf "none"
 			"keydown > .branch > .note-content": @model.timeoutAndSave
 			"click >.branch>.collapsable": "toggleCollapse"
 			"dblclick >.branch>.bullet": "zoomIn"
@@ -185,7 +185,7 @@
 			@collection.length isnt 0
 		isCollapsed: ->
 			"is-collapsed" in App.Helpers.ieShim.classList(@$(">.branch>.bullet")[0])
-		# toggleDestroyFeat: (toggleType) ->
+		# toggleDestroyLeaf: (toggleType) ->
 		# 	(e) ->
 		# 		e.stopPropagation()
 		# 		$("div[data-guid=#{@model.get 'guid'}] .trash_icon:first").css("display", toggleType)
@@ -475,9 +475,9 @@
 		events: ->
 			"blur .note-content": "updateNote"
 			"keydown .note-content": @model.timeoutAndSave
-			"click .icon-feats-share": @export false
-			"click .icon-feats-export": @export true
-			"click .icon-feats-delete": "deleteBranch"
+			"click .icon-leaves-share": @export false
+			"click .icon-leaves-export": @export true
+			"click .icon-leaves-delete": "deleteBranch"
 
 		initialize: ->
 			@cursorApi = App.Helpers.CursorPositionAPI

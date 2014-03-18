@@ -15,16 +15,16 @@
 // ----------------------------------------------------
 @media (min-width: $screen-sm) {
 	#crown {
-		.feats {
+		.leaves {
 			font-size: 23px;
 			padding-left: 0;
 			margin-top: -4px;
 			line-height: 20px;
 			span {
 				cursor: pointer;
-				&.icon-feats-tag { padding-right: 2px; }
-				&.icon-feats-emoticon { padding-right: 2px; }
-				&.icon-feats-delete {
+				&.icon-leaves-tag { padding-right: 2px; }
+				&.icon-leaves-emoticon { padding-right: 2px; }
+				&.icon-leaves-delete {
 					border-left: 2px solid $gray;
 					padding-left: 9px;
 					padding-right: 0;
@@ -45,13 +45,13 @@
 // ----------------------------------------------------
 @media (min-width: $screen-md) {
 	#crown {
-		.feats {
+		.leaves {
 			font-size: 27px;
 			text-align: right;
 			padding-right: 12px;
 			span {
 				padding: 1px;
-				&.icon-feats-tag { padding-right: 3px; }
+				&.icon-leaves-tag { padding-right: 3px; }
 			}
 
 		}

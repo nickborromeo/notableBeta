@@ -54,10 +54,14 @@
 	height: 5px;
 	width: 100%;
 	z-index: 8;
+	border: 3px solid red;
 	&.dropBefore { top: 0; }
 }
 .dropTarget.over {
-	border-top: 3px dashed #AAAEAE;
+	// border-top: 3px dashed #AAAEAE;
+	position: static;
+	height: 25px;
+	&.dropBefore { top: -10px; }
 }
 
 @media (max-width: $screen-xs) {

@@ -1,7 +1,7 @@
 @Notable.module "Evernote", (Evernote, App, Backbone, Marionette, $, _) ->
 
 	class Evernote.CheckboxView extends Marionette.ItemView
-		template: "feat/checkbox"
+		template: "leaf/checkbox"
 		className: "en-checkbox"
 
 		events:
@@ -16,7 +16,7 @@
 		className: "en-checkboxes"
 
 	class Evernote.NotebookView extends Marionette.Layout
-		template: "feat/everNotebook"
+		template: "leaf/everNotebook"
 		id: "ever-notebook"
 		regions:
 			checkboxRegion: "#checkbox-region"

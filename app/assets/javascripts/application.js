@@ -37,5 +37,5 @@
 //= require_tree ./modules/action
 //= require_tree ./modules/helpers
 //= require_tree ./modules/breadcrumb
-//= require_tree ./modules/feat
+//= require_tree ./modules/leaf
 //= require_tree ./modules/evernote
