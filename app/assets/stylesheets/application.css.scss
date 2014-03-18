@@ -12,4 +12,6 @@
  *= require_tree .
  */
 
+// required to override bootstrap's screen-sm variable
+$screen-sm: 720px;
 @import "bootstrap";
