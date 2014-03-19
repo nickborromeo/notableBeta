@@ -9,7 +9,7 @@
 			"keypress .edit": "closeEdit"
 			"blur .edit": "updateTrunk"
 			"click .remove": "removeTrunk"
-			"click": "selectTrunk"
+			"click": "trySelectingTrunk"
 
 		initialize: ->
 			@listenTo @model, 'change', @render
@@ -21,6 +21,14 @@
 		ui:
 			input: "input.edit"
 
+		trySelectingTrunk: ->
+			online = App.Helpers.ConnectionAPI.checkConnection
+			$.when(online()).then ( =>
+				@selectTrunk()
+			), ( =>
+				App.Notify.alert 'preventNotebook', 'warning', {destructTime: 9000}
+				App.Helper.eventManager.trigger "closeSidr"
+			)
 		selectTrunk: ->
 			$(".trunk").removeClass("selected")
 			@$el.addClass("selected")

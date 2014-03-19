@@ -83,7 +83,7 @@
 			"click h1.sidebar-dropdown": "toggleList"
 			"click li": "selectListItem"
 			'keypress #new-trunk': 'checkForEnter'
-			'click .new-trunk-btn': 'checkConnection'
+			'click .new-trunk-btn': 'tryCreatingTrunk'
 
 		toggleList: (e) ->
 			$(e.currentTarget.nextElementSibling).toggle(400)
@@ -98,15 +98,16 @@
 				@$(e.currentTarget).toggleClass('selected')
 				alert	("These tags are just a placeholders.")
 		checkForEnter: (e) ->
-			@checkConnection() if e.which == 13
-		checkConnection: ->
-			topModel = App.Note.tree.models[0]
-			Backbone.sync "read", topModel,
-				success: => @createTrunk()
-				error: =>
-					@$('#new-trunk').val('')
-					App.Notify.alert 'preventNotebook', 'warning'
-					App.Helper.eventManager.trigger "closeSidr"
+			@tryCreatingTrunk() if e.which == 13
+		tryCreatingTrunk: ->
+			online = App.Helpers.ConnectionAPI.checkConnection
+			$.when(online()).then ( =>
+				@createTrunk()
+			), ( =>
+				@$('#new-trunk').val('')
+				App.Notify.alert 'preventNotebook', 'warning', {destructTime: 9000}
+				App.Helper.eventManager.trigger "closeSidr"
+			)
 		createTrunk: ->
 			if @$('#new-trunk').val().trim()
 				trunk_attributes =

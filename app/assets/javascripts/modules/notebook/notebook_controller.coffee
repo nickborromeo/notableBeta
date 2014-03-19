@@ -23,7 +23,7 @@
 						@emptyNotebookTrash()
 		reset: ->
 		setGlobals: ->
-			Notebook.initializedTrunk = $.Deferred();
+			Notebook.initializedTrunk = $.Deferred()
 			Notebook.activeTrunk = @activeTrunk
 			Notebook.forest = @forest
 			@config = Notebook.config = zoomingItem: "notebookZooms"

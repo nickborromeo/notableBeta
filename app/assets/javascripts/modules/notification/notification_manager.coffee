@@ -44,7 +44,7 @@
 		needsNotebook: "Your account needs to have at least one notebook."
 		newNotebook: "A new notebook has been created!"
 		deleteNotebook: "Notebook deleted. <a class='undo-notebook-delete'> undo </a>"
-		preventNotebook: "Sorry, creating notebooks while offline is currently not possible."
+		preventNotebook: "Sorry, working with notebooks while offline is currently not possible."
 		# Import/Export
 		exceedPasting: "Pasting limit exceeded. Let us know if you really need to simultaneously paste more than 100 notes."
 		exportPlain: "Your notes are ready for export in plain text format."
