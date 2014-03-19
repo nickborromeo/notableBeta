@@ -398,6 +398,7 @@
 			e.dataTransfer.effectAllowed = "move"
 			e.dataTransfer.setData("text", model.get 'guid')
 			$(".dropTarget").addClass('moving')
+			ui.noteContent.css("opacity", "0.3")
 		dropMove: (ui, e, referenceNote) ->
 			@leaveMove ui, e
 			e.stopPropagation()
@@ -425,6 +426,7 @@
 				e.dataTransfer.dropEffect = "move"
 			false
 		endMove: (ui, e, note) ->
+			ui.noteContent.css("opacity", "1")
 			$(".dropTarget").removeClass('moving')
 			@drag = undefined
 		dropAllowed: (note, dropType) ->
