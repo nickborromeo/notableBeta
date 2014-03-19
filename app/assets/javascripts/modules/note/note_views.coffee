@@ -413,13 +413,29 @@
 		enterMove: (ui, e, note) ->
 			dropType = @getDropType  e
 			if @dropAllowed note, dropType
-				$(e.delegateTarget).addClass("before") if dropType is "dropBefore"
-				$(e.delegateTarget).addClass("after") if dropType is "dropAfter"
+				@leafTipBefore(dropType, e) if dropType is "dropBefore"
+				@leafTipAfter(dropType, e) if dropType is "dropAfter"
 				$(e.currentTarget).addClass('over')
+		leafTipBefore: (dropType, e) ->
+			bullet = e.currentTarget.nextElementSibling.nextElementSibling
+			$(bullet).addClass(dropType)
+			$(e.delegateTarget).addClass("before")
+			if e.delegateTarget.previousElementSibling
+				bulletAfter = e.delegateTarget.previousElementSibling.children[0].children[2]
+				$(bulletAfter).addClass("dropAfter")
+		leafTipAfter: (dropType, e) ->
+			bullet = e.currentTarget.previousElementSibling.previousElementSibling
+			$(bullet).addClass(dropType)
+			$(e.delegateTarget).addClass("after")
+			if e.delegateTarget.nextElementSibling
+				bulletBefore = e.delegateTarget.nextElementSibling.children[0].children[1]
+				$(bulletBefore).addClass("dropBefore")
 		leaveMove: (ui, e, note) ->
+			$(".bullet").removeClass("dropBefore")
+			$(".bullet").removeClass("dropAfter")
+			$(e.currentTarget).removeClass('over')
 			$(e.delegateTarget).removeClass("before")
 			$(e.delegateTarget).removeClass("after")
-			$(e.currentTarget).removeClass('over')
 		overMove: (ui, e, note) ->
 			if @dropAllowed note, @getDropType e
 				e.preventDefault()
