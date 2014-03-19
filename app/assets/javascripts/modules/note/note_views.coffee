@@ -391,31 +391,33 @@
 			else
 				Note.eventManager.trigger "setCursor:#{note.get('guid')}", true
 				false
+
 		startMove: (ui, e, model) ->
-			# e.preventDefault();
-			# ui.noteContent.style.opacity = '0.7'
 			App.Action.manager.addHistory 'moveBranch', model
 			@drag = model
 			e.dataTransfer.effectAllowed = "move"
 			e.dataTransfer.setData("text", model.get 'guid')
+			$(".dropTarget").addClass('moving')
 		dropMove: (ui, e, referenceNote) ->
 			@leaveMove ui, e
 			e.stopPropagation()
 			if @dropAllowed(referenceNote, @getDropType e)
 				@[@getDropType(e)](referenceNote)
 			Note.eventManager.trigger "setCursor:#{@drag.get('guid')}"
-		# 	@triggerRenderAfterDrag referenceNote
-		# triggerRenderAfterDrag: (note) ->
-		# 	if note.isARoot() then @render()
-		# 	else Note.eventManager.trigger "render:#{note.get('parent_id')}"
+			$(".dropTarget").removeClass('moving')
 		dropBefore: (following) ->
 			@collection.dropBefore(@drag, following)
 		dropAfter: (preceding) ->
 			@collection.dropAfter(@drag, preceding)
 		enterMove: (ui, e, note) ->
-			if @dropAllowed note, @getDropType  e
+			dropType = @getDropType  e
+			if @dropAllowed note, dropType
+				$(e.delegateTarget).addClass("before") if dropType is "dropBefore"
+				$(e.delegateTarget).addClass("after") if dropType is "dropAfter"
 				$(e.currentTarget).addClass('over')
 		leaveMove: (ui, e, note) ->
+			$(e.delegateTarget).removeClass("before")
+			$(e.delegateTarget).removeClass("after")
 			$(e.currentTarget).removeClass('over')
 		overMove: (ui, e, note) ->
 			if @dropAllowed note, @getDropType e
@@ -423,8 +425,7 @@
 				e.dataTransfer.dropEffect = "move"
 			false
 		endMove: (ui, e, note) ->
-			# ui.noteContent.style.opacity = '1.0'
-			Note.eventManager.trigger "setCursor:#{@drag.get('guid')}"
+			$(".dropTarget").removeClass('moving')
 			@drag = undefined
 		dropAllowed: (note, dropType) ->
 			dropTypeMap =
@@ -439,6 +440,8 @@
 			@drag isnt note and not note.hasInAncestors @drag
 		getDropType: (e) ->
 			App.Helpers.ieShim.classList(e.currentTarget)[1]
+			# ui.noteContent.style.opacity = '0.7'
+			# ui.noteContent.style.opacity = '1.0'
 
 		mergeWithPreceding: (note) ->
 			[preceding, title, previousTitle] = @collection.mergeWithPreceding note
