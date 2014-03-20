@@ -8,9 +8,12 @@
 	background-image: asset-url('brilliant.png', image);
 	text-align: center;
 	height: 100%;
-	.logo {
+	#logo {
+		background-image: asset-url('logo/logo_xs.png', image);
 		margin: 5% auto 9% auto;
-		max-width: 80%
+		max-width: 80%;
+		width: 299px;
+		height: 73px;
 	}
 	.couplet {
 		max-width: 80%;
@@ -90,8 +93,11 @@
 	.landing {
 		margin-top: 3%;
 
-		.logo {
-			margin: 3.5% auto 7% auto;
+		#logo {
+			background-image: asset-url('logo/logo_sm.png', image);
+			margin: 4% auto 7% auto;
+			width: 416px;
+			height: 101px;
 		}
 		.tagline {
 			font-size: 36px;
@@ -132,13 +138,16 @@
 // ----------------------------------------------------
 @media (min-width: $screen-md) {
 	.landing {
+		#logo {
+			background-image: asset-url('logo/logo_md.png', image);
+			margin: 3.5% auto 7% auto;
+			width: 623px;
+			height: 152px;
+		}
 		.tagline {
 			font-size: 42px;
 			display: block;
 			margin: 0 auto;
-		}
-		.logo {
-			border: none;
 		}
 		.pitch {
 			font-size: 16px;
@@ -172,4 +181,11 @@
 // ---------------DESKTOP MEDIA QUERIES ---------------
 // ----------------------------------------------------
 @media (min-width: $screen-lg) {
+	.landing {
+		#logo {
+			background-image: asset-url('logo/logo_lg.png', image);
+			width: 748px;
+			height: 182px;
+		}
+	}
 }

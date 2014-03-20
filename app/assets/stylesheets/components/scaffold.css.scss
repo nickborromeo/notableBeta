@@ -99,9 +99,6 @@ nav {
 	.navbar-header { padding: 5px 15px; }
 	.logo {
 		color: $notableBlue;
-		.logo-icon {
-			text-align: left;
-		}
 		.logo-name {
 			text-align: center;
 			font-size: 18px;
@@ -262,8 +259,11 @@ footer {
 		.logo {
 			text-align: left;
 			.logo-icon {
+				background-image: asset-url('logo/header_down.png', image);
 				padding: 0;
 				margin: 1.4% 0 0 7%;
+				width: 116px;
+				height: 28px;
 			}
 		}
 		.navbar-shift {
@@ -396,6 +396,11 @@ footer {
 
 	nav {
 		height: 45px;
+		.logo .logo-icon {
+			background-image: asset-url('logo/header_up.png', image);
+			width: 136px;
+			height: 33px;
+		}
 		.navbar-search {
 			.form-control {
 				font-size: 14px;
