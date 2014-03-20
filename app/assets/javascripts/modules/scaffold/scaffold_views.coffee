@@ -90,7 +90,7 @@
 			$(e.currentTarget.firstElementChild).toggleClass("closed")
 		selectListItem: (e) ->
 			liClass = e.currentTarget.className
-			if liClass is "note" or liClass is "trunk"
+			if liClass is "note"
 				@$('li.'+liClass).removeClass('selected')
 				$(e.currentTarget).addClass('selected')
 				alert	("These notes are just placeholders.")
