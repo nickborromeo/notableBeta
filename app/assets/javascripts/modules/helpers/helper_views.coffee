@@ -17,6 +17,7 @@
 			# Focused typing mode events
 			@eventManager.on "showChrome", @showChrome, @
 			@eventManager.on "hideChrome", @hideChrome, @
+			@eventManager.on "zoomChrome", @zoomChrome, @
 			# Sidebar events
 			@eventManager.on "openSidr", @openSidebar, @
 			@eventManager.on "closeSidr", @closeSidebar, @
@@ -59,22 +60,26 @@
 				$("body, nav").css("background", "#FDFDFD")
 				$("#crown, #tree").css("border-color", "#FDFDFD")
 				$("body").css("background-image", "none")
-				$(".leaves, #content-template h3").css("color", "#FDFDFD")
+				$(".leaves").css("color", "#FDFDFD")
 				$("#content-template").css(
 					"background-image": "none"
 					"border-color": "#FDFDFD"
 					"box-shadow": "none"
 				)
 				window.setTimeout ->
+					$("#content-template h3").css("color", "#FDFDFD")
 					$(".navbar-nav, .navbar-search").addClass("hidden")
 					$("#content-template .breadcrumb>li.root-breadcrumb a").css("color", "#FDFDFD")
 				, 500
 			@userIdle = true
-		quickHideChrome: ->
-			$("#content-template .breadcrumb>li.root-breadcrumb a").css("color", "#FDFDFD")
-			$(".leaves").css("color", "#FDFDFD")
-			$(".icon-leaves-delete").hide()
-			$("#crown, #tree").css("border-color", "#FDFDFD")
+		zoomChrome: ->
+			if @userIdle
+				$("#content-template .breadcrumb>li.root-breadcrumb a").css("color", "#FDFDFD")
+				$("#content-template h3").css("color", "#FDFDFD")
+				$(".leaves").css("color", "#FDFDFD")
+				$(".icon-leaves-delete").hide()
+				$("#crown, #tree").css("border-color", "#FDFDFD")
+
 		openSidebar: ->
 			$.sidr('open', 'left-sidr-center')
 			$(".navbar-header").addClass("navbar-shift")

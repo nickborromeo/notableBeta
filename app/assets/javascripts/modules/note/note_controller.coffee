@@ -142,6 +142,7 @@
 				@clearCrownView()
 				@showContentView App.Note.tree
 				@showNotebookTitleView()
+				App.Helper.eventManager.trigger "zoomChrome"
 				if Note.tree.first()?
 					Note.eventManager.trigger "setCursor:#{Note.tree.first().get('guid')}"
 		zoomIn: (guid) ->
@@ -151,11 +152,13 @@
 				@showCrownView()
 				@showContentView App.Note.activeTree
 				@showBreadcrumbView()
+				App.Helper.eventManager.trigger "zoomChrome"
 				if Note.activeTree.first()?
 					Note.eventManager.trigger "setCursor:#{Note.activeTree.first().get('guid')}"
 				else
 					Note.eventManager.trigger "setCursor:#{Note.activeBranch.get('guid')}"
 				App.Note.eventManager.trigger "notebook:zoomIn", App.Note.activeBranch.get('guid')
+
 		changeActiveTrunk: ->
 			@showContentView(new Backbone.Collection)
 			if Note.activeBranch is "root"
