@@ -7,7 +7,7 @@
 			@eventManager = Helper.eventManager
 			@progressView = new App.Helper.ProgressView
 			@setEvents()
-			@setUserState()
+			@setTabState()
 		setEvents: ->
 			@eventManager.on "showProgress", @showProgress, @
 			@eventManager.on "pushProgress", @progressView.pushProgress, @progressView
@@ -28,8 +28,7 @@
 			@progressView.resetProgress()
 			App.contentRegion.currentView.treeRegion.show @progressView
 
-		setUserState: ->
-			@userIdle = false
+		setTabState: ->
 			@tabVisible = ( ->
 				keys =
 					hidden: "visibilitychange"
@@ -67,9 +66,8 @@
 				"border-color": "#C1C1C1"
 				"box-shadow": "2px 2px 6px 0 rgba(0, 0, 0, 0.15)"
 			)
-			@userIdle = false
 		hideChrome: ->
-			if not @userIdle and @tabVisible()
+			if not App.User.idle and @tabVisible()
 				$("#modview-region, #links, nav .navbar-header").fadeOut(1000)
 				$("#message-center .message-template").css("opacity", "0")
 				$(".uv-icon, .icon-leaves-delete").fadeOut(600)
@@ -87,7 +85,7 @@
 					$(".navbar-nav, .navbar-search").addClass("hidden")
 					$("#content-template .breadcrumb>li.root-breadcrumb a").css("color", "#FDFDFD")
 				, 500
-			@userIdle = true
+			App.User.idle = true
 		zoomChrome: ->
 			if @userIdle
 				$("#content-template .breadcrumb>li.root-breadcrumb a").css("color", "#FDFDFD")

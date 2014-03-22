@@ -12,6 +12,7 @@
 		setGlobals: ->
 			User.activeUserInitialized = $.Deferred()
 			User.activeUser = @activeUser
+			User.idle = true
 		setEvents: ->
 
 	# Initializers -------------------------

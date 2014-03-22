@@ -274,7 +274,7 @@
 				return false if not precedingBranch = @findPrecedingBranch branch
 				descendantList = precedingBranch.getCompleteDescendantList()
 				rec precedingBranch, @getJumpPositionTarget @getPrecedingTarget(), targetDepth, descendantList, precedingBranch
-			
+
 		jumpUp: (branch) ->
 			return false if not target = @getJumpPositionUpTarget branch
 			target
@@ -291,6 +291,7 @@
 				@jumpToTargetUp(note, target)
 				@insertInTree note
 			@manageCollapsedHierarchy.exec note
+			App.User.idle = false # hideChrome only allowed when using keyboard shortcuts
 			note
 
 		manageCollapsedHierarchy:
@@ -343,6 +344,7 @@
 				@jumpToTargetDown branch, target
 				@insertInTree branch
 			@manageCollapsedHierarchy.exec branch
+			App.User.idle = false # hideChrome only allowed when using keyboard shortcuts
 			branch
 
 		jumpFocusDown: (note, checkDescendants = true) ->

@@ -108,6 +108,7 @@
 		applyStyling: (style, e) ->
 			e.preventDefault()
 			e.stopPropagation()
+			App.User.idle = false # hideChrome only allowed when using keyboard shortcuts
 			document.execCommand(style)
 		triggerRedoEvent: (e) ->
 			e.preventDefault()
@@ -127,7 +128,7 @@
 		triggerLocalShortcut: (behaviorFn) -> (e) =>
 			e.preventDefault()
 			e.stopPropagation()
-			
+			App.User.idle = false # hideChrome allowed only with active use of keyboard shortcuts
 			behaviorFn.apply(@, Note.sliceArgs arguments)
 		triggerDragEvent: (event) -> (e) =>
 			@updateNote()
