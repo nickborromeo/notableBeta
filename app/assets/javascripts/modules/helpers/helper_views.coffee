@@ -7,7 +7,7 @@
 			@eventManager = Helper.eventManager
 			@progressView = new App.Helper.ProgressView
 			@setEvents()
-			@userIdle = false
+			@setUserState()
 		setEvents: ->
 			@eventManager.on "showProgress", @showProgress, @
 			@eventManager.on "pushProgress", @progressView.pushProgress, @progressView
@@ -28,6 +28,22 @@
 			@progressView.resetProgress()
 			App.contentRegion.currentView.treeRegion.show @progressView
 
+		setUserState: ->
+			@userIdle = false
+			@tabVisible = ( ->
+				keys =
+					hidden: "visibilitychange"
+					webkitHidden: "webkitvisibilitychange"
+					mozHidden: "mozvisibilitychange"
+					msHidden: "msvisibilitychange"
+				for stateKey of keys
+					if stateKey of document
+						eventKey = keys[stateKey]
+						break
+				(c) ->
+					document.addEventListener eventKey, c  if c
+					not document[stateKey]
+			)()
 		showChrome: ->
 			$("#modview-region, #links, nav .navbar-header").show()
 			$(".uv-icon, .icon-leaves-delete").show()
@@ -53,7 +69,7 @@
 			)
 			@userIdle = false
 		hideChrome: ->
-			unless @userIdle
+			if not @userIdle and @tabVisible()
 				$("#modview-region, #links, nav .navbar-header").fadeOut(1000)
 				$("#message-center .message-template").css("opacity", "0")
 				$(".uv-icon, .icon-leaves-delete").fadeOut(600)
