@@ -46,7 +46,7 @@
 			App.Notify.alert 'newNote','success'
 			# mixpanel.track("New Note")
 		applyModview: (e) ->
-			type = App.Helpers.ieShim.classList(e.currentTarget)[1]
+			type = App.Helper.ieShim.classList(e.currentTarget)[1]
 			$(".modview-btn").removeClass("selected")
 			$(".#{type}").addClass("selected")
 		futureModview: ->
@@ -100,7 +100,7 @@
 		checkForEnter: (e) ->
 			@tryCreatingTrunk() if e.which == 13
 		tryCreatingTrunk: ->
-			online = App.Helpers.ConnectionAPI.checkConnection
+			online = App.Helper.ConnectionAPI.checkConnection
 			$.when(online()).then ( =>
 				@createTrunk()
 			), ( =>

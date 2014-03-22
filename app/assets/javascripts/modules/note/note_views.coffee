@@ -40,7 +40,7 @@
 			Note.eventManager.on "timeoutUpdate:#{@model.get('guid')}", @updateNote, @
 			Note.eventManager.on "expand:#{@model.get('guid')}", @expand, @
 			Note.eventManager.on "collapse:#{@model.get('guid')}", @collapse, @
-			@cursorApi = App.Helpers.CursorPositionAPI
+			@cursorApi = App.Helper.CursorPositionAPI
 		onRender: ->
 			@getNoteContent()
 			@trimExtraDropTarget()
@@ -127,6 +127,7 @@
 		triggerLocalShortcut: (behaviorFn) -> (e) =>
 			e.preventDefault()
 			e.stopPropagation()
+			
 			behaviorFn.apply(@, Note.sliceArgs arguments)
 		triggerDragEvent: (event) -> (e) =>
 			@updateNote()
@@ -184,7 +185,7 @@
 		collapsable: ->
 			@collection.length isnt 0
 		isCollapsed: ->
-			"is-collapsed" in App.Helpers.ieShim.classList(@$(">.branch>.bullet")[0])
+			"is-collapsed" in App.Helper.ieShim.classList(@$(">.branch>.bullet")[0])
 		# toggleDestroyLeaf: (toggleType) ->
 		# 	(e) ->
 		# 		e.stopPropagation()
@@ -251,7 +252,7 @@
 			[window.getSelection(), @getNoteTitle()]
 		getNoteTitle: ->
 			title = @getNoteContent().html().trim()
-			App.Helpers.tagRegex.trimEmptyTags title
+			App.Helper.tagRegex.trimEmptyTags title
 		getNoteContent: ->
 			if @ui.noteContent.length is 0 or !@ui.noteContent.focus?
 				@ui.noteContent = @.$('.note-content:first')
@@ -457,7 +458,7 @@
 		dropAllowedAfter: (note) ->
 			@drag isnt note and not note.hasInAncestors @drag
 		getDropType: (e) ->
-			App.Helpers.ieShim.classList(e.currentTarget)[1]
+			App.Helper.ieShim.classList(e.currentTarget)[1]
 			# ui.noteContent.style.opacity = '0.7'
 			# ui.noteContent.style.opacity = '1.0'
 
@@ -501,7 +502,7 @@
 			"click .icon-leaves-delete": "deleteBranch"
 
 		initialize: ->
-			@cursorApi = App.Helpers.CursorPositionAPI
+			@cursorApi = App.Helper.CursorPositionAPI
 			Note.eventManager.on "timeoutUpdate:#{@model.get('guid')}", @updateNote, @
 			Note.eventManager.on "setCursor:#{@model.get('guid')}", @setCursor, @
 			Note.eventManager.on "setTitle:#{@model.get('guid')}", @setNoteTitle, @
@@ -538,14 +539,14 @@
 			noteTitle
 		getNoteTitle: ->
 			title = @ui.noteContent.html().trim()
-			App.Helpers.tagRegex.trimEmptyTags title
+			App.Helper.tagRegex.trimEmptyTags title
 		setNoteTitle: (title, forceUpdate = false) ->
 			@ui.noteContent.html title
 			@updateNote forceUpdate
 
 		setCursor: (position = false) ->
 			(noteContent = @ui.noteContent).focus()
-			App.Helpers.CursorPositionAPI.setCursor noteContent, position
+			App.Helper.CursorPositionAPI.setCursor noteContent, position
 		jumpFocusDown: (e) ->
 			e.preventDefault()
 			e.stopPropagation()

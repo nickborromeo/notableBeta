@@ -1,4 +1,4 @@
-@Notable.module "Helpers", (Helpers, App, Backbone, Marionette, $, _) ->
+@Notable.module "Helper", (Helper, App, Backbone, Marionette, $, _) ->
 
 	@CursorPositionAPI =
 		setRange: (beginNode, beginOffset, endNode, endOffset) ->
@@ -70,8 +70,8 @@
 				else
 					findContentEditable node.parentNode
 		collectMatches: (text) ->
-			matches = Helpers.collectAllMatches text
-			matches = matches.concat Helpers.collectAllMatches text, Helpers.tagRegex.matchHtmlEntities, 1
+			matches = Helper.collectAllMatches text
+			matches = matches.concat Helper.collectAllMatches text, Helper.tagRegex.matchHtmlEntities, 1
 			matches = matches.concat @checkForLinks text
 			matches = matches.sort (a,b) -> a.index - b.index
 
@@ -120,14 +120,14 @@
 			return false unless sel.anchorNode?
 			offset = @adjustAnchorOffset(sel, title)
 			textAfter = title.slice offset
-			textAfter = "" if Helpers.tagRegex.matchTagsEndOfString.test(textAfter)
+			textAfter = "" if Helper.tagRegex.matchTagsEndOfString.test(textAfter)
 			textAfter
 		isEmptyAfterCursor: ->
 			@textAfterCursor.apply(this, arguments).length is 0
 		isEmptyBeforeCursor: ->
 			@textBeforeCursor.apply(this, arguments).length is 0
 
-	Helpers.collectAllMatches = (title, regex = Helpers.tagRegex.matchTag, adjustment = 0) ->
+	Helper.collectAllMatches = (title, regex = Helper.tagRegex.matchTag, adjustment = 0) ->
 		matches = []
 		while match = regex.exec title
 			matches.push
@@ -137,10 +137,10 @@
 				adjustment: match[0].length - adjustment
 		matches
 
-	Helpers.tagRegex =
+	Helper.tagRegex =
 		matchTag: /<(.+?)>/g
 		matchTagsEndOfString: /^(<\/?[a-z]+>)+$/
 		matchHtmlEntities: /&[a-z]{2,4};/g
 		matchEmptyTag: /<[a-z]+><\/[a-z]+>/g
 		trimEmptyTags: (text) ->
-			text.replace(Helpers.matchEmptyTag, "")
+			text.replace(Helper.matchEmptyTag, "")

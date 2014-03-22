@@ -22,7 +22,7 @@
 			input: "input.edit"
 
 		trySelectingTrunk: ->
-			online = App.Helpers.ConnectionAPI.checkConnection
+			online = App.Helper.ConnectionAPI.checkConnection
 			$.when(online()).then ( =>
 				@selectTrunk()
 			), ( =>

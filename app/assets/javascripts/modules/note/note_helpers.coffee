@@ -22,7 +22,7 @@
 	  str.replace(new RegExp(find, 'g'), replace);
 
 	Note.prependStyling = (text) ->
-		matches = App.Helpers.collectAllMatches text
+		matches = App.Helper.collectAllMatches text
 		prepend = ""
 		ignoredTags = ["<br>"]
 		openTags = []

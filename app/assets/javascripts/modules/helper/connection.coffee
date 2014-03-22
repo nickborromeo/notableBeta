@@ -1,4 +1,4 @@
-@Notable.module "Helpers", (Helpers, App, Backbone, Marionette, $, _) ->
+@Notable.module "Helper", (Helper, App, Backbone, Marionette, $, _) ->
 
 	@ConnectionAPI =
 		checkConnection: ->
