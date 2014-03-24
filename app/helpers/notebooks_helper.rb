@@ -49,7 +49,7 @@ module NotebooksHelper
     note17 = { "guid"=> SecureRandom.uuid, "subtitle"=>"", "fresh"=>true, "notebook_id"=>notebook_id,
       "title"=>"Helpful Resources", "rank"=>3, "depth"=>0, "collapsed"=>false, "parent_id"=>"root" }
     note18 = { "guid"=> SecureRandom.uuid, "subtitle"=>"", "fresh"=>true, "notebook_id"=>notebook_id,
-      "title"=>'Keyboard Shortcuts - <a href="http://getnotable.com/edit" class="titleLink">http://getnotable.com/edit</a>', "rank"=>1, "depth"=>1, "collapsed"=>false, "parent_id"=>"root" }
+      "title"=>'Keyboard Shortcuts - <a href="http://getnotable.com/help" class="titleLink">http://getnotable.com/help</a>', "rank"=>1, "depth"=>1, "collapsed"=>false, "parent_id"=>"root" }
     note19 = { "guid"=> SecureRandom.uuid, "subtitle"=>"", "fresh"=>true, "notebook_id"=>notebook_id,
       "title"=>'Give Feedback - <a href="http://getnotable.com/contact" class="titleLink">http://getnotable.com/contact</a>', "rank"=>2, "depth"=>1, "collapsed"=>false, "parent_id"=>"root" }
     note20 = { "guid"=> SecureRandom.uuid, "subtitle"=>"", "fresh"=>true, "notebook_id"=>notebook_id,
